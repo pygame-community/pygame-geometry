@@ -8,6 +8,9 @@ import pygame
 
 
 class Shape(ABC):
+    """The abstract base class for Shapes
+       Implements functions for collision, updating and conversion
+    """
     
     @abstractmethod
     def copy(self):
@@ -28,9 +31,15 @@ class Shape(ABC):
     @abstractmethod
     def collidecircle(self, other: Shape) -> bool:
         """"""
+
+    # @abstractmethod
+    # def collideline(self, other: Shape) -> bool:
+    #     """"""
     
-    # IDEA: general purpose collide that will dispatch to correct method for
-    # shape type vs shape type
+    @abstractmethod
+    def collides_with(self, other: Shape) -> bool:
+        """"""
+    
     @abstractmethod
     def as_rect(self) -> pygame.Rect:
         """"""
