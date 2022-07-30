@@ -118,7 +118,6 @@ while keep:
                     # this relocates the circle so there's no need to delete
                     # and create a new one
                     radius = randint(3, 15)
-                    ind = shapes.index(shape)
                     shape.update((randint(radius, WIDTH - radius),
                                   randint(radius, HEIGHT - radius)),
                                  radius)
