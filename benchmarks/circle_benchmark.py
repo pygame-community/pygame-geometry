@@ -54,7 +54,6 @@ general_test_stmts = (
     "c1.scale(10)",
     "c1.scale_ip(10)",
     "c1.scale_by(1.2)",
-    "c1.scale_by(1.2)",
     "c1.scale_by_ip(1.01)",
     "c1.as_rect()",
 )
