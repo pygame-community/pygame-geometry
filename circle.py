@@ -44,10 +44,10 @@ class Circle(Shape):
     def move_ip(self, x: float, y: float) -> None:
         self.x += x
         self.y += y
-
+    
     def move_to(self, x: float, y: float) -> Circle:
         return Circle((x, y), self.radius)
-
+    
     def move_to_ip(self, x: float, y: float) -> None:
         self.x = x
         self.y = y
@@ -64,10 +64,41 @@ class Circle(Shape):
             radius = 1
         self.radius, self.diameter, self.radius_squared = radius_values(radius)
     
+    def scale_by(self, amount: float) -> Circle:
+        """Scales the Circle to the new radius"""
+        if amount <= 0:
+            raise ValueError("Invalid amount passes")
+        radius = self.radius
+        if radius * amount <= 0:
+            radius = 1
+        
+        return Circle((self.x, self.y), radius * amount)
+    
+    def scale_by_ip(self, amount: float) -> None:
+        """Scales the Circle to the new radius"""
+        if amount <= 0:
+            raise ValueError("Invalid amount passes")
+        self.radius *= amount
+        if self.radius <= 1:
+            self.radius = 1
+        self.radius, self.diameter, self.radius_squared = radius_values(
+            self.radius)
+    
     # Collisions and conversion functions
     def as_rect(self) -> pygame.Rect:
         pos = (self.x - self.radius, self.y - self.radius)
         return pygame.Rect(pos, (self.diameter, self.diameter))
+    
+    def collides_with(self, shape: Shape) -> bool:
+        if isinstance(shape, Circle):
+            return self.collidecircle(shape)
+        elif isinstance(shape, pygame.Rect):
+            return self.colliderect(shape)
+        else:
+            raise NotImplementedError(
+                "The shape type does not exist yet"
+                " or doesn't have a matching collision algorythm"
+            )
     
     def collidepoint(self, *args) -> bool:
         if len(args) == 2:
