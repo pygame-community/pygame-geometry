@@ -14,13 +14,14 @@ pgLine_FromObject(PyObject *obj, pgLineBase* temp);
 
 // return 1 if they intersect, 0 if not
 int pgLine_GetIntersectionPoint(
-    pgLineBase A, pgLineBase B,
+    double x1, double y1, double x2, double y2,
+    double x3, double y3, double x4, double y4,
     double *X, double *Y
 ) { 
-    double x1_m_x2 = A.x1 - A.x2;
-    double y3_m_y4 = B.y1 - B.y2;
-    double y1_m_y2 = A.y1 - A.y2;
-    double x3_m_x4 = B.x1 - B.x2;
+    double x1_m_x2 = x1 - x2;
+    double y3_m_y4 = y3 - y4;
+    double y1_m_y2 = y1 - y2;
+    double x3_m_x4 = x3 - x4;
     
     double den = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
 
@@ -28,8 +29,8 @@ int pgLine_GetIntersectionPoint(
         return 0;
     }
 
-    double x1_m_x3 = A.x1 - B.x1;
-    double y1_m_y3 = A.y1 - B.y1;
+    double x1_m_x3 = x1 - x3;
+    double y1_m_y3 = y1 - y3;
 
     double t1 = x1_m_x3 * y3_m_y4 - y1_m_y3 * x3_m_x4;
     double t = t1 / den;
@@ -38,9 +39,11 @@ int pgLine_GetIntersectionPoint(
     double u = -(u1 / den);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-        *X = A.x1 + t * A.x2 - A.x1;
-        *Y = A.y1 + t * A.y2 - A.y1;
+        *X = x1 + t * (x2 - x1);
+        *Y = y1 + t * (y2 - y1);
+        return 1;
     }
+    return 0;
 }
 
 static int
@@ -194,29 +197,41 @@ pgLine_New4(double x, double y, double w, double h) {
 }
 
 static PyObject *
-pg_line_move(pgLineObject *self, PyObject *args) {
-    double dx, dy;
-
-    if (!pg_TwoDoublesFromObj(args, &dx, &dy)) {
-        return RAISE(PyExc_TypeError, "argument must contain two numbers");
-    }
-
+pg_line_copy(pgLineObject *self) {
     return _pg_line_subtype_new4(
         Py_TYPE(self),
-        self->line.x1 + dx, self->line.y1 + dy,
-        self->line.x2 + dx, self->line.y2 + dy
+        self->line.x1, self->line.y1,
+        self->line.x2, self->line.y2
     );
 }
 
+static PyObject *
+pg_line_raycast(pgLineObject *self, PyObject* args) {
+    pgLineObject *temp, *B = NULL;
+    double x, y;
+
+    if (PyTuple_GET_SIZE(args) == 1 && (B = pgLine_FromObject(PyTuple_GET_ITEM(args, 0), temp)) != NULL);
+    else (B = pgLine_FromObject(args, temp));
+
+    if (pgLine_GetIntersectionPoint(
+        self->line.x1, self->line.y1, self->line.x2, self->line.y2,
+        B->line.x1, B->line.y1, B->line.x2, B->line.y2,
+        &x, &y)) {
+        return Py_BuildValue("(dd)", x, y);
+    }
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
-    {"move", (PyCFunction)pg_line_move, METH_VARARGS, NULL},
+    {"copy", (PyCFunction)pg_line_copy, METH_VARARGS, NULL},
+    {"raycast", (PyCFunction)pg_line_raycast, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
 
 /* sequence functions */
 
 static Py_ssize_t
-pg_line_length(PyObject *_self) { return 4; }
+pg_line_seq_length(PyObject *_self) { return 4; }
 
 static PyObject *
 pg_line_item(pgLineObject *self, Py_ssize_t i) {
@@ -272,7 +287,7 @@ pg_line_contains_seq(pgLineObject *self, PyObject *arg) {
 }
 
 static PySequenceMethods pg_line_as_sequence = {
-    .sq_length = pg_line_length,
+    .sq_length = pg_line_seq_length,
     .sq_item = (ssizeargfunc)pg_line_item,
     .sq_ass_item = (ssizeobjargproc)pg_line_ass_item,
     .sq_contains = (objobjproc)pg_line_contains_seq,
@@ -451,7 +466,7 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value) {
 }
 
 static PyMappingMethods pg_line_as_mapping = {
-    .mp_length = (lenfunc)pg_line_length,
+    .mp_length = (lenfunc)pg_line_seq_length,
     .mp_subscript = (binaryfunc)pg_line_subscript,
     .mp_ass_subscript = (objobjargproc)pg_line_ass_subscript,
 };
