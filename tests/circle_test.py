@@ -4,6 +4,7 @@ from typing import List, Tuple, Union
 import pygame
 
 from shapes.circle import Circle
+from utility_functions import rand_color, rand_bw_color
 
 pygame.init()
 
@@ -22,17 +23,6 @@ def get_new_circle_surf(circle_obj: Circle,
         circle_obj.radius)
     surf.set_alpha(surface_alpha)
     return surf
-
-
-def rand_color(minv: int = 0, maxv: int = 255) -> Tuple[int, int, int]:
-    """returns a random RGB color with min and max as min and max threshold"""
-    return randint(minv, maxv), randint(minv, maxv), randint(minv, maxv)
-
-
-def rand_bw_color(minv: int, maxv: int) -> Tuple[int, int, int]:
-    """returns a random BW color"""
-    shade = randint(minv, maxv)
-    return shade, shade, shade
 
 
 # Constants and font --------------------------
@@ -139,7 +129,7 @@ while keep:
         mouse_circle.scale_by_ip(1 + acc_amt)
         mouse_circle_surf = get_new_circle_surf(mouse_circle, "white",
                                                 ALPHA_VALUE)
-        
+    
     # select and draw the mouse_circle border color
     if feed_active:
         border_color = "green"
@@ -163,7 +153,7 @@ while keep:
                 if acc_amt >= 0:
                     acc_amt = 0
                 acc_amt -= 0.014
-            
+        
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
             feed_active = not feed_active
     
