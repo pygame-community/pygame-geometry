@@ -103,6 +103,7 @@ while keep:
                 shape.scale_ip(shape.radius + 0.2)
                 pygame.draw.circle(screen, coll_color, *shape())
             elif is_rect:
+                shape.inflate_ip(1, 1)
                 pygame.draw.rect(screen, coll_color, shape)
         else:
             if is_circle:
@@ -116,6 +117,18 @@ while keep:
                 shape.scale_ip(shape.radius - 0.25)
                 pygame.draw.circle(screen, color, *shape())
             elif is_rect:
+                value = 0.25
+                
+                if shape.h != 0:
+                    w_ov_h = shape.w / shape.h
+                    shape.w -= 0.1
+                    shape.h -= 0.1 * w_ov_h
+                    if shape.w <= 1 or shape.h <= 1:
+                        dimx = randint(MIN_RECT_WIDTH, MAX_RECT_WIDTH)
+                        dimy = randint(MIN_RECT_HEIGHT, MAX_RECT_HEIGHT)
+                        shape.update((randint(0, WIDTH - dimx),
+                                      randint(0, HEIGHT - dimy)), (dimx, dimy))
+                
                 pygame.draw.rect(screen, color, shape)
     
     # blit the mouse circle surface on the screen
