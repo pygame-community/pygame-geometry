@@ -23,7 +23,7 @@ This project adds new shapes along with new shape functionality. Each shape will
 - `Circle`
 - `Polygon`
 
-## Non Shape functionalities
+## Other functionalities
 This project will also focus on adding widely used functionalities in game engines such as Rays and RayCasting.
 
 **Implements**
