@@ -121,38 +121,39 @@ pg_line_dealloc(pgLineObject *self) {
 static pgLineBase*
 pgLine_FromObject(PyObject *obj, pgLineBase* temp) {
     Py_ssize_t length;
+    PyObject* fseq = NULL;
 
     if (pgLine_Check(obj)) {
         return &((pgLineObject *)obj)->line;
     }
-    if (PySequence_Check(obj) && (length = PySequence_Length(obj)) > 0) {
+    if (PySequence_Check(obj) && (fseq = PySequence_Fast(obj, "A sequence was expected"))) {
+        length = PySequence_Fast_GET_SIZE(fseq);
         if (length == 4) {
-            if (!pg_DoubleFromObjIndex(obj, 0, &(temp->x1)) ||
-                !pg_DoubleFromObjIndex(obj, 1, &(temp->y1)) ||
-                !pg_DoubleFromObjIndex(obj, 2, &(temp->x2)) ||
-                !pg_DoubleFromObjIndex(obj, 3, &(temp->y2))) {
+            if (!pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, 0), &(temp->x1)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, 1), &(temp->y1)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, 2), &(temp->x2)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, 3), &(temp->y2))) {
+                Py_DECREF(fseq);
                 return NULL;
             }
+            Py_DECREF(fseq);
             return temp;
         }
-        if (length == 2) {
-            PyObject* subA = PySequence_GetItem(obj, 0);
-            PyObject* subB = PySequence_GetItem(obj, 1);
-            if (!pg_TwoDoublesFromObj(subA, &(temp->x1), &(temp->y1)) ||
-                !pg_TwoDoublesFromObj(subB, &(temp->x2), &(temp->y2))) {
+        else if (length == 2) {
+            if (!pg_TwoDoublesFromObj(PySequence_Fast_GET_ITEM(obj, 0), &(temp->x1), &(temp->y1)) ||
+                !pg_TwoDoublesFromObj(PySequence_Fast_GET_ITEM(obj, 1), &(temp->x2), &(temp->y2))) {
                 PyErr_Clear();
-                Py_DECREF(subA);
-                Py_DECREF(subB);
+                Py_DECREF(fseq);
                 return NULL;
             }
 
-            Py_DECREF(subA);
-            Py_DECREF(subB);
+            Py_DECREF(fseq);
             return temp;
         }
-        if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
-            PyObject *sub = PyTuple_GET_ITEM(obj, 0);
+        else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
+            PyObject *sub = PySequence_Fast_GET_ITEM(obj, 0);
             if (sub) {
+                Py_DECREF(fseq);
                 return pgLine_FromObject(sub, temp);
             }
         }
@@ -538,7 +539,7 @@ pg_line_iterator(pgLineObject *self) {
     return iter;
 }
 
-#define GETSET_FOR_SIMPLE(name) \
+#define __LINE_GETSET_NAME(name) \
     static PyObject* \
     pg_line_get##name(pgLineObject *self, void *closure) { return PyFloat_FromDouble(self->line.name); } \
     static int \
@@ -553,10 +554,10 @@ pg_line_iterator(pgLineObject *self) {
     }
 
 // they are repetitive enough that we can abstract them like this
-GETSET_FOR_SIMPLE(x1)
-GETSET_FOR_SIMPLE(y1)
-GETSET_FOR_SIMPLE(x2)
-GETSET_FOR_SIMPLE(y2)
+__LINE_GETSET_NAME(x1)
+__LINE_GETSET_NAME(y1)
+__LINE_GETSET_NAME(x2)
+__LINE_GETSET_NAME(y2)
 
 static PyObject *
 pg_line_getsafepickle(pgLineObject *self, void *closure) { Py_RETURN_TRUE; }
