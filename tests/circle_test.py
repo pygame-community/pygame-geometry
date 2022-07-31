@@ -63,6 +63,8 @@ colliding_colors: List[Tuple[int, int, int]] = []
 feed_active: bool = True
 mouse_circle: Circle = Circle((0, 0), 50)
 border_color: str = "green"
+acc_amt = 0
+acc_multiplier = 0.92
 # --------------------------------------------
 
 # Useful surfaces setup ----------------------
@@ -130,6 +132,14 @@ while keep:
     screen.blit(mouse_circle_surf, mouse_circle_surf.get_rect(
         center=(mouse_circle.x, mouse_circle.y)))
     
+    if abs(acc_amt) < 0.001:
+        acc_amt = 0
+    else:
+        acc_amt *= acc_multiplier
+        mouse_circle.scale_by_ip(1 + acc_amt)
+        mouse_circle_surf = get_new_circle_surf(mouse_circle, "white",
+                                                ALPHA_VALUE)
+        
     # select and draw the mouse_circle border color
     if feed_active:
         border_color = "green"
@@ -146,11 +156,14 @@ while keep:
             keep = False
         elif event.type == pygame.MOUSEWHEEL:
             if event.y > 0:
-                mouse_circle.scale_by_ip(1.1)
+                if acc_amt <= 0:
+                    acc_amt = 0
+                acc_amt += 0.012
             else:
-                mouse_circle.scale_by_ip(0.9)
-            mouse_circle_surf = get_new_circle_surf(mouse_circle, "white",
-                                                    ALPHA_VALUE)
+                if acc_amt >= 0:
+                    acc_amt = 0
+                acc_amt -= 0.014
+            
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
             feed_active = not feed_active
     
