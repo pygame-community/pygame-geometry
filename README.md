@@ -1,11 +1,12 @@
 # The pygame.Geometry Python Prototype Project
-Hello! this project is a Python prototype for a pygame.geometry module. You will be able to use new Shape types like Circle, Line and Polygon to enchance, simplify and optimize your game code!
+Hello! This project is a Python prototype for a pygame.geometry module. You will be able to use new Shape types like Circle, Line, and Polygon to enchance, simplify, and optimize your game code!
 
 The project has three sections:
 
 - **Implementation**
 
-    The `shapes` directory includes all the currently implemented shapes source(.py) files, including the shape.py file.
+   The `shapes` directory includes all the currently implemented shapes source(.py) files, including the shape.py file.
+
 - **Tests**
     
    The `tests` directory includes visual and functional tests to ensure that the current implementations work as intended.
