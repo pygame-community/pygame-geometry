@@ -1,4 +1,4 @@
-# The pygame.Geometry Python Prototype Project
+# `pygame.geometry` Python Prototype Project
 Hello! This project is a Python prototype for a pygame.geometry module. You will be able to use new Shape types like Circle, Line, and Polygon to enchance, simplify, and optimize your game code!
 
 The project has three sections:
@@ -27,4 +27,4 @@ This project adds new shapes along with new shape functionality. Each shape will
 This project will also focus on adding widely used functionalities in game engines such as Rays and RayCasting.
 
 **Implements**
-- `Ray / RayCasting`
+- `raycast()`
