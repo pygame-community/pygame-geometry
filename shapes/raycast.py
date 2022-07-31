@@ -35,6 +35,14 @@ def _calculate_segment_intersection(
         )
     return
 
+def convert_rect_to_lines(rect):
+    return (
+        (rect.left, rect.top, rect.right, rect.top),
+        (rect.left, rect.bottom, rect.right, rect.bottom),
+        (rect.left, rect.top, rect.left, rect.bottom),
+        (rect.right, rect.top, rect.right, rect.bottom),
+    )
+
 def raycast(
     origin: Sequence[float, float],
     target: Sequence[float, float],
