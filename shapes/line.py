@@ -12,7 +12,7 @@ class LineSegment:
 
     def __iter__(self):
         self._n = 0
-        return self
+        return self.iters
 
     def __next__(self):
         if self._n < 4:
