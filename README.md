@@ -16,6 +16,7 @@ The project has three sections:
 
 ## The Shapes
 This project adds new shapes along with new shape functionality. Each shape will have many methods for updating as well as methods for collision detection and shape conversion (shape->enclosing rect).
+
 **Implements**
 - Line (line segment)
 - Circle
