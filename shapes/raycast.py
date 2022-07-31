@@ -44,10 +44,10 @@ def convert_rect_to_lines(rect):
     )
 
 def raycast(
-    origin: Sequence[float, float],
-    target: Sequence[float, float],
-    lines: List[Sequence[Sequence[float, float], Sequence[float, float]]]
-) -> Sequence[float, float]:
+    origin: Sequence[float],
+    target: Optional[Sequence[float]],
+    lines: List[Sequence[float]],
+) -> Sequence[float]:
     # this is old code, might need some optimizations
     x1, y1 = origin
     x2, y2 = target
@@ -55,14 +55,15 @@ def raycast(
     highest_point = (x2, y2)
     highest_point_length = line_length
     for wall in lines:
-        try:
-            c = _calculate_segment_intersection(
-                x1, y1, x2, y2, wall[0], wall[1], wall[2], wall[3]
-            )
-            c_length = math.sqrt((x1 - c[0]) ** 2 + (y1 - c[1]) ** 2)
-            if highest_point_length > c_length:
-                highest_point = c
-                highest_point_length = c_length
-        except:
-            pass
+        c = _calculate_segment_intersection(
+            x1, y1, x2, y2, wall[0], wall[1], wall[2], wall[3]
+        )
+        if c is None:
+            continue
+        
+        c_length = math.sqrt((x1 - c[0]) ** 2 + (y1 - c[1]) ** 2)
+        if highest_point_length > c_length:
+            highest_point = c
+            highest_point_length = c_length
+
     return highest_point
