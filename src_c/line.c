@@ -83,6 +83,11 @@ pgLine_Length(pgLineBase line) {
         (line.y2 - line.y1) * (line.y2 - line.y1)
     );
 }
+static double
+pgLine_LengthSquared(pgLineBase line) {
+    return (line.x2 - line.x1) * (line.x2 - line.x1) +
+           (line.y2 - line.y1) * (line.y2 - line.y1);
+}
 
 static int
 pg_line_init(pgLineObject *, PyObject *, PyObject *);
@@ -121,102 +126,48 @@ pg_line_dealloc(pgLineObject *self) {
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
+
+// sorry itzpr3d4t0r i had to revert it cause it caused way too much of a headache
 static pgLineBase*
 pgLine_FromObject(PyObject *obj, pgLineBase* temp) {
     Py_ssize_t length;
+    PyObject* fseq = NULL;
 
     if (pgLine_Check(obj)) {
         return &((pgLineObject *)obj)->line;
     }
-    if (PyList_Check(obj) || PyTuple_Check(obj)) {
-        PyObject **f_arr = PySequence_Fast_ITEMS(obj);
-        length = PySequence_Fast_GET_SIZE(obj);
-
+    if (PySequence_Check(obj) && (fseq = PySequence_Fast(obj, "A sequence was expected"))) {
+        length = PySequence_Fast_GET_SIZE(fseq);
         if (length == 4) {
-            if (!pg_DoubleFromObj(f_arr[0], &(temp->x1)) ||
-                !pg_DoubleFromObj(f_arr[1], &(temp->y1)) ||
-                !pg_DoubleFromObj(f_arr[2], &(temp->x2)) ||
-                !pg_DoubleFromObj(f_arr[3], &(temp->y2))) {
+            if (!pg_DoubleFromObj(PySequence_Fast_GET_ITEM(fseq, 0), &(temp->x1)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(fseq, 1), &(temp->y1)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(fseq, 2), &(temp->x2)) ||
+                !pg_DoubleFromObj(PySequence_Fast_GET_ITEM(fseq, 3), &(temp->y2))) {
+                Py_DECREF(fseq);
                 return NULL;
             }
+            Py_DECREF(fseq);
             return temp;
         }
         else if (length == 2) {
-            if (!pg_TwoDoublesFromObj(f_arr[0], &(temp->x1), &(temp->y1)) ||
-                !pg_TwoDoublesFromObj(f_arr[1], &(temp->x2), &(temp->y2))) {
+            if (!pg_TwoDoublesFromObj(PySequence_Fast_GET_ITEM(fseq, 0), &(temp->x1), &(temp->y1)) ||
+                !pg_TwoDoublesFromObj(PySequence_Fast_GET_ITEM(fseq, 1), &(temp->x2), &(temp->y2))) {
+                PyErr_Clear();
+                Py_DECREF(fseq);
                 return NULL;
             }
+
+            Py_DECREF(fseq);
             return temp;
         }
-        else {
-            /* Sequences of size other than 2 or 4 are not supported 
-            (don't wanna support infinite sequence nesting anymore)*/
-            return NULL;
+        else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
+            PyObject *sub = PySequence_Fast_GET_ITEM(fseq, 0);
+            if (sub) {
+                Py_DECREF(fseq);
+                return pgLine_FromObject(sub, temp);
+            }
         }
     }
-    else if (PySequence_Check(obj)) {
-        /* Path for other sequences or Types that count as sequences*/
-        PyObject *tmp = NULL;
-        length = PySequence_Length(obj);
-        if (length == 4) {
-            /*These are to be substituted with better pg_DoubleFromSeqIndex() implementations*/
-            tmp = PySequence_ITEM(obj, 0);
-            if (!pg_DoubleFromObj(tmp, &(temp->x1))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            tmp = PySequence_ITEM(obj, 1);
-            if (!pg_DoubleFromObj(tmp, &(temp->y1))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            tmp = PySequence_ITEM(obj, 2);
-            if (!pg_DoubleFromObj(tmp, &(temp->x2))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            tmp = PySequence_ITEM(obj, 3);
-            if (!pg_DoubleFromObj(tmp, &(temp->y2))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            return temp;
-        }
-        else if (length == 2) {
-
-            tmp = PySequence_ITEM(obj, 0);
-            if (!pg_TwoDoublesFromObj(tmp, &(temp->x1), &(temp->y1))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            tmp = PySequence_ITEM(obj, 1);
-            if (!pg_TwoDoublesFromObj(tmp, &(temp->x2), &(temp->y2))) {
-                Py_DECREF(tmp);
-                return NULL;
-            }
-            Py_DECREF(tmp);
-
-            return temp;
-
-        }
-        else {
-            /* Sequences of size other than 2 or 4 are not supported 
-            (don't wanna support infinite sequence nesting anymore)*/
-            return NULL;
-        }
-
-    }
-
     if (PyObject_HasAttrString(obj, "line")) {
         PyObject *lineattr;
         pgLineBase *retline;
@@ -263,14 +214,13 @@ pg_line_copy(pgLineObject *self, PyObject *_null) {
 
 static PyObject *
 pg_line_raycast(pgLineObject *self, PyObject* args) {
-    pgLineBase *temp = NULL, *B = NULL;
-    double x = 0, y = 0;
+    pgLineBase temp, *B = NULL;
+    double x, y;
 
-    if (PyTuple_GET_SIZE(args) == 1 && (B = pgLine_FromObject(PyTuple_GET_ITEM(args, 0), temp)) != NULL);
-    else (B = pgLine_FromObject(args, temp));
-
+    B = pgLine_FromObject(args, &temp);
+    
     if (!B) {
-        PyErr_SetString(PyExc_TypeError, "raycast requires a line or LineLike object");
+        RAISE(PyExc_TypeError, "raycast requires a line or LineLike object");
         return NULL;
     }
 
@@ -285,18 +235,14 @@ pg_line_raycast(pgLineObject *self, PyObject* args) {
 
 static PyObject *
 pg_line_collideline(pgLineObject *self, PyObject* args) {
-    pgLineObject *temp = NULL, *B = NULL;
+    int ret_code = _pg_line_contains(self, args);
 
-    if (PyTuple_GET_SIZE(args) == 1 && (B = pgLine_FromObject(PyTuple_GET_ITEM(args, 0), temp)) != NULL);
-    else (B = pgLine_FromObject(args, temp));
-
-    if (pgLine_GetIntersectionPoint(
-        self->line.x1, self->line.y1, self->line.x2, self->line.y2,
-        B->line.x1, B->line.y1, B->line.x2, B->line.y2,
-        NULL, NULL)) {
-        Py_RETURN_TRUE;
+    if (ret_code == -1) {
+        RAISE(PyExc_TypeError, "collideline requires a Line or LineLike object");
+        return NULL;
     }
-    Py_RETURN_FALSE;
+
+    return PyBool_FromLong(ret_code);
 }
 
 static PyObject *
@@ -304,40 +250,44 @@ pg_line_collidepoint(pgLineObject *self, PyObject* args) {
     double Cx = 0, Cy = 0;
     PyObject* obj = NULL;
 
-    Py_ssize_t arg_count = PyTuple_GET_SIZE(args);
-
-    if (arg_count == 1 &&
-        (obj = PyTuple_GET_ITEM(args, 0)) != NULL &&
-        !pg_TwoDoublesFromObj(obj, &Cx, &Cy)) {
-        goto error;
-    } else if (!pg_TwoDoublesFromObj(args, &Cx, &Cy)) {
-        goto error;
+    if (!pg_TwoDoublesFromObj(args, &Cx, &Cy)) {
+        return RAISE(PyExc_TypeError, "argument must contain two numbers");
     }
 
-    double Ax = pgLine_GETX1(self);
-    double Ay = pgLine_GETY1(self);
-    double Bx = pgLine_GETX2(self);
-    double By = pgLine_GETY2(self);
+    double Ax = self->line.x1;
+    double Ay = self->line.y1;
+    double Bx = self->line.x2;
+    double By = self->line.y2;
 
-    /* i have zero idea what this is or how it works, but it works */
+    /* i have zero idea what this is or how it works, but it works! */
     if ((Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) && ((Ax != Bx) ? 
         (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax) :
         (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay))) {
         Py_RETURN_TRUE;
     }
     Py_RETURN_FALSE;
-
-error:
-    PyErr_SetString(PyExc_TypeError, "Line.collidepoint requires a point or (x, y) or a LineLike object");
-    return NULL;
 }
 
+static PyObject *
+pg_line_update(pgLineObject *self, PyObject* args) {
+    pgLineBase temp, *B = NULL;
+
+    B = pgLine_FromObject(args, &temp);
+
+    self->line.x1 = B->x1;
+    self->line.y1 = B->y1;
+    self->line.x2 = B->x2;
+    self->line.y2 = B->y2;
+    Py_RETURN_NONE;
+}
 
 static struct PyMethodDef pg_line_methods[] = {
+    {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_VARARGS, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_VARARGS, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_VARARGS, NULL},
+    {"update", (PyCFunction)pg_line_update, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
 
