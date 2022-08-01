@@ -253,7 +253,7 @@ pgLine_New4(double x1, double y1, double x2, double y2) {
 }
 
 static PyObject *
-pg_line_copy(pgLineObject *self) {
+pg_line_copy(pgLineObject *self, PyObject *_null) {
     return _pg_line_subtype_new4(
         Py_TYPE(self),
         self->line.x1, self->line.y1,
@@ -279,7 +279,7 @@ pg_line_raycast(pgLineObject *self, PyObject* args) {
 }
 
 static struct PyMethodDef pg_line_methods[] = {
-    {"copy", (PyCFunction)pg_line_copy, METH_VARARGS, NULL},
+    {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
