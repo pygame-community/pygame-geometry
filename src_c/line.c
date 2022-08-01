@@ -248,8 +248,8 @@ pgLine_New(pgLineBase *l) {
 }
 
 static PyObject *
-pgLine_New4(double x, double y, double w, double h) {
-    return _pg_line_subtype_new4(&pgLine_Type, x, y, w, h);
+pgLine_New4(double x1, double y1, double x2, double y2) {
+    return _pg_line_subtype_new4(&pgLine_Type, x1, y1, x2, y2);
 }
 
 static PyObject *
