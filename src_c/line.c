@@ -39,8 +39,8 @@ int pgLine_GetIntersectionPoint(
     double u = -(u1 / den);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-        *X = x1 + t * (x2 - x1);
-        *Y = y1 + t * (y2 - y1);
+        if (X) *X = x1 + t * (x2 - x1);
+        if (Y) *Y = y1 + t * (y2 - y1);
         return 1;
     }
     return 0;
@@ -77,7 +77,7 @@ _pg_line_contains(pgLineObject *self, PyObject *arg) {
 }
 
 static double
-_pg_line_length(pgLineBase line) {
+pgLine_Length(pgLineBase line) {
     return sqrt(
         (line.x2 - line.x1) * (line.x2 - line.x1) +
         (line.y2 - line.y1) * (line.y2 - line.y1)
@@ -263,8 +263,29 @@ pg_line_copy(pgLineObject *self, PyObject *_null) {
 
 static PyObject *
 pg_line_raycast(pgLineObject *self, PyObject* args) {
+    pgLineBase *temp = NULL, *B = NULL;
+    double x = 0, y = 0;
+
+    if (PyTuple_GET_SIZE(args) == 1 && (B = pgLine_FromObject(PyTuple_GET_ITEM(args, 0), temp)) != NULL);
+    else (B = pgLine_FromObject(args, temp));
+
+    if (!B) {
+        PyErr_SetString(PyExc_TypeError, "raycast requires a line or LineLike object");
+        return NULL;
+    }
+
+    if (pgLine_GetIntersectionPoint(
+        self->line.x1, self->line.y1, self->line.x2, self->line.y2,
+        B->x1, B->y1, B->x2, B->y2,
+        &x, &y)) {
+        return Py_BuildValue("(dd)", x, y);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_line_collideline(pgLineObject *self, PyObject* args) {
     pgLineObject *temp = NULL, *B = NULL;
-    double x, y;
 
     if (PyTuple_GET_SIZE(args) == 1 && (B = pgLine_FromObject(PyTuple_GET_ITEM(args, 0), temp)) != NULL);
     else (B = pgLine_FromObject(args, temp));
@@ -272,15 +293,17 @@ pg_line_raycast(pgLineObject *self, PyObject* args) {
     if (pgLine_GetIntersectionPoint(
         self->line.x1, self->line.y1, self->line.x2, self->line.y2,
         B->line.x1, B->line.y1, B->line.x2, B->line.y2,
-        &x, &y)) {
-        return Py_BuildValue("(dd)", x, y);
+        NULL, NULL)) {
+        Py_RETURN_TRUE;
     }
-    Py_RETURN_NONE;
+    Py_RETURN_FALSE;
 }
+
 
 static struct PyMethodDef pg_line_methods[] = {
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_VARARGS, NULL},
+    {"collideline", (PyCFunction)pg_line_collideline, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
 
@@ -563,8 +586,8 @@ pg_line_richcompare(PyObject *o1, PyObject *o2, int opid) {
         goto Unimplemented;
     }
 
-    length1 = _pg_line_length(*o1line);
-    length2 = _pg_line_length(*o2line);
+    length1 = pgLine_Length(*o1line);
+    length2 = pgLine_Length(*o2line);
 
     switch (opid) {
         case Py_LT:
