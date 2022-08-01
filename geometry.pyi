@@ -40,6 +40,8 @@ class Line:
     y1: float
     x2: float
     y2: float
+    a: Tuple[float, float]
+    b: Tuple[float, float]
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 

@@ -11,6 +11,9 @@ static PyTypeObject pgLine_Type;
 
 static pgLineBase*
 pgLine_FromObject(PyObject *obj, pgLineBase* temp);
+static pgLineBase*
+pgLine_FromObjectF(PyObject* obj, pgLineBase* temp);
+
 
 // return 1 if they intersect, 0 if not
 int pgLine_GetIntersectionPoint(
@@ -126,8 +129,6 @@ pg_line_dealloc(pgLineObject *self) {
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-
-// sorry itzpr3d4t0r i had to revert it cause it caused way too much of a headache
 static pgLineBase*
 pgLine_FromObject(PyObject *obj, pgLineBase* temp) {
     Py_ssize_t length;
@@ -187,6 +188,127 @@ pgLine_FromObject(PyObject *obj, pgLineBase* temp) {
             lineattr = lineresult;
         }
         retline = pgLine_FromObject(lineattr, temp);
+        Py_DECREF(lineattr);
+        return retline;
+    }
+    return NULL;
+}
+
+static pgLineBase*
+pgLine_FromObjectF(PyObject *obj, pgLineBase* temp) {
+    Py_ssize_t length;
+
+    if (pgLine_Check(obj)) {
+        return &((pgLineObject *)obj)->line;
+    }
+    if (PyList_Check(obj) || PyTuple_Check(obj)) {
+        PyObject **f_arr = PySequence_Fast_ITEMS(obj);
+        length = PySequence_Fast_GET_SIZE(obj);
+
+        if (length == 4) {
+            if (!pg_DoubleFromObj(f_arr[0], &(temp->x1)) ||
+                !pg_DoubleFromObj(f_arr[1], &(temp->y1)) ||
+                !pg_DoubleFromObj(f_arr[2], &(temp->x2)) ||
+                !pg_DoubleFromObj(f_arr[3], &(temp->y2))) {
+                return NULL;
+            }
+            return temp;
+        }
+        else if (length == 2) {
+            if (!pg_TwoDoublesFromObj(f_arr[0], &(temp->x1), &(temp->y1)) ||
+                !pg_TwoDoublesFromObj(f_arr[1], &(temp->x2), &(temp->y2))) {
+                return NULL;
+            }
+            return temp;
+        }
+        else {
+            /* Sequences of size other than 2 or 4 are not supported 
+            (don't wanna support infinite sequence nesting anymore)*/
+            return NULL;
+        }
+    }
+    else if (PySequence_Check(obj)) {
+        /* Path for other sequences or Types that count as sequences*/
+        PyObject *tmp = NULL;
+        length = PySequence_Length(obj);
+        if (length == 4) {
+            /*These are to be substituted with better pg_DoubleFromSeqIndex() implementations*/
+            tmp = PySequence_ITEM(obj, 0);
+            if (!pg_DoubleFromObj(tmp, &(temp->x1))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            tmp = PySequence_ITEM(obj, 1);
+            if (!pg_DoubleFromObj(tmp, &(temp->y1))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            tmp = PySequence_ITEM(obj, 2);
+            if (!pg_DoubleFromObj(tmp, &(temp->x2))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            tmp = PySequence_ITEM(obj, 3);
+            if (!pg_DoubleFromObj(tmp, &(temp->y2))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            return temp;
+        }
+        else if (length == 2) {
+
+            tmp = PySequence_ITEM(obj, 0);
+            if (!pg_TwoDoublesFromObj(tmp, &(temp->x1), &(temp->y1))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            tmp = PySequence_ITEM(obj, 1);
+            if (!pg_TwoDoublesFromObj(tmp, &(temp->x2), &(temp->y2))) {
+                Py_DECREF(tmp);
+                return NULL;
+            }
+            Py_DECREF(tmp);
+
+            return temp;
+
+        }
+        else {
+            /* Sequences of size other than 2 or 4 are not supported 
+            (don't wanna support infinite sequence nesting anymore)*/
+            return NULL;
+        }
+
+    }
+
+    if (PyObject_HasAttrString(obj, "line")) {
+        PyObject *lineattr;
+        pgLineBase *retline;
+        lineattr = PyObject_GetAttrString(obj, "line");
+        if (lineattr == NULL) {
+            PyErr_Clear();
+            return NULL;
+        }
+        if (PyCallable_Check(lineattr)) /*call if it's a method*/
+        {
+            PyObject *lineresult = PyObject_CallObject(lineattr, NULL);
+            Py_DECREF(lineattr);
+            if (lineresult == NULL) {
+                PyErr_Clear();
+                return NULL;
+            }
+            lineattr = lineresult;
+        }
+        retline = pgLine_FromObjectF(lineattr, temp);
         Py_DECREF(lineattr);
         return retline;
     }
@@ -636,6 +758,55 @@ __LINE_GETSET_NAME(x1)
 __LINE_GETSET_NAME(y1)
 __LINE_GETSET_NAME(x2)
 __LINE_GETSET_NAME(y2)
+#undef __LINE_GETSET_NAME
+
+static PyObject*
+pg_line_geta(pgLineObject* self, void* closure) {
+    PyObject* tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x1));
+    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y1));
+    return tup;
+}
+
+static int
+pg_line_seta(pgLineObject* self, PyObject* value, void* closure) {
+    double x, y;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (pg_TwoDoublesFromObj(value, &x, &y)) {
+        self->line.x1 = x;
+        self->line.y1 = y;
+        return 0;
+    }
+    PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+    return -1;
+}
+
+static PyObject* 
+pg_line_getb(pgLineObject* self, void* closure) {
+    PyObject* tup = PyTuple_New(2);
+    if (!tup) {
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x2));
+    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y2));
+    return tup;
+}
+
+static int
+pg_line_setb(pgLineObject* self, PyObject* value, void* closure) {
+    double x, y;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (pg_TwoDoublesFromObj(value, &x, &y)) {
+        self->line.x2 = x;
+        self->line.y2 = y;
+        return 0;
+    }
+    PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+    return -1;
+}
 
 static PyObject *
 pg_line_getsafepickle(pgLineObject *self, void *closure) { Py_RETURN_TRUE; }
@@ -645,6 +816,8 @@ static PyGetSetDef pg_line_getsets[] = {
     {"y1", (getter)pg_line_gety1, (setter)pg_line_sety1, NULL, NULL},
     {"x2", (getter)pg_line_getx2, (setter)pg_line_setx2, NULL, NULL},
     {"y2", (getter)pg_line_gety2, (setter)pg_line_sety2, NULL, NULL},
+    {"a", (getter)pg_line_geta, (setter)pg_line_seta, NULL, NULL},
+    {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL, NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
