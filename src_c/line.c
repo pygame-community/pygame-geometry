@@ -188,6 +188,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase* temp) {
             }
             Py_DECREF(tmp);
 
+            return temp;
         }
         else if (length == 2) {
 
