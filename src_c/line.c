@@ -299,11 +299,45 @@ pg_line_collideline(pgLineObject *self, PyObject* args) {
     Py_RETURN_FALSE;
 }
 
+static PyObject *
+pg_line_collidepoint(pgLineObject *self, PyObject* args) {
+    double Cx = 0, Cy = 0;
+    PyObject* obj = NULL;
+
+    Py_ssize_t arg_count = PyTuple_GET_SIZE(args);
+
+    if (arg_count == 1 &&
+        (obj = PyTuple_GET_ITEM(args, 0)) != NULL &&
+        !pg_TwoDoublesFromObj(obj, &Cx, &Cy)) {
+        goto error;
+    } else if (!pg_TwoDoublesFromObj(args, &Cx, &Cy)) {
+        goto error;
+    }
+
+    double Ax = pgLine_GETX1(self);
+    double Ay = pgLine_GETY1(self);
+    double Bx = pgLine_GETX2(self);
+    double By = pgLine_GETY2(self);
+
+    /* i have zero idea what this is or how it works, but it works */
+    if ((Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) && ((Ax != Bx) ? 
+        (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax) :
+        (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay))) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+
+error:
+    PyErr_SetString(PyExc_TypeError, "Line.collidepoint requires a point or (x, y) or a LineLike object");
+    return NULL;
+}
+
 
 static struct PyMethodDef pg_line_methods[] = {
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_VARARGS, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_VARARGS, NULL},
+    {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
 
