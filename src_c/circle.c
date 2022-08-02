@@ -277,11 +277,14 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 GETSET_FOR_SIMPLE(x)
 GETSET_FOR_SIMPLE(y)
 
+#undef GETSET_FOR_SIMPLE
+
 static PyObject *
 pg_circle_getr(pgCircleObject *self, void *closure)
 {
     return PyFloat_FromDouble(self->circle.r);
 }
+
 static int
 pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 {
@@ -302,6 +305,22 @@ static PyObject *
 pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 {
     return PyFloat_FromDouble(self->circle.r_sqr);
+}
+
+static int
+pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
+{
+    double val;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+
+    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+        RAISE(PyExc_TypeError, "Expected a positive number");
+        return -1;
+    }
+
+    self->circle.r_sqr = val;
+    self->circle.r = sqrt(val);
+    return 0;
 }
 
 static PyObject *
@@ -326,7 +345,8 @@ static PyGetSetDef pg_circle_getsets[] = {
     {"x", (getter)pg_circle_getx, (setter)pg_circle_setx, NULL, NULL},
     {"y", (getter)pg_circle_gety, (setter)pg_circle_sety, NULL, NULL},
     {"r", (getter)pg_circle_getr, (setter)pg_circle_setr, NULL, NULL},
-    {"r_sqr", (getter)pg_circle_getr_sqr, NULL, NULL, NULL},
+    {"r_sqr", (getter)pg_circle_getr_sqr, (setter)pg_circle_setr_sqr, NULL,
+     NULL},
     {"__safe_for_unpickling__", (getter)pg_circle_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */

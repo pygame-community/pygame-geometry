@@ -1,4 +1,5 @@
 import unittest
+from math import sqrt
 
 from pygame import Vector2
 
@@ -168,6 +169,15 @@ class CircleTypeTest(unittest.TestCase):
             del c.r
 
     def test_r_sqr(self):
+        """Ensures setting the r_sqr attribute matches the r_sqr passed
+        """
+        expected_r_sqr = 10.0
+        c = Circle(1.0, 1.0, 1.0)
+        c.r_sqr = expected_r_sqr
+
+        self.assertEqual(c.r_sqr, expected_r_sqr)
+
+    def test_r_to_r_sqr(self):
         """Ensures changing the r attribute correctly changes the r_sqr attribute.
         """
         expected_r_sqr = 1.0
@@ -182,12 +192,25 @@ class CircleTypeTest(unittest.TestCase):
         c2.r = 10
         self.assertEqual(c2.r_sqr, expected_r_sqr2)
 
+    def test_r_sqr_to_r(self):
+        """Ensures changing the r_sqr attribute correctly changes the r attribute.
+        """
+        expected_r = 2.0
+
+        c = Circle(0, 0, 23)
+
+        c.r_sqr = 4.0
+        self.assertEqual(c.r, expected_r)
+
+        c.r_sqr = 13.33421
+        self.assertEqual(c.r, sqrt(13.33421))
+
     def test_r_sqr__invalid_set(self):
         """Ensures the r_sqr attribute can't be set"""
         c = Circle(0, 0, 1)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
-            with self.assertRaises(AttributeError):
+            with self.assertRaises(TypeError):
                 c.r_sqr = value
 
     def test_r_sqr__del(self):
@@ -217,8 +240,8 @@ class CircleTypeTest(unittest.TestCase):
         c = Circle(10, 10, 4)
         c2 = Circle(10, 10, 0)
 
-        self.assertTrue(c, "Expected c to be True as radius is >= 0")
-        self.assertFalse(c2, "Expected c to be False as radius is < 0")
+        self.assertTrue(c, "Expected c to be True as radius is > 0")
+        self.assertFalse(c2, "Expected c to be False as radius is != 0")
 
 
 if __name__ == "__main__":
