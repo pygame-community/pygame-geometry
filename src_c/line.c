@@ -669,6 +669,7 @@ pg_line_iterator(pgLineObject *self)
             self->line.name = val;                                        \
             return 0;                                                     \
         }                                                                 \
+        RAISE(PyExc_TypeError, "Expected a number");                      \
         return -1;                                                        \
     }
 
@@ -684,7 +685,7 @@ pg_line_geta(pgLineObject *self, void *closure)
 {
     PyObject *tup = PyTuple_New(2);
     if (!tup) {
-        return NULL;
+        return PyErr_NoMemory();
     }
     PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x1));
     PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y1));
@@ -710,7 +711,7 @@ pg_line_getb(pgLineObject *self, void *closure)
 {
     PyObject *tup = PyTuple_New(2);
     if (!tup) {
-        return NULL;
+        return PyErr_NoMemory();
     }
     PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x2));
     PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y2));
