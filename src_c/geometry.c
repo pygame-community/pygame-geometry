@@ -86,7 +86,6 @@ MODINIT_DEFINE(geometry)
     c_api[15] = pgCircle_New3;
     c_api[16] = pgCircle_FromObject;
 
-
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_XDECREF(apiobj);
