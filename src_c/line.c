@@ -300,18 +300,11 @@ error:
 static PyObject *
 pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    pgLineBase B;
-
-    if (!pgLine_FromObjectFastcall(args, nargs, &B)) {
+    if (!pgLine_FromObjectFastcall(args, nargs, &(self->line))) {
         RAISE(PyExc_TypeError,
               "Line.update requires a line or LineLike object");
         return NULL;
     }
-
-    self->line.x1 = B.x1;
-    self->line.y1 = B.y1;
-    self->line.x2 = B.x2;
-    self->line.y2 = B.y2;
     Py_RETURN_NONE;
 }
 
@@ -779,15 +772,9 @@ static PyTypeObject pgLine_Type = {
 static int
 pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
 {
-    pgLineBase argrect;
-
-    if (!pgLine_FromObject(args, &argrect)) {
+    if (!pgLine_FromObject(args, &(self->line))) {
         PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
         return -1;
     }
-    self->line.x1 = argrect.x1;
-    self->line.y1 = argrect.y1;
-    self->line.x2 = argrect.x2;
-    self->line.y2 = argrect.y2;
     return 0;
 }

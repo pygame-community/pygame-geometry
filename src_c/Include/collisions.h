@@ -10,24 +10,19 @@
 #include "line.h"
 #include "circle.h"
 
-
 typedef pgCircle pgCircleBase;
 
-
-
-
 static int
-pgCollision_LineLine(pgLineBase*, pgLineBase*);
+pgCollision_LineLine(pgLineBase *, pgLineBase *);
 static int
-pgIntersection_LineLine(pgLineBase*, pgLineBase*, double*, double*);
+pgIntersection_LineLine(pgLineBase *, pgLineBase *, double *, double *);
 static int
-pgCollision_LineCircle(pgLineBase*, pgCircleBase*);
+pgCollision_LineCircle(pgLineBase *, pgCircleBase *);
 static int
-pgCollision_CircleCircle(pgCircleBase*, pgCircleBase*);
+pgCollision_CircleCircle(pgCircleBase *, pgCircleBase *);
 static int
-pgCollision_RectLine(SDL_FRect*, pgLineBase*);
+pgCollision_RectLine(SDL_FRect *, pgLineBase *);
 static int
-pgCollision_RectCircle(SDL_FRect*, pgCircleBase*);
-
+pgCollision_RectCircle(SDL_FRect *, pgCircleBase *);
 
 #endif /* ~_PG_COLLISIONS_H */
