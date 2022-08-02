@@ -60,6 +60,7 @@ _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
     circle->r_sqr = tmp * tmp;
     return 1;
 }
+
 static int
 pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
 {
@@ -166,6 +167,58 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
 
         return 1;
     }
+    return 0;
+}
+
+static int
+pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
+                            pgCircleBase *out)
+{
+    if (nargs == 1) {
+        PyObject *obj = args[0];
+        if (pgCircle_Check(obj)) { /* passed another circle */
+            memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(double) * 4);
+            return 1;
+        }
+        else if (PyObject_HasAttrString(obj, "circle")) {
+            PyObject *circleattr;
+            circleattr = PyObject_GetAttrString(obj, "circle");
+            if (circleattr == NULL) {
+                PyErr_Clear();
+                return 0;
+            }
+            if (PyCallable_Check(circleattr)) /*call if it's a method*/
+            {
+                PyObject *circleresult = PyObject_CallObject(circleattr, NULL);
+                Py_DECREF(circleattr);
+                if (circleresult == NULL) {
+                    PyErr_Clear();
+                    return 0;
+                }
+                circleattr = circleresult;
+            }
+            if (!pgCircle_FromObject(circleattr, out)) {
+                PyErr_Clear();
+                Py_DECREF(circleattr);
+                return 0;
+            }
+            Py_DECREF(circleattr);
+
+            return 1;
+        }
+        else {
+            return pgCircle_FromObject(args[0], out);
+        }
+    }
+    else if (nargs == 3) {
+        if (!pg_DoubleFromObj(args[0], &(out->x)) ||
+            !pg_DoubleFromObj(args[1], &(out->y)) ||
+            !_pg_circle_set_radius(args[2], out)) {
+            return 0;
+        }
+        return 1;
+    }
+
     return 0;
 }
 
