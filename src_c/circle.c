@@ -79,7 +79,7 @@ pgCircle_FromObject(PyObject *obj, pgCircle *temp)
         if (length == 3) {
             if (!pg_DoubleFromObj(f_arr[0], &(temp->x)) ||
                 !pg_DoubleFromObj(f_arr[1], &(temp->y)) ||
-                !_pg_circle_set_radius(f_arr[2], &temp)) {
+                !_pg_circle_set_radius(f_arr[2], temp)) {
                 return NULL;
             }
             return temp;
@@ -112,7 +112,7 @@ pgCircle_FromObject(PyObject *obj, pgCircle *temp)
             Py_DECREF(tmp);
 
             tmp = PySequence_ITEM(obj, 2);
-            if (!_pg_circle_set_radius(tmp, &temp)) {
+            if (!_pg_circle_set_radius(tmp, temp)) {
                 Py_DECREF(tmp);
                 return NULL;
             }
@@ -313,7 +313,7 @@ static PyTypeObject pgCircle_Type = {
 static int
 pg_circle_init(pgCircleObject *self, PyObject *args, PyObject *kwds)
 {
-    pgCircle temp, s_circ = self->circle;
+    pgCircle temp;
     pgCircle *argcirc = pgCircle_FromObject(args, &temp);
 
     if (!argcirc) {
@@ -321,9 +321,9 @@ pg_circle_init(pgCircleObject *self, PyObject *args, PyObject *kwds)
                         "Argument must be Circle style object");
         return -1;
     }
-    s_circ.x = argcirc->x;
-    s_circ.y = argcirc->y;
-    s_circ.r = argcirc->r;
-    s_circ.r_sqr = s_circ.r * s_circ.r;
+    self->circle.x = argcirc->x;
+    self->circle.y = argcirc->y;
+    self->circle.r = argcirc->r;
+    self->circle.r_sqr = argcirc->r * argcirc->r;
     return 0;
 }
