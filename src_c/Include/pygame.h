@@ -145,4 +145,11 @@ typedef uint8_t Uint8;
 // so we can directly include the base source
 #define import_pygame_base()
 
+typedef struct {
+    float x, y, w, h;
+} SDL_FRect;
+typedef struct {
+    int x, y, w, h;
+} SDL_Rect;
+
 #endif /* ~_PYGAME_H */
