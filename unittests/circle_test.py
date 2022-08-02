@@ -22,7 +22,7 @@ class CircleTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 c = Circle(0, value, 1)
         # Test r
-        for value in invalid_types:
+        for value in invalid_types + (-1, ):
             with self.assertRaises(TypeError):
                 c = Circle(0, 0, value)
 
@@ -156,7 +156,7 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures the r attribute handles invalid values correctly."""
         c = Circle(0, 0, 1)
 
-        for value in (None, [], "1", (1,), [1, 2, 3]):
+        for value in (None, [], "1", (1,), [1, 2, 3], -1):
             with self.assertRaises(TypeError):
                 c.r = value
 
@@ -212,6 +212,13 @@ class CircleTypeTest(unittest.TestCase):
 
         # check c2 is not c
         self.assertIsNot(c_2, c)
+
+    def test_bool(self):
+        c = Circle(10, 10, 4)
+        c2 = Circle(10, 10, 0)
+
+        self.assertTrue(c, "Expected c to be True as radius is >= 0")
+        self.assertFalse(c2, "Expected c to be False as radius is < 0")
 
 
 if __name__ == "__main__":

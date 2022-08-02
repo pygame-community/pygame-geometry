@@ -54,7 +54,7 @@ static int
 _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
 {
     double tmp = 0;
-    if (!pg_DoubleFromObj(value, &tmp))
+    if (!pg_DoubleFromObj(value, &tmp) || tmp < 0)
         return 0;
     circle->r = tmp;
     circle->r_sqr = tmp * tmp;
@@ -287,14 +287,15 @@ pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 {
     double val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (pg_DoubleFromObj(value, &val)) {
-        val = ABS(val);
-        self->circle.r = val;
-        self->circle.r_sqr = val * val;
-        return 0;
+
+    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+        RAISE(PyExc_TypeError, "Expected a positive number");
+        return -1;
     }
-    RAISE(PyExc_TypeError, "Expected a number");
-    return -1;
+
+    self->circle.r = val;
+    self->circle.r_sqr = val * val;
+    return 0;
 }
 
 static PyObject *
