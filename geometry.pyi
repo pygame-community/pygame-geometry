@@ -12,7 +12,7 @@ from typing import (
 from typing_extensions import Literal as Literal
 from typing_extensions import Protocol
 
-from pygame.math import Vector2
+from pygame.math import Vector2, Vector3
 from pygame.rect import Rect
 
 
@@ -87,3 +87,35 @@ class Line:
     def raycast(self, x1: float, y1: float, x2: float, y2: float) -> Optional[Tuple[float, float]]: ...
     @overload
     def raycast(self, first: Sequence[float], second: Sequence[float]) -> Optional[Tuple[float, float]]: ...
+
+
+_CanBeCircle = Union[
+    Vector3,
+    "Circle",
+    Tuple[float, float, float],
+    Sequence[float]
+]
+class _HasCirclettribute(Protocol):
+    # An object that has a circle attribute that is either a circle, or a function
+    # that returns a circle
+    circle: Union[CircleValue, Callable[[], CircleValue]]
+
+CircleValue = Union[_CanBeCircle, _HasCirclettribute]
+
+
+class Circle:
+    x: float
+    y: float
+    r: float
+    r_sqr: float
+    __safe_for_unpickling__: Literal[True]
+    __hash__: None  # type: ignore
+
+    @overload
+    def __init__(self, circle: Circle) -> None: ...
+    @overload
+    def __init__(self, x: float, y: float, r: float) -> None: ...
+    @overload
+    def __init__(self, single_arg: CircleValue) -> None: ...
+    def __copy__(self) -> "Circle": ...
+    copy = __copy__

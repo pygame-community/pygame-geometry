@@ -3,12 +3,12 @@
 
 #include "pygame.h"
 
-typedef struct pgCircle {
+typedef struct pgCircleBase {
     double x, y, r, r_sqr;
-} pgCircle;
+} pgCircleBase;
 
 typedef struct pgCircleObject {
-    PyObject_HEAD pgCircle circle;
+    PyObject_HEAD pgCircleBase circle;
     PyObject *weakreflist;
 } pgCircleObject;
 
