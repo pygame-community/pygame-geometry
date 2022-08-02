@@ -1,7 +1,8 @@
 #include "line.c"
 #include "circle.c"
+#include "collisions.c"
 
-#define PYGAMEAPI_GEOMETRY_NUMSLOTS 8
+#define PYGAMEAPI_GEOMETRY_NUMSLOTS 17
 
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
@@ -67,14 +68,23 @@ MODINIT_DEFINE(geometry)
     }
 
     /* export the c api */
-    c_api[0] = &pgLine_Type;
-    c_api[1] = pgLine_New;
-    c_api[2] = pgLine_New4;
-    c_api[3] = pgLine_FromObject;
-    c_api[4] = &pgCircle_Type;
-    c_api[5] = pgCircle_New;
-    c_api[6] = pgCircle_New3;
-    c_api[7] = pgCircle_FromObject;
+    c_api[0] = pgCollision_LineLine;
+    c_api[1] = pgIntersection_LineLine;
+    c_api[2] = pgCollision_LineCircle;
+    c_api[3] = pgCollision_CircleCircle;
+    c_api[4] = pgCollision_RectLine;
+    c_api[5] = pgCollision_RectCircle;
+    c_api[6] = &pgLine_Type;
+    c_api[7] = pgLine_New;
+    c_api[8] = pgLine_New4;
+    c_api[9] = pgLine_FromObject;
+    c_api[10] = pgLine_FromObjectFastcall;
+    c_api[11] = pgLine_Length;
+    c_api[12] = pgLine_LengthSquared;
+    c_api[13] = &pgCircle_Type;
+    c_api[14] = pgCircle_New;
+    c_api[15] = pgCircle_New3;
+    c_api[16] = pgCircle_FromObject;
 
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
