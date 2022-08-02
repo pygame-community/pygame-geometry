@@ -10,8 +10,6 @@
 #include "line.h"
 #include "circle.h"
 
-typedef pgCircle pgCircleBase;
-
 static int
 pgCollision_LineLine(pgLineBase *, pgLineBase *);
 static int

@@ -51,17 +51,17 @@ pg_circle_dealloc(pgCircleObject *self)
 }
 
 static int
-_pg_circle_set_radius(PyObject *value, pgCircle *circle)
+_pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
 {
     double tmp = 0;
-    if (!pg_DoubleFromObj(value, &tmp))
+    if (!pg_DoubleFromObj(value, &tmp) || tmp < 0)
         return 0;
     circle->r = tmp;
     circle->r_sqr = tmp * tmp;
     return 1;
 }
 static int
-pgCircle_FromObject(PyObject *obj, pgCircle *temp)
+pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
 {
     Py_ssize_t length;
 
@@ -89,7 +89,7 @@ pgCircle_FromObject(PyObject *obj, pgCircle *temp)
             return 1;
         }
         else {
-            /* Sequences of size other than 3 are not supported
+            /* Sequences of size other than 3 or 1 are not supported
             (don't wanna support infinite sequence nesting anymore)*/
             return 0;
         }
@@ -124,8 +124,17 @@ pgCircle_FromObject(PyObject *obj, pgCircle *temp)
 
             return 1;
         }
+        else if (length == 1) {
+            tmp = PySequence_ITEM(obj, 0);
+            if (!pgCircle_FromObject(tmp, temp)) {
+                Py_DECREF(tmp);
+                return 0;
+            }
+            Py_DECREF(tmp);
+            return 1;
+        }
         else {
-            /* Sequences of size other than 3 are not supported
+            /* Sequences of size other than 3 or 1 are not supported
             (don't wanna support infinite sequence nesting anymore)*/
             return 0;
         }
@@ -161,7 +170,7 @@ pgCircle_FromObject(PyObject *obj, pgCircle *temp)
 }
 
 static PyObject *
-pgCircle_New(pgCircle *c)
+pgCircle_New(pgCircleBase *c)
 {
     return _pg_circle_subtype_new3(&pgCircle_Type, c->x, c->y, c->r);
 }
@@ -214,7 +223,7 @@ pg_circle_str(pgCircleObject *self)
 static PyObject *
 pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
-    pgCircle o1_circ, o2_circ;
+    pgCircleBase o1_circ, o2_circ;
     double r1, r2;
 
     if (!pgCircle_FromObject(o1, &o1_circ) ||
@@ -260,6 +269,7 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
             self->circle.name = val;                                          \
             return 0;                                                         \
         }                                                                     \
+        RAISE(PyExc_TypeError, "Expected a number");                          \
         return -1;                                                            \
     }
 
@@ -267,29 +277,50 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 GETSET_FOR_SIMPLE(x)
 GETSET_FOR_SIMPLE(y)
 
+#undef GETSET_FOR_SIMPLE
+
 static PyObject *
 pg_circle_getr(pgCircleObject *self, void *closure)
 {
     return PyFloat_FromDouble(self->circle.r);
 }
+
 static int
 pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 {
     double val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (pg_DoubleFromObj(value, &val)) {
-        val = ABS(val);
-        self->circle.r = val;
-        self->circle.r_sqr = val * val;
-        return 0;
+
+    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+        RAISE(PyExc_TypeError, "Expected a positive number");
+        return -1;
     }
-    return -1;
+
+    self->circle.r = val;
+    self->circle.r_sqr = val * val;
+    return 0;
 }
 
 static PyObject *
 pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 {
     return PyFloat_FromDouble(self->circle.r_sqr);
+}
+
+static int
+pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
+{
+    double val;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+
+    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+        RAISE(PyExc_TypeError, "Expected a positive number");
+        return -1;
+    }
+
+    self->circle.r_sqr = val;
+    self->circle.r = sqrt(val);
+    return 0;
 }
 
 static PyObject *
@@ -314,7 +345,8 @@ static PyGetSetDef pg_circle_getsets[] = {
     {"x", (getter)pg_circle_getx, (setter)pg_circle_setx, NULL, NULL},
     {"y", (getter)pg_circle_gety, (setter)pg_circle_sety, NULL, NULL},
     {"r", (getter)pg_circle_getr, (setter)pg_circle_setr, NULL, NULL},
-    {"r_sqr", (getter)pg_circle_getr_sqr, NULL, NULL, NULL},
+    {"r_sqr", (getter)pg_circle_getr_sqr, (setter)pg_circle_setr_sqr, NULL,
+     NULL},
     {"__safe_for_unpickling__", (getter)pg_circle_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
