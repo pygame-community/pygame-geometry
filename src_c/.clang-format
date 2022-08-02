@@ -1,0 +1,19 @@
+# PEP 7
+BasedOnStyle: Google
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterReturnType: All
+AlignAfterOpenBracket: Align
+BreakBeforeBraces: Stroustrup
+ColumnLimit: 79
+DerivePointerAlignment: false
+# These settings are mirrored in .editorconfig.  Keep them in sync.
+IndentWidth: 4
+Language: Cpp
+PointerAlignment: Right
+ReflowComments: true
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SortIncludes: false
+TabWidth: 4
+UseTab: Never

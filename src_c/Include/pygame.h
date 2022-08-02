@@ -61,7 +61,6 @@ typedef uint8_t Uint8;
         }                                                                     \
     } while (0)
 
-
 /* thread check */
 #ifdef WITH_THREAD
 #define PG_CHECK_THREADS() (1)
@@ -71,7 +70,6 @@ typedef uint8_t Uint8;
 #endif /* ~WITH_THREAD */
 
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
-
 
 /* version macros (defined since version 1.9.5) */
 #define PG_MAJOR_VERSION 2
@@ -140,7 +138,8 @@ typedef uint8_t Uint8;
 
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 #define PG_CAPSULE_NAME(m) (IMPPREFIX m "." PYGAMEAPI_LOCAL_ENTRY)
-#define encapsulate_api(ptr, module) PyCapsule_New(ptr, PG_CAPSULE_NAME(module), NULL)
+#define encapsulate_api(ptr, module) \
+    PyCapsule_New(ptr, PG_CAPSULE_NAME(module), NULL)
 
 // this is not meant to be used in prod
 // so we can directly include the base source

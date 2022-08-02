@@ -3,18 +3,17 @@
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 8
 
+static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
-static PyMethodDef _pg_module_methods[] = {
-    {NULL, NULL, 0, NULL}
-};
-
-MODINIT_DEFINE(geometry) {
+MODINIT_DEFINE(geometry)
+{
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_GEOMETRY_NUMSLOTS];
 
     static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
                                          "geometry",
-                                         "Module for shapes like Line, Circle Polygon and extra functionalities\n",
+                                         "Module for shapes like Line, Circle "
+                                         "Polygon and extra functionalities\n",
                                          -1,
                                          _pg_module_methods,
                                          NULL,

@@ -5,7 +5,6 @@
 
 // all of this functions return 1 on success and 0 on failure.
 
-
 static PG_FORCE_INLINE int
 pg_IntFromObj(PyObject *obj, int *val)
 {
@@ -48,7 +47,8 @@ pg_IntFromObjIndex(PyObject *obj, int _index, int *val)
 static PG_FORCE_INLINE int
 pg_TwoIntsFromObj(PyObject *obj, int *val1, int *val2)
 {
-    if (!obj) return 0;
+    if (!obj)
+        return 0;
     if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
         return pg_TwoIntsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
     }
@@ -108,7 +108,8 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 }
 
 static PG_FORCE_INLINE int
-pg_DoubleFromObj(PyObject *obj, double *val) {
+pg_DoubleFromObj(PyObject *obj, double *val)
+{
     double f = PyFloat_AsDouble(obj);
 
     if (f == -1 && PyErr_Occurred()) {
@@ -121,7 +122,8 @@ pg_DoubleFromObj(PyObject *obj, double *val) {
 }
 
 static PG_FORCE_INLINE int
-pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val) {
+pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
+{
     int result = 0;
     PyObject *item = PySequence_GetItem(obj, _index);
 
@@ -135,7 +137,8 @@ pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val) {
 }
 
 static PG_FORCE_INLINE int
-pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2) {
+pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
+{
     if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
         return pg_TwoDoublesFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
     }
