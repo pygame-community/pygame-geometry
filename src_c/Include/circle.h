@@ -8,12 +8,11 @@ typedef struct pgCircle {
 } pgCircle;
 
 typedef struct pgCircleObject {
-    PyObject_HEAD
-    pgCircle circle;
-    PyObject* weakreflist;
+    PyObject_HEAD pgCircle circle;
+    PyObject *weakreflist;
 } pgCircleObject;
 
-#define pgCircle_CAST(o) ((pgCircleObject*)(o))
+#define pgCircle_CAST(o) ((pgCircleObject *)(o))
 #define pgCircle_CIRCLE(o) (pgCircle_CAST(o)->circle)
 
 #endif /* ~_CIRCLE_H */
