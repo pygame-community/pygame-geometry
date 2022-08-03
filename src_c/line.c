@@ -274,15 +274,15 @@ static PyObject *
 pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
                       Py_ssize_t nargs)
 {
-    pgCircleBase C;
+    pgCircleBase circle;
 
-    if (!pgCircle_FromObjectFastcall(args, nargs, &C)) {
+    if (!pgCircle_FromObjectFastcall(args, nargs, &circle)) {
         return RAISE(
             PyExc_TypeError,
             "Line.collidecircle requires a circle or CircleLike object");
     }
 
-    return PyBool_FromLong(pgCollision_LineCircle(&self->line, &C));
+    return PyBool_FromLong(pgCollision_LineCircle(&self->line, &circle));
 }
 
 static PyObject *
