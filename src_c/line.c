@@ -1,6 +1,5 @@
 #include "include/pygame.h"
-#include "include/line.h"
-#include "include/base.h"
+#include "include/geometry.h"
 #include "include/collisions.h"
 
 #include <limits.h>
@@ -8,14 +7,6 @@
 
 static PyTypeObject pgLine_Type;
 #define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
-
-// return 1 if success and 0 if failure
-static int
-pgLine_FromObject(PyObject *obj, pgLineBase *out);
-// return 1 if success and 0 if failure
-static int
-pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
-                          pgLineBase *out);
 
 static double
 pgLine_Length(pgLineBase line)
@@ -177,6 +168,7 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             Py_DECREF(lineattr);
             return pgLine_FromObject(lineattr, out);
         }
+        return pgLine_FromObject(obj, out);
     }
     else if (nargs == 2) {
         if (!pg_TwoDoublesFromObj(args[0], &(out->x1), &(out->y1)) ||
@@ -247,15 +239,7 @@ pg_line_collideline(pgLineObject *self, PyObject *const *args,
         return NULL;
     }
 
-    int ret_code = pgCollision_LineLine(&self->line, &B);
-
-    if (ret_code == -1) {
-        RAISE(PyExc_TypeError,
-              "collideline requires a Line or LineLike object");
-        return NULL;
-    }
-
-    return PyBool_FromLong(ret_code);
+    return PyBool_FromLong(pgCollision_LineLine(&self->line, &B));
 }
 
 static PyObject *
@@ -279,22 +263,26 @@ pg_line_collidepoint(pgLineObject *self, PyObject *const *args,
         goto error;
     }
 
-    double Ax = self->line.x1;
-    double Ay = self->line.y1;
-    double Bx = self->line.x2;
-    double By = self->line.y2;
-
-    /* i have zero idea what this is or how it works, but it works! */
-    if ((Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) &&
-        ((Ax != Bx) ? (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax)
-                    : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay))) {
-        Py_RETURN_TRUE;
-    }
-    Py_RETURN_FALSE;
+    return PyBool_FromLong(pgCollision_LinePoint(&self->line, Cx, Cy));
 
 error:
     return RAISE(PyExc_TypeError,
                  "collidepoint requires a point or PointLike object");
+}
+
+static PyObject *
+pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
+{
+    pgCircleBase circle;
+
+    if (!pgCircle_FromObjectFastcall(args, nargs, &circle)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Line.collidecircle requires a circle or CircleLike object");
+    }
+
+    return PyBool_FromLong(pgCollision_LineCircle(&self->line, &circle));
 }
 
 static PyObject *
@@ -314,6 +302,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
+    {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 

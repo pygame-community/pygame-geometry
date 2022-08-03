@@ -1,6 +1,5 @@
 #include "include/pygame.h"
-#include "include/circle.h"
-#include "include/base.h"
+#include "include/geometry.h"
 
 #include <limits.h>
 #include <math.h>
@@ -62,12 +61,12 @@ _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
 }
 
 static int
-pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
+pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
 {
     Py_ssize_t length;
 
     if (pgCircle_Check(obj)) {
-        memcpy(temp, &((pgCircleObject *)obj)->circle, sizeof(double) * 4);
+        memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(pgCircleBase));
         return 1;
     }
 
@@ -76,15 +75,15 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
         length = PySequence_Fast_GET_SIZE(obj);
 
         if (length == 3) {
-            if (!pg_DoubleFromObj(f_arr[0], &(temp->x)) ||
-                !pg_DoubleFromObj(f_arr[1], &(temp->y)) ||
-                !_pg_circle_set_radius(f_arr[2], temp)) {
+            if (!pg_DoubleFromObj(f_arr[0], &(out->x)) ||
+                !pg_DoubleFromObj(f_arr[1], &(out->y)) ||
+                !_pg_circle_set_radius(f_arr[2], out)) {
                 return 0;
             }
             return 1;
         }
         else if (length == 1) {
-            if (!pgCircle_FromObject(f_arr[0], temp)) {
+            if (!pgCircle_FromObject(f_arr[0], out)) {
                 return 0;
             }
             return 1;
@@ -103,21 +102,21 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
             /*These are to be substituted with better pg_DoubleFromSeqIndex()
              * implementations*/
             tmp = PySequence_ITEM(obj, 0);
-            if (!pg_DoubleFromObj(tmp, &(temp->x))) {
+            if (!pg_DoubleFromObj(tmp, &(out->x))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
 
             tmp = PySequence_ITEM(obj, 1);
-            if (!pg_DoubleFromObj(tmp, &(temp->y))) {
+            if (!pg_DoubleFromObj(tmp, &(out->y))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
 
             tmp = PySequence_ITEM(obj, 2);
-            if (!_pg_circle_set_radius(tmp, temp)) {
+            if (!_pg_circle_set_radius(tmp, out)) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -127,7 +126,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
         }
         else if (length == 1) {
             tmp = PySequence_ITEM(obj, 0);
-            if (!pgCircle_FromObject(tmp, temp)) {
+            if (!pgCircle_FromObject(tmp, out)) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -158,7 +157,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *temp)
             }
             circleattr = circleresult;
         }
-        if (!pgCircle_FromObject(circleattr, temp)) {
+        if (!pgCircle_FromObject(circleattr, out)) {
             PyErr_Clear();
             Py_DECREF(circleattr);
             return 0;
@@ -177,7 +176,8 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     if (nargs == 1) {
         PyObject *obj = args[0];
         if (pgCircle_Check(obj)) { /* passed another circle */
-            memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(double) * 4);
+            memcpy(out, &((pgCircleObject *)obj)->circle,
+                   sizeof(pgCircleBase));
             return 1;
         }
         else if (PyObject_HasAttrString(obj, "circle")) {

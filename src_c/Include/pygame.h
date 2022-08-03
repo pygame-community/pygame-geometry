@@ -152,4 +152,6 @@ typedef struct {
     int x, y, w, h;
 } SDL_Rect;
 
+#include "base.h"
+
 #endif /* ~_PYGAME_H */

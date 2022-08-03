@@ -34,8 +34,21 @@ class _HasLineAttribute(Protocol):
 
 LineValue = Union[_CanBeLine, _HasLineAttribute]
 
+_CanBeCircle = Union[
+    Vector3,
+    "Circle",
+    Tuple[float, float, float],
+    Sequence[float]
+]
+class _HasCirclettribute(Protocol):
+    # An object that has a circle attribute that is either a circle, or a function
+    # that returns a circle
+    circle: Union[CircleValue, Callable[[], CircleValue]]
 
-class Line:
+CircleValue = Union[_CanBeCircle, _HasCirclettribute]
+
+
+class Line(Sequence[float]):
     x1: float
     y1: float
     x2: float
@@ -82,25 +95,15 @@ class Line:
     @overload
     def collideline(self, first: Sequence[float], second: Sequence[float]) -> bool: ...
     @overload
+    def collidecircle(self, circle: CircleValue) -> bool: ...
+    @overload
+    def collidecircle(self, x: float, y: float, r: float) -> bool: ...
+    @overload
     def raycast(self, line: Line) -> Optional[Tuple[float, float]]: ...
     @overload
     def raycast(self, x1: float, y1: float, x2: float, y2: float) -> Optional[Tuple[float, float]]: ...
     @overload
     def raycast(self, first: Sequence[float], second: Sequence[float]) -> Optional[Tuple[float, float]]: ...
-
-
-_CanBeCircle = Union[
-    Vector3,
-    "Circle",
-    Tuple[float, float, float],
-    Sequence[float]
-]
-class _HasCirclettribute(Protocol):
-    # An object that has a circle attribute that is either a circle, or a function
-    # that returns a circle
-    circle: Union[CircleValue, Callable[[], CircleValue]]
-
-CircleValue = Union[_CanBeCircle, _HasCirclettribute]
 
 
 class Circle:
@@ -112,7 +115,7 @@ class Circle:
     __hash__: None  # type: ignore
 
     @overload
-    def __init__(self, circle: Circle) -> None: ...
+    def __init__(self, circle: CircleValue) -> None: ...
     @overload
     def __init__(self, x: float, y: float, r: float) -> None: ...
     @overload
