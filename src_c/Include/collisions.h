@@ -5,15 +5,17 @@
 #define _PG_COLLISIONS_H
 
 #include "pygame.h"
-#include "base.h"
 
-#include "line.h"
-#include "circle.h"
+#include "geometry.h"
 
 static int
 pgCollision_LineLine(pgLineBase *, pgLineBase *);
 static int
 pgIntersection_LineLine(pgLineBase *, pgLineBase *, double *, double *);
+static int
+pgCollision_LinePoint(pgLineBase *, double, double);
+static int
+pgCollision_CirclePoint(pgCircleBase *circle, double, double);
 static int
 pgCollision_LineCircle(pgLineBase *, pgCircleBase *);
 static int

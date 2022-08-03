@@ -1,4 +1,9 @@
 #include "include/collisions.h"
+#include <stdio.h>
+
+#ifndef ABS
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+#endif /* ~ABS */
 
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
@@ -67,9 +72,61 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y)
 }
 
 static int
+pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
+{
+    double Ax = line->x1;
+    double Ay = line->y1;
+    double Bx = line->x2;
+    double By = line->y2;
+
+    return (Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) &&
+           ((Ax != Bx) ? (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax)
+                       : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay));
+}
+
+static int
+pgCollision_CirclePoint(pgCircleBase *circle, double Cx, double Cy)
+{
+    double dx = circle->x - Cx;
+    double dy = circle->y - Cy;
+    return dx * dx + dy * dy <= circle->r * circle->r;
+}
+
+static int
 pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
 {
-    return 0;
+    double x1 = line->x1;
+    double y1 = line->y1;
+    double x2 = line->x2;
+    double y2 = line->y2;
+    double cx = circle->x;
+    double cy = circle->y;
+    double r = circle->r;
+
+    int inside1 = pgCollision_CirclePoint(circle, x1, y1);
+    int inside2 = pgCollision_CirclePoint(circle, x2, y2);
+    if (inside1 || inside2)
+        return 1;
+
+    double distX = x1 - x2;
+    double distY = y1 - y2;
+    double len = sqrt((distX * distX) + (distY * distY));
+
+    double dot =
+        (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / pow(len, 2);
+
+    double closestX = x1 + (dot * (x2 - x1));
+    double closestY = y1 + (dot * (y2 - y1));
+
+    pgLineBase line2 = {x1, y1, x2, y2};
+    if (!pgCollision_LinePoint(&line2, closestX, closestY))
+        return 0;
+
+    distX = closestX - cx;
+    distY = closestY - cy;
+    double distance = sqrt((distX * distX) + (distY * distY));
+
+    return distance <= r;
 }
 
 static int
