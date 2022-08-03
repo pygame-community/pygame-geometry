@@ -20,11 +20,11 @@ class LineTest(unittest.TestCase):
     def test_collidecircle(self):
         pass
 
+    @unittest.skip
     def test_as_frect(self):
         # TODO: Implement after merge of
         # https://github.com/novialriptide/newpygamestuff/pull/11
         a = geometry.Line(32, 104, 105, 108)
-        print(a.as_frect())
 
 
 if __name__ == "__main__":
