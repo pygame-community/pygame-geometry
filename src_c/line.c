@@ -1,6 +1,7 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
 #include "include/collisions.h"
+#include "include/methods.h"
 
 #include <limits.h>
 #include <math.h>
@@ -209,22 +210,29 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+pg_line_raycast(pgLineObject *self, PyObject *sequence)
 {
-    pgLineBase B;
-    double x, y;
+    PyObject *list = PyList_New(1);
 
-    if (!pgLine_FromObjectFastcall(args, nargs, &B)) {
-        RAISE(PyExc_TypeError, "raycast requires a line or LineLike object");
+    if (list == NULL) {
         return NULL;
     }
 
-    if (pgIntersection_LineLine(&self->line, &B, &x, &y)) {
-        return Py_BuildValue("(dd)", x, y);
-    }
-    else {
-        Py_RETURN_NONE;
-    }
+    PyList_SET_ITEM(list, 0, (PyObject *)self);
+
+    PyObject *args[2] = {
+        list,
+        sequence,
+    };
+    PyObject *delete_list =
+        pg_geometry_raycast(NULL, (PyObject *const *)args, 2);
+    PyObject *ret = PyList_GET_ITEM(delete_list, 0);
+    Py_INCREF(ret);
+
+    Py_DECREF(delete_list);
+    Py_DECREF(list);
+
+    return ret;
 }
 
 static PyObject *
@@ -299,7 +307,7 @@ pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
-    {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
+    {"raycast", (PyCFunction)pg_line_raycast, METH_O, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},

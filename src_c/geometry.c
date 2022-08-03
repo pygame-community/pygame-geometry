@@ -1,10 +1,13 @@
 #include "line.c"
 #include "circle.c"
 #include "collisions.c"
+#include "methods.c"
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 17
 
-static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
+static PyMethodDef _pg_module_methods[] = {
+    {"raycast", (PyCFunction)pg_geometry_raycast, METH_FASTCALL, NULL},
+    {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
 {
