@@ -3,11 +3,11 @@
 
 #include "pygame.h"
 
-typedef struct pgCircleBase {
+typedef struct {
     double x, y, r, r_sqr;
 } pgCircleBase;
 
-typedef struct pgCircleObject {
+typedef struct {
     PyObject_HEAD pgCircleBase circle;
     PyObject *weakreflist;
 } pgCircleObject;
@@ -19,12 +19,12 @@ typedef struct pgCircleObject {
 #define pgCircle_GETR(self) (pgCircle_CAST(self)->circle.r)
 #define pgCircle_GETRSQR(self) (pgCircle_CAST(self)->circle.r_sqr)
 
-typedef struct pgLineBase {
+typedef struct {
     double x1, y1;
     double x2, y2;
 } pgLineBase;
 
-typedef struct pgLineObject {
+typedef struct {
     PyObject_HEAD pgLineBase line;
     PyObject *weakreflist;
 } pgLineObject;
@@ -51,5 +51,5 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out);
 static int
 pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                             pgCircleBase *out);
-
+  
 #endif /* ~_GEOMETRY_H */
