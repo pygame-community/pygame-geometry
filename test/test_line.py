@@ -9,7 +9,7 @@ class LineTest(unittest.TestCase):
 
     def test_copy(self):
         a = geometry.Line(32, 99, 111, 117)
-        self.assertEqual(a, geometry.Line(32, 99, 111, 117))
+        self.assertEqual(a.copy(), geometry.Line(32, 99, 111, 117))
 
     def test_collideline(self):
         a = geometry.Line(114, 116, 32, 115)
