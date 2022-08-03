@@ -294,6 +294,38 @@ pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
 }
 
 static PyObject *
+pg_line_as_frect(pgLineObject *self, PyObject *_null)
+{
+    double rect_x;
+    double rect_y;
+    double rect_width;
+    double rect_height;
+    double a_x = self->line.x1;
+    double a_y = self->line.y1;
+    double b_x = self->line.x2;
+    double b_y = self->line.y2;
+
+    if (a_x > b_x) {
+        rect_x = b_x;
+    }
+    else {
+        rect_x = a_x;
+    }
+
+    if (a_y > b_y) {
+        rect_y = b_y;
+    }
+    else {
+        rect_y = a_y;
+    }
+
+    rect_width = fabs(a_x - b_x);
+    rect_height = fabs(a_y - b_y);
+
+    return Py_BuildValue("(dddd)", rect_x, rect_y, rect_width, rect_height);
+}
+
+static PyObject *
 pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (!pgLine_FromObjectFastcall(args, nargs, &(self->line))) {
@@ -311,6 +343,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
+    {"as_frect", (PyCFunction)pg_line_as_frect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
