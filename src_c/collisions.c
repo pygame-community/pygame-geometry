@@ -103,28 +103,27 @@ pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
     double cy = circle->y;
     double r = circle->r;
 
-    int inside1 = pgCollision_CirclePoint(circle, x1, y1);
-    int inside2 = pgCollision_CirclePoint(circle, x2, y2);
-    if (inside1 || inside2)
+    if (pgCollision_CirclePoint(circle, x1, y1) ||
+        pgCollision_CirclePoint(circle, x2, y2))
         return 1;
 
-    double distX = x1 - x2;
-    double distY = y1 - y2;
-    double len = sqrt((distX * distX) + (distY * distY));
+    double dx = x1 - x2;
+    double dy = y1 - y2;
+    double len = sqrt((dx * dx) + (dy * dy));
 
     double dot =
-        (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / pow(len, 2);
+        (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / (len * len);
 
-    double closestX = x1 + (dot * (x2 - x1));
-    double closestY = y1 + (dot * (y2 - y1));
+    double closest_x = x1 + (dot * (x2 - x1));
+    double closest_y = y1 + (dot * (y2 - y1));
 
     pgLineBase line2 = {x1, y1, x2, y2};
-    if (!pgCollision_LinePoint(&line2, closestX, closestY))
+    if (!pgCollision_LinePoint(&line2, closest_x, closest_y))
         return 0;
 
-    distX = closestX - cx;
-    distY = closestY - cy;
-    double distance = sqrt((distX * distX) + (distY * distY));
+    dx = closest_x - cx;
+    dy = closest_y - cy;
+    double distance = sqrt((dx * dx) + (dy * dy));
 
     return distance <= r;
 }

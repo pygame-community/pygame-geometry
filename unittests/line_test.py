@@ -208,7 +208,59 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(line2)
 
     def test_raycast(self):
-        A = Line
+        A = Line(0, 0, 1, 1)
+        B = Line(0, 1, 1, 0)
+        point = A.raycast(B)
+        self.assertEqual(point, (0.5, 0.5))
+
+        self.assertIsNone(A.raycast(A))
+
+    def test_collideline(self):
+        A = Line(0, 0, 1, 1)
+        B = Line(0, 1, 1, 0)
+
+        self.assertTrue(A.collideline(B))
+        self.assertFalse(A.collideline(A))
+
+    def test_collidepoint(self):
+        A = Line(0, 0, 1, 1)
+
+        self.assertTrue(A.collidepoint(0, 0))
+        self.assertTrue(A.collidepoint(0.5, 0.5))
+        self.assertTrue(A.collidepoint(1, 1))
+        self.assertFalse(A.collidepoint(-1, -1))
+        self.assertFalse(A.collidepoint(0.5, 0.6))
+        self.assertFalse(A.collidepoint(100, 5))
+
+    def test_collidecircle(self):
+        A = Line(0, 0, 1, 1)
+        B = Circle(0, 0, 1)
+        C = Circle(-1, -1, 0.5)
+
+        self.assertTrue(A.collidecircle(B))
+        self.assertFalse(A.collidecircle(C))
+
+    def test_update(self):
+        line = Line(0, 0, 1, 1)
+
+        line.update(1, 2, 3, 4)
+        self.assertEqual(line.x1, 1)
+        self.assertEqual(line.y1, 2)
+        self.assertEqual(line.x2, 3)
+        self.assertEqual(line.y2, 4)
+
+        line.update((5, 6), (7, 8))
+        self.assertEqual(line.x1, 5)
+        self.assertEqual(line.y1, 6)
+        self.assertEqual(line.x2, 7)
+        self.assertEqual(line.y2, 8)
+
+        line.update((9, 10, 11, 12))
+        self.assertEqual(line.x1, 9)
+        self.assertEqual(line.y1, 10)
+        self.assertEqual(line.x2, 11)
+        self.assertEqual(line.y2, 12)
+
 
 if __name__ == "__main__":
     unittest.main()
