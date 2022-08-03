@@ -66,7 +66,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
     Py_ssize_t length;
 
     if (pgCircle_Check(obj)) {
-        memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(double) * 4);
+        memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(pgCircleBase));
         return 1;
     }
 
@@ -176,7 +176,7 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     if (nargs == 1) {
         PyObject *obj = args[0];
         if (pgCircle_Check(obj)) { /* passed another circle */
-            memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(double) * 4);
+            memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(pgCircleBase));
             return 1;
         }
         else if (PyObject_HasAttrString(obj, "circle")) {
