@@ -1,5 +1,6 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
+#include "include/collisions.h"
 
 #include <limits.h>
 #include <math.h>
@@ -241,7 +242,63 @@ pg_circle_copy(pgCircleObject *self, PyObject *_null)
                                    self->circle.y, self->circle.r);
 }
 
+static PyObject *
+pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
+{
+    pgCircleBase other_circle;
+    if (!pgCircle_FromObjectFastcall(args, nargs, &other_circle)) {
+        return RAISE(PyExc_TypeError, "A CircleType object was expected");
+    }
+    return PyBool_FromLong(
+        pgCollision_CircleCircle(&(self->circle), &other_circle));
+}
+
+static PyObject *
+pg_circle_collideline(pgCircleObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
+{
+    pgLineBase line;
+    if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
+        return RAISE(PyExc_TypeError, "A CircleType object was expected");
+    }
+    return PyBool_FromLong(pgCollision_LineCircle(&line, &(self->circle)));
+}
+
+static PyObject *
+pg_circle_collidepoint(pgCircleObject *self, PyObject *const *args,
+                       Py_ssize_t nargs)
+{
+    double px = 0, py = 0;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &px, &py)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &px) ||
+            !pg_DoubleFromObj(args[1], &py)) {
+            goto error;
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid arguments number, can be at most 2");
+    }
+
+    return PyBool_FromLong(pgCollision_CirclePoint(&(self->circle), px, py));
+
+error:
+    return RAISE(PyExc_TypeError,
+                 "collidepoint requires a point or PointLike object");
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
+    {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
+     NULL},
+    {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},
+    {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
