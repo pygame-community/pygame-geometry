@@ -1,7 +1,6 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
 #include "include/collisions.h"
-#include "include/methods.h"
 
 #include <limits.h>
 #include <math.h>
@@ -210,29 +209,55 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_raycast(pgLineObject *self, PyObject *sequence)
+pg_line_raycast(pgLineObject *self, PyObject* const* args, Py_ssize_t nargs)
 {
-    PyObject *list = PyList_New(1);
+    PyObject **farr;
+    Py_ssize_t loop;
 
-    if (list == NULL) {
-        return NULL;
+    if (nargs != 1) {
+        return RAISE(PyExc_TypeError, "raycast() takes exactly 1 argument");
+    }
+    if (!PySequence_FAST_CHECK(args[0])) {
+        return RAISE(PyExc_TypeError,
+                     "raycast() first argument must be a sequence");
     }
 
-    PyList_SET_ITEM(list, 0, (PyObject *)self);
+    Py_ssize_t length = PySequence_Fast_GET_SIZE(args[0]);
 
-    PyObject *args[2] = {
-        list,
-        sequence,
-    };
-    PyObject *delete_list =
-        pg_geometry_raycast(NULL, (PyObject *const *)args, 2);
-    PyObject *ret = PyList_GET_ITEM(delete_list, 0);
-    Py_INCREF(ret);
+    if (length == 0) {
+        Py_RETURN_NONE;
+    }
 
-    Py_DECREF(delete_list);
-    Py_DECREF(list);
+    farr = PySequence_Fast_ITEMS(args[0]);
 
-    return ret;
+    pgLineBase other_line;
+
+    double record = DBL_MAX;
+    double closest_x = 0, closest_y = 0;
+    double x = 0, y = 0;
+
+    for (loop = 0; loop < length; loop++) {
+        if (!pgLine_FromObject(farr[loop], &other_line)) {
+            return RAISE(
+                PyExc_TypeError,
+                "raycast() first argument must be a sequence of Line or "
+                "LineLike objects");
+        }
+
+        if (pgIntersection_LineLine(&(self->line), &other_line, &x, &y)) {
+            double xxyy = sqrt(x * x + y * y);
+            if (xxyy < record) {
+                record = xxyy;
+                closest_x = x;
+                closest_y = y;
+            }
+        }
+    }
+
+    if (record == DBL_MAX) {
+        Py_RETURN_NONE;
+    }
+    return Py_BuildValue("(dd)", closest_x, closest_y);
 }
 
 static PyObject *
@@ -307,7 +332,7 @@ pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
-    {"raycast", (PyCFunction)pg_line_raycast, METH_O, NULL},
+    {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
