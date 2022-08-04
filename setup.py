@@ -21,6 +21,12 @@ if __name__ == "__main__":
 
         cmd = ["clang-format", "-i"] + c_files + h_files
         print(shlex.join(cmd))
-        sys.exit(subprocess.call(cmd))
+        subprocess.call(cmd)
+
+        cmd = ["black", "."]
+        print(shlex.join(cmd))
+        subprocess.call(cmd)
+
+        sys.exit(0)
 
     build()

@@ -3,6 +3,8 @@
 #include "include/collisions.h"
 
 #include <limits.h>
+#include <float.h>
+#include <stddef.h>
 #include <math.h>
 
 static PyTypeObject pgLine_Type;
@@ -209,7 +211,7 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_raycast(pgLineObject *self, PyObject* const* args, Py_ssize_t nargs)
+pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject **farr;
     Py_ssize_t loop;
@@ -267,9 +269,8 @@ pg_line_collideline(pgLineObject *self, PyObject *const *args,
     pgLineBase B;
 
     if (!pgLine_FromObjectFastcall(args, nargs, &B)) {
-        RAISE(PyExc_TypeError,
-              "Line.collideline requires a line or LineLike object");
-        return NULL;
+        return RAISE(PyExc_TypeError,
+                     "Line.collideline requires a line or LineLike object");
     }
 
     return PyBool_FromLong(pgCollision_LineLine(&self->line, &B));
@@ -386,9 +387,8 @@ static PyObject *
 pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     if (!pgLine_FromObjectFastcall(args, nargs, &(self->line))) {
-        RAISE(PyExc_TypeError,
-              "Line.update requires a line or LineLike object");
-        return NULL;
+        return RAISE(PyExc_TypeError,
+                     "Line.update requires a line or LineLike object");
     }
     Py_RETURN_NONE;
 }
@@ -463,9 +463,9 @@ pg_line_contains_seq(pgLineObject *self, PyObject *arg)
 
     pgLineBase B;
     if (!pgLine_FromObject(arg, &B)) {
-        RAISE(PyExc_TypeError,
-              "'in <pygame.Line>' requires line style object"
-              " or int as left operand");
+        PyErr_SetString(PyExc_TypeError,
+                        "'in <pygame.Line>' requires line style object"
+                        " or int as left operand");
         return 0;
     }
 
@@ -586,7 +586,7 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
                 if (!pg_DoubleFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected a number between %lf and %lf",
-                                 DBL_TRUE_MIN, DBL_MAX);
+                                 DBL_MIN, DBL_MAX);
                 }
             }
             self->line.x1 = values[0];
@@ -632,7 +632,7 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
                 if (!pg_DoubleFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected a number between %lf and %lf",
-                                 DBL_TRUE_MIN, DBL_MAX);
+                                 DBL_MIN, DBL_MAX);
                 }
             }
             for (i = 0; i < slicelen; ++i) {
@@ -757,7 +757,7 @@ pg_line_iterator(pgLineObject *self)
             self->line.name = val;                                        \
             return 0;                                                     \
         }                                                                 \
-        RAISE(PyExc_TypeError, "Expected a number");                      \
+        PyErr_SetString(PyExc_TypeError, "Expected a number");            \
         return -1;                                                        \
     }
 
