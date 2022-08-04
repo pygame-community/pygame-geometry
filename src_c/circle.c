@@ -3,6 +3,8 @@
 #include "include/collisions.h"
 
 #include <limits.h>
+#include <float.h>
+#include <stddef.h>
 #include <math.h>
 
 static PyTypeObject pgCircle_Type;
@@ -379,7 +381,7 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
             self->circle.name = val;                                          \
             return 0;                                                         \
         }                                                                     \
-        RAISE(PyExc_TypeError, "Expected a number");                          \
+        PyErr_SetString(PyExc_TypeError, "Expected a number");                \
         return -1;                                                            \
     }
 
@@ -402,7 +404,7 @@ pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
     if (!pg_DoubleFromObj(value, &val) || val < 0) {
-        RAISE(PyExc_TypeError, "Expected a positive number");
+        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
 
@@ -424,7 +426,7 @@ pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
     if (!pg_DoubleFromObj(value, &val) || val < 0) {
-        RAISE(PyExc_TypeError, "Expected a positive number");
+        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
 
