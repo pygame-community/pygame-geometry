@@ -1,4 +1,4 @@
-name: Unit Test
+name: Windows latest / build
 
 on: [push, pull_request]
 

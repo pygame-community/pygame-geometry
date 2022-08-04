@@ -1,4 +1,4 @@
-name: Unit Test
+name: Ubuntu latest / build
 
 on: [push, pull_request]
 
