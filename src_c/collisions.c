@@ -77,6 +77,7 @@ pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
     double Bx = line->x2;
     double By = line->y2;
 
+    /* https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection */
     return (Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) &&
            ((Ax != Bx) ? (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax)
                        : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay));
