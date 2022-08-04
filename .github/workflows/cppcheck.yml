@@ -1,0 +1,28 @@
+name: cppcheck Static Analysis
+
+# Run cppcheck on src_c changes to main branch, or any PR to main.
+on:
+  push:
+    branches: main
+    paths:
+      - 'src_c/**'
+
+  pull_request:
+    branches: main
+    paths:
+      - 'src_c/**'
+
+jobs:
+  run-cppcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3.0.2
+
+      - name: Install deps
+        run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get upgrade
+          sudo apt install cppcheck
+      - name: Run Static Checker
+        run: cppcheck src_c --force --enable=performance,portability,warning
