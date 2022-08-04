@@ -94,9 +94,8 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             }
             return 1;
         }
-        else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
-            PyObject *sub = PySequence_Fast_GET_ITEM(obj, 0);
-            if (PyUnicode_Check(sub) || !pgLine_FromObject(sub, out)) {
+        else if (length == 1) /*looks like an arg?*/ {
+            if (PyUnicode_Check(farray[0]) || !pgLine_FromObject(farray[0], out)) {
                 return 0;
             }
             return 1;
