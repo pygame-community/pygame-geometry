@@ -107,10 +107,11 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         }
         else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
             PyObject *sub = PySequence_Fast_GET_ITEM(fseq, 0);
-            if (sub) {
-                Py_DECREF(fseq);
-                return pgLine_FromObject(sub, out);
+            Py_DECREF(fseq);
+            if (PyUnicode_Check(sub) || !pgLine_FromObject(sub, out)) {
+                return 0;
             }
+            return 1;
         }
     }
     if (PyObject_HasAttrString(obj, "line")) {
@@ -140,37 +141,8 @@ static int
 pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                           pgLineBase *out)
 {
-    if (nargs == 0) {
-        return 0;
-    }
-    else if (nargs == 1) {
-        PyObject *obj = args[0];
-        if (pgLine_Check(obj)) { /* passed another line */
-            *out = ((pgLineObject *)obj)->line;
-            return 1;
-        }
-        else if (PyObject_HasAttrString(obj,
-                                        "line")) { /* it is an attribute */
-            PyObject *lineattr;
-            lineattr = PyObject_GetAttrString(obj, "line");
-            if (lineattr == NULL) {
-                PyErr_Clear();
-                return 0;
-            }
-            if (PyCallable_Check(lineattr)) /*call if it's a method*/
-            {
-                PyObject *lineresult = PyObject_CallObject(lineattr, NULL);
-                Py_DECREF(lineattr);
-                if (lineresult == NULL) {
-                    PyErr_Clear();
-                    return 0;
-                }
-                lineattr = lineresult;
-            }
-            Py_DECREF(lineattr);
-            return pgLine_FromObject(lineattr, out);
-        }
-        return pgLine_FromObject(obj, out);
+    if (nargs == 1) {
+        return pgLine_FromObject(args[0], out);
     }
     else if (nargs == 2) {
         if (!pg_TwoDoublesFromObj(args[0], &(out->x1), &(out->y1)) ||
