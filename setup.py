@@ -4,12 +4,7 @@ import shlex
 import glob
 import sys
 
-extensions = [
-    Extension(
-        "geometry",
-        sources=["src_c/geometry.c"]
-    )
-]
+extensions = [Extension("geometry", sources=["src_c/geometry.c"])]
 
 
 def build() -> None:

@@ -15,7 +15,6 @@ from typing_extensions import Protocol
 from pygame.math import Vector2, Vector3
 from pygame.rect import Rect
 
-
 Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
 _CanBeLine = Union[
@@ -34,19 +33,14 @@ class _HasLineAttribute(Protocol):
 
 LineValue = Union[_CanBeLine, _HasLineAttribute]
 
-_CanBeCircle = Union[
-    Vector3,
-    "Circle",
-    Tuple[float, float, float],
-    Sequence[float]
-]
+_CanBeCircle = Union[Vector3, "Circle", Tuple[float, float, float], Sequence[float]]
+
 class _HasCirclettribute(Protocol):
     # An object that has a circle attribute that is either a circle, or a function
     # that returns a circle
     circle: Union[CircleValue, Callable[[], CircleValue]]
 
 CircleValue = Union[_CanBeCircle, _HasCirclettribute]
-
 
 class Line(Sequence[float]):
     x1: float
@@ -98,7 +92,9 @@ class Line(Sequence[float]):
     def collidecircle(self, circle: CircleValue) -> bool: ...
     @overload
     def collidecircle(self, x: float, y: float, r: float) -> bool: ...
-    def raycast(self, sequence: Sequence[LineValue]) -> Optional[Tuple[float, float]]: ...
+    def raycast(
+        self, sequence: Sequence[LineValue]
+    ) -> Optional[Tuple[float, float]]: ...
 
 class Circle:
     x: float

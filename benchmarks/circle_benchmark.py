@@ -20,7 +20,7 @@ GLOB = {
     "c1": c1,
     "c2": c2,
     "c3": c3,
-    "c4": c4
+    "c4": c4,
 }
 
 general_test_names = (
@@ -38,7 +38,7 @@ general_test_names = (
     "scale_ip",
     "scale_by",
     "scale_by_ip",
-    "as_rect"
+    "as_rect",
 )
 general_test_stmts = (
     "Circle((0, 0), 5)",
@@ -59,14 +59,19 @@ general_test_stmts = (
 )
 test_group("Circle General Tests", general_test_stmts, GLOB, general_test_names)
 
-collision_test_names = ("colliding", "non colliding",
-                        "a inside b", "b inside a", "collides_with")
+collision_test_names = (
+    "colliding",
+    "non colliding",
+    "a inside b",
+    "b inside a",
+    "collides_with",
+)
 c_c_test_stmts = (
     "c1.collidecircle(c2)",
     "c1.collidecircle(c3)",
     "c1.collidecircle(c4)",
     "c4.collidecircle(c1)",
-    "c1.collides_with(c2)"
+    "c1.collides_with(c2)",
 )
 test_group("Circle-Circle", c_c_test_stmts, GLOB, collision_test_names)
 
