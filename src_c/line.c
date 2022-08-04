@@ -247,9 +247,11 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
 
         if (pgIntersection_LineLine(&(self->line), &other_line, &x, &y)) {
-            double xxyy = sqrt(x * x + y * y);
-            if (xxyy < record) {
-                record = xxyy;
+            double dx = x - self->line.x1;
+            double dy = y - self->line.y1;
+            double dist_sqr = dx * dx + dy * dy;
+            if (dist_sqr < record) {
+                record = dist_sqr;
                 closest_x = x;
                 closest_y = y;
             }
