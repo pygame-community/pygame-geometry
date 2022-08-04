@@ -1,4 +1,4 @@
-name: Windows latest / build
+name: Windows latest
 
 on: [push, pull_request]
 

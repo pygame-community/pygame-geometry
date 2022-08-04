@@ -1,4 +1,4 @@
-name: Ubuntu latest / build
+name: Ubuntu latest
 
 on: [push, pull_request]
 
