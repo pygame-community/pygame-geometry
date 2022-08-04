@@ -241,9 +241,45 @@ pg_circle_copy(pgCircleObject *self, PyObject *_null)
                                    self->circle.y, self->circle.r);
 }
 
+static PyObject *
+pg_circle_as_rect(pgCircleObject *self, PyObject *_null)
+{
+    pgCircleBase scirc = self->circle;
+    int diameter = (int)(2 * scirc.r);
+    int x = (int)(scirc.x - scirc.r);
+    int y = (int)(scirc.y - scirc.r);
+
+    return Py_BuildValue("(iiii)", x, y, diameter, diameter);
+}
+
+static PyObject *
+pg_circle_as_frect(pgCircleObject *self, PyObject *_null)
+{
+    pgCircleBase scirc = self->circle;
+    double diameter = 2 * scirc.r;
+    double x = scirc.x - scirc.r;
+    double y = scirc.y - scirc.r;
+
+    return Py_BuildValue("(dddd)", x, y, diameter, diameter);
+}
+
+static PyObject *
+pg_circle_update(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (!pgCircle_FromObjectFastcall(args, nargs, &(self->circle))) {
+        RAISE(PyExc_TypeError,
+              "Circle.update requires a circle or CircleLike object");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
+    {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
+    {"as_frect", (PyCFunction)pg_circle_as_frect, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
+    {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* numeric functions */
