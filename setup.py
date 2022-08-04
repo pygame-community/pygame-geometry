@@ -29,4 +29,3 @@ if __name__ == "__main__":
         sys.exit(subprocess.call(cmd))
 
     build()
-

@@ -62,10 +62,8 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y)
     double u = -(u1 / den);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-        if (X)
-            *X = x1 + t * (x2 - x1);
-        if (Y)
-            *Y = y1 + t * (y2 - y1);
+        *X = x1 + t * (x2 - x1);
+        *Y = y1 + t * (y2 - y1);
         return 1;
     }
     return 0;

@@ -209,22 +209,55 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+pg_line_raycast(pgLineObject *self, PyObject* const* args, Py_ssize_t nargs)
 {
-    pgLineBase B;
-    double x, y;
+    PyObject **farr;
+    Py_ssize_t loop;
 
-    if (!pgLine_FromObjectFastcall(args, nargs, &B)) {
-        RAISE(PyExc_TypeError, "raycast requires a line or LineLike object");
-        return NULL;
+    if (nargs != 1) {
+        return RAISE(PyExc_TypeError, "raycast() takes exactly 1 argument");
+    }
+    if (!PySequence_FAST_CHECK(args[0])) {
+        return RAISE(PyExc_TypeError,
+                     "raycast() first argument must be a sequence");
     }
 
-    if (pgIntersection_LineLine(&self->line, &B, &x, &y)) {
-        return Py_BuildValue("(dd)", x, y);
-    }
-    else {
+    Py_ssize_t length = PySequence_Fast_GET_SIZE(args[0]);
+
+    if (length == 0) {
         Py_RETURN_NONE;
     }
+
+    farr = PySequence_Fast_ITEMS(args[0]);
+
+    pgLineBase other_line;
+
+    double record = DBL_MAX;
+    double closest_x = 0, closest_y = 0;
+    double x = 0, y = 0;
+
+    for (loop = 0; loop < length; loop++) {
+        if (!pgLine_FromObject(farr[loop], &other_line)) {
+            return RAISE(
+                PyExc_TypeError,
+                "raycast() first argument must be a sequence of Line or "
+                "LineLike objects");
+        }
+
+        if (pgIntersection_LineLine(&(self->line), &other_line, &x, &y)) {
+            double xxyy = sqrt(x * x + y * y);
+            if (xxyy < record) {
+                record = xxyy;
+                closest_x = x;
+                closest_y = y;
+            }
+        }
+    }
+
+    if (record == DBL_MAX) {
+        Py_RETURN_NONE;
+    }
+    return Py_BuildValue("(dd)", closest_x, closest_y);
 }
 
 static PyObject *
