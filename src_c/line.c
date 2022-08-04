@@ -149,7 +149,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             return 1;
         }
         else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
-            PyObject *sub = PySequence_GetItem(fseq, 0);
+            PyObject *sub = PySequence_GetItem(obj, 0);
             if (PyUnicode_Check(sub) || !pgLine_FromObject(sub, out)) {
                 Py_DECREF(sub);
                 return 0;
