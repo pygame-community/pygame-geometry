@@ -23,6 +23,7 @@ MODINIT_DEFINE(geometry)
                                          NULL};
 
     import_pygame_base();
+    import_pygame_rect();
     if (PyErr_Occurred()) {
         return NULL;
     }

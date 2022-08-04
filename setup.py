@@ -15,7 +15,7 @@ def build() -> None:
 
 
 if __name__ == "__main__":
-    if "format" in sys.argv:
+    if "format" in sys.argv or 1:
         c_files = glob.glob("src_c/*.c")
         h_files = glob.glob("src_c/include/*.h")
 

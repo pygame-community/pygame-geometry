@@ -145,17 +145,62 @@ typedef uint8_t Uint8;
 // so we can directly include the base source
 #define import_pygame_base()
 
+#ifndef SDL_VERSION_ATLEAST
 typedef struct {
     float x, y, w, h;
 } SDL_FRect;
 typedef struct {
     int x, y, w, h;
 } SDL_Rect;
+#endif /* ~SDL_VERSION_ATLEAST */
 
 #include "base.h"
 
 #ifndef PySequence_FAST_CHECK
 #define PySequence_FAST_CHECK(o) (PyList_Check(o) || PyTuple_Check(o))
 #endif /* ~PySequence_FAST_CHECK */
+
+#define _LOAD_SLOTS_FROM_PYGAME(module)                                       \
+    {                                                                         \
+        PyObject *_mod_##module = PyImport_ImportModule(IMPPREFIX #module);   \
+                                                                              \
+        if (_mod_##module != NULL) {                                          \
+            PyObject *_c_api =                                                \
+                PyObject_GetAttrString(_mod_##module, PYGAMEAPI_LOCAL_ENTRY); \
+                                                                              \
+            Py_DECREF(_mod_##module);                                         \
+            if (_c_api != NULL && PyCapsule_CheckExact(_c_api)) {             \
+                void **localptr = (void **)PyCapsule_GetPointer(              \
+                    _c_api, PG_CAPSULE_NAME(#module));                        \
+                _PGSLOTS_##module = localptr;                                 \
+            }                                                                 \
+            Py_XDECREF(_c_api);                                               \
+        }                                                                     \
+    }
+
+#define PYGAMEAPI_GET_SLOT(module, index) _PGSLOTS_##module[(index)]
+
+typedef struct {
+    PyObject_HEAD SDL_Rect r;
+    PyObject *weakreflist;
+} pgRectObject;
+
+void **_PGSLOTS_rect;
+
+#define pgRect_AsRect(x) (((pgRectObject *)x)->r)
+#define pgRect_Type (*(PyTypeObject *)PYGAMEAPI_GET_SLOT(rect, 0))
+
+#define pgRect_Check(x) ((x)->ob_type == &pgRect_Type)
+#define pgRect_New (*(PyObject * (*)(SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 1))
+
+#define pgRect_New4 \
+    (*(PyObject * (*)(int, int, int, int)) PYGAMEAPI_GET_SLOT(rect, 2))
+
+#define pgRect_FromObject \
+    (*(SDL_Rect * (*)(PyObject *, SDL_Rect *)) PYGAMEAPI_GET_SLOT(rect, 3))
+
+#define pgRect_Normalize (*(void (*)(SDL_Rect *))PYGAMEAPI_GET_SLOT(rect, 4))
+
+#define import_pygame_rect() _LOAD_SLOTS_FROM_PYGAME(rect)
 
 #endif /* ~_PYGAME_H */
