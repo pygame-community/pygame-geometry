@@ -262,11 +262,36 @@ error:
                  "collidepoint requires a point or PointLike object");
 }
 
+static PyObject *
+pg_circle_as_rect(pgCircleObject *self, PyObject *_null)
+{
+    pgCircleBase scirc = self->circle;
+    int diameter = (int)(2 * scirc.r);
+    int x = (int)(scirc.x - scirc.r);
+    int y = (int)(scirc.y - scirc.r);
+
+    return pgRect_New4(x, y, diameter, diameter);
+}
+
+static PyObject *
+pg_circle_update(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (!pgCircle_FromObjectFastcall(args, nargs, &(self->circle))) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Circle.update requires a circle or CircleLike object");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
     {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
+    {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
+    {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
