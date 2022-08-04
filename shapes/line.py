@@ -1,7 +1,12 @@
 from typing import Sequence, Tuple
 
+
 class LineSegment:
-    def __init__(self, point1: Sequence[Tuple[float, float]], point2: Sequence[Tuple[float, float]]) -> None:
+    def __init__(
+        self,
+        point1: Sequence[Tuple[float, float]],
+        point2: Sequence[Tuple[float, float]],
+    ) -> None:
         super().__init__()
         self.point1 = point1
         self.point2 = point2

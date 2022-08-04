@@ -23,15 +23,18 @@ running = True
 
 while running:
     screen.fill((0, 0, 0))
-    
+
     for x in range(90):
         origin_pos = pygame.mouse.get_pos()
-        ray_endpoint = pygame.Vector2(math.sin(math.degrees(x)), math.cos(math.degrees(x))) * 125 + origin_pos
+        ray_endpoint = (
+            pygame.Vector2(math.sin(math.degrees(x)), math.cos(math.degrees(x))) * 125
+            + origin_pos
+        )
         ray = geometry.Line(origin_pos, ray_endpoint)
 
         point = ray.raycast(collisions) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
-    
+
     for line in collisions:
         pygame.draw.line(screen, (0, 0, 255), line.a, line.b, 5)
 

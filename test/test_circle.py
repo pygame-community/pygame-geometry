@@ -7,11 +7,10 @@ from geometry import Circle, Line
 
 
 class CircleTypeTest(unittest.TestCase):
-
     def testConstruction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
-         raises the appropriate errors
-         """
+        raises the appropriate errors
+        """
         invalid_types = (None, [], "1", (1,), [1, 2, 3], Vector2(1, 1))
 
         # Test x
@@ -29,7 +28,7 @@ class CircleTypeTest(unittest.TestCase):
 
     def testConstruction_invalid_arguments_number(self):
         """Checks whether passing the wrong number of arguments to the constructor
-           raises the appropriate errors
+        raises the appropriate errors
         """
         arguments = (
             (1,),  # one non vec3 non circle arg
@@ -74,8 +73,7 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(3.0, c.r)
 
     def testCalculatedAttributes(self):
-        """Tests whether the circle correctly calculates the r_sqr attribute on creation
-        """
+        """Tests whether the circle correctly calculates the r_sqr attribute on creation"""
         c = Circle(1.0, 2.0, 3.0)
         self.assertEqual(9.0, c.r_sqr)
 
@@ -140,8 +138,7 @@ class CircleTypeTest(unittest.TestCase):
             del c.y
 
     def test_r(self):
-        """Ensures changing the r attribute changes the radius without moving the circle.
-        """
+        """Ensures changing the r attribute changes the radius without moving the circle."""
         expected_x = 10.0
         expected_y = 2.0
         expected_radius = 5.0
@@ -169,8 +166,7 @@ class CircleTypeTest(unittest.TestCase):
             del c.r
 
     def test_r_sqr(self):
-        """Ensures setting the r_sqr attribute matches the r_sqr passed
-        """
+        """Ensures setting the r_sqr attribute matches the r_sqr passed"""
         expected_r_sqr = 10.0
         c = Circle(1.0, 1.0, 1.0)
         c.r_sqr = expected_r_sqr
@@ -178,8 +174,7 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(c.r_sqr, expected_r_sqr)
 
     def test_r_to_r_sqr(self):
-        """Ensures changing the r attribute correctly changes the r_sqr attribute.
-        """
+        """Ensures changing the r attribute correctly changes the r_sqr attribute."""
         expected_r_sqr = 1.0
         expected_r_sqr2 = 100.0
 
@@ -193,8 +188,7 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(c2.r_sqr, expected_r_sqr2)
 
     def test_r_sqr_to_r(self):
-        """Ensures changing the r_sqr attribute correctly changes the r attribute.
-        """
+        """Ensures changing the r_sqr attribute correctly changes the r attribute."""
         expected_r = 2.0
 
         c = Circle(0, 0, 23)
@@ -342,9 +336,7 @@ class CircleTypeTest(unittest.TestCase):
         l2 = Line(50, 0, 0, 10)
 
         # colliding single
-        self.assertTrue(
-            c.collideline(l), "Expected True, line should collide here"
-        )
+        self.assertTrue(c.collideline(l), "Expected True, line should collide here")
 
         # not colliding single
         self.assertFalse(
@@ -359,7 +351,7 @@ class CircleTypeTest(unittest.TestCase):
         # not colliding 2 args
         self.assertFalse(
             c.collideline((50, 0), (0, 10)),
-            "Expected True, line should not collide here"
+            "Expected True, line should not collide here",
         )
 
         # colliding 4 args
@@ -402,9 +394,7 @@ class CircleTypeTest(unittest.TestCase):
         p2 = (10, 10)
 
         # colliding single
-        self.assertTrue(
-            c.collidepoint(p1), "Expected True, point should collide here"
-        )
+        self.assertTrue(c.collidepoint(p1), "Expected True, point should collide here")
 
         # not colliding single
         self.assertFalse(

@@ -9,18 +9,14 @@ from utility_functions import rand_color, rand_bw_color
 pygame.init()
 
 
-def get_new_circle_surf(circle_obj: Circle,
-                        color: Union[str, Tuple[int, int, int]],
-                        surface_alpha: int) -> pygame.Surface:
-    surf = pygame.surface.Surface(
-        (circle_obj.diameter, circle_obj.diameter)
-    )
+def get_new_circle_surf(
+    circle_obj: Circle, color: Union[str, Tuple[int, int, int]], surface_alpha: int
+) -> pygame.Surface:
+    surf = pygame.surface.Surface((circle_obj.diameter, circle_obj.diameter))
     surf.set_colorkey("black")
     pygame.draw.circle(
-        surf,
-        color,
-        (circle_obj.radius, circle_obj.radius),
-        circle_obj.radius)
+        surf, color, (circle_obj.radius, circle_obj.radius), circle_obj.radius
+    )
     surf.set_alpha(surface_alpha)
     return surf
 
@@ -58,13 +54,13 @@ acc_multiplier = 0.92
 # --------------------------------------------
 
 # Useful surfaces setup ----------------------
-txt_surf = FONT.render("RIGHT CLICK to toggle | MOUSE WHEEL to select size",
-                       True, "white")
+txt_surf = FONT.render(
+    "RIGHT CLICK to toggle | MOUSE WHEEL to select size", True, "white"
+)
 sub_text_surf = pygame.surface.Surface((WIDTH, txt_surf.get_height() + 5))
 sub_text_surf.set_alpha(SUB_TEXT_ALPHA)
 mouse_circle_surf = get_new_circle_surf(mouse_circle, "white", ALPHA_VALUE)
-TXT_SURF_BLIT_POS = txt_surf.get_rect(
-    center=(WIDTH / 2, txt_surf.get_height() / 2))
+TXT_SURF_BLIT_POS = txt_surf.get_rect(center=(WIDTH / 2, txt_surf.get_height() / 2))
 # ------------------------------------------
 
 # Create the random shapes
@@ -74,30 +70,32 @@ for _ in range(SHAPES_NUMBER):
     obj = None
     if random() * 10 > 5:
         radius = randint(MIN_CIRCLE_RADIUS, MAX_CIRCLE_RADIUS)
-        obj = Circle((randint(radius, WIDTH - radius),
-                      randint(radius, HEIGHT - radius)), radius)
+        obj = Circle(
+            (randint(radius, WIDTH - radius), randint(radius, HEIGHT - radius)), radius
+        )
     else:
         dimx = randint(MIN_RECT_WIDTH, MAX_RECT_WIDTH)
         dimy = randint(MIN_RECT_HEIGHT, MAX_RECT_HEIGHT)
-        obj = pygame.Rect((randint(0, WIDTH - dimx), randint(0, HEIGHT - dimy)),
-                          (dimx, dimy))
-    
+        obj = pygame.Rect(
+            (randint(0, WIDTH - dimx), randint(0, HEIGHT - dimy)), (dimx, dimy)
+        )
+
     shapes.append(obj)
 
 # Game loop
 while keep:
-    
+
     screen.fill(BACKGROUND_COLOR)
     clock.tick_busy_loop(FPS)
-    
+
     mouse_circle.move_to_ip(*pygame.mouse.get_pos())
-    
+
     # main update and draw loop, draw every shape and update their size
     for shape, color, coll_color in zip(shapes, colors, colliding_colors):
-        
+
         is_circle = isinstance(shape, Circle)
         is_rect = isinstance(shape, pygame.Rect)
-        
+
         if feed_active and mouse_circle.collides_with(shape):
             if is_circle:
                 shape.scale_ip(shape.radius + 0.2)
@@ -111,14 +109,18 @@ while keep:
                     # this relocates the circle so there's no need to delete
                     # and create a new one
                     radius = randint(3, 15)
-                    shape.update((randint(radius, WIDTH - radius),
-                                  randint(radius, HEIGHT - radius)),
-                                 radius)
+                    shape.update(
+                        (
+                            randint(radius, WIDTH - radius),
+                            randint(radius, HEIGHT - radius),
+                        ),
+                        radius,
+                    )
                 shape.scale_ip(shape.radius - 0.25)
                 pygame.draw.circle(screen, color, *shape())
             elif is_rect:
                 value = 0.25
-                
+
                 if shape.h != 0:
                     w_ov_h = shape.w / shape.h
                     shape.w -= 0.1
@@ -126,35 +128,39 @@ while keep:
                     if shape.w <= 1 or shape.h <= 1:
                         dimx = randint(MIN_RECT_WIDTH, MAX_RECT_WIDTH)
                         dimy = randint(MIN_RECT_HEIGHT, MAX_RECT_HEIGHT)
-                        shape.update((randint(0, WIDTH - dimx),
-                                      randint(0, HEIGHT - dimy)), (dimx, dimy))
-                
+                        shape.update(
+                            (randint(0, WIDTH - dimx), randint(0, HEIGHT - dimy)),
+                            (dimx, dimy),
+                        )
+
                 pygame.draw.rect(screen, color, shape)
-    
+
     # blit the mouse circle surface on the screen
-    screen.blit(mouse_circle_surf, mouse_circle_surf.get_rect(
-        center=(mouse_circle.x, mouse_circle.y)))
-    
+    screen.blit(
+        mouse_circle_surf,
+        mouse_circle_surf.get_rect(center=(mouse_circle.x, mouse_circle.y)),
+    )
+
     if abs(acc_amt) < 0.001:
         acc_amt = 0
     else:
         acc_amt *= acc_multiplier
         mouse_circle.scale_by_ip(1 + acc_amt)
-        mouse_circle_surf = get_new_circle_surf(mouse_circle, "white",
-                                                ALPHA_VALUE)
-    
+        mouse_circle_surf = get_new_circle_surf(mouse_circle, "white", ALPHA_VALUE)
+
     # select and draw the mouse_circle border color
     if feed_active:
         border_color = "green"
     else:
         border_color = "white"
-    
-    pygame.draw.circle(screen, border_color, (mouse_circle.x, mouse_circle.y),
-                       mouse_circle.radius, 2)
-    
+
+    pygame.draw.circle(
+        screen, border_color, (mouse_circle.x, mouse_circle.y), mouse_circle.radius, 2
+    )
+
     # event loop
     for event in pygame.event.get():
-        
+
         if event.type == pygame.QUIT:
             keep = False
         elif event.type == pygame.MOUSEWHEEL:
@@ -166,14 +172,14 @@ while keep:
                 if acc_amt >= 0:
                     acc_amt = 0
                 acc_amt -= 0.014
-        
+
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:
             feed_active = not feed_active
-    
+
     # blit the text and black bar on the screen
     screen.blit(sub_text_surf, (0, 0))
     screen.blit(txt_surf, TXT_SURF_BLIT_POS)
-    
+
     pygame.display.set_caption(str(clock.get_fps()))
     pygame.display.update()
 
