@@ -1,6 +1,7 @@
-#include "line.c"
-#include "circle.c"
-#include "collisions.c"
+#include "include/pygame.h"
+#include "include/geometry.h"
+#include "include/collisions.h"
+#include "include/internal/geometry.h"
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 17
 

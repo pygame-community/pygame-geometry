@@ -1,5 +1,7 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
+#define PG_CIRCLE
+#include "include/internal/geometry.h"
 #include "include/collisions.h"
 
 #include <limits.h>
@@ -7,7 +9,7 @@
 #include <stddef.h>
 #include <math.h>
 
-static PyTypeObject pgCircle_Type;
+PyTypeObject pgCircle_Type;
 #define pgCircle_Check(x) ((x)->ob_type == &pgCircle_Type)
 
 static int
@@ -63,7 +65,7 @@ _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
     return 1;
 }
 
-static int
+int
 pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
 {
     Py_ssize_t length;
@@ -172,7 +174,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
     return 0;
 }
 
-static int
+int
 pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                             pgCircleBase *out)
 {
@@ -191,13 +193,13 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     return 0;
 }
 
-static PyObject *
+PyObject *
 pgCircle_New(pgCircleBase *c)
 {
     return _pg_circle_subtype_new3(&pgCircle_Type, c->x, c->y, c->r);
 }
 
-static PyObject *
+PyObject *
 pgCircle_New3(double x, double y, double r)
 {
     return _pg_circle_subtype_new3(&pgCircle_Type, x, y, r);
@@ -455,7 +457,7 @@ static PyGetSetDef pg_circle_getsets[] = {
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
-static PyTypeObject pgCircle_Type = {
+PyTypeObject pgCircle_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Circle",
     .tp_basicsize = sizeof(pgCircleObject),
     .tp_dealloc = (destructor)pg_circle_dealloc,

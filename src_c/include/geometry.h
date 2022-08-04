@@ -37,19 +37,4 @@ typedef struct {
 #define pgLine_GETX2(self) (pgLine_CAST(self)->line.x2)
 #define pgLine_GETY2(self) (pgLine_CAST(self)->line.y2)
 
-// return 1 if success and 0 if failure
-static int
-pgLine_FromObject(PyObject *obj, pgLineBase *out);
-// return 1 if success and 0 if failure
-static int
-pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
-                          pgLineBase *out);
-// return 1 if success and 0 if failure
-static int
-pgCircle_FromObject(PyObject *obj, pgCircleBase *out);
-// return 1 if success and 0 if failure
-static int
-pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
-                            pgCircleBase *out);
-
 #endif /* ~_GEOMETRY_H */

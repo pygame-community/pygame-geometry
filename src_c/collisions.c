@@ -5,7 +5,7 @@
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif /* ~ABS */
 
-static int
+int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
 {
     double x1_m_x2 = A->x1 - A->x2;
@@ -30,7 +30,7 @@ pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
     return t >= 0 && t <= 1 && u >= 0 && u <= 1;
 }
 
-static int
+int
 pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y)
 {
     double x1 = A->x1;
@@ -69,7 +69,7 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y)
     return 0;
 }
 
-static int
+int
 pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
 {
     double Ax = line->x1;
@@ -83,7 +83,7 @@ pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
                        : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay));
 }
 
-static int
+int
 pgCollision_CirclePoint(pgCircleBase *circle, double Cx, double Cy)
 {
     double dx = circle->x - Cx;
@@ -91,7 +91,7 @@ pgCollision_CirclePoint(pgCircleBase *circle, double Cx, double Cy)
     return dx * dx + dy * dy <= circle->r_sqr;
 }
 
-static int
+int
 pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
 {
     double x1 = line->x1;
@@ -127,7 +127,7 @@ pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
     return distance <= r;
 }
 
-static int
+int
 pgCollision_CircleCircle(pgCircleBase *A, pgCircleBase *B)
 {
     double dx, dy;
@@ -140,13 +140,13 @@ pgCollision_CircleCircle(pgCircleBase *A, pgCircleBase *B)
     return dx * dx + dy * dy <= sum_radi * sum_radi;
 }
 
-static int
+int
 pgCollision_RectLine(SDL_FRect *rect, pgLineBase *line)
 {
     return 0;
 }
 
-static int
+int
 pgCollision_RectCircle(SDL_FRect *rect, pgCircleBase *circle)
 {
     return 0;

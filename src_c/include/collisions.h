@@ -8,21 +8,21 @@
 
 #include "geometry.h"
 
-static int
+int
 pgCollision_LineLine(pgLineBase *, pgLineBase *);
-static int
+int
 pgIntersection_LineLine(pgLineBase *, pgLineBase *, double *, double *);
-static int
+int
 pgCollision_LinePoint(pgLineBase *, double, double);
-static int
+int
 pgCollision_CirclePoint(pgCircleBase *circle, double, double);
-static int
+int
 pgCollision_LineCircle(pgLineBase *, pgCircleBase *);
-static int
+int
 pgCollision_CircleCircle(pgCircleBase *, pgCircleBase *);
-static int
+int
 pgCollision_RectLine(SDL_FRect *, pgLineBase *);
-static int
+int
 pgCollision_RectCircle(SDL_FRect *, pgCircleBase *);
 
 #endif /* ~_PG_COLLISIONS_H */

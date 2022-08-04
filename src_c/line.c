@@ -1,5 +1,7 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
+#define PG_LINE
+#include "include/internal/geometry.h"
 #include "include/collisions.h"
 
 #include <limits.h>
@@ -7,24 +9,21 @@
 #include <stddef.h>
 #include <math.h>
 
-static PyTypeObject pgLine_Type;
+PyTypeObject pgLine_Type;
 #define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
 
-static double
+double
 pgLine_Length(pgLineBase line)
 {
     return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
                 (line.y2 - line.y1) * (line.y2 - line.y1));
 }
-static double
+double
 pgLine_LengthSquared(pgLineBase line)
 {
     return (line.x2 - line.x1) * (line.x2 - line.x1) +
            (line.y2 - line.y1) * (line.y2 - line.y1);
 }
-
-static int
-pg_line_init(pgLineObject *, PyObject *, PyObject *);
 
 static PyObject *
 _pg_line_subtype_new4(PyTypeObject *type, double x1, double y1, double x2,
@@ -65,6 +64,16 @@ pg_line_dealloc(pgLineObject *self)
 }
 
 static int
+pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
+{
+    if (!pgLine_FromObject(args, &(self->line))) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
+        return -1;
+    }
+    return 0;
+}
+
+int
 pgLine_FromObject(PyObject *obj, pgLineBase *out)
 {
     Py_ssize_t length;
@@ -180,7 +189,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     return 0;
 }
 
-static int
+int
 pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                           pgLineBase *out)
 {
@@ -206,13 +215,13 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     return 0;
 }
 
-static PyObject *
+PyObject *
 pgLine_New(pgLineBase *l)
 {
     return _pg_line_subtype_new4(&pgLine_Type, l->x1, l->y1, l->x2, l->y2);
 }
 
-static PyObject *
+PyObject *
 pgLine_New4(double x1, double y1, double x2, double y2)
 {
     return _pg_line_subtype_new4(&pgLine_Type, x1, y1, x2, y2);
@@ -855,7 +864,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
-static PyTypeObject pgLine_Type = {
+PyTypeObject pgLine_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Line",
     .tp_basicsize = sizeof(pgLineObject),
     .tp_dealloc = (destructor)pg_line_dealloc,
@@ -874,13 +883,3 @@ static PyTypeObject pgLine_Type = {
     .tp_init = (initproc)pg_line_init,
     .tp_new = pg_line_new,
 };
-
-static int
-pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
-{
-    if (!pgLine_FromObject(args, &(self->line))) {
-        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
-        return -1;
-    }
-    return 0;
-}
