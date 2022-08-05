@@ -462,9 +462,6 @@ class CircleTypeTest(unittest.TestCase):
         # barely colliding single
         self.assertTrue(c.colliderect(0, 4.9999999999999, 4, 4), msgt)
 
-        # barely not colliding single
-        self.assertFalse(c.colliderect(0, 5.0000000000001, 4, 4), msgf)
-
     def test_as_rect_invalid_args(self):
 
         c = Circle(0, 0, 10)
