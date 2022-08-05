@@ -86,7 +86,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     }
     if (PyList_Check(obj) || PyTuple_Check(obj)) {
         length = PySequence_Fast_GET_SIZE(obj);
-        PyObject** farray = PySequence_Fast_ITEMS(obj);
+        PyObject **farray = PySequence_Fast_ITEMS(obj);
 
         if (length == 4) {
             if (!pg_DoubleFromObj(farray[0], &(out->x1)) ||
@@ -106,7 +106,8 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             return 1;
         }
         else if (length == 1) /*looks like an arg?*/ {
-            if (PyUnicode_Check(farray[0]) || !pgLine_FromObject(farray[0], out)) {
+            if (PyUnicode_Check(farray[0]) ||
+                !pgLine_FromObject(farray[0], out)) {
                 return 0;
             }
             return 1;
@@ -115,7 +116,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     if (PySequence_Check(obj)) {
         length = PySequence_Length(obj);
         if (length == 4) {
-            PyObject* tmp;
+            PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_DoubleFromObj(tmp, &(out->x1))) {
                 Py_DECREF(tmp);
@@ -143,7 +144,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             return 1;
         }
         else if (length == 2) {
-            PyObject* tmp;
+            PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_TwoDoublesFromObj(tmp, &(out->x1), &(out->y1))) {
                 Py_DECREF(tmp);
@@ -164,7 +165,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 Py_DECREF(sub);
                 return 0;
             }
-                Py_DECREF(sub);
+            Py_DECREF(sub);
             return 1;
         }
     }
