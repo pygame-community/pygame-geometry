@@ -1,7 +1,5 @@
 #include "include/pygame.h"
 #include "include/geometry.h"
-#define PG_LINE
-#include "include/internal/geometry.h"
 #include "include/collisions.h"
 
 #include <limits.h>
