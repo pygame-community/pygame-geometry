@@ -7,20 +7,20 @@
 #include <stddef.h>
 #include <math.h>
 
-PyTypeObject pgLine_Type;
+static PyTypeObject pgLine_Type;
 #define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
 
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
 
-double
+static double
 pgLine_Length(pgLineBase line)
 {
     return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
                 (line.y2 - line.y1) * (line.y2 - line.y1));
 }
-double
+static double
 pgLine_LengthSquared(pgLineBase line)
 {
     return (line.x2 - line.x1) * (line.x2 - line.x1) +
@@ -75,7 +75,7 @@ pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-int
+static int
 pgLine_FromObject(PyObject *obj, pgLineBase *out)
 {
     Py_ssize_t length;
@@ -191,7 +191,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     return 0;
 }
 
-int
+static int
 pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                           pgLineBase *out)
 {
@@ -217,13 +217,13 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     return 0;
 }
 
-PyObject *
+static PyObject *
 pgLine_New(pgLineBase *l)
 {
     return _pg_line_subtype_new4(&pgLine_Type, l->x1, l->y1, l->x2, l->y2);
 }
 
-PyObject *
+static PyObject *
 pgLine_New4(double x1, double y1, double x2, double y2)
 {
     return _pg_line_subtype_new4(&pgLine_Type, x1, y1, x2, y2);
@@ -833,7 +833,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
 };
 
-PyTypeObject pgLine_Type = {
+static PyTypeObject pgLine_Type = {
     PyVarObject_HEAD_INIT(NULL, 0).tp_name = "pygame.Line",
     .tp_basicsize = sizeof(pgLineObject),
     .tp_dealloc = (destructor)pg_line_dealloc,
