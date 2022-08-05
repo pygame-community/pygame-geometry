@@ -48,11 +48,7 @@ T_collision_names = (
     "a inside b",
     "b inside a",
 )
-T_collision_names_2 = (
-    "rect",
-    "circle",
-    "point"
-)
+T_collision_names_2 = ("rect", "circle", "point")
 # ==========================
 
 # === Test Function Calls ===
