@@ -95,6 +95,7 @@ class Line(Sequence[float]):
     def raycast(
         self, sequence: Sequence[LineValue]
     ) -> Optional[Tuple[float, float]]: ...
+    def as_rect(self) -> Rect: ...
 
 class Circle:
     x: float
