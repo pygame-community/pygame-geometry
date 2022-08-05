@@ -360,17 +360,17 @@ pg_line_as_rect(pgLineObject *self, PyObject *_null)
     double b_y = self->line.y2;
 
     if (a_x > b_x) {
-        rect_x = (int)floor(b_x);
+        rect_x = (int)b_x;
     }
     else {
-        rect_x = (int)floor(a_x);
+        rect_x = (int)a_x;
     }
 
     if (a_y > b_y) {
-        rect_y = (int)floor(b_y);
+        rect_y = (int)b_y;
     }
     else {
-        rect_y = (int)floor(a_y);
+        rect_y = (int)a_y;
     }
 
     rect_width = (int)ceil(ABS(a_x - b_x));
