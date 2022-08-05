@@ -129,7 +129,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         }
         else if (length == 1) {
             tmp = PySequence_ITEM(obj, 0);
-            if (PyUnicode_Check(obj) ||!pgCircle_FromObject(tmp, out)) {
+            if (PyUnicode_Check(obj) || !pgCircle_FromObject(tmp, out)) {
                 Py_DECREF(tmp);
                 return 0;
             }

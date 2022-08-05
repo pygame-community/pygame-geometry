@@ -10,6 +10,10 @@
 static PyTypeObject pgLine_Type;
 #define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
 
+#ifndef ABS
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+#endif
+
 static double
 pgLine_Length(pgLineBase line)
 {
@@ -22,9 +26,6 @@ pgLine_LengthSquared(pgLineBase line)
     return (line.x2 - line.x1) * (line.x2 - line.x1) +
            (line.y2 - line.y1) * (line.y2 - line.y1);
 }
-
-static int
-pg_line_init(pgLineObject *, PyObject *, PyObject *);
 
 static PyObject *
 _pg_line_subtype_new4(PyTypeObject *type, double x1, double y1, double x2,
@@ -65,6 +66,16 @@ pg_line_dealloc(pgLineObject *self)
 }
 
 static int
+pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
+{
+    if (!pgLine_FromObject(args, &(self->line))) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
+        return -1;
+    }
+    return 0;
+}
+
+static int
 pgLine_FromObject(PyObject *obj, pgLineBase *out)
 {
     Py_ssize_t length;
@@ -75,7 +86,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     }
     if (PyList_Check(obj) || PyTuple_Check(obj)) {
         length = PySequence_Fast_GET_SIZE(obj);
-        PyObject** farray = PySequence_Fast_ITEMS(obj);
+        PyObject **farray = PySequence_Fast_ITEMS(obj);
 
         if (length == 4) {
             if (!pg_DoubleFromObj(farray[0], &(out->x1)) ||
@@ -95,7 +106,8 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             return 1;
         }
         else if (length == 1) /*looks like an arg?*/ {
-            if (PyUnicode_Check(farray[0]) || !pgLine_FromObject(farray[0], out)) {
+            if (PyUnicode_Check(farray[0]) ||
+                !pgLine_FromObject(farray[0], out)) {
                 return 0;
             }
             return 1;
@@ -104,7 +116,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     if (PySequence_Check(obj)) {
         length = PySequence_Length(obj);
         if (length == 4) {
-            PyObject* tmp;
+            PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_DoubleFromObj(tmp, &(out->x1))) {
                 Py_DECREF(tmp);
@@ -132,7 +144,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             return 1;
         }
         else if (length == 2) {
-            PyObject* tmp;
+            PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_TwoDoublesFromObj(tmp, &(out->x1), &(out->y1))) {
                 Py_DECREF(tmp);
@@ -153,7 +165,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 Py_DECREF(sub);
                 return 0;
             }
-                Py_DECREF(sub);
+            Py_DECREF(sub);
             return 1;
         }
     }
@@ -343,61 +355,29 @@ pg_line_as_rect(pgLineObject *self, PyObject *_null)
     int rect_y;
     int rect_width;
     int rect_height;
-    int a_x = self->line.x1;
-    int a_y = self->line.y1;
-    int b_x = self->line.x2;
-    int b_y = self->line.y2;
-
-    if (a_x > b_x) {
-        rect_x = b_x;
-    }
-    else {
-        rect_x = a_x;
-    }
-
-    if (a_y > b_y) {
-        rect_y = b_y;
-    }
-    else {
-        rect_y = a_y;
-    }
-
-    rect_width = abs(a_x - b_x);
-    rect_height = abs(a_y - b_y);
-
-    return Py_BuildValue("(iiii)", rect_x, rect_y, rect_width, rect_height);
-}
-
-static PyObject *
-pg_line_as_frect(pgLineObject *self, PyObject *_null)
-{
-    double rect_x;
-    double rect_y;
-    double rect_width;
-    double rect_height;
     double a_x = self->line.x1;
     double a_y = self->line.y1;
     double b_x = self->line.x2;
     double b_y = self->line.y2;
 
     if (a_x > b_x) {
-        rect_x = b_x;
+        rect_x = (int)b_x;
     }
     else {
-        rect_x = a_x;
+        rect_x = (int)a_x;
     }
 
     if (a_y > b_y) {
-        rect_y = b_y;
+        rect_y = (int)b_y;
     }
     else {
-        rect_y = a_y;
+        rect_y = (int)a_y;
     }
 
-    rect_width = fabs(a_x - b_x);
-    rect_height = fabs(a_y - b_y);
+    rect_width = (int)ceil(ABS(a_x - b_x));
+    rect_height = (int)ceil(ABS(a_y - b_y));
 
-    return Py_BuildValue("(dddd)", rect_x, rect_y, rect_width, rect_height);
+    return pgRect_New4(rect_x, rect_y, rect_width, rect_height);
 }
 
 static PyObject *
@@ -418,7 +398,6 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
-    {"as_frect", (PyCFunction)pg_line_as_frect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
@@ -874,13 +853,3 @@ static PyTypeObject pgLine_Type = {
     .tp_init = (initproc)pg_line_init,
     .tp_new = pg_line_new,
 };
-
-static int
-pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
-{
-    if (!pgLine_FromObject(args, &(self->line))) {
-        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
-        return -1;
-    }
-    return 0;
-}
