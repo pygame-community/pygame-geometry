@@ -9,7 +9,7 @@
 
 static PyTypeObject pgCircle_Type;
 #define pgCircle_Check(x) ((x)->ob_type == &pgCircle_Type)
-
+#define pgCircle_AsCircle(x) (((pgCircleObject *)arg)->circle)
 static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);
 
@@ -129,7 +129,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         }
         else if (length == 1) {
             tmp = PySequence_ITEM(obj, 0);
-            if (PyUnicode_Check(obj) ||!pgCircle_FromObject(tmp, out)) {
+            if (PyUnicode_Check(obj) || !pgCircle_FromObject(tmp, out)) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -261,6 +261,61 @@ error:
     return RAISE(PyExc_TypeError,
                  "collidepoint requires a point or PointLike object");
 }
+static PyObject *
+pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
+{
+    SDL_Rect *tmp, temp;
+    if (nargs == 1) {
+        if (!(tmp = pgRect_FromObject(args[0], &temp))) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+        return PyBool_FromLong(pgCollision_RectCircle(tmp, &(self->circle)));
+    }
+    else if (nargs == 2) {
+        if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
+            !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else if (nargs == 4) {
+        if (!pg_IntFromObj(args[0], &temp.x) ||
+            !pg_IntFromObj(args[1], &temp.y) ||
+            !pg_IntFromObj(args[2], &temp.w) ||
+            !pg_IntFromObj(args[3], &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid argumets number, must be 1, 2 or 4");
+    }
+
+    return PyBool_FromLong(pgCollision_RectCircle(&temp, &(self->circle)));
+}
+
+static PyObject *
+pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
+{
+    int result = 0;
+    if (pgCircle_Check(arg)) {
+        result =
+            pgCollision_CircleCircle(&self->circle, &pgCircle_AsCircle(arg));
+    }
+    else if (pgRect_Check(arg)) {
+        result = pgCollision_RectCircle(&(pgRect_AsRect(arg)), &self->circle);
+    }
+    else if (PySequence_Check(arg)) {
+        return pg_circle_collidepoint(self, (PyObject *const *)(&arg), 1);
+    }
+    return PyBool_FromLong(result);
+}
 
 static PyObject *
 pg_circle_as_rect(pgCircleObject *self, PyObject *_null)
@@ -290,6 +345,8 @@ static struct PyMethodDef pg_circle_methods[] = {
      NULL},
     {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
+    {"colliderect", (PyCFunction)pg_circle_colliderect, METH_FASTCALL, NULL},
+    {"collideswith", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},

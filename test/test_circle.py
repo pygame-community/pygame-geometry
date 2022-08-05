@@ -2,6 +2,7 @@ import unittest
 from math import sqrt
 
 from pygame import Vector2, Vector3
+from pygame import Rect
 
 from geometry import Circle, Line
 
@@ -365,7 +366,7 @@ class CircleTypeTest(unittest.TestCase):
         )
 
     def test_collidepoint_argtype(self):
-        """tests if the function correctly handler incorrect types as parameters"""
+        """tests if the function correctly handles incorrect types as parameters"""
         invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
 
         c = Circle(10, 10, 4)
@@ -410,6 +411,155 @@ class CircleTypeTest(unittest.TestCase):
         self.assertFalse(
             c.collidepoint(10, 10), "Expected True, point should not collide here"
         )
+
+    def test_colliderect_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.colliderect(value)
+
+    def test_colliderect_argnum(self):
+        c = Circle(10, 10, 4)
+        args = [(1), (1, 1), (1, 1, 1), (1, 1, 1, 1, 1)]
+        # no params
+        with self.assertRaises(TypeError):
+            c.colliderect()
+
+        # invalid num
+        for arg in args:
+            with self.assertRaises(TypeError):
+                c.colliderect(*arg)
+
+    def test_colliderect(self):
+        msgt = "Expected True, rect should collide here"
+        msgf = "Expected False, rect should not collide here"
+        # ====================================================
+        c = Circle(0, 0, 5)
+
+        r1 = Rect(2, 2, 4, 4)
+        r2 = Rect(10, 15, 43, 24)
+        r3 = Rect(0, 5, 4, 4)
+
+        # colliding single
+        self.assertTrue(c.colliderect(r1), msgt)
+
+        # not colliding single
+        self.assertFalse(c.colliderect(r2), msgf)
+
+        # barely colliding single
+        self.assertTrue(c.colliderect(r3), msgt)
+
+        # colliding 4 args
+        self.assertTrue(c.colliderect(2, 2, 4, 4), msgt)
+
+        # not colliding 4 args
+        self.assertFalse(c.colliderect(10, 15, 43, 24), msgf)
+
+        # barely colliding single
+        self.assertTrue(c.colliderect(0, 4.9999999999999, 4, 4), msgt)
+
+        # barely not colliding single
+        self.assertFalse(c.colliderect(0, 5.0000000000001, 4, 4), msgf)
+
+    def test_as_rect_invalid_args(self):
+
+        c = Circle(0, 0, 10)
+
+        invalid_args = [None, [], "1", (1,), Vector2(1, 1), 1]
+
+        with self.assertRaises(TypeError):
+            for arg in invalid_args:
+                c.as_rect(arg)
+
+    def test_as_rect(self):
+        c = Circle(0, 0, 10)
+        c2 = Circle(-10, -10, 10)
+
+        self.assertEqual(c.as_rect(), Rect(-10, -10, 20, 20))
+
+    def test_update(self):
+        """Ensures that updating the circle position
+        and dimension correctly updates position and dimension"""
+        c = Circle(0, 0, 10)
+
+        c.update(5, 5, 3)
+
+        self.assertEqual(c.x, 5.0)
+        self.assertEqual(c.y, 5.0)
+        self.assertEqual(c.r, 3.0)
+        self.assertEqual(c.r_sqr, 9.0)
+
+    def test_update_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1, 0.2324)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.update(value)
+
+    def test_update_argnum(self):
+        c = Circle(10, 10, 4)
+
+        # no params
+        with self.assertRaises(TypeError):
+            c.update()
+
+        # too many params
+        with self.assertRaises(TypeError):
+            c.update(1, 1, 1, 1)
+
+    def test_update_twice(self):
+        """Ensures that updating the circle position
+        and dimension correctly updates position and dimension"""
+        c = Circle(0, 0, 10)
+
+        c.update(5, 5, 3)
+        c.update(0, 0, 10)
+
+        self.assertEqual(c.x, 0.0)
+        self.assertEqual(c.y, 0.0)
+        self.assertEqual(c.r, 10)
+        self.assertEqual(c.r_sqr, 100)
+
+    def test_update_inplace(self):
+        """Ensures that updating the circle to its position doesn't
+        move the circle to another position"""
+        c = Circle(0, 0, 10)
+        c_x = c.x
+        c_y = c.y
+        c_r = c.r
+        c_r_sqr = c.r_sqr
+
+        c.update(0, 0, 10)
+
+        self.assertEqual(c.x, c_x)
+        self.assertEqual(c.y, c_y)
+        self.assertEqual(c.r, c_r)
+        self.assertEqual(c.r_sqr, c_r_sqr)
+
+        c.update(c)
+
+    def test_selfupdate(self):
+        """Ensures that updating the circle to its position doesn't
+        move the circle to another position"""
+        c = Circle(0, 0, 10)
+        c_x = c.x
+        c_y = c.y
+        c_r = c.r
+        c_r_sqr = c.r_sqr
+
+        c.update(c)
+
+        self.assertEqual(c.x, c_x)
+        self.assertEqual(c.y, c_y)
+        self.assertEqual(c.r, c_r)
+        self.assertEqual(c.r_sqr, c_r_sqr)
 
 
 if __name__ == "__main__":

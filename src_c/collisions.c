@@ -147,7 +147,33 @@ pgCollision_RectLine(SDL_FRect *rect, pgLineBase *line)
 }
 
 static int
-pgCollision_RectCircle(SDL_FRect *rect, pgCircleBase *circle)
+pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
 {
-    return 0;
+    double cx = circle->x, cy = circle->y;
+    double rx = (double)rect->x, ry = (double)rect->y;
+    double rw = (double)rect->w, rh = (double)rect->h;
+    double r_bottom = ry + rh;
+    double r_right = rx + rw;
+
+    double test_x = cx;
+    double test_y = cy;
+
+    if (cx < rx) {
+        test_x = rx;
+    }
+    else if (cx > r_right) {
+        test_x = r_right;
+    }
+
+    if (cy < ry) {
+        test_y = ry;
+    }
+    else if (cy > r_bottom) {
+        test_y = r_bottom;
+    }
+
+    double dx = cx - test_x;
+    double dy = cy - test_y;
+
+    return dx * dx + dy * dy <= circle->r_sqr;
 }
