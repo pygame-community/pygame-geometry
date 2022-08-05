@@ -367,7 +367,6 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             line.as_rect(1, 2)
 
-
     def test_bool(self):
         line = Line(10, 10, 4, 56)
         line2 = Line(0, 0, 0, 0)
