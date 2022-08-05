@@ -13,6 +13,12 @@ static PyTypeObject pgLine_Type;
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
+#ifndef MIN
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#endif
+#ifndef MAX
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
+#endif
 
 static double
 pgLine_Length(pgLineBase line)
@@ -351,31 +357,16 @@ pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
 static PyObject *
 pg_line_as_rect(pgLineObject *self, PyObject *_null)
 {
-    int rect_x;
-    int rect_y;
-    int rect_width;
-    int rect_height;
-    double a_x = self->line.x1;
-    double a_y = self->line.y1;
-    double b_x = self->line.x2;
-    double b_y = self->line.y2;
+    double Ax = self->line.x1;
+    double Ay = self->line.y1;
+    double Bx = self->line.x2;
+    double By = self->line.y2;
 
-    if (a_x > b_x) {
-        rect_x = (int)b_x;
-    }
-    else {
-        rect_x = (int)a_x;
-    }
+    int rect_x = (int)floor(MIN(Ax, Bx));
+    int rect_y = (int)floor(MIN(Ay, By));
 
-    if (a_y > b_y) {
-        rect_y = (int)b_y;
-    }
-    else {
-        rect_y = (int)a_y;
-    }
-
-    rect_width = (int)ceil(ABS(a_x - b_x));
-    rect_height = (int)ceil(ABS(a_y - b_y));
+    int rect_width = (int)ceil(ABS(Ax - Bx));
+    int rect_height = (int)ceil(ABS(Ay - By));
 
     return pgRect_New4(rect_x, rect_y, rect_width, rect_height);
 }
