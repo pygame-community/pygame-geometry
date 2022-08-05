@@ -10,6 +10,10 @@
 PyTypeObject pgLine_Type;
 #define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
 
+#ifndef ABS
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+#endif
+
 double
 pgLine_Length(pgLineBase line)
 {
@@ -350,27 +354,27 @@ pg_line_as_rect(pgLineObject *self, PyObject *_null)
     int rect_y;
     int rect_width;
     int rect_height;
-    int a_x = (int)self->line.x1;
-    int a_y = (int)self->line.y1;
-    int b_x = (int)self->line.x2;
-    int b_y = (int)self->line.y2;
+    double a_x = self->line.x1;
+    double a_y = self->line.y1;
+    double b_x = self->line.x2;
+    double b_y = self->line.y2;
 
     if (a_x > b_x) {
-        rect_x = b_x;
+        rect_x = (int)floor(b_x);
     }
     else {
-        rect_x = a_x;
+        rect_x = (int)floor(a_x);
     }
 
     if (a_y > b_y) {
-        rect_y = b_y;
+        rect_y = (int)floor(b_y);
     }
     else {
-        rect_y = a_y;
+        rect_y = (int)floor(a_y);
     }
 
-    rect_width = abs(a_x - b_x);
-    rect_height = abs(a_y - b_y);
+    rect_width = (int)ceil(ABS(a_x - b_x));
+    rect_height = (int)ceil(ABS(a_y - b_y));
 
     return pgRect_New4(rect_x, rect_y, rect_width, rect_height);
 }
