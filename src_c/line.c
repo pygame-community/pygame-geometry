@@ -703,41 +703,6 @@ pg_line_str(pgLineObject *self)
 }
 
 static PyObject *
-pg_line_richcompare(PyObject *o1, PyObject *o2, int opid)
-{
-    pgLineBase o1line, o2line;
-    double length1, length2;
-
-    if (!pgLine_FromObject(o1, &o1line) || !pgLine_FromObject(o2, &o2line)) {
-        goto Unimplemented;
-    }
-
-    length1 = pgLine_Length(o1line);
-    length2 = pgLine_Length(o2line);
-
-    switch (opid) {
-        case Py_LT:
-            return PyBool_FromLong(length1 < length2);
-        case Py_LE:
-            return PyBool_FromLong(length1 <= length2);
-        case Py_EQ:
-            return PyBool_FromLong(length1 == length2);
-        case Py_NE:
-            return PyBool_FromLong(length1 != length2);
-        case Py_GT:
-            return PyBool_FromLong(length1 > length2);
-        case Py_GE:
-            return PyBool_FromLong(length1 >= length2);
-        default:
-            break;
-    }
-
-Unimplemented:
-    Py_INCREF(Py_NotImplemented);
-    return Py_NotImplemented;
-}
-
-static PyObject *
 pg_line_iterator(pgLineObject *self)
 {
     Py_ssize_t i;
@@ -866,7 +831,6 @@ static PyTypeObject pgLine_Type = {
     .tp_str = (reprfunc)pg_line_str,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = NULL,
-    .tp_richcompare = (richcmpfunc)pg_line_richcompare,
     .tp_weaklistoffset = offsetof(pgLineObject, weakreflist),
     .tp_iter = (getiterfunc)pg_line_iterator,
     .tp_methods = pg_line_methods,
