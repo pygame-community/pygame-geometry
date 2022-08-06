@@ -271,10 +271,20 @@ class LineTypeTest(unittest.TestCase):
             lineA.raycast(lineA, "5")
 
         self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
-        self.assertEqual(lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475))
-        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
-        self.assertEqual(lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476))
-        self.assertEqual(lineB.raycast([lineA, lineB, A, B, C, D, E]), (-0.7071067811865476, -0.7071067811865476))
+        self.assertEqual(
+            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
+        )
+        self.assertEqual(
+            lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5)
+        )
+        self.assertEqual(
+            lineB.raycast([D, E]),
+            (-0.7071067811865476, -0.7071067811865476)
+        )
+        self.assertEqual(lineB.raycast(
+            [lineA, lineB, A, B, C, D, E]),
+            (-0.7071067811865476, -0.7071067811865476)
+        )
 
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)
