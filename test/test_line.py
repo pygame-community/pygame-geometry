@@ -300,23 +300,36 @@ class LineTypeTest(unittest.TestCase):
         self.assertIsNot(line, line_2)
 
     def test_meth_raycast(self):
-        A = Line(((0, 0), (10, 10)))
-        B = Line(0, 10, 10, 0)
-        C = Line(0, 1, 1, 0)
-        D = Line(-1, -2, -3, -4)
+        lineA = Line(0, 0, 10, 10)
+        lineB = Line(0, 0, -1, -1)
+
+        A = Line(0, 10, 10, 0)
+        B = Line(0, 1, 1, 0)
+        C = Line(-1, -2, -3, -4)
+        D = Circle(5, 5, 1)
+        E = Circle(0, 0, 1)
 
         with self.assertRaises(TypeError):
-            A.raycast(B, C, D)
+            lineA.raycast(A, B, C)
 
         with self.assertRaises(TypeError):
-            A.raycast()
+            lineA.raycast()
 
         with self.assertRaises(TypeError):
-            A.raycast(A, "5")
+            lineA.raycast(lineA, "5")
 
-        point = A.raycast([A, B, C, D])
-
-        self.assertEqual(point, (0.5, 0.5))
+        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
+        self.assertEqual(
+            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
+        )
+        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
+        self.assertEqual(
+            lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476)
+        )
+        self.assertEqual(
+            lineB.raycast([lineA, lineB, A, B, C, D, E]),
+            (-0.7071067811865476, -0.7071067811865476),
+        )
 
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)
