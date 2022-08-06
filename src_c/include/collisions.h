@@ -29,6 +29,6 @@ pgCollision_CircleCircle(pgCircleBase *, pgCircleBase *);
 static int
 pgCollision_RectLine(SDL_FRect *, pgLineBase *);
 static int
-pgCollision_RectCircle(SDL_FRect *, pgCircleBase *);
+pgCollision_RectCircle(SDL_Rect *, pgCircleBase *);
 
 #endif /* ~_PG_COLLISIONS_H */
