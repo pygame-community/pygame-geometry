@@ -47,7 +47,7 @@ while running:
         )
         ray = geometry.Line(origin_pos, ray_endpoint)
 
-        point = ray.raycast(collisions_lines) or ray_endpoint
+        point = ray.raycast(collisions_lines + collisions_circles) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
     for line in collisions_lines:

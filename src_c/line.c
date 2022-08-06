@@ -262,24 +262,28 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     pgLineBase other_line;
     pgCircleBase other_circle;
 
-    // find the best t
+    // find the best tr
     double record = DBL_MAX;
     double temp_t = 0;
 
     for (loop = 0; loop < length; loop++) {
         if (pgCircle_FromObject(farr[loop], &other_circle)) {
-            if (pgIntersection_LineCircle(&(self->line), &other_circle, NULL, NULL, &temp_t)) {
+            if (pgIntersection_LineCircle(&(self->line), &other_circle, NULL,
+                                          NULL, &temp_t)) {
                 record = MIN(record, temp_t);
             }
-        } else if (pgLine_FromObject(farr[loop], &other_line)) {
-            if (pgIntersection_LineLine(&(self->line), &other_line, NULL, NULL, &temp_t)) {
+        }
+        else if (pgLine_FromObject(farr[loop], &other_line)) {
+            if (pgIntersection_LineLine(&(self->line), &other_line, NULL, NULL,
+                                        &temp_t)) {
                 record = MIN(record, temp_t);
             }
-        } else {
-            return RAISE(
-                PyExc_TypeError,
-                "first argument of raycast() must be a sequence of Line, LineLike, "
-                "Circle or CircleLike objects");
+        }
+        else {
+            return RAISE(PyExc_TypeError,
+                         "first argument of raycast() must be a sequence of "
+                         "Line, LineLike, "
+                         "Circle or CircleLike objects");
         }
     }
 
@@ -287,8 +291,9 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         Py_RETURN_NONE;
     }
     // construct the return with this formula: A+tB
-    return Py_BuildValue("(dd)", self->line.x1 + record * (self->line.x2 - self->line.x1),
-                         self->line.y1 + record * (self->line.y2 - self->line.y1));
+    return Py_BuildValue(
+        "(dd)", self->line.x1 + record * (self->line.x2 - self->line.x1),
+        self->line.y1 + record * (self->line.y2 - self->line.y1));
 }
 
 static PyObject *

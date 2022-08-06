@@ -34,7 +34,8 @@ pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
 }
 
 static int
-pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y, double *T)
+pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
+                        double *T)
 {
     double x1 = A->x1;
     double y1 = A->y1;
@@ -65,9 +66,12 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y, doub
     double u = -(u1 / den);
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-        if (X) *X = x1 + t * (x2 - x1);
-        if (Y) *Y = y1 + t * (y2 - y1);
-        if (T) *T = t;
+        if (X)
+            *X = x1 + t * (x2 - x1);
+        if (Y)
+            *Y = y1 + t * (y2 - y1);
+        if (T)
+            *T = t;
         return 1;
     }
     return 0;
@@ -96,31 +100,42 @@ pgCollision_CirclePoint(pgCircleBase *circle, double Cx, double Cy)
 }
 
 static int
-pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X, double *Y, double *T)
+pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
+                          double *Y, double *T)
 {
-	// find the intersection point of line and circle and treat line.x1&line.y1 as the origin of the ray
     double x1 = line->x1;
-	double y1 = line->y1;
-	double x2 = line->x2;
-	double y2 = line->y2;
-	double xc = circle->x;
-	double yc = circle->y;
-	double r = circle->r;
-	double dx = x2 - x1;
-	double dy = y2 - y1;
-	double A = dx * dx + dy * dy;
-	double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
-	double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - r * r;
-	double det = B * B - 4 * A * C;
-	if (det < 0)
-		return 0;
-	double t = (-B - sqrt(det)) / (2 * A);
-	if (t < 0 || t > 1)
-		return 0;
-	if (X) *X = x1 + t * dx;
-	if (Y) *Y = y1 + t * dy;
-	if (T) *T = t;
-	return 1;
+    double y1 = line->y1;
+    double x2 = line->x2;
+    double y2 = line->y2;
+    double xc = circle->x;
+    double yc = circle->y;
+    double r = circle->r;
+    double rsq = circle->r_sqr;
+
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    double A = dx * dx + dy * dy;
+    double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
+    double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - rsq;
+    double descriminant = B * B - 4 * A * C;
+    if (descriminant < 0) {
+        return 0;
+    }
+    double t = (-B - sqrt(descriminant)) / (2 * A);
+    if (t < 0 || t > 1) {
+        t = (-B + sqrt(descriminant)) / (2 * A);
+        if (t < 0 || t > 1) {
+            return 0;
+        }
+    }
+
+    if (X)
+        *X = x1 + t * dx;
+    if (Y)
+        *Y = y1 + t * dy;
+    if (T)
+        *T = t;
+    return 1;
 }
 
 static int
