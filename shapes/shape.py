@@ -37,7 +37,7 @@ class Shape(ABC):
     #     """"""
 
     @abstractmethod
-    def collides_with(self, other: Shape) -> bool:
+    def collideswith(self, other: Shape) -> bool:
         """"""
 
     @abstractmethod
