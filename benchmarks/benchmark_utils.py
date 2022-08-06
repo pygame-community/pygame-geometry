@@ -37,35 +37,6 @@ class TestGroup:
         print("-) " + test_name + f": {round(fmean(lst), 8)} s")
         return fmean(lst)
 
-        # def test_group(
-        #     self,
-        #     group_name: str,
-        #     include_tot: bool = False,
-        #     include_mean: bool = True,
-        #     test_mode: str = "mean",
-        # ) -> float:
-        #     print("\n====||" + group_name.upper() + "||====")
-        #
-        #     test_data = [
-        #         self.test(
-        #             tests_names[i] if tests_names else str(i + 1),
-        #             test_obj,
-        #             test_mode,
-        #         )
-        #         for i, test_obj in enumerate(sequence)
-        #     ]
-        #
-        #     print("______________")
-        #     if include_tot:
-        #         print(f"-) Total time: {round(sum(test_data), 8)}")
-        #         return sum(test_data)
-        #
-        #     if include_mean:
-        #         print(f"-) Mean time: {round(fmean(test_data), 8)}")
-        #         return fmean(test_data)
-        #
-        #     return fmean(test_data)
-
 
 class TestSuite:
     def __init__(
