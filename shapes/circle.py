@@ -21,8 +21,6 @@ class Circle(Shape):
     __slots__ = ("x", "y", "r", "d", "r_sqr")
 
     def __init__(self, x: float, y: float, r: float) -> None:
-        if r <= 0:
-            r = 1
         self.x, self.y = x, y
         # d and r_sqr are
         # convenient attributes for saving calculations
@@ -35,8 +33,6 @@ class Circle(Shape):
     # Movement, scale and position functions
     def update(self, x: float, y: float, r: float) -> None:
         """Updates the x and y position and r in place"""
-        if r <= 0:
-            r = 1
         self.x = x
         self.y = y
         self.r = r
@@ -66,8 +62,6 @@ class Circle(Shape):
 
     def scale_by(self, amount: float) -> Circle:
         """Returns a new Circle with same position as self and updated r"""
-        if amount <= 0:
-            raise ValueError("Invalid amount passes")
         r = self.r
         if r * amount <= 0:
             r = 1
@@ -76,8 +70,6 @@ class Circle(Shape):
 
     def scale_by_ip(self, amount: float) -> None:
         """Scales the Circle to the new r in place"""
-        if amount <= 0:
-            raise ValueError("Invalid amount passes")
 
         self.r *= amount
 
