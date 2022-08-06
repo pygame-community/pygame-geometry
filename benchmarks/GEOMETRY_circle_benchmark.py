@@ -1,6 +1,6 @@
 from pygame import Rect
 from benchmark_utils import TestSuite
-from shapes.circle import Circle
+from geometry import Circle
 
 CPT = 1_000_000  # Calls Per Test
 
@@ -61,8 +61,8 @@ CR_collision_test = [
 ]
 
 CP_collision_test = [
-    ("Colliding", "c1.collidepoint(*p1)"),
-    ("Non colliding", "c1.collidepoint(*p2)"),
+    ("Colliding", "c1.collidepoint(p1)"),
+    ("Non colliding", "c1.collidepoint(p2)"),
     ("A inside B", "c1.collidepoint(10, 10)"),
     ("B inside A", "c1.collidepoint(1000, 1000)"),
 ]
@@ -85,4 +85,4 @@ TESTS = [
 ]
 # ==========================
 
-TestSuite("Python Implementation - Circle", TESTS, GLOB, num=CPT).run_suite()
+TestSuite("Geometry Module - Circle", TESTS, GLOB, num=CPT).run_suite()
