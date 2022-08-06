@@ -7,25 +7,6 @@ from geometry import Circle, Line
 
 
 class LineTypeTest(unittest.TestCase):
-    class ClassWithLineAttrib:
-        def __init__(self, line):
-            self.line = line
-
-    class ClassWithLineProperty:
-        def __init__(self, line):
-            self._line = line
-
-        @property
-        def line(self):
-            return self._line
-
-    class ClassWithLineFunction:
-        def __init__(self, line):
-            self._line = line
-
-        def line(self):
-            return self._line
-
     def testConstruction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
         raises the appropriate errors
@@ -92,42 +73,13 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 4.0)
 
     def testConstructionTUP_X1Y1X2Y2_int(self):
+
         line = Line((1, 2, 3, 4))
 
         self.assertEqual(line.x1, 1.0)
         self.assertEqual(line.y1, 2.0)
         self.assertEqual(line.x2, 3.0)
         self.assertEqual(line.y2, 4.0)
-
-    def testConstruction_class_with_line_attrib(self):
-        class_ = self.ClassWithLineAttrib(Line(1.1, 2.2, 3.3, 4.4))
-
-        line = Line(class_)
-
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
-
-    def testConstruction_class_with_line_property(self):
-        class_ = self.ClassWithLineProperty(Line(1.1, 2.2, 3.3, 4.4))
-
-        line = Line(class_)
-
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
-
-    def testConstruction_class_with_line_function(self):
-        class_ = self.ClassWithLineFunction(Line(1.1, 2.2, 3.3, 4.4))
-
-        line = Line(class_)
-
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
 
     def test_attrib_x1(self):
         """a full test for the x1 attribute"""
@@ -300,23 +252,29 @@ class LineTypeTest(unittest.TestCase):
         self.assertIsNot(line, line_2)
 
     def test_meth_raycast(self):
-        A = Line(((0, 0), (10, 10)))
-        B = Line(0, 10, 10, 0)
-        C = Line(0, 1, 1, 0)
-        D = Line(-1, -2, -3, -4)
+        lineA = Line(0, 0, 10, 10)
+        lineB = Line(0, 0, -1, -1)
+
+        A = Line(0, 10, 10, 0)
+        B = Line(0, 1, 1, 0)
+        C = Line(-1, -2, -3, -4)
+        D = Circle(5, 5, 1)
+        E = Circle(0, 0, 1)
 
         with self.assertRaises(TypeError):
-            A.raycast(B, C, D)
+            lineA.raycast(A, B, C)
 
         with self.assertRaises(TypeError):
-            A.raycast()
+            lineA.raycast()
 
         with self.assertRaises(TypeError):
-            A.raycast(A, "5")
+            lineA.raycast(lineA, "5")
 
-        point = A.raycast([A, B, C, D])
-
-        self.assertEqual(point, (0.5, 0.5))
+        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
+        self.assertEqual(lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475))
+        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
+        self.assertEqual(lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476))
+        self.assertEqual(lineB.raycast([lineA, lineB, A, B, C, D, E]), (-0.7071067811865476, -0.7071067811865476))
 
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)
@@ -394,6 +352,15 @@ class LineTypeTest(unittest.TestCase):
     def test_meth_as_rect(self):
         line = Line(0, 0, 1, 1)
 
+        rect = line.as_rect()
+
+        self.assertIsInstance(rect, Rect)
+
+        self.assertEqual(rect.x, 0)
+        self.assertEqual(rect.y, 0)
+        self.assertEqual(rect.width, 1)
+        self.assertEqual(rect.height, 1)
+
         with self.assertRaises(TypeError):
             line.as_rect(1, 2, 3, 4, 5)
 
@@ -405,24 +372,6 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             line.as_rect(1, 2)
-
-        rect = line.as_rect()
-
-        self.assertIsInstance(rect, Rect)
-
-        self.assertEqual(rect.x, 0)
-        self.assertEqual(rect.y, 0)
-        self.assertEqual(rect.width, 1)
-        self.assertEqual(rect.height, 1)
-
-        line = Line(0.5, 1.6, -1.2, -0.5)
-
-        rect = line.as_rect()
-
-        self.assertEqual(rect.x, -2)
-        self.assertEqual(rect.y, -1)
-        self.assertEqual(rect.width, 2)
-        self.assertEqual(rect.height, 3)
 
     def test_bool(self):
         line = Line(10, 10, 4, 56)
@@ -438,145 +387,6 @@ class LineTypeTest(unittest.TestCase):
     def test__repr__(self):
         line = Line(10.1, 10.2, 4.3, 56.4)
         self.assertEqual(repr(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
-
-    def test_seq_length(self):
-        self.assertEqual(len(Line(0, 0, 0, 0)), 4)
-
-    def test_seq_getitem(self):
-        line = Line(1.1, 2.2, 3.3, 4.4)
-        self.assertEqual(line[0], 1.1)
-        self.assertEqual(line[1], 2.2)
-        self.assertEqual(line[2], 3.3)
-        self.assertEqual(line[3], 4.4)
-
-        self.assertEqual(line[-4], 1.1)
-        self.assertEqual(line[-3], 2.2)
-        self.assertEqual(line[-2], 3.3)
-        self.assertEqual(line[-1], 4.4)
-
-        with self.assertRaises(IndexError):
-            line[4]
-        with self.assertRaises(IndexError):
-            line[-5]
-
-    def test_seq_setitem(self):
-        line = Line(1.1, 2.2, 3.3, 4.4)
-        line[0] = 5.5
-        line[1] = 6.6
-        line[2] = 7.7
-        line[3] = 8.8
-
-        self.assertEqual(line.x1, 5.5)
-        self.assertEqual(line.y1, 6.6)
-        self.assertEqual(line.x2, 7.7)
-        self.assertEqual(line.y2, 8.8)
-
-        line[-4] = 15.5
-        line[-3] = 16.6
-        line[-2] = 17.7
-        line[-1] = 18.8
-
-        self.assertEqual(line.x1, 15.5)
-        self.assertEqual(line.y1, 16.6)
-        self.assertEqual(line.x2, 17.7)
-        self.assertEqual(line.y2, 18.8)
-
-        with self.assertRaises(IndexError):
-            line[4] = 1
-        with self.assertRaises(IndexError):
-            line[-5] = 1
-
-        with self.assertRaises(TypeError):
-            line[0] = (1, 2)
-        with self.assertRaises(TypeError):
-            line[0] = [1, 2]
-        with self.assertRaises(TypeError):
-            line[0] = {1: 2}
-        with self.assertRaises(TypeError):
-            line[0] = object()
-
-        line[:] = 10.1
-        self.assertEqual(line.x1, 10.1)
-        self.assertEqual(line.y1, 10.1)
-        self.assertEqual(line.x2, 10.1)
-        self.assertEqual(line.y2, 10.1)
-
-        line[0:2] = 5.59
-        self.assertEqual(line.x1, 5.59)
-        self.assertEqual(line.y1, 5.59)
-        self.assertEqual(line.x2, 10.1)
-        self.assertEqual(line.y2, 10.1)
-
-        line[0:4] = 5.595
-        self.assertEqual(line.x1, 5.595)
-        self.assertEqual(line.y1, 5.595)
-        self.assertEqual(line.x2, 5.595)
-        self.assertEqual(line.y2, 5.595)
-
-        line[0:4] = Line(1.1, 2.2, 3.3, 4.4)
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
-
-        with self.assertRaises(TypeError):
-            line[0:4] = [1, 2, 3, 4, 5]
-        with self.assertRaises(TypeError):
-            line[0:4] = {1: 2, 3: 4}
-        with self.assertRaises(TypeError):
-            line[0:4] = object()
-
-    def test_subscript(self):
-        r = Line(1.1, 2.2, 3.3, 4.4)
-        self.assertEqual(r[0], 1.1)
-        self.assertEqual(r[1], 2.2)
-        self.assertEqual(r[2], 3.3)
-        self.assertEqual(r[3], 4.4)
-        self.assertEqual(r[-1], 4.4)
-        self.assertEqual(r[-2], 3.3)
-        self.assertEqual(r[-4], 1.1)
-        self.assertRaises(IndexError, r.__getitem__, 5)
-        self.assertRaises(IndexError, r.__getitem__, -5)
-        self.assertEqual(r[0:2], [1.1, 2.2])
-        self.assertEqual(r[0:4], [1.1, 2.2, 3.3, 4.4])
-        self.assertEqual(r[0:-1], [1.1, 2.2, 3.3])
-        self.assertEqual(r[:], [1.1, 2.2, 3.3, 4.4])
-        self.assertEqual(r[...], [1.1, 2.2, 3.3, 4.4])
-        self.assertEqual(r[0:4:2], [1.1, 3.3])
-        self.assertEqual(r[0:4:3], [1.1, 4.4])
-        self.assertEqual(r[3::-1], [4.4, 3.3, 2.2, 1.1])
-        self.assertRaises(TypeError, r.__getitem__, None)
-
-    def test_ass_subscript(self):
-        r = Line(0, 0, 0, 0)
-        r[...] = 1.1, 2.2, 3.3, 4.4
-        self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
-        self.assertRaises(TypeError, r.__setitem__, None, 0)
-        self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
-        self.assertRaises(TypeError, r.__setitem__, 0, "")
-        self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
-        self.assertRaises(IndexError, r.__setitem__, 4, 0)
-        self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
-        self.assertRaises(IndexError, r.__setitem__, -5, 0)
-        self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
-        r[0] = 10.1
-        self.assertEqual(r, [10.1, 2.2, 3.3, 4.4])
-        r[3] = 40.40
-        self.assertEqual(r, [10.1, 2.2, 3.3, 40.4])
-        r[-1] = 400.45
-        self.assertEqual(r, [10.1, 2.2, 3.3, 400.45])
-        r[-4] = 100.5
-        self.assertEqual(r, [100.5, 2.2, 3.3, 400.45])
-        r[1:3] = 0
-        self.assertEqual(r, [100.5, 0, 0, 400.45])
-        r[...] = 0
-        self.assertEqual(r, [0, 0, 0, 0])
-        r[:] = 9.9
-        self.assertEqual(r, [9.9, 9.9, 9.9, 9.9])
-        r[:] = 11.11, 12.12, 13.13, 14.14
-        self.assertEqual(r, [11.11, 12.12, 13.13, 14.14])
-        r[::-1] = r
-        self.assertEqual(r, [14.14, 13.13, 12.12, 11.11])
 
 
 if __name__ == "__main__":

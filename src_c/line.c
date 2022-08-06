@@ -13,12 +13,6 @@ static PyTypeObject pgLine_Type;
 #ifndef ABS
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #endif
-#ifndef MIN
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
 
 static double
 pgLine_Length(pgLineBase line)
@@ -254,7 +248,7 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
     if (!PySequence_FAST_CHECK(args[0])) {
         return RAISE(PyExc_TypeError,
-                     "raycast() first argument must be a sequence");
+                     "first argument of raycast() must be a sequence");
     }
 
     Py_ssize_t length = PySequence_Fast_GET_SIZE(args[0]);
@@ -266,35 +260,40 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     farr = PySequence_Fast_ITEMS(args[0]);
 
     pgLineBase other_line;
+    pgCircleBase other_circle;
 
+    // find the best t
     double record = DBL_MAX;
-    double closest_x = 0, closest_y = 0;
-    double x = 0, y = 0;
+    double temp_t = 0;
 
     for (loop = 0; loop < length; loop++) {
-        if (!pgLine_FromObject(farr[loop], &other_line)) {
-            return RAISE(
-                PyExc_TypeError,
-                "raycast() first argument must be a sequence of Line or "
-                "LineLike objects");
-        }
-
-        if (pgIntersection_LineLine(&(self->line), &other_line, &x, &y)) {
-            double dx = x - self->line.x1;
-            double dy = y - self->line.y1;
-            double dist_sqr = dx * dx + dy * dy;
-            if (dist_sqr < record) {
-                record = dist_sqr;
-                closest_x = x;
-                closest_y = y;
+        if (pgCircle_FromObject(farr[loop], &other_circle)) {
+            if (pgIntersection_LineCircle(&(self->line), &other_circle, NULL,
+                                          NULL, &temp_t)) {
+                record = MIN(record, temp_t);
             }
+        }
+        else if (pgLine_FromObject(farr[loop], &other_line)) {
+            if (pgIntersection_LineLine(&(self->line), &other_line, NULL, NULL,
+                                        &temp_t)) {
+                record = MIN(record, temp_t);
+            }
+        }
+        else {
+            return RAISE(PyExc_TypeError,
+                         "first argument of raycast() must be a sequence of "
+                         "Line, LineLike, "
+                         "Circle or CircleLike objects");
         }
     }
 
     if (record == DBL_MAX) {
         Py_RETURN_NONE;
     }
-    return Py_BuildValue("(dd)", closest_x, closest_y);
+    // construct the return with this formula: A+tB
+    return Py_BuildValue(
+        "(dd)", self->line.x1 + record * (self->line.x2 - self->line.x1),
+        self->line.y1 + record * (self->line.y2 - self->line.y1));
 }
 
 static PyObject *
@@ -350,23 +349,37 @@ pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
             PyExc_TypeError,
             "Line.collidecircle requires a circle or CircleLike object");
     }
-
     return PyBool_FromLong(pgCollision_LineCircle(&self->line, &circle));
 }
 
 static PyObject *
 pg_line_as_rect(pgLineObject *self, PyObject *_null)
 {
-    double Ax = self->line.x1;
-    double Ay = self->line.y1;
-    double Bx = self->line.x2;
-    double By = self->line.y2;
+    int rect_x;
+    int rect_y;
+    int rect_width;
+    int rect_height;
+    double a_x = self->line.x1;
+    double a_y = self->line.y1;
+    double b_x = self->line.x2;
+    double b_y = self->line.y2;
 
-    int rect_x = (int)floor(MIN(Ax, Bx));
-    int rect_y = (int)floor(MIN(Ay, By));
+    if (a_x > b_x) {
+        rect_x = (int)b_x;
+    }
+    else {
+        rect_x = (int)a_x;
+    }
 
-    int rect_width = (int)ceil(ABS(Ax - Bx));
-    int rect_height = (int)ceil(ABS(Ay - By));
+    if (a_y > b_y) {
+        rect_y = (int)b_y;
+    }
+    else {
+        rect_y = (int)a_y;
+    }
+
+    rect_width = (int)ceil(ABS(a_x - b_x));
+    rect_height = (int)ceil(ABS(a_y - b_y));
 
     return pgRect_New4(rect_x, rect_y, rect_width, rect_height);
 }
