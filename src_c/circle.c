@@ -314,7 +314,13 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
         result = pgCollision_RectCircle(&pgRect_AsRect(arg), &self->circle);
     }
     else if (PySequence_Check(arg)) {
-        return pg_circle_collidepoint(self, (PyObject *const *)(&arg), 1);
+        double x, y;
+        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid arguments, must be a sequence of 2 numbers");
+        }
+        return PyBool_FromLong(
+            pgCollision_CirclePoint(&pgCircle_AsCircle(self), x, y));
     }
     return PyBool_FromLong(result);
 }
