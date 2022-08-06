@@ -265,8 +265,10 @@ static PyObject *
 pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
                       Py_ssize_t nargs)
 {
-    SDL_Rect *tmp, temp;
+    SDL_Rect temp;
+
     if (nargs == 1) {
+        SDL_Rect *tmp;
         if (!(tmp = pgRect_FromObject(args[0], &temp))) {
             if (PyErr_Occurred())
                 return NULL;
@@ -294,7 +296,7 @@ pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
     }
     else {
         return RAISE(PyExc_TypeError,
-                     "Invalid argumets number, must be 1, 2 or 4");
+                     "Invalid arguments number, must be 1, 2 or 4");
     }
 
     return PyBool_FromLong(pgCollision_RectCircle(&temp, &(self->circle)));
@@ -309,7 +311,7 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
             pgCollision_CircleCircle(&self->circle, &pgCircle_AsCircle(arg));
     }
     else if (pgRect_Check(arg)) {
-        result = pgCollision_RectCircle(&(pgRect_AsRect(arg)), &self->circle);
+        result = pgCollision_RectCircle(&pgRect_AsRect(arg), &self->circle);
     }
     else if (PySequence_Check(arg)) {
         return pg_circle_collidepoint(self, (PyObject *const *)(&arg), 1);
