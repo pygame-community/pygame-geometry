@@ -15,6 +15,8 @@ c4 = Circle(10, 10, 15)
 
 p1 = (10, 10)
 p2 = (1000, 1000)
+p3 = (10.0, 10.0)
+p4 = (1000.0, 1000.0)
 
 GLOB = {
     "Circle": Circle,
@@ -27,16 +29,34 @@ GLOB = {
     "c4": c4,
     "p1": p1,
     "p2": p2,
+    "p3": p3,
+    "p4": p4,
 }
 
 # === Tests ===
 general_test = [
     ("Instatiation", "Circle(0, 0, 5)"),
-    ("x attrib", "c1.x"),
-    ("y attrib", "c1.y"),
-    ("radius attrib", "c1.r"),
+    ("x get", "c1.x"),
+    ("x set int", "c1.x = 3"),
+    ("x set float", "c1.x = 3.0"),
+    ("y get", "c1.y"),
+    ("y set int", "c1.y = 3"),
+    ("y set float", "c1.y = 3.0"),
+    ("radius get", "c1.r"),
+    ("radius set int", "c1.r = 3"),
+    ("radius set float", "c1.r = 3.0"),
+    ("center get", "c1.center"),
+    ("center set int", "c1.center = (3, 3)"),
+    ("center set float", "c1.center = (3.0, 3.0)"),
+    ("area get", "c1.area"),
+    ("area set int", "c1.area = 3"),
+    ("area set float", "c1.area = 3.0"),
+    ("circumference get", "c1.circumference"),
+    ("circumference set int", "c1.circumference = 3"),
+    ("circumference set float", "c1.circumference = 3.0"),
     ("copy", "c1.copy()"),
-    ("update", "c1.update(1, 1, 3)"),
+    ("update int", "c1.update(1, 1, 3)"),
+    ("update float", "c1.update(1.0, 1.0, 3.0)"),
     # ("move", "c1.move(1, 1)"),
     # ("move_ip", "c1.move_ip(1, 1)"),
     # ("move_to", "c1.move_to(1, 1)"),
@@ -61,10 +81,14 @@ CR_collision_test = [
 ]
 
 CP_collision_test = [
-    ("Colliding", "c1.collidepoint(p1)"),
-    ("Non colliding", "c1.collidepoint(p2)"),
-    ("A inside B", "c1.collidepoint(10, 10)"),
-    ("B inside A", "c1.collidepoint(1000, 1000)"),
+    ("Colliding 1 int", "c1.collidepoint(p1)"),
+    ("Non colliding 1 int", "c1.collidepoint(p2)"),
+    ("Colliding 1 float", "c1.collidepoint(p3)"),
+    ("Non colliding 1 float", "c1.collidepoint(p4)"),
+    ("Colliding 2 int", "c1.collidepoint(10, 10)"),
+    ("Non colliding 2 int", "c1.collidepoint(1000, 1000)"),
+    ("Colliding 2 float", "c1.collidepoint(10.0, 10.0)"),
+    ("Non colliding 2 float", "c1.collidepoint(1000.0, 1000.0)"),
 ]
 
 CS_collision_test = [

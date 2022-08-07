@@ -32,9 +32,12 @@ GLOB = {
 # === Tests ===
 general_test = [
     ("Instatiation", "Circle(0, 0, 5)"),
-    ("x attrib", "c1.x"),
-    ("y attrib", "c1.y"),
-    ("radius attrib", "c1.r"),
+    ("x get", "c1.x"),
+    ("x set", "c1.x = 3"),
+    ("y get", "c1.y"),
+    ("y set", "c1.y = 3"),
+    ("radius get", "c1.r"),
+    ("radius set", "c1.r = 3"),
     ("copy", "c1.copy()"),
     ("update", "c1.update(1, 1, 3)"),
     # ("move", "c1.move(1, 1)"),
