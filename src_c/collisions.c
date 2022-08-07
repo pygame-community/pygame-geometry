@@ -1,4 +1,5 @@
 #include "include/collisions.h"
+#include <assert.h>
 #include <stdio.h>
 
 #ifndef ABS
@@ -7,6 +8,19 @@
 #ifndef DOT2D
 #define DOT2D(X0, Y0, X1, Y1) ((X0) * (X1) + (Y0) * (Y1))
 #endif /* ~DOT2D */
+
+#ifndef CODE_BOTTOM
+#define CODE_BOTTOM 1
+#endif /* CODE_BOTTOM */
+#ifndef CODE_TOP
+#define CODE_TOP 2
+#endif /* CODE_TOP */
+#ifndef CODE_LEFT
+#define CODE_LEFT 4
+#endif /* CODE_LEFT */
+#ifndef CODE_RIGHT
+#define CODE_RIGHT 8
+#endif /* CODE_RIGHT */
 
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
@@ -188,39 +202,53 @@ pgCollision_CircleCircle(pgCircleBase *A, pgCircleBase *B)
 }
 
 static int
+pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
+                        double *T)
+{
+    double x = (double)rect->x;
+    double y = (double)rect->y;
+    double w = (double)rect->w;
+    double h = (double)rect->h;
+
+    pgLineBase a = {x, y, x + w, y};
+    pgLineBase b = {x, y, x, y + h};
+    pgLineBase c = {x, y + h, x + w, y + h};
+    pgLineBase d = {x + w, y, x + w, y + h};
+
+    int ret = 0;
+
+    double temp_t = DBL_MAX;
+    double final_t = DBL_MAX;
+
+    ret |= pgIntersection_LineLine(line, &a, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &b, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &c, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &d, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+
+    if (ret) {
+        if (X)
+            *X = line->x1 + final_t * (line->x2 - line->x1);
+        if (Y)
+            *Y = line->y1 + final_t * (line->y2 - line->y1);
+        if (T)
+            *T = final_t;
+    }
+
+    return ret;
+}
+
+static int
 pgCollision_RectLine(SDL_FRect *rect, pgLineBase *line)
 {
     return 0;
 }
 
 static int
-pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
+pgCollision_RectCircle(SDL_FRect *rect, pgCircleBase *circle)
 {
-    double cx = circle->x, cy = circle->y;
-    double rx = (double)rect->x, ry = (double)rect->y;
-    double rw = (double)rect->w, rh = (double)rect->h;
-    double r_bottom = ry + rh;
-    double r_right = rx + rw;
-
-    double test_x = cx;
-    double test_y = cy;
-
-    if (cx < rx) {
-        test_x = rx;
-    }
-    else if (cx > r_right) {
-        test_x = r_right;
-    }
-
-    if (cy < ry) {
-        test_y = ry;
-    }
-    else if (cy > r_bottom) {
-        test_y = r_bottom;
-    }
-
-    double dx = cx - test_x;
-    double dy = cy - test_y;
-
-    return dx * dx + dy * dy <= circle->r_sqr;
+    return 0;
 }
