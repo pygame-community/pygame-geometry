@@ -258,23 +258,23 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     for (loop = 0; loop < length; loop++) {
         if (pgCircle_Check(farr[loop])) {
-            if (pgIntersection_LineCircle(
-                    &(self->line), &((pgCircleObject *)farr[loop])->circle,
-                    NULL, NULL, &temp_t)) {
+            if (pgIntersection_LineCircle(&(self->line),
+                                          &pgCircle_AsCircle(farr[loop]), NULL,
+                                          NULL, &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgLine_Check(farr[loop])) {
             if (pgIntersection_LineLine(&(self->line),
-                                        &((pgLineObject *)farr[loop])->line,
-                                        NULL, NULL, &temp_t)) {
+                                        &pgLine_AsLine(farr[loop]), NULL, NULL,
+                                        &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgRect_Check(farr[loop])) {
             if (pgIntersection_LineRect(&(self->line),
-                                        &((pgRectObject *)farr[loop])->r, NULL,
-                                        NULL, &temp_t)) {
+                                        &pgRect_AsRect(farr[loop]), NULL, NULL,
+                                        &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
