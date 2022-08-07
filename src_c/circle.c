@@ -7,8 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
-#define PI (double)3.14159265358979323846264
-#define TAU (double)6.28318530717958647692528
+#define PI 3.14159265358979323846264
+#define TAU 6.28318530717958647692528
 static PyTypeObject pgCircle_Type;
 #define pgCircle_Check(x) ((x)->ob_type == &pgCircle_Type)
 #define pgCircle_AsCircle(x) (((pgCircleObject *)arg)->circle)
