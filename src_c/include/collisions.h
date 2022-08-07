@@ -30,8 +30,8 @@ static int
 pgIntersection_LineRect(pgLineBase *, SDL_Rect *, double *, double *,
                         double *);
 static int
-pgCollision_RectLine(SDL_FRect *, pgLineBase *);
+pgCollision_RectLine(SDL_Rect *, pgLineBase *);
 static int
-pgCollision_RectCircle(SDL_FRect *, pgCircleBase *);
+pgCollision_RectCircle(SDL_Rect *, pgCircleBase *);
 
 #endif /* ~_PG_COLLISIONS_H */
