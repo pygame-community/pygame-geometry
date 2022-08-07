@@ -146,7 +146,12 @@ typedef uint8_t Uint8;
 #define import_pygame_base()
 
 #ifndef SDL_VERSION_ATLEAST
-#include "_fake_sdl.h"
+typedef struct {
+    float x, y, w, h;
+} SDL_FRect;
+typedef struct {
+    int x, y, w, h;
+} SDL_Rect;
 #endif /* ~SDL_VERSION_ATLEAST */
 
 #include "base.h"

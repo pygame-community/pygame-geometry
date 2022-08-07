@@ -71,7 +71,9 @@ while running:
         pygame.draw.line(screen, (0, 0, 255), line.a, line.b, line_width)
 
     for circle in collisions_circles:
-        pygame.draw.circle(screen, (0, 0, 255), (circle.x, circle.y), circle.r, line_width)
+        pygame.draw.circle(
+            screen, (0, 0, 255), (circle.x, circle.y), circle.r, line_width
+        )
 
     for rect in collisions_rects:
         pygame.draw.rect(screen, (0, 0, 255), rect, line_width)
