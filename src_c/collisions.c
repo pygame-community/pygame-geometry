@@ -1,5 +1,4 @@
 #include "include/collisions.h"
-#include <assert.h>
 #include <stdio.h>
 
 #ifndef ABS
@@ -250,7 +249,7 @@ pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 static int
 pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
 {
-        double cx = circle->x, cy = circle->y;
+    double cx = circle->x, cy = circle->y;
     double rx = (double)rect->x, ry = (double)rect->y;
     double rw = (double)rect->w, rh = (double)rect->h;
     double r_bottom = ry + rh;
