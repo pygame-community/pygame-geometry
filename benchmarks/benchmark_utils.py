@@ -30,17 +30,17 @@ def yes_no(val: bool) -> str:
 
 class TestGroup:
     def __init__(
-            self,
-            name: str,
-            tests: list[tuple[str, str]],
-            globs: dict,
-            time_format: str,
-            precision: int,
-            num: int,
-            repeat_num: int,
-            show_total: bool = True,
-            show_mean: bool = True,
-            show_std: bool = True,
+        self,
+        name: str,
+        tests: list[tuple[str, str]],
+        globs: dict,
+        time_format: str,
+        precision: int,
+        num: int,
+        repeat_num: int,
+        show_total: bool = True,
+        show_mean: bool = True,
+        show_std: bool = True,
     ):
         self.name = name
         self.tests = tests
@@ -114,17 +114,17 @@ class TestGroup:
 
 class TestSuite:
     def __init__(
-            self,
-            title: str,
-            groups: list[tuple[str, list[tuple[str, str]]]],
-            globs: dict,
-            num: int = 1_000_000,
-            repeat_num: int = 5,
-            time_format="s",
-            precision=5,
-            show_total: bool = True,
-            show_mean: bool = True,
-            show_std: bool = True,
+        self,
+        title: str,
+        groups: list[tuple[str, list[tuple[str, str]]]],
+        globs: dict,
+        num: int = 1_000_000,
+        repeat_num: int = 5,
+        time_format="s",
+        precision=5,
+        show_total: bool = True,
+        show_mean: bool = True,
+        show_std: bool = True,
     ) -> None:
         self.title = title
         self.groups = [
@@ -189,7 +189,7 @@ class TestSuite:
             "Single test total: " + yes_no(self.show_total),
             "Single test mean: " + yes_no(self.show_mean),
             "Single test standard dev: " + yes_no(self.show_std),
-            self.calculate_data_order()
+            self.calculate_data_order(),
         ]
         for st in strs:
             print("- " + st)
