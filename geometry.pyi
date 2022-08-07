@@ -103,6 +103,9 @@ class Circle:
     y: float
     r: float
     r_sqr: float
+    area: float
+    circumference: float
+    center: Tuple[float, float]
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 
@@ -124,7 +127,9 @@ class Circle:
     def collidepoint(self, x: float, y: float) -> bool: ...
     @overload
     def collidepoint(self, point: Coordinate) -> bool: ...
+    @overload
     def colliderect(self, rect: Rect) -> bool: ...
+    @overload
     def colliderect(self, x: int, y: int, w: int, h: int) -> bool: ...
     def collideswith(self, other: _CanBeCollided) -> bool: ...
     def __copy__(self) -> "Circle": ...
