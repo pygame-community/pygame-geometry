@@ -28,17 +28,17 @@ def yes_no(val: bool) -> str:
 
 class TestGroup:
     def __init__(
-            self,
-            name: str,
-            tests: list[tuple[str, str]],
-            globs: dict,
-            time_format: str,
-            precision: int,
-            num: int,
-            repeat_num: int,
-            show_total: bool = True,
-            show_mean: bool = True,
-            show_std: bool = True,
+        self,
+        name: str,
+        tests: list[tuple[str, str]],
+        globs: dict,
+        time_format: str,
+        precision: int,
+        num: int,
+        repeat_num: int,
+        show_total: bool = True,
+        show_mean: bool = True,
+        show_std: bool = True,
     ):
         self.name = name
         self.tests = tests
@@ -66,8 +66,9 @@ class TestGroup:
 
     def test_pair(self, test_name: str, func: str) -> float:
 
-        lst = timeit.repeat(func, globals=self.globs, number=self.num,
-                            repeat=self.repeat_num)
+        lst = timeit.repeat(
+            func, globals=self.globs, number=self.num, repeat=self.repeat_num
+        )
         self.print_single_test_results(test_name, lst)
         return fmean(lst)
 
@@ -105,24 +106,31 @@ class TestGroup:
 
 class TestSuite:
     def __init__(
-            self,
-            title: str,
-            groups: list[tuple[str, list[tuple[str, str]]]],
-            globs: dict,
-            num: int = 1_000_000,
-            repeat_num: int = 5,
-            time_format="s",
-            precision=5,
-            show_total: bool = True,
-            show_mean: bool = True,
-            show_std: bool = True,
+        self,
+        title: str,
+        groups: list[tuple[str, list[tuple[str, str]]]],
+        globs: dict,
+        num: int = 1_000_000,
+        repeat_num: int = 5,
+        time_format="s",
+        precision=5,
+        show_total: bool = True,
+        show_mean: bool = True,
+        show_std: bool = True,
     ) -> None:
         self.title = title
         self.groups = [
             TestGroup(
-                group[0], group[1], globs,
-                time_format, precision, num, repeat_num,
-                show_total, show_mean, show_std
+                group[0],
+                group[1],
+                globs,
+                time_format,
+                precision,
+                num,
+                repeat_num,
+                show_total,
+                show_mean,
+                show_std,
             )
             for group in groups
         ]
@@ -153,7 +161,10 @@ class TestSuite:
         accum = 0
         for g_results in self.results:
             accum += sum(g_results)
-        print(f"\nTest suite total time: {self.adjust(accum * self.repeat_num)} " + self.time_format)
+        print(
+            f"\nTest suite total time: {self.adjust(accum * self.repeat_num)} "
+            + self.time_format
+        )
 
     def print_title(self) -> None:
         self.repeat_char("=")
@@ -162,13 +173,15 @@ class TestSuite:
 
     def print_settings(self) -> None:
         print("Test suite settings:")
-        strs = [f"Tests Number: {self.num}",
-                f"Repeat Number: {self.repeat_num}",
-                f"Time Format: '{self.time_format}'  (available 's', 'ms', 'us', 'ns')",
-                f"Precision: {self.precision}",
-                "Single test total: " + yes_no(self.show_total),
-                "Single test mean: " + yes_no(self.show_mean),
-                "Single test standard dev: " + yes_no(self.show_std)]
+        strs = [
+            f"Tests Number: {self.num}",
+            f"Repeat Number: {self.repeat_num}",
+            f"Time Format: '{self.time_format}'  (available 's', 'ms', 'us', 'ns')",
+            f"Precision: {self.precision}",
+            "Single test total: " + yes_no(self.show_total),
+            "Single test mean: " + yes_no(self.show_mean),
+            "Single test standard dev: " + yes_no(self.show_std),
+        ]
         for st in strs:
             print("- " + st)
         self.repeat_char("=")
