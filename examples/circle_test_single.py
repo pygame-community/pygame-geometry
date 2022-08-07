@@ -24,14 +24,14 @@ keep: bool = True
 
 feed_active: bool = True
 
-test_c = Circle((3 * WIDTH // 4, HEIGHT // 2), TEST_CIRCLE_RADIUS)
+test_c = Circle(3 * WIDTH // 4, HEIGHT // 2, TEST_CIRCLE_RADIUS)
 test_r = pygame.Rect(
     (WIDTH // 4 - TEST_RECT_WIDTH, HEIGHT // 2 - TEST_RECT_HEIGHT),
     (2 * TEST_RECT_WIDTH, 2 * TEST_RECT_HEIGHT),
 )
 colliding_c = False
 colliding_r = False
-mouse_shape = Circle((0, 0), 50)
+mouse_shape = Circle(0, 0, 50)
 
 acc_amt = 0
 acc_multiplier = 0.92

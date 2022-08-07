@@ -12,11 +12,9 @@ pygame.init()
 def get_new_circle_surf(
     circle_obj: Circle, color: Union[str, Tuple[int, int, int]], surface_alpha: int
 ) -> pygame.Surface:
-    surf = pygame.surface.Surface((circle_obj.diameter, circle_obj.diameter))
+    surf = pygame.surface.Surface((circle_obj.d, circle_obj.d))
     surf.set_colorkey("black")
-    pygame.draw.circle(
-        surf, color, (circle_obj.radius, circle_obj.radius), circle_obj.radius
-    )
+    pygame.draw.circle(surf, color, (circle_obj.r, circle_obj.r), circle_obj.r)
     surf.set_alpha(surface_alpha)
     return surf
 
@@ -47,7 +45,7 @@ colors: List[Tuple[int, int, int]] = []
 colliding_colors: List[Tuple[int, int, int]] = []
 
 feed_active: bool = True
-mouse_circle: Circle = Circle((0, 0), 50)
+mouse_circle: Circle = Circle(0, 0, 50)
 border_color: str = "green"
 acc_amt = 0
 acc_multiplier = 0.92
@@ -69,10 +67,8 @@ for _ in range(SHAPES_NUMBER):
     colliding_colors.append(rand_color())
     obj = None
     if random() * 10 > 5:
-        radius = randint(MIN_CIRCLE_RADIUS, MAX_CIRCLE_RADIUS)
-        obj = Circle(
-            (randint(radius, WIDTH - radius), randint(radius, HEIGHT - radius)), radius
-        )
+        r = randint(MIN_CIRCLE_RADIUS, MAX_CIRCLE_RADIUS)
+        obj = Circle(randint(r, WIDTH - r), randint(r, HEIGHT - r), r)
     else:
         dimx = randint(MIN_RECT_WIDTH, MAX_RECT_WIDTH)
         dimy = randint(MIN_RECT_HEIGHT, MAX_RECT_HEIGHT)
@@ -96,27 +92,30 @@ while keep:
         is_circle = isinstance(shape, Circle)
         is_rect = isinstance(shape, pygame.Rect)
 
-        if feed_active and mouse_circle.collides_with(shape):
+        if feed_active and mouse_circle.collideswith(shape):
             if is_circle:
-                shape.scale_ip(shape.radius + 0.2)
+                shape.r += 0.2
+                shape.d = 2 * shape.r
+                shape.r_sqr = shape.r**2
                 pygame.draw.circle(screen, coll_color, *shape())
             elif is_rect:
                 shape.inflate_ip(1, 1)
                 pygame.draw.rect(screen, coll_color, shape)
         else:
             if is_circle:
-                if shape.radius <= 1.5:
+                if shape.r <= 1.5:
                     # this relocates the circle so there's no need to delete
                     # and create a new one
-                    radius = randint(3, 15)
+                    r = randint(3, 15)
                     shape.update(
-                        (
-                            randint(radius, WIDTH - radius),
-                            randint(radius, HEIGHT - radius),
-                        ),
-                        radius,
+                        randint(r, WIDTH - r),
+                        randint(r, HEIGHT - r),
+                        r,
                     )
-                shape.scale_ip(shape.radius - 0.25)
+
+                shape.r -= 0.25
+                shape.d = 2 * shape.r
+                shape.r_sqr = shape.r**2
                 pygame.draw.circle(screen, color, *shape())
             elif is_rect:
                 value = 0.25
@@ -155,10 +154,11 @@ while keep:
         border_color = "white"
 
     pygame.draw.circle(
-        screen, border_color, (mouse_circle.x, mouse_circle.y), mouse_circle.radius, 2
+        screen, border_color, (mouse_circle.x, mouse_circle.y), mouse_circle.r, 2
     )
 
     # event loop
+
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
