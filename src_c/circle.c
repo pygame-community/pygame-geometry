@@ -535,7 +535,8 @@ pg_circle_getcircumference(pgCircleObject *self, void *closure)
 }
 
 static int
-pg_circle_setcircumference(pgCircleObject *self, PyObject *value, void *closure)
+pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
+                           void *closure)
 {
     double val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);

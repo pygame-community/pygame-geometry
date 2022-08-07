@@ -252,22 +252,28 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     farr = PySequence_Fast_ITEMS(args[0]);
 
-    pgLineBase other_line;
-    pgCircleBase other_circle;
-
     // find the best t
     double record = DBL_MAX;
     double temp_t = 0;
 
     for (loop = 0; loop < length; loop++) {
-        if (pgCircle_FromObject(farr[loop], &other_circle)) {
-            if (pgIntersection_LineCircle(&(self->line), &other_circle, NULL,
+        if (pgCircle_Check(farr[loop])) {
+            if (pgIntersection_LineCircle(&(self->line),
+                                          &pgCircle_AsCircle(farr[loop]), NULL,
                                           NULL, &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
-        else if (pgLine_FromObject(farr[loop], &other_line)) {
-            if (pgIntersection_LineLine(&(self->line), &other_line, NULL, NULL,
+        else if (pgLine_Check(farr[loop])) {
+            if (pgIntersection_LineLine(&(self->line),
+                                        &pgLine_AsLine(farr[loop]), NULL, NULL,
+                                        &temp_t)) {
+                record = MIN(record, temp_t);
+            }
+        }
+        else if (pgRect_Check(farr[loop])) {
+            if (pgIntersection_LineRect(&(self->line),
+                                        &pgRect_AsRect(farr[loop]), NULL, NULL,
                                         &temp_t)) {
                 record = MIN(record, temp_t);
             }
@@ -275,8 +281,7 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         else {
             return RAISE(PyExc_TypeError,
                          "first argument of raycast() must be a sequence of "
-                         "Line, LineLike, "
-                         "Circle or CircleLike objects");
+                         "Line, Circle or Rect objects");
         }
     }
 

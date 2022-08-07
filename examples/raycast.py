@@ -8,6 +8,7 @@ screen = pygame.display.set_mode((800, 800))
 
 collisions_lines = []
 collisions_circles = []
+collisions_rects = []
 
 
 def generate_random_lines(amt):
@@ -29,32 +30,53 @@ def generate_random_circles(amt):
         collisions_circles.append(circle)
 
 
+def generate_random_rect(amt):
+    def random_pos(width, height):
+        return random.randrange(0, 800 - width), random.randrange(0, 800 - height)
+
+    for x in range(amt):
+        width = random.randrange(5, 50)
+        height = random.randrange(5, 50)
+        rect = pygame.Rect(random_pos(width, height), (width, height))
+        collisions_rects.append(rect)
+
+
 generate_random_lines(15)
 generate_random_circles(15)
+generate_random_rect(15)
 
-colliders = collisions_lines + collisions_circles
+colliders = collisions_lines + collisions_circles + collisions_rects
 
 running = True
+
+ray_endpoint = pygame.Vector2()
+ray_count = 360
 
 while running:
     screen.fill((0, 0, 0))
 
-    for x in range(90):
+    for x in range(ray_count):
         origin_pos = pygame.mouse.get_pos()
-        ray_endpoint = (
-            pygame.Vector2(math.sin(math.degrees(x)), math.cos(math.degrees(x))) * 125
-            + origin_pos
-        )
+        ray_endpoint.from_polar((150, x / ray_count * 360))
+        ray_endpoint += origin_pos
+
         ray = geometry.Line(origin_pos, ray_endpoint)
 
-        point = ray.raycast(collisions_lines + collisions_circles) or ray_endpoint
+        point = ray.raycast(colliders) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
+    line_width = 3
+
     for line in collisions_lines:
-        pygame.draw.line(screen, (0, 0, 255), line.a, line.b, 5)
+        pygame.draw.line(screen, (0, 0, 255), line.a, line.b, line_width)
 
     for circle in collisions_circles:
-        pygame.draw.circle(screen, (0, 0, 255), (circle.x, circle.y), circle.r, 3)
+        pygame.draw.circle(
+            screen, (0, 0, 255), (circle.x, circle.y), circle.r, line_width
+        )
+
+    for rect in collisions_rects:
+        pygame.draw.rect(screen, (0, 0, 255), rect, line_width)
 
     pygame.display.flip()
 

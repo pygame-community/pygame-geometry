@@ -8,6 +8,19 @@
 #define DOT2D(X0, Y0, X1, Y1) ((X0) * (X1) + (Y0) * (Y1))
 #endif /* ~DOT2D */
 
+#ifndef CODE_BOTTOM
+#define CODE_BOTTOM 1
+#endif /* CODE_BOTTOM */
+#ifndef CODE_TOP
+#define CODE_TOP 2
+#endif /* CODE_TOP */
+#ifndef CODE_LEFT
+#define CODE_LEFT 4
+#endif /* CODE_LEFT */
+#ifndef CODE_RIGHT
+#define CODE_RIGHT 8
+#endif /* CODE_RIGHT */
+
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
 {
@@ -188,7 +201,47 @@ pgCollision_CircleCircle(pgCircleBase *A, pgCircleBase *B)
 }
 
 static int
-pgCollision_RectLine(SDL_FRect *rect, pgLineBase *line)
+pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
+                        double *T)
+{
+    double x = (double)rect->x;
+    double y = (double)rect->y;
+    double w = (double)rect->w;
+    double h = (double)rect->h;
+
+    pgLineBase a = {x, y, x + w, y};
+    pgLineBase b = {x, y, x, y + h};
+    pgLineBase c = {x, y + h, x + w, y + h};
+    pgLineBase d = {x + w, y, x + w, y + h};
+
+    int ret = 0;
+
+    double temp_t = DBL_MAX;
+    double final_t = DBL_MAX;
+
+    ret |= pgIntersection_LineLine(line, &a, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &b, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &c, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgIntersection_LineLine(line, &d, NULL, NULL, &temp_t);
+    final_t = MIN(temp_t, final_t);
+
+    if (ret) {
+        if (X)
+            *X = line->x1 + final_t * (line->x2 - line->x1);
+        if (Y)
+            *Y = line->y1 + final_t * (line->y2 - line->y1);
+        if (T)
+            *T = final_t;
+    }
+
+    return ret;
+}
+
+static int
+pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 {
     return 0;
 }
@@ -223,4 +276,5 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
     double dy = cy - test_y;
 
     return dx * dx + dy * dy <= circle->r_sqr;
+    return 0;
 }
