@@ -1,4 +1,6 @@
 import unittest
+
+import math
 from math import sqrt
 
 from pygame import Vector2, Vector3
@@ -214,6 +216,111 @@ class CircleTypeTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             del c.r
+
+    def test_center(self):
+        """Ensures changing the center moves the circle and does not change
+        the circle's radius.
+        """
+        expected_x = 10.3
+        expected_y = 2.12
+        expected_radius = 5.0
+        c = Circle(1, 1, expected_radius)
+
+        c.center = (expected_x, expected_y)
+
+        self.assertEqual(c.x, expected_x)
+        self.assertEqual(c.y, expected_y)
+        self.assertEqual(c.r, expected_radius)
+
+    def test_center_update(self):
+        """Ensures changing the x or y value of the circle correctly updates the center."""
+        expected_x = 10.3
+        expected_y = 2.12
+        expected_radius = 5.0
+        c = Circle(1, 1, expected_radius)
+
+        c.x = expected_x
+        self.assertEqual(c.center, (expected_x, c.y))
+
+        c.y = expected_y
+        self.assertEqual(c.center, (c.x, expected_y))
+
+    def test_center_invalid_value(self):
+        """Ensures the center attribute handles invalid values correctly."""
+        c = Circle(0, 0, 1)
+
+        for value in (None, [], "1", (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                c.center = value
+
+    def test_center_del(self):
+        """Ensures the center attribute can't be deleted."""
+        c = Circle(0, 0, 1)
+
+        with self.assertRaises(AttributeError):
+            del c.center
+
+    def test_area(self):
+        """Ensures the area is calculated correctly."""
+        c = Circle(0, 0, 1)
+
+        self.assertEqual(c.area, math.pi)
+
+    def test_area_update(self):
+        """Ensures the area is updated correctly."""
+        c = Circle(0, 0, 1)
+
+        c.r = 2
+        self.assertEqual(c.area, math.pi * 4)
+
+        c.r_sqr = 100
+        self.assertEqual(c.area, math.pi * (10**2))
+
+    def test_area_invalid_value(self):
+        """Ensures the area handles invalid values correctly."""
+        c = Circle(0, 0, 1)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], -1):
+            with self.assertRaises(TypeError):
+                c.area = value
+
+    def test_area_del(self):
+        """Ensures the area attribute can't be deleted."""
+        c = Circle(0, 0, 1)
+
+        with self.assertRaises(AttributeError):
+            del c.area
+
+    def test_circumference(self):
+        """Ensures the circumference is calculated correctly."""
+        c = Circle(0, 0, 1)
+
+        self.assertEqual(c.circumference, math.tau)
+
+    def test_circumference_update(self):
+        """Ensures the circumference is updated correctly."""
+        c = Circle(0, 0, 1)
+
+        c.r = 2
+        self.assertEqual(c.circumference, math.tau * 2)
+
+        c.r_sqr = 100
+        self.assertEqual(c.circumference, math.tau * 10)
+
+    def test_circumference_invalid_value(self):
+        """Ensures the circumference handles invalid values correctly."""
+        c = Circle(0, 0, 1)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], -1, 0):
+            with self.assertRaises(TypeError):
+                c.circumference = value
+
+    def test_circumference_del(self):
+        """Ensures the circumference attribute can't be deleted."""
+        c = Circle(0, 0, 1)
+
+        with self.assertRaises(AttributeError):
+            del c.circumference
 
     def test_copy(self):
         c = Circle(10, 10, 4)

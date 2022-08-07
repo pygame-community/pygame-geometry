@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#define PI 3.14159265358979323846264
+#define TAU 6.28318530717958647692528
 static PyTypeObject pgCircle_Type;
 #define pgCircle_Check(x) ((x)->ob_type == &pgCircle_Type)
 #define pgCircle_AsCircle(x) (((pgCircleObject *)arg)->circle)
@@ -492,6 +494,64 @@ pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_circle_getcenter(pgCircleObject *self, void *closure)
+{
+    return Py_BuildValue("(dd)", self->circle.x, self->circle.y);
+}
+
+static int
+pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
+{
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_TwoDoublesFromObj(value, &(self->circle.x), &(self->circle.y))) {
+        PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+        return -1;
+    }
+    return 0;
+}
+
+static PyObject *
+pg_circle_getarea(pgCircleObject *self, void *closure)
+{
+    return PyFloat_FromDouble(PI * self->circle.r_sqr);
+}
+
+static int
+pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
+{
+    double val;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
+        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+        return -1;
+    }
+    self->circle.r_sqr = val / PI;
+    self->circle.r = sqrt(self->circle.r_sqr);
+    return 0;
+}
+
+static int
+pg_circle_getcircumference(pgCircleObject *self, void *closure)
+{
+    return PyFloat_FromDouble(TAU * self->circle.r);
+}
+
+static int
+pg_circle_setcircumference(pgCircleObject *self, PyObject *value, void *closure)
+{
+    double val;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
+        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+        return -1;
+    }
+    self->circle.r = val / TAU;
+    self->circle.r_sqr = self->circle.r * self->circle.r;
+
+    return 0;
+}
+
+static PyObject *
 pg_circle_getsafepickle(pgCircleObject *self, void *closure)
 {
     Py_RETURN_TRUE;
@@ -515,6 +575,11 @@ static PyGetSetDef pg_circle_getsets[] = {
     {"r", (getter)pg_circle_getr, (setter)pg_circle_setr, NULL, NULL},
     {"r_sqr", (getter)pg_circle_getr_sqr, (setter)pg_circle_setr_sqr, NULL,
      NULL},
+    {"center", (getter)pg_circle_getcenter, (setter)pg_circle_setcenter, NULL,
+     NULL},
+    {"area", (getter)pg_circle_getarea, (setter)pg_circle_setarea, NULL, NULL},
+    {"circumference", (getter)pg_circle_getcircumference,
+     (setter)pg_circle_setcircumference, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_circle_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
