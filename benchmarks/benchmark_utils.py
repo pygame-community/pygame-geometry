@@ -1,5 +1,5 @@
 import timeit
-from statistics import fmean, pstdev, pvariance, stdev, median
+from statistics import fmean, pstdev, median
 
 
 def center_text(text: str, width: int) -> str:
