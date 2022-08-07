@@ -1,6 +1,8 @@
 import timeit
 from statistics import fmean, pstdev, median
 
+from prettytable import PrettyTable
+
 
 def center_text(text: str, width: int) -> str:
     delta = (width - len(text)) // 2
@@ -28,17 +30,17 @@ def yes_no(val: bool) -> str:
 
 class TestGroup:
     def __init__(
-        self,
-        name: str,
-        tests: list[tuple[str, str]],
-        globs: dict,
-        time_format: str,
-        precision: int,
-        num: int,
-        repeat_num: int,
-        show_total: bool = True,
-        show_mean: bool = True,
-        show_std: bool = True,
+            self,
+            name: str,
+            tests: list[tuple[str, str]],
+            globs: dict,
+            time_format: str,
+            precision: int,
+            num: int,
+            repeat_num: int,
+            show_total: bool = True,
+            show_mean: bool = True,
+            show_std: bool = True,
     ):
         self.name = name
         self.tests = tests
@@ -52,71 +54,77 @@ class TestGroup:
         self.show_total = show_total
         self.show_mean = show_mean
         self.show_std = show_std
-        self.data_format = self.calculate_data_order()
 
     def print_name(self):
-        print("\n====||" + self.name.upper() + "||====")
-        print(self.data_format + "\n")
+        print("=" * 50)
+        print(center_text(self.name.upper(), 50) + "\n")
 
     def test(self) -> None:
         self.print_name()
+        table = PrettyTable()
+        table.field_names = self.get_field_names()
+
         for test_name, func in self.tests:
-            self.results.append(self.test_pair(test_name, func))
+            self.results.append(self.test_pair(test_name, func, table))
+
+        print(table)
         self.print_results()
 
-    def test_pair(self, test_name: str, func: str) -> float:
+        print("=" * 50)
+        print("|" * 50)
+
+    def test_pair(self, test_name: str, func: str, table: PrettyTable) -> float:
 
         lst = timeit.repeat(
             func, globals=self.globs, number=self.num, repeat=self.repeat_num
         )
-        self.print_single_test_results(test_name, lst)
+        table.add_row(self.get_row(test_name, lst))
         return fmean(lst)
 
     def print_results(self):
-        print("-----------------")
+        print("\n" + "-" * 50)
         print(f"Group Mean: {self.adjust(fmean(self.results))}")
         print(f"Group Total: {self.adjust(sum(self.results) * self.repeat_num)}")
         print(f"Group Standard Deviation: {self.adjust(pstdev(self.results))}")
         print(f"Group Median: {self.adjust(median(sorted(self.results)))}")
-        print("-----------------")
-
-    def print_single_test_results(self, test_name: str, data: list[float]) -> None:
-        final_string = "-) " + test_name + ": "
-        if self.show_total:
-            final_string += f"{self.adjust(sum(data))} | "
-        if self.show_mean:
-            final_string += f"{self.adjust(fmean(data))} | "
-        if self.show_std:
-            final_string += f"{self.adjust(pstdev(data))} | "
-        print(final_string[:-3])
 
     def adjust(self, val: float) -> float:
         return round(val * num_from_format(self.time_format), self.precision)
 
-    def calculate_data_order(self) -> str:
-        final_str = "Current data order: "
+    def get_field_names(self) -> list[str]:
+        field_names = ["Name"]
         if self.show_total:
-            final_str += "TOTAL, "
+            field_names.append("Total")
         if self.show_mean:
-            final_str += "MEAN, "
+            field_names.append("Mean")
         if self.show_std:
-            final_str += "STD, "
-        return final_str[:-2]
+            field_names.append("Standard Deviation")
+        return field_names
+
+    def get_row(self, test_name: str, lst: list[float]) -> list[str]:
+        row = [test_name]
+        if self.show_total:
+            row.append(self.adjust(sum(lst)))
+        if self.show_mean:
+            row.append(self.adjust(fmean(lst)))
+        if self.show_std:
+            row.append(self.adjust(pstdev(lst)))
+        return row
 
 
 class TestSuite:
     def __init__(
-        self,
-        title: str,
-        groups: list[tuple[str, list[tuple[str, str]]]],
-        globs: dict,
-        num: int = 1_000_000,
-        repeat_num: int = 5,
-        time_format="s",
-        precision=5,
-        show_total: bool = True,
-        show_mean: bool = True,
-        show_std: bool = True,
+            self,
+            title: str,
+            groups: list[tuple[str, list[tuple[str, str]]]],
+            globs: dict,
+            num: int = 1_000_000,
+            repeat_num: int = 5,
+            time_format="s",
+            precision=5,
+            show_total: bool = True,
+            show_mean: bool = True,
+            show_std: bool = True,
     ) -> None:
         self.title = title
         self.groups = [
@@ -181,10 +189,21 @@ class TestSuite:
             "Single test total: " + yes_no(self.show_total),
             "Single test mean: " + yes_no(self.show_mean),
             "Single test standard dev: " + yes_no(self.show_std),
+            self.calculate_data_order()
         ]
         for st in strs:
             print("- " + st)
         self.repeat_char("=")
+
+    def calculate_data_order(self) -> str:
+        final_str = "Current data order: "
+        if self.show_total:
+            final_str += "TOTAL, "
+        if self.show_mean:
+            final_str += "MEAN, "
+        if self.show_std:
+            final_str += "STD, "
+        return final_str[:-2]
 
     def repeat_char(self, char: str, length: int = None) -> None:
         if length is None:
