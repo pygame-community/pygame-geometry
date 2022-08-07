@@ -13,7 +13,7 @@ typedef struct {
 } pgCircleObject;
 
 #define pgCircle_CAST(o) ((pgCircleObject *)(o))
-#define pgCircle_CIRCLE(o) (pgCircle_CAST(o)->circle)
+#define pgCircle_AsCircle(x) (pgCircle_CAST((x))->circle)
 #define pgCircle_GETX(self) (pgCircle_CAST(self)->circle.x)
 #define pgCircle_GETY(self) (pgCircle_CAST(self)->circle.y)
 #define pgCircle_GETR(self) (pgCircle_CAST(self)->circle.r)
@@ -32,6 +32,7 @@ typedef struct {
 #define pgLine_CAST(o) ((pgLineObject *)(o))
 
 #define pgLine_GETLINE(o) (pgLine_CAST(o)->line)
+#define pgLine_AsLine(x) (pgLine_CAST((x))->line)
 #define pgLine_GETX1(self) (pgLine_CAST(self)->line.x1)
 #define pgLine_GETY1(self) (pgLine_CAST(self)->line.y1)
 #define pgLine_GETX2(self) (pgLine_CAST(self)->line.x2)
@@ -51,5 +52,11 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out);
 static int
 pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                             pgCircleBase *out);
+
+
+static PyTypeObject pgLine_Type;
+#define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
+static PyTypeObject pgCircle_Type;
+#define pgCircle_Check(x) ((x)->ob_type == &pgCircle_Type)
 
 #endif /* ~_GEOMETRY_H */

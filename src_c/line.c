@@ -7,20 +7,6 @@
 #include <stddef.h>
 #include <math.h>
 
-static PyTypeObject pgLine_Type;
-#define pgLine_Check(x) ((x)->ob_type == &pgLine_Type)
-
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif
-#ifndef MIN
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef MAX
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-
 static double
 pgLine_Length(pgLineBase line)
 {
