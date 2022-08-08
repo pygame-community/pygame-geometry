@@ -13,22 +13,22 @@
 static int
 pgCollision_LineLine(pgLineBase *, pgLineBase *);
 static int
-pgIntersection_LineLine(pgLineBase *, pgLineBase *, double *, double *,
-                        double *);
+pgIntersection_LineLine(pgLineBase *, pgLineBase *, float *, float *,
+                        float *);
 static int
-pgCollision_LinePoint(pgLineBase *, double, double);
+pgCollision_LinePoint(pgLineBase *, float, float);
 static int
-pgCollision_CirclePoint(pgCircleBase *circle, double, double);
+pgCollision_CirclePoint(pgCircleBase *circle, float, float);
 static int
 pgCollision_LineCircle(pgLineBase *, pgCircleBase *);
 static int
-pgIntersection_LineCircle(pgLineBase *, pgCircleBase *, double *, double *,
-                          double *);
+pgIntersection_LineCircle(pgLineBase *, pgCircleBase *, float *, float *,
+                          float *);
 static int
 pgCollision_CircleCircle(pgCircleBase *, pgCircleBase *);
 static int
-pgIntersection_LineRect(pgLineBase *, SDL_Rect *, double *, double *,
-                        double *);
+pgIntersection_LineRect(pgLineBase *, SDL_Rect *, float *, float *,
+                        float *);
 static int
 pgCollision_RectLine(SDL_Rect *, pgLineBase *);
 static int

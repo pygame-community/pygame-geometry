@@ -7,13 +7,18 @@
 #include <stddef.h>
 #include <math.h>
 
-static double
+#ifndef PyFloat_FromFloat
+#define PyFloat_FromFloat(x) \
+    (PyFloat_FromDouble((double)(round((x)*10000000) / 10000000)))
+#endif
+
+static float
 pgLine_Length(pgLineBase line)
 {
     return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
                 (line.y2 - line.y1) * (line.y2 - line.y1));
 }
-static double
+static float
 pgLine_LengthSquared(pgLineBase line)
 {
     return (line.x2 - line.x1) * (line.x2 - line.x1) +
@@ -21,8 +26,8 @@ pgLine_LengthSquared(pgLineBase line)
 }
 
 static PyObject *
-_pg_line_subtype_new4(PyTypeObject *type, double x1, double y1, double x2,
-                      double y2)
+_pg_line_subtype_new4(PyTypeObject *type, float x1, float y1, float x2,
+                      float y2)
 {
     pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(type, NULL, NULL);
 
@@ -82,17 +87,17 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         PyObject **farray = PySequence_Fast_ITEMS(obj);
 
         if (length == 4) {
-            if (!pg_DoubleFromObj(farray[0], &(out->x1)) ||
-                !pg_DoubleFromObj(farray[1], &(out->y1)) ||
-                !pg_DoubleFromObj(farray[2], &(out->x2)) ||
-                !pg_DoubleFromObj(farray[3], &(out->y2))) {
+            if (!pg_FloatFromObj(farray[0], &(out->x1)) ||
+                !pg_FloatFromObj(farray[1], &(out->y1)) ||
+                !pg_FloatFromObj(farray[2], &(out->x2)) ||
+                !pg_FloatFromObj(farray[3], &(out->y2))) {
                 return 0;
             }
             return 1;
         }
         else if (length == 2) {
-            if (!pg_TwoDoublesFromObj(farray[0], &(out->x1), &(out->y1)) ||
-                !pg_TwoDoublesFromObj(farray[1], &(out->x2), &(out->y2))) {
+            if (!pg_TwoFloatsFromObj(farray[0], &(out->x1), &(out->y1)) ||
+                !pg_TwoFloatsFromObj(farray[1], &(out->x2), &(out->y2))) {
                 PyErr_Clear();
                 return 0;
             }
@@ -111,25 +116,25 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         if (length == 4) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
-            if (!pg_DoubleFromObj(tmp, &(out->x1))) {
+            if (!pg_FloatFromObj(tmp, &(out->x1))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 1);
-            if (!pg_DoubleFromObj(tmp, &(out->y1))) {
+            if (!pg_FloatFromObj(tmp, &(out->y1))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 2);
-            if (!pg_DoubleFromObj(tmp, &(out->x2))) {
+            if (!pg_FloatFromObj(tmp, &(out->x2))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 3);
-            if (!pg_DoubleFromObj(tmp, &(out->y2))) {
+            if (!pg_FloatFromObj(tmp, &(out->y2))) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -139,13 +144,13 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         else if (length == 2) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
-            if (!pg_TwoDoublesFromObj(tmp, &(out->x1), &(out->y1))) {
+            if (!pg_TwoFloatsFromObj(tmp, &(out->x1), &(out->y1))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 1);
-            if (!pg_TwoDoublesFromObj(tmp, &(out->x2), &(out->y2))) {
+            if (!pg_TwoFloatsFromObj(tmp, &(out->x2), &(out->y2))) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -193,17 +198,17 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
         return pgLine_FromObject(args[0], out);
     }
     else if (nargs == 2) {
-        if (!pg_TwoDoublesFromObj(args[0], &(out->x1), &(out->y1)) ||
-            !pg_TwoDoublesFromObj(args[1], &(out->x2), &(out->y2))) {
+        if (!pg_TwoFloatsFromObj(args[0], &(out->x1), &(out->y1)) ||
+            !pg_TwoFloatsFromObj(args[1], &(out->x2), &(out->y2))) {
             return 0;
         }
         return 1;
     }
     else if (nargs == 4) {
-        if (!pg_DoubleFromObj(args[0], &(out->x1)) ||
-            !pg_DoubleFromObj(args[1], &(out->y1)) ||
-            !pg_DoubleFromObj(args[2], &(out->x2)) ||
-            !pg_DoubleFromObj(args[3], &(out->y2))) {
+        if (!pg_FloatFromObj(args[0], &(out->x1)) ||
+            !pg_FloatFromObj(args[1], &(out->y1)) ||
+            !pg_FloatFromObj(args[2], &(out->x2)) ||
+            !pg_FloatFromObj(args[3], &(out->y2))) {
             return 0;
         }
         return 1;
@@ -218,7 +223,7 @@ pgLine_New(pgLineBase *l)
 }
 
 static PyObject *
-pgLine_New4(double x1, double y1, double x2, double y2)
+pgLine_New4(float x1, float y1, float x2, float y2)
 {
     return _pg_line_subtype_new4(&pgLine_Type, x1, y1, x2, y2);
 }
@@ -253,8 +258,8 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     farr = PySequence_Fast_ITEMS(args[0]);
 
     // find the best t
-    double record = DBL_MAX;
-    double temp_t = 0;
+    float record = FLT_MAX;
+    float temp_t = 0;
 
     for (loop = 0; loop < length; loop++) {
         if (pgCircle_Check(farr[loop])) {
@@ -285,7 +290,7 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         }
     }
 
-    if (record == DBL_MAX) {
+    if (record == FLT_MAX) {
         Py_RETURN_NONE;
     }
     // construct the return with this formula: A+tB
@@ -312,16 +317,16 @@ static PyObject *
 pg_line_collidepoint(pgLineObject *self, PyObject *const *args,
                      Py_ssize_t nargs)
 {
-    double Cx = 0, Cy = 0;
+    float Cx = 0, Cy = 0;
 
     if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Cx, &Cy)) {
+        if (!pg_TwoFloatsFromObj(args[0], &Cx, &Cy)) {
             goto error;
         }
     }
     else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Cx) ||
-            !pg_DoubleFromObj(args[1], &Cy)) {
+        if (!pg_FloatFromObj(args[0], &Cx) ||
+            !pg_FloatFromObj(args[1], &Cy)) {
             goto error;
         }
     }
@@ -353,10 +358,10 @@ pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
 static PyObject *
 pg_line_as_rect(pgLineObject *self, PyObject *_null)
 {
-    double Ax = self->line.x1;
-    double Ay = self->line.y1;
-    double Bx = self->line.x2;
-    double By = self->line.y2;
+    float Ax = self->line.x1;
+    float Ay = self->line.y1;
+    float Bx = self->line.x2;
+    float By = self->line.y2;
 
     int rect_x = (int)floor(MIN(Ax, Bx));
     int rect_y = (int)floor(MIN(Ay, By));
@@ -399,7 +404,7 @@ pg_line_seq_length(PyObject *_self)
 static PyObject *
 pg_line_item(pgLineObject *self, Py_ssize_t i)
 {
-    double *data = (double *)&self->line;
+    float *data = (float *)&self->line;
 
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
@@ -409,14 +414,14 @@ pg_line_item(pgLineObject *self, Py_ssize_t i)
             return RAISE(PyExc_IndexError, "Invalid line Index");
         }
     }
-    return PyFloat_FromDouble(data[i]);
+    return PyFloat_FromFloat(data[i]);
 }
 
 static int
 pg_line_ass_item(pgLineObject *self, Py_ssize_t i, PyObject *v)
 {
-    double val = 0;
-    double *data = (double *)&self->line;
+    float val = 0;
+    float *data = (float *)&self->line;
 
     if (i < 0 || i > 3) {
         if (i > -5 && i < 0) {
@@ -427,7 +432,7 @@ pg_line_ass_item(pgLineObject *self, Py_ssize_t i, PyObject *v)
             return -1;
         }
     }
-    if (!pg_DoubleFromObj(v, &val)) {
+    if (!pg_FloatFromObj(v, &val)) {
         PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
         return -1;
     }
@@ -439,7 +444,7 @@ static int
 pg_line_contains_seq(pgLineObject *self, PyObject *arg)
 {
     if (PyNumber_Check(arg)) {
-        double coord = PyFloat_AsDouble(arg);
+        float coord = PyFloat_AsFloat(arg);
         return coord == self->line.x1 || coord == self->line.y1 ||
                coord == self->line.x2 || coord == self->line.y1;
     }
@@ -465,7 +470,7 @@ static PySequenceMethods pg_line_as_sequence = {
 static PyObject *
 pg_line_subscript(pgLineObject *self, PyObject *op)
 {
-    double *data = (double *)&self->line;
+    float *data = (float *)&self->line;
 
     if (PyIndex_Check(op)) {
         PyObject *index = PyNumber_Index(op);
@@ -485,10 +490,10 @@ pg_line_subscript(pgLineObject *self, PyObject *op)
             return NULL;
         }
 
-        PyList_SET_ITEM(lst, 0, PyFloat_FromDouble(data[0]));
-        PyList_SET_ITEM(lst, 1, PyFloat_FromDouble(data[1]));
-        PyList_SET_ITEM(lst, 2, PyFloat_FromDouble(data[2]));
-        PyList_SET_ITEM(lst, 3, PyFloat_FromDouble(data[3]));
+        PyList_SET_ITEM(lst, 0, PyFloat_FromFloat(data[0]));
+        PyList_SET_ITEM(lst, 1, PyFloat_FromFloat(data[1]));
+        PyList_SET_ITEM(lst, 2, PyFloat_FromFloat(data[2]));
+        PyList_SET_ITEM(lst, 3, PyFloat_FromFloat(data[3]));
 
         return lst;
     }
@@ -510,7 +515,7 @@ pg_line_subscript(pgLineObject *self, PyObject *op)
             return NULL;
         }
         for (i = 0; i < slicelen; ++i) {
-            n = PyFloat_FromDouble(data[start + (step * i)]);
+            n = PyFloat_FromFloat(data[start + (step * i)]);
             if (n == NULL) {
                 Py_DECREF(slice);
                 return NULL;
@@ -539,9 +544,9 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
         return pg_line_ass_item(self, i, value);
     }
     else if (op == Py_Ellipsis) {
-        double val = 0;
+        float val = 0;
 
-        if (pg_DoubleFromObj(value, &val)) {
+        if (pg_FloatFromObj(value, &val)) {
             self->line.x1 = val;
             self->line.y1 = val;
             self->line.x2 = val;
@@ -557,7 +562,7 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
         }
         else if (PySequence_Check(value)) {
             PyObject *item;
-            double values[4];
+            float values[4];
             Py_ssize_t i;
 
             if (PySequence_Size(value) != 4) {
@@ -566,10 +571,10 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
             }
             for (i = 0; i < 4; ++i) {
                 item = PySequence_ITEM(value, i);
-                if (!pg_DoubleFromObj(item, values + i)) {
+                if (!pg_FloatFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected a number between %lf and %lf",
-                                 DBL_MIN, DBL_MAX);
+                                 FLT_MIN, FLT_MAX);
                 }
             }
             self->line.x1 = values[0];
@@ -583,26 +588,26 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
         }
     }
     else if (PySlice_Check(op)) {
-        double *data = (double *)&self->line;
+        float *data = (float *)&self->line;
         Py_ssize_t start;
         Py_ssize_t stop;
         Py_ssize_t step;
         Py_ssize_t slicelen;
-        double val = 0;
+        float val = 0;
         Py_ssize_t i;
 
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
             return -1;
         }
 
-        if (pg_DoubleFromObj(value, &val)) {
+        if (pg_FloatFromObj(value, &val)) {
             for (i = 0; i < slicelen; ++i) {
                 data[start + step * i] = val;
             }
         }
         else if (PySequence_Check(value)) {
             PyObject *item;
-            double values[4];
+            float values[4];
             Py_ssize_t size = PySequence_Size(value);
 
             if (size != slicelen) {
@@ -612,10 +617,10 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
             }
             for (i = 0; i < slicelen; ++i) {
                 item = PySequence_ITEM(value, i);
-                if (!pg_DoubleFromObj(item, values + i)) {
+                if (!pg_FloatFromObj(item, values + i)) {
                     PyErr_Format(PyExc_TypeError,
                                  "Expected a number between %lf and %lf",
-                                 DBL_MIN, DBL_MAX);
+                                 FLT_MIN, FLT_MAX);
                 }
             }
             for (i = 0; i < slicelen; ++i) {
@@ -657,9 +662,9 @@ pg_line_repr(pgLineObject *self)
 {
     // dont comments on it (-_-)
     return PyUnicode_FromFormat(
-        "pygame.Line(%S, %S, %S, %S)", PyFloat_FromDouble(self->line.x1),
-        PyFloat_FromDouble(self->line.y1), PyFloat_FromDouble(self->line.x2),
-        PyFloat_FromDouble(self->line.y2));
+        "pygame.Line(%S, %S, %S, %S)", PyFloat_FromFloat(self->line.x1),
+        PyFloat_FromFloat(self->line.y1), PyFloat_FromFloat(self->line.x2),
+        PyFloat_FromFloat(self->line.y2));
 }
 
 static PyObject *
@@ -672,7 +677,7 @@ static PyObject *
 pg_line_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
     pgLineBase o1line, o2line;
-    double length1, length2;
+    float length1, length2;
 
     if (!pgLine_FromObject(o1, &o1line) || !pgLine_FromObject(o2, &o2line)) {
         goto Unimplemented;
@@ -707,13 +712,13 @@ static PyObject *
 pg_line_iterator(pgLineObject *self)
 {
     Py_ssize_t i;
-    double *data = (double *)&self->line;
+    float *data = (float *)&self->line;
     PyObject *iter, *tup = PyTuple_New(4);
     if (!tup) {
         return NULL;
     }
     for (i = 0; i < 4; i++) {
-        PyObject *val = PyFloat_FromDouble(data[i]);
+        PyObject *val = PyFloat_FromFloat(data[i]);
         if (!val) {
             Py_DECREF(tup);
             return NULL;
@@ -729,14 +734,14 @@ pg_line_iterator(pgLineObject *self)
 #define __LINE_GETSET_NAME(name)                                          \
     static PyObject *pg_line_get##name(pgLineObject *self, void *closure) \
     {                                                                     \
-        return PyFloat_FromDouble(self->line.name);                       \
+        return PyFloat_FromFloat(self->line.name);                        \
     }                                                                     \
     static int pg_line_set##name(pgLineObject *self, PyObject *value,     \
                                  void *closure)                           \
     {                                                                     \
-        double val;                                                       \
+        float val;                                                        \
         DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);                      \
-        if (pg_DoubleFromObj(value, &val)) {                              \
+        if (pg_FloatFromObj(value, &val)) {                               \
             self->line.name = val;                                        \
             return 0;                                                     \
         }                                                                 \
@@ -758,17 +763,17 @@ pg_line_geta(pgLineObject *self, void *closure)
     if (!tup) {
         return PyErr_NoMemory();
     }
-    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x1));
-    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y1));
+    PyTuple_SET_ITEM(tup, 0, PyFloat_FromFloat(self->line.x1));
+    PyTuple_SET_ITEM(tup, 1, PyFloat_FromFloat(self->line.y1));
     return tup;
 }
 
 static int
 pg_line_seta(pgLineObject *self, PyObject *value, void *closure)
 {
-    double x, y;
+    float x, y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (pg_TwoDoublesFromObj(value, &x, &y)) {
+    if (pg_TwoFloatsFromObj(value, &x, &y)) {
         self->line.x1 = x;
         self->line.y1 = y;
         return 0;
@@ -784,17 +789,17 @@ pg_line_getb(pgLineObject *self, void *closure)
     if (!tup) {
         return PyErr_NoMemory();
     }
-    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x2));
-    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y2));
+    PyTuple_SET_ITEM(tup, 0, PyFloat_FromFloat(self->line.x2));
+    PyTuple_SET_ITEM(tup, 1, PyFloat_FromFloat(self->line.y2));
     return tup;
 }
 
 static int
 pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 {
-    double x, y;
+    float x, y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (pg_TwoDoublesFromObj(value, &x, &y)) {
+    if (pg_TwoFloatsFromObj(value, &x, &y)) {
         self->line.x2 = x;
         self->line.y2 = y;
         return 0;
