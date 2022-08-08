@@ -528,7 +528,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
     return 0;
 }
 
-static int
+static PyObject *
 pg_circle_getcircumference(pgCircleObject *self, void *closure)
 {
     return PyFloat_FromDouble(TAU * self->circle.r);
