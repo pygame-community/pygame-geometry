@@ -380,10 +380,9 @@ static PyObject *
 pg_circle_repr(pgCircleObject *self)
 {
     // dont comments on it (-_-)
-    return PyUnicode_FromFormat("pygame.Circle(%S, %S, %S)",
-                                PyFloat_FromFloat(self->circle.x),
-                                PyFloat_FromFloat(self->circle.y),
-                                PyFloat_FromFloat(self->circle.r));
+    return PyUnicode_FromFormat(
+        "pygame.Circle(%S, %S, %S)", PyFloat_FromFloat(self->circle.x),
+        PyFloat_FromFloat(self->circle.y), PyFloat_FromFloat(self->circle.r));
 }
 
 static PyObject *
