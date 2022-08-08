@@ -132,10 +132,10 @@ GROUPS = [
     ("Conversion", conversion_tests),
     ("Update", update_tests),
     # ("Move", move_tests),
-    ("Circle-Circle", CC_collision_tests),
-    ("Circle-Rect", CR_collision_tests),
-    ("Circle-Point", CP_collision_tests),
-    ("Circle-Shape", CS_collision_tests),
+    ("Collision: Circle-Circle ", CC_collision_tests),
+    ("Collision: Circle-Rect", CR_collision_tests),
+    ("Collision: Circle-Point", CP_collision_tests),
+    ("Collision: Circle-Shape", CS_collision_tests),
 ]
 
 TestSuite("Geometry Module - Circle", GROUPS, GLOB).run_suite()
