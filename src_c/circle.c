@@ -14,7 +14,7 @@ static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);
 
 static PyObject *
-_pg_circle_subtype_new3(PyTypeObject *type, double x, double y, double r)
+_pg_circle_subtype_new3(PyTypeObject *type, float x, float y, float r)
 {
     pgCircleObject *circle_obj =
         (pgCircleObject *)pgCircle_Type.tp_new(type, NULL, NULL);
@@ -55,8 +55,8 @@ pg_circle_dealloc(pgCircleObject *self)
 static int
 _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
 {
-    double tmp = 0;
-    if (!pg_DoubleFromObj(value, &tmp) || tmp < 0)
+    float tmp = 0;
+    if (!pg_FloatFromObj(value, &tmp) || tmp < 0)
         return 0;
     circle->r = tmp;
     circle->r_sqr = tmp * tmp;
@@ -78,8 +78,8 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         length = PySequence_Fast_GET_SIZE(obj);
 
         if (length == 3) {
-            if (!pg_DoubleFromObj(f_arr[0], &(out->x)) ||
-                !pg_DoubleFromObj(f_arr[1], &(out->y)) ||
+            if (!pg_FloatFromObj(f_arr[0], &(out->x)) ||
+                !pg_FloatFromObj(f_arr[1], &(out->y)) ||
                 !_pg_circle_set_radius(f_arr[2], out)) {
                 return 0;
             }
@@ -105,14 +105,14 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
             /*These are to be substituted with better pg_DoubleFromSeqIndex()
              * implementations*/
             tmp = PySequence_ITEM(obj, 0);
-            if (!pg_DoubleFromObj(tmp, &(out->x))) {
+            if (!pg_FloatFromObj(tmp, &(out->x))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
 
             tmp = PySequence_ITEM(obj, 1);
-            if (!pg_DoubleFromObj(tmp, &(out->y))) {
+            if (!pg_FloatFromObj(tmp, &(out->y))) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -180,8 +180,8 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
         return pgCircle_FromObject(args[0], out);
     }
     else if (nargs == 3) {
-        if (!pg_DoubleFromObj(args[0], &(out->x)) ||
-            !pg_DoubleFromObj(args[1], &(out->y)) ||
+        if (!pg_FloatFromObj(args[0], &(out->x)) ||
+            !pg_FloatFromObj(args[1], &(out->y)) ||
             !_pg_circle_set_radius(args[2], out)) {
             return 0;
         }
@@ -198,7 +198,7 @@ pgCircle_New(pgCircleBase *c)
 }
 
 static PyObject *
-pgCircle_New3(double x, double y, double r)
+pgCircle_New3(float x, float y, float r)
 {
     return _pg_circle_subtype_new3(&pgCircle_Type, x, y, r);
 }
@@ -237,16 +237,15 @@ static PyObject *
 pg_circle_collidepoint(pgCircleObject *self, PyObject *const *args,
                        Py_ssize_t nargs)
 {
-    double px = 0, py = 0;
+    float px = 0, py = 0;
 
     if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &px, &py)) {
+        if (!pg_TwoFloatsFromObj(args[0], &px, &py)) {
             goto error;
         }
     }
     else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &px) ||
-            !pg_DoubleFromObj(args[1], &py)) {
+        if (!pg_FloatFromObj(args[0], &px) || !pg_FloatFromObj(args[1], &py)) {
             goto error;
         }
     }
@@ -314,8 +313,8 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
         result = pgCollision_RectCircle(&pgRect_AsRect(arg), &self->circle);
     }
     else if (PySequence_Check(arg)) {
-        double x, y;
-        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+        float x, y;
+        if (!pg_TwoFloatsFromObj(arg, &x, &y)) {
             return RAISE(PyExc_TypeError,
                          "Invalid arguments, must be a sequence of 2 numbers");
         }
@@ -392,7 +391,7 @@ static PyObject *
 pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
     pgCircleBase o1_circ, o2_circ;
-    double r1, r2;
+    float r1, r2;
 
     if (!pgCircle_FromObject(o1, &o1_circ) ||
         !pgCircle_FromObject(o1, &o2_circ)) {
@@ -431,9 +430,9 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
     static int pg_circle_set##name(pgCircleObject *self, PyObject *value,     \
                                    void *closure)                             \
     {                                                                         \
-        double val;                                                           \
+        float val;                                                            \
         DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);                          \
-        if (pg_DoubleFromObj(value, &val)) {                                  \
+        if (pg_FloatFromObj(value, &val)) {                                   \
             self->circle.name = val;                                          \
             return 0;                                                         \
         }                                                                     \
@@ -456,10 +455,10 @@ pg_circle_getr(pgCircleObject *self, void *closure)
 static int
 pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    float val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
-    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+    if (!pg_FloatFromObj(value, &val) || val < 0) {
         PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
@@ -478,16 +477,16 @@ pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 static int
 pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    float val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
-    if (!pg_DoubleFromObj(value, &val) || val < 0) {
+    if (!pg_FloatFromObj(value, &val) || val < 0) {
         PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
 
     self->circle.r_sqr = val;
-    self->circle.r = sqrt(val);
+    self->circle.r = sqrtf(val);
     return 0;
 }
 
@@ -501,7 +500,7 @@ static int
 pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 {
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_TwoDoublesFromObj(value, &(self->circle.x), &(self->circle.y))) {
+    if (!pg_TwoFloatsFromObj(value, &(self->circle.x), &(self->circle.y))) {
         PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
         return -1;
     }
@@ -517,14 +516,14 @@ pg_circle_getarea(pgCircleObject *self, void *closure)
 static int
 pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    float val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
+    if (!pg_FloatFromObj(value, &val) || val <= 0) {
         PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
     self->circle.r_sqr = val / PI;
-    self->circle.r = sqrt(self->circle.r_sqr);
+    self->circle.r = sqrtf(self->circle.r_sqr);
     return 0;
 }
 
@@ -538,9 +537,9 @@ static int
 pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
                            void *closure)
 {
-    double val;
+    float val;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
+    if (!pg_FloatFromObj(value, &val) || val <= 0) {
         PyErr_SetString(PyExc_TypeError, "Expected a positive number");
         return -1;
     }
