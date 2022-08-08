@@ -10,6 +10,11 @@
 #define PI 3.14159265358979323846264
 #define TAU 6.28318530717958647692528
 
+#ifndef PyFloat_FromFloat
+#define PyFloat_FromFloat(x) \
+    (PyFloat_FromDouble((double)(round((x)*10000000) / 10000000)))
+#endif
+
 static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);
 
@@ -376,9 +381,9 @@ pg_circle_repr(pgCircleObject *self)
 {
     // dont comments on it (-_-)
     return PyUnicode_FromFormat("pygame.Circle(%S, %S, %S)",
-                                PyFloat_FromDouble((double)(self->circle.x)),
-                                PyFloat_FromDouble((double)(self->circle.y)),
-                                PyFloat_FromDouble((double)(self->circle.r)));
+                                PyFloat_FromFloat(self->circle.x),
+                                PyFloat_FromFloat(self->circle.y),
+                                PyFloat_FromFloat(self->circle.r));
 }
 
 static PyObject *
@@ -425,7 +430,7 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 #define GETSET_FOR_SIMPLE(name)                                               \
     static PyObject *pg_circle_get##name(pgCircleObject *self, void *closure) \
     {                                                                         \
-        return PyFloat_FromDouble((double)(self->circle.name));               \
+        return PyFloat_FromFloat(self->circle.name);                          \
     }                                                                         \
     static int pg_circle_set##name(pgCircleObject *self, PyObject *value,     \
                                    void *closure)                             \
@@ -449,7 +454,7 @@ GETSET_FOR_SIMPLE(y)
 static PyObject *
 pg_circle_getr(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble((double)(self->circle.r));
+    return PyFloat_FromFloat(self->circle.r);
 }
 
 static int
@@ -471,7 +476,7 @@ pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble((double)(self->circle.r_sqr));
+    return PyFloat_FromFloat(self->circle.r_sqr);
 }
 
 static int
@@ -510,7 +515,7 @@ pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getarea(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble((double)(PI * self->circle.r_sqr));
+    return PyFloat_FromFloat(PI * self->circle.r_sqr);
 }
 
 static int
@@ -530,7 +535,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getcircumference(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble((double)(TAU * self->circle.r));
+    return PyFloat_FromFloat(TAU * self->circle.r);
 }
 
 static int
