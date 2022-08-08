@@ -11,12 +11,18 @@
 #define PyFloat_FromFloat(x) \
     (PyFloat_FromDouble((double)(round((x)*10000000) / 10000000)))
 #endif
+#ifndef PyFloat_AsFloat
+#define PyFloat_AsFloat(x) ((float)PyFloat_AsDouble(x))
+#endif
+#ifndef PyFloat_ASFLOAT
+#define PyFloat_ASFLOAT(x) ((float)PyFloat_AS_DOUBLE(x))
+#endif
 
 static float
 pgLine_Length(pgLineBase line)
 {
-    return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
-                (line.y2 - line.y1) * (line.y2 - line.y1));
+    return sqrtf((line.x2 - line.x1) * (line.x2 - line.x1) +
+                 (line.y2 - line.y1) * (line.y2 - line.y1));
 }
 static float
 pgLine_LengthSquared(pgLineBase line)

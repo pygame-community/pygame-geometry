@@ -122,9 +122,9 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, float *X,
     if (descriminant < 0) {
         return 0;
     }
-    float t = (-B - sqrt(descriminant)) / (2 * A);
+    float t = (-B - sqrtf(descriminant)) / (2 * A);
     if (t < 0 || t > 1) {
-        t = (-B + sqrt(descriminant)) / (2 * A);
+        t = (-B + sqrtf(descriminant)) / (2 * A);
         if (t < 0 || t > 1) {
             return 0;
         }
@@ -156,7 +156,7 @@ pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
 
     float dx = x1 - x2;
     float dy = y1 - y2;
-    float len = sqrt((dx * dx) + (dy * dy));
+    float len = sqrtf((dx * dx) + (dy * dy));
 
     float dot =
         (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / (len * len);
@@ -170,7 +170,7 @@ pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
 
     dx = closest_x - cx;
     dy = closest_y - cy;
-    float distance = sqrt((dx * dx) + (dy * dy));
+    float distance = sqrtf((dx * dx) + (dy * dy));
 
     return distance <= r;
 }

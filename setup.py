@@ -3,8 +3,21 @@ import subprocess
 import shlex
 import glob
 import sys
+import os
 
-extensions = [Extension("geometry", sources=["src_c/geometry.c"])]
+
+compiler_options = {"unix": ["-mavx2"], "msvc": ["/arch:AVX2"]}
+
+compiler_type = "msvc" if os.name == "nt" else "unix"
+
+
+extensions = [
+    Extension(
+        "geometry",
+        sources=["src_c/geometry.c"],
+        extra_compile_args=compiler_options[compiler_type],
+    )
+]
 
 
 def build() -> None:
