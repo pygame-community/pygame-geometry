@@ -4,7 +4,7 @@
 #include "pygame.h"
 
 typedef struct {
-    double x, y, r, r_sqr;
+    float x, y, r, r_sqr;
 } pgCircleBase;
 
 typedef struct {
