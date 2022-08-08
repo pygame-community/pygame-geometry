@@ -1,25 +1,14 @@
+#ifdef __AVX2__
+#include "simd/include/collisions.h"
+#include "simd/collisions.c"
+#endif
+
 #include "include/collisions.h"
 #include <stdio.h>
 
-#ifndef ABS
-#define ABS(x) ((x) < 0 ? -(x) : (x))
-#endif /* ~ABS */
 #ifndef DOT2D
 #define DOT2D(X0, Y0, X1, Y1) ((X0) * (X1) + (Y0) * (Y1))
 #endif /* ~DOT2D */
-
-#ifndef CODE_BOTTOM
-#define CODE_BOTTOM 1
-#endif /* CODE_BOTTOM */
-#ifndef CODE_TOP
-#define CODE_TOP 2
-#endif /* CODE_TOP */
-#ifndef CODE_LEFT
-#define CODE_LEFT 4
-#endif /* CODE_LEFT */
-#ifndef CODE_RIGHT
-#define CODE_RIGHT 8
-#endif /* CODE_RIGHT */
 
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
@@ -204,6 +193,10 @@ static int
 pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
                         double *T)
 {
+#ifdef __AVX2__
+    return pgIntersection_LineRect_avx2(line, rect, X, Y, T);
+#else
+
     double x = (double)rect->x;
     double y = (double)rect->y;
     double w = (double)rect->w;
@@ -238,6 +231,7 @@ pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
     }
 
     return ret;
+#endif /* ~__AVX2__ */
 }
 
 static int
