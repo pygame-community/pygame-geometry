@@ -14,7 +14,7 @@ The project has four major sections:
    
 - **Tests**
     
-   The `tests` directory includes unittests that ensure that the current implementations work as intended.
+   The `tests` directory includes unittests that ensure the current implementations work as intended.
    
 - **Benchmarks**
 
