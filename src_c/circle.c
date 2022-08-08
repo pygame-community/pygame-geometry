@@ -7,8 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
-#define PI 3.14159265358979323846264
-#define TAU 6.28318530717958647692528
+#define PI (float)3.14159265358979323846264
+#define TAU (float)6.28318530717958647692528
 
 #ifndef PyFloat_FromFloat
 #define PyFloat_FromFloat(x) \
