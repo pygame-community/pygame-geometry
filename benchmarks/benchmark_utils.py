@@ -1,7 +1,7 @@
 import timeit
 from statistics import fmean, pstdev, median
 
-from prettytable import PrettyTable
+from tabulate import tabulate
 
 
 def center_text(text: str, width: int) -> str:
@@ -61,24 +61,29 @@ class TestGroup:
 
     def test(self) -> None:
         self.print_name()
-        table = PrettyTable()
-        table.field_names = self.get_field_names()
+        table = [self.get_field_names()]
 
         for test_name, func in self.tests:
             self.results.append(self.test_pair(test_name, func, table))
 
-        print(table)
+        print(
+            tabulate(
+                table,
+                headers="firstrow",
+                tablefmt="github",
+                numalign="center",
+                stralign="center",
+            )
+        )
         self.print_results()
+        print("\n\n")
 
-        print("=" * 50)
-        print("|" * 50)
-
-    def test_pair(self, test_name: str, func: str, table: PrettyTable) -> float:
+    def test_pair(self, test_name: str, func: str, table: list) -> float:
 
         lst = timeit.repeat(
             func, globals=self.globs, number=self.num, repeat=self.repeat_num
         )
-        table.add_row(self.get_row(test_name, lst))
+        table.append(self.get_row(test_name, lst))
         return fmean(lst)
 
     def print_results(self):
@@ -98,7 +103,7 @@ class TestGroup:
         if self.show_mean:
             field_names.append("Mean")
         if self.show_std:
-            field_names.append("Standard Deviation")
+            field_names.append("Std Dev")
         return field_names
 
     def get_row(self, test_name: str, lst: list[float]) -> list[str]:
@@ -120,8 +125,8 @@ class TestSuite:
         globs: dict,
         num: int = 1_000_000,
         repeat_num: int = 5,
-        time_format="s",
-        precision=5,
+        time_format="ms",
+        precision=2,
         show_total: bool = True,
         show_mean: bool = True,
         show_std: bool = True,
@@ -193,7 +198,7 @@ class TestSuite:
         ]
         for st in strs:
             print("- " + st)
-        self.repeat_char("=")
+        print()
 
     def calculate_data_order(self) -> str:
         final_str = "Current data order: "
