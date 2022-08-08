@@ -20,8 +20,8 @@ typedef struct {
 #define pgCircle_GETRSQR(self) (pgCircle_CAST(self)->circle.r_sqr)
 
 typedef struct {
-    double x1, y1;
-    double x2, y2;
+    float x1, y1;
+    float x2, y2;
 } pgLineBase;
 
 typedef struct {
