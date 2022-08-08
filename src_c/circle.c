@@ -425,7 +425,7 @@ pg_circle_richcompare(PyObject *o1, PyObject *o2, int opid)
 #define GETSET_FOR_SIMPLE(name)                                               \
     static PyObject *pg_circle_get##name(pgCircleObject *self, void *closure) \
     {                                                                         \
-        return PyFloat_FromDouble((double)(self->circle.name));                         \
+        return PyFloat_FromDouble((double)(self->circle.name));               \
     }                                                                         \
     static int pg_circle_set##name(pgCircleObject *self, PyObject *value,     \
                                    void *closure)                             \
