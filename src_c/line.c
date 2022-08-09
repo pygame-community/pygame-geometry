@@ -8,8 +8,7 @@
 #include <math.h>
 
 #ifndef PyFloat_FromFloat
-#define PyFloat_FromFloat(x) \
-    (PyFloat_FromDouble((double)(round((x)*10000000) / 10000000)))
+#define PyFloat_FromFloat(x) (PyFloat_FromDouble((double)(x)))
 #endif
 #ifndef PyFloat_AsFloat
 #define PyFloat_AsFloat(x) ((float)PyFloat_AsDouble(x))
