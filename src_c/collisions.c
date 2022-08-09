@@ -1,6 +1,5 @@
 #ifdef __AVX2__
-#include "simd/include/collisions.h"
-#include "simd/collisions.c"
+#include "collisions_avx2.c"
 #endif
 
 #include "include/collisions.h"

@@ -1,9 +1,10 @@
-#include "simd/include/collisions.h"
+#include "include/pygame.h"
+#include "include/geometry.h"
 
 #include <immintrin.h>
 
 
-static int
+static PG_FORCEINLINE int
 pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X, double *Y, double *T) {
     double Rx = (double)rect->x;
     double Ry = (double)rect->y;
@@ -77,10 +78,11 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X, double
         }
     }
 
-    if (t <= 1) {
+    if (t <= 1 && t >= 0) {
         if (T) *T = t;
         if (X) *X = line->x1 + t * (line->x2 - line->x1);
         if (Y) *Y = line->y1 + t * (line->y2 - line->y1);
+        return 1;
     }
 
     return 0;
