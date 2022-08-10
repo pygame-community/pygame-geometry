@@ -74,7 +74,7 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X, double
         double t_ = ((double*)&t_256d)[i];
         double u_ = ((double*)&u_256d)[i];
         if (t_ >= 0 && t_ <= 1 && u_ >= 0 && u_ <= 1) {
-           t = min(t, t_); 
+           t = MIN(t, t_); 
         }
     }
 
