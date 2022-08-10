@@ -348,6 +348,75 @@ pg_circle_update(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_circle_move(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double x = 0, y = 0;
+    switch (nargs) {
+        case 1:
+            if (PySequence_Check(args[0])) {
+                if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
+                    return RAISE(PyExc_TypeError,
+                                 "Invalid arguments, must be a sequence of 2 "
+                                 "numbers");
+                }
+            }
+            else if (!pg_DoubleFromObj(args[0], &x)) {
+                return RAISE(PyExc_TypeError, "Circle.move numeric values");
+            }
+            break;
+        case 2:
+            if (!pg_DoubleFromObj(args[0], &x) ||
+                !pg_DoubleFromObj(args[1], &y)) {
+                return RAISE(PyExc_TypeError,
+                             "Invalid arguments, must be 2 numbers");
+            }
+            break;
+        default:
+            return RAISE(PyExc_TypeError,
+                         "Circle.move requires 1 or 2 numbers");
+    }
+
+    return pgCircle_New3(self->circle.x + x, self->circle.y + y,
+                         self->circle.r);
+}
+
+static PyObject *
+pg_circle_move_ip(pgCircleObject *self, PyObject *const *args,
+                  Py_ssize_t nargs)
+{
+    double x = 0, y = 0;
+    switch (nargs) {
+        case 1:
+            if (PySequence_Check(args[0])) {
+                if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
+                    return RAISE(PyExc_TypeError,
+                                 "Invalid arguments, must be a sequence of 2 "
+                                 "numbers");
+                }
+            }
+            else if (!pg_DoubleFromObj(args[0], &x)) {
+                return RAISE(PyExc_TypeError, "Circle.move_ip numeric values");
+            }
+            break;
+        case 2:
+            if (!pg_DoubleFromObj(args[0], &x) ||
+                !pg_DoubleFromObj(args[1], &y)) {
+                return RAISE(PyExc_TypeError,
+                             "Invalid arguments, must be 2 numbers");
+            }
+            break;
+        default:
+            return RAISE(PyExc_TypeError,
+                         "Circle.move_ip requires 1 or 2 numbers");
+    }
+
+    self->circle.x += x;
+    self->circle.y += y;
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -357,6 +426,8 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"collideswith", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
+    {"move", (PyCFunction)pg_circle_move, METH_FASTCALL, NULL},
+    {"move_ip", (PyCFunction)pg_circle_move_ip, METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
