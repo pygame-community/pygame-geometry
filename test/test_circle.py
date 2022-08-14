@@ -620,10 +620,8 @@ class CircleTypeTest(unittest.TestCase):
         # point
         p = (0, 0)
         p2 = (50, 0)
-        self.assertTrue(c.collideswith(p), "Expected True, point should collide here")
-        self.assertFalse(
-            c.collideswith(p2), "Expected False, point should not collide here"
-        )
+        self.assertTrue(c.collideswith(p), E_T + "point should collide here")
+        self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
     def test_as_rect_invalid_args(self):
 
