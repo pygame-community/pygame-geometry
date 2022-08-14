@@ -125,7 +125,7 @@ class TestSuite:
         groups: list[tuple[str, list[tuple[str, str]]]],
         globs: dict,
         num: int = 1_000_000,
-        repeat_num: int = 5,
+        repeat_num: int = 10,
         time_format="ms",
         precision=2,
         show_total: bool = True,
