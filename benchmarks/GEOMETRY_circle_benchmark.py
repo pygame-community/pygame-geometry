@@ -156,4 +156,4 @@ GROUPS = [
     ("Collision: Circle-Shape", CS_collision_tests),
 ]
 
-TestSuite("Geometry Module - Circle", GROUPS, GLOB, repeat_num=10).run_suite()
+TestSuite("Geometry Module - Circle", GROUPS, GLOB).run_suite()
