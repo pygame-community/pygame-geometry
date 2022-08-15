@@ -91,6 +91,39 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
 }
 
 static int
+pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B, double *p1x,
+                            double *p1y, double *p2x, double *p2y)
+{
+    double x1, y1;
+    double dx = A->x - B->x;
+    double dy = A->y - B->y;
+    double sum = dx * dx + dy * dy;
+    double d = sqrt(sum);
+
+    if (d > A->r + B->r || d < fabs(A->r - B->r) || (d == 0 && A->r == B->r)) {
+        return 0;
+    }
+
+    double a = (A->r_sqr - B->r_sqr + sum) / (2 * d);
+    double h = sqrt(A->r_sqr - a * a);
+    double aod = a / d;
+    double hod = h / d;
+    double hod_dx = hod * dx;
+    double hod_dy = hod * dy;
+
+    x1 = A->x - aod * dx;
+    y1 = A->y - aod * dy;
+
+    *p1x = x1 + hod_dy;
+    *p1y = y1 - hod_dx;
+
+    *p2x = x1 - hod_dy;
+    *p2y = y1 + hod_dx;
+
+    return 1;
+}
+
+static int
 pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
 {
     double Ax = line->x1;

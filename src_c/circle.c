@@ -211,6 +211,38 @@ pg_circle_copy(pgCircleObject *self, PyObject *_null)
 }
 
 static PyObject *
+pg_intersect_circle(pgCircleObject *self, PyObject *arg)
+{
+    pgCircleBase other;
+    pgCircleBase scirc = self->circle;
+    double p1x, p1y, p2x, p2y;
+
+    if (!pgCircle_FromObject(arg, &other)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a circle");
+        return NULL;
+    }
+
+    if (!pgIntersection_CircleCircle(&scirc, &other, &p1x, &p1y, &p2x, &p2y)) {
+        Py_RETURN_NONE;
+    }
+
+    PyObject *ret = PyList_New(2);
+    PyObject *p1 = PyTuple_New(2), *p2 = PyTuple_New(2);
+    if (ret == NULL || p1 == NULL || p2 == NULL) {
+        return NULL;
+    }
+
+    PyTuple_SET_ITEM(p1, 0, PyFloat_FromDouble(p1x));
+    PyTuple_SET_ITEM(p1, 1, PyFloat_FromDouble(p1y));
+    PyTuple_SET_ITEM(p2, 0, PyFloat_FromDouble(p2x));
+    PyTuple_SET_ITEM(p2, 1, PyFloat_FromDouble(p2y));
+
+    PyList_SET_ITEM(ret, 0, p1);
+    PyList_SET_ITEM(ret, 1, p2);
+    return ret;
+}
+
+static PyObject *
 pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
                         Py_ssize_t nargs)
 {
@@ -418,6 +450,7 @@ pg_circle_move_ip(pgCircleObject *self, PyObject *const *args,
 }
 
 static struct PyMethodDef pg_circle_methods[] = {
+    {"intersect_circle", (PyCFunction)pg_intersect_circle, METH_O, NULL},
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
     {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},

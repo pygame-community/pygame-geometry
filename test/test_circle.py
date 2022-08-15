@@ -345,6 +345,58 @@ class CircleTypeTest(unittest.TestCase):
         self.assertTrue(c, "Expected c to be True as radius is > 0")
         self.assertFalse(c2, "Expected c to be False as radius is != 0")
 
+    def test_intersectcircle_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.intersect_circle(value)
+
+    def test_intersectcircle_argnum(self):
+        """tests if the function correctly handles incorrect number of parameters"""
+        invalid_num = (
+            (Circle(6, 10, 1), Circle(1, 6, 4)),
+            (Circle(6, 10, 1), Circle(1, 6, 4), Circle(1, 6, 4)),
+        )
+
+        c = Circle(10, 10, 4)
+
+        with self.assertRaises(TypeError):
+            c.intersect_circle()
+
+        for value in invalid_num:
+            with self.assertRaises(TypeError):
+                c.intersect_circle(*value)
+
+    def test_itersectcircle(self):
+        """tests whether the function calculates the intersection between to circles correctly"""
+        c = Circle(10, 10, 4)
+        c2 = Circle(15, 10, 7)
+        c3 = Circle(100, 105, 7)
+        c4 = Circle(18, 10, 4)
+        c5 = Circle(10, 10, 2)
+
+        expected1 = [(9.2, 13.919183588453084), (9.2, 6.080816411546915)]
+        expected2 = [(14.0, 10.0), (14.0, 10.0)]
+
+        # self intersecting
+        self.assertEqual(c.intersect_circle(c), None)
+
+        # No intersection outside
+        self.assertEqual(c.intersect_circle(c3), None)
+
+        # No intersection inside
+        self.assertEqual(c.intersect_circle(c5), None)
+
+        # 2 intersection points
+        self.assertEqual(c.intersect_circle(c2), expected1)
+
+        # two equal intersection points
+        self.assertEqual(c.intersect_circle(c4), expected2)
+
     def test_collidecircle_argtype(self):
         """tests if the function correctly handles incorrect types as parameters"""
         invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1)

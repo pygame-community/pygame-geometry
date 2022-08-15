@@ -88,6 +88,11 @@ move_tests = [
     ("move_ip float", "c1.move_ip(1.0, 1.0)"),
 ]
 
+circle_intersection_tests = [
+    ("intersecting", "c1.intersect_circle(c2)"),
+    ("not intersecting", "c1.intersect_circle(c3)"),
+]
+
 CC_collision_tests = [
     ("Colliding", "c1.collidecircle(c2)"),
     ("Non colliding", "c1.collidecircle(c3)"),
@@ -132,6 +137,7 @@ GROUPS = [
     ("Conversion", conversion_tests),
     ("Update", update_tests),
     # ("Move", move_tests),
+    ("Circle Intersection", circle_intersection_tests),
     ("Collision: Circle-Circle ", CC_collision_tests),
     ("Collision: Circle-Rect", CR_collision_tests),
     ("Collision: Circle-Point", CP_collision_tests),

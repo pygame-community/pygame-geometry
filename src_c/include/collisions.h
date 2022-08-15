@@ -16,6 +16,9 @@ static int
 pgIntersection_LineLine(pgLineBase *, pgLineBase *, double *, double *,
                         double *);
 static int
+pgIntersection_CircleCircle(pgCircleBase *, pgCircleBase *, double *, double *,
+                            double *, double *);
+static int
 pgCollision_LinePoint(pgLineBase *, double, double);
 static int
 pgCollision_CirclePoint(pgCircleBase *circle, double, double);
