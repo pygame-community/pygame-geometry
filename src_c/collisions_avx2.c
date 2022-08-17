@@ -61,14 +61,12 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
         _mm256_mul_pd(_mm256_div_pd(u_256d, den_256d), _mm256_set1_pd(-1.0));
 
     // we check this condition t >= 0 && t <= 1 && u >= 0 && u <= 1
-    __m256d t_zero_256d =
-        _mm256_cmp_pd(t_256d, _mm256_setzero_pd(), _CMP_GE_OQ);
-    __m256d t_one_256d =
-        _mm256_cmp_pd(t_256d, _mm256_set1_pd(1.0), _CMP_LE_OQ);
-    __m256d u_zero_256d =
-        _mm256_cmp_pd(u_256d, _mm256_setzero_pd(), _CMP_GE_OQ);
-    __m256d u_one_256d =
-        _mm256_cmp_pd(u_256d, _mm256_set1_pd(1.0), _CMP_LE_OQ);
+    __m256d ones_256d = _mm256_set1_pd(1.0);
+    __m256d zeros_256d = _mm256_set1_pd(0.0);
+    __m256d t_zero_256d = _mm256_cmp_pd(t_256d, zeros_256d, _CMP_GE_OQ);
+    __m256d t_one_256d = _mm256_cmp_pd(t_256d, ones_256d, _CMP_LE_OQ);
+    __m256d u_zero_256d = _mm256_cmp_pd(u_256d, zeros_256d, _CMP_GE_OQ);
+    __m256d u_one_256d = _mm256_cmp_pd(u_256d, ones_256d, _CMP_LE_OQ);
     __m256d t_u_256d = _mm256_and_pd(_mm256_and_pd(t_zero_256d, t_one_256d),
                                      _mm256_and_pd(u_zero_256d, u_one_256d));
 
