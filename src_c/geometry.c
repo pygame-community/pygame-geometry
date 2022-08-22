@@ -1,6 +1,9 @@
 #include "line.c"
 #include "circle.c"
 #include "collisions.c"
+#ifdef __AVX2__
+#include "simd_collisions_avx2.c"
+#endif /* ~__AVX2__ */
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 17
 
@@ -95,3 +98,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
+
