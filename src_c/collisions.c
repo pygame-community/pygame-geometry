@@ -250,8 +250,8 @@ pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
     pgLineBase c = {x, y + h, x + w, y + h};
     pgLineBase d = {x + w, y, x + w, y + h};
 
-    return pgCollision_LineLine(line, &a) && pgCollision_LineLine(line, &b) &&
-           pgCollision_LineLine(line, &c) && pgCollision_LineLine(line, &d);
+    return pgCollision_LineLine(line, &a) || pgCollision_LineLine(line, &b) ||
+           pgCollision_LineLine(line, &c) || pgCollision_LineLine(line, &d);
 #endif /* ~__AVX2__ */
 }
 
