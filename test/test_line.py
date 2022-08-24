@@ -344,6 +344,20 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             A.collideline(1, 5)
 
+    def test_meth_colliderect(self):
+        A = Line(0, 0, 1, 1)
+        B = Rect(1, 1, 1, 1)
+        C = Rect(-2, -2, 1, 1)
+
+        self.assertTrue(A.colliderect(B))
+        self.assertFalse(A.colliderect(C))
+
+        with self.assertRaises(TypeError):
+            A.colliderect()
+
+        with self.assertRaises(TypeError):
+            A.colliderect(1, 5)
+
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
 

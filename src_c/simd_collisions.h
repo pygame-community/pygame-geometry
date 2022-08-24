@@ -23,5 +23,5 @@ PG_FORCEINLINE static int
 pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
                         double *T);
 PG_FORCEINLINE static int
-pgCollision_LineRect_avx2(pgLineBase *line, SDL_Rect *rect);
+pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line);
 #endif

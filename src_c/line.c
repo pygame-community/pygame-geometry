@@ -377,6 +377,18 @@ pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_colliderect(pgLineObject *self, PyObject *args)
+{
+    SDL_Rect *rect, temp;
+
+    if (!(rect = pgRect_FromObject(args, &temp))) {
+        return RAISE(PyExc_TypeError,
+                     "Line.colliderect requires a Rect or a RectLike object");
+    }
+    return PyBool_FromLong(pgCollision_RectLine(rect, &self->line));
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -384,6 +396,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
+    {"colliderect", (PyCFunction)pg_line_colliderect, METH_VARARGS, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};

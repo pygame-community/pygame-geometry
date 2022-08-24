@@ -102,7 +102,7 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
 
 #if AVX2_IS_SUPPORTED
 PG_FORCEINLINE static int
-pgCollision_LineRect_avx2(pgLineBase *line, SDL_Rect *rect)
+pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line)
 {
     double Rx = (double)rect->x;
     double Ry = (double)rect->y;

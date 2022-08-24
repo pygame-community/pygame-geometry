@@ -238,7 +238,7 @@ static int
 pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 {
 #if AVX2_IS_SUPPORTED
-    return pgCollision_LineRect_avx2(line, rect);
+    return pgCollision_RectLine_avx2(rect, line);
 #else
     double x = (double)rect->x;
     double y = (double)rect->y;
