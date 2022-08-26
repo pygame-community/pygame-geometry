@@ -2,15 +2,6 @@
 #include "simd_collisions.h"
 #include <stdio.h>
 
-#if defined(__GNUC__) && \
-    (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))
-#define LIKELY(x) __builtin_expect(!!(x), 1)
-#define UNLIKELY(x) __builtin_expect(!!(x), 0)
-#else
-#define LIKELY(x) (x)
-#define UNLIKELY(x) (x)
-#endif
-
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
 {
@@ -239,7 +230,8 @@ pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 {
 #if AVX2_IS_SUPPORTED
     return pgCollision_RectLine_avx2(rect, line);
-#else
+#endif /* ~AVX2_IS_SUPPORTED */
+
     double x = (double)rect->x;
     double y = (double)rect->y;
     double w = (double)rect->w;
@@ -252,7 +244,6 @@ pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 
     return pgCollision_LineLine(line, &a) || pgCollision_LineLine(line, &b) ||
            pgCollision_LineLine(line, &c) || pgCollision_LineLine(line, &d);
-#endif /* ~__AVX2__ */
 }
 
 static int
