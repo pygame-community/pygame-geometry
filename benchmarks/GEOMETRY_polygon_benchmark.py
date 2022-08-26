@@ -2,6 +2,16 @@ from benchmark_utils import TestSuite
 
 from geometry import Polygon
 
+p1_i = (50, 50)
+p2_i = (50, 100)
+p3_i = (70, 55)
+p4_i = (100, 23)
+
+p1_f = (50.0, 50.0)
+p2_f = (50.0, 100.0)
+p3_f = (70.0, 55.0)
+p4_f = (100.0, 23.0)
+
 po3 = Polygon([(50, 50), (50, 100), (70, 55)])
 po4 = Polygon([(50, 50), (50, 100), (70, 55), (100, 23)])
 
@@ -9,6 +19,14 @@ GLOB = {
     "Polygon": Polygon,
     "po3": po3,
     "po4": po4,
+    "p1_i": p1_i,
+    "p2_i": p2_i,
+    "p3_i": p3_i,
+    "p4_i": p4_i,
+    "p1_f": p1_f,
+    "p2_f": p2_f,
+    "p3_f": p3_f,
+    "p4_f": p4_f,
 }
 
 # === Tests ===
@@ -21,22 +39,16 @@ GLOB = {
 # ====================================================
 
 creation_tests = [
-    ("(3) Polygon", "Polygon(po3)"),
-    ("(3) int 1", "Polygon([(50, 50), (50, 100), (70, 55)])"),
-    ("(3) float 1", "Polygon([(50.0, 50.0), (50.0, 100.0), (70.0, 55.0)])"),
-    ("(3) int 3", "Polygon((50, 50), (50, 100), (70, 55))"),
-    ("(3) float 3", "Polygon((50.0, 50.0), (50.0, 100.0), (70.0, 55.0))"),
+    ("(3) poly", "Polygon(po3)"),
     ("(4) Polygon", "Polygon(po4)"),
-    ("(4) int 1", "Polygon([(50, 50), (50, 100), (70, 55), (100, 23)])"),
-    (
-        "(4) float 1",
-        "Polygon([(50.0, 50.0), (50.0, 100.0), (70.0, 55.0), (100.0, 23.0)])",
-    ),
-    ("(4) int 3", "Polygon((50, 50), (50, 100), (70, 55), (100, 23))"),
-    (
-        "(4) float 3",
-        "Polygon((50.0, 50.0), (50.0, 100.0), (70.0, 55.0), (100.0, 23.0))",
-    ),
+    ("(3) int 3 args", "Polygon(p1_i, p2_i, p3_i)"),
+    ("(3) float 3 args", "Polygon(p1_f, p2_f, p3_f)"),
+    ("(4) int 4 args", "Polygon(p1_i, p2_i, p3_i, p4_i)"),
+    ("(4) float 4 args", "Polygon(p1_f, p2_f, p3_f, p4_f)"),
+    ("(3) int 1 arg", "Polygon([p1_i, p2_i, p3_i])"),
+    ("(3) float 1 arg", "Polygon([p1_f, p2_f, p3_f])"),
+    ("(4) int 1 arg", "Polygon([p1_i, p2_i, p3_i, p4_i])"),
+    ("(4) float 1 arg", "Polygon([p1_f, p2_f, p3_f, p4_f])"),
 ]
 
 getters_tests = [
@@ -47,16 +59,20 @@ getters_tests = [
 ]
 
 setters_tests = [
-    ("vertices int", "po4.vertices = [(50, 50), (50, 100), (70, 55), (100, 23)]"),
-    (
-        "vertices float",
-        "po4.vertices = [(50.0, 50.0), (50.0, 100.0), (70.0, 55.0), (100.0, 23.0)]",
-    ),
+    ("vertices int", "po4.vertices = [p1_i, p2_i, p3_i, p4_i]"),
+    ("vertices float", "po4.vertices = [p1_f, p2_f, p3_f, p4_f]"),
+]
+
+copy_tests = [
+    ("copy 3", "po3.copy()"),
+    ("copy 4", "po4.copy()"),
 ]
 
 GROUPS = [
     ("Creation", creation_tests),
     ("Attribute Getters", getters_tests),
+    ("Copy", copy_tests),
 ]
 
-TestSuite("Geometry Module - Polygon", GROUPS, GLOB).run_suite()
+if __name__ == "__main__":
+    TestSuite("Geometry Module - Polygon", GROUPS, GLOB).run_suite()

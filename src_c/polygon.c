@@ -32,27 +32,29 @@ pg_tuple_from_values_double(double val1, double val2)
     return tup;
 }
 
-inline static PyObject *
+static PyObject *
 _pg_polygon_vertices_aslist(pgPolygonBase *poly)
 {
-    PyObject *vertices = PyList_New(poly->verts_num);
-    if (!vertices) {
+    PyObject *list = PyList_New(poly->verts_num);
+    if (!list) {
         return NULL;
     }
     Py_ssize_t i;
+
     for (i = 0; i < poly->verts_num; i++) {
-        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i],
-                                                    poly->vertices[i + 1]);
+        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i * 2],
+                                                    poly->vertices[i * 2 + 1]);
         if (!tup) {
-            Py_DECREF(vertices);
+            Py_DECREF(list);
             return NULL;
         }
-        PyList_SET_ITEM(vertices, i, tup);
+        PyList_SET_ITEM(list, i, tup);
+        tup = NULL;
     }
-    return vertices;
+    return list;
 }
 
-inline static PyObject *
+static PyObject *
 _pg_polygon_vertices_astuple(pgPolygonBase *poly)
 {
     PyObject *vertices = PyTuple_New(poly->verts_num);
@@ -61,8 +63,8 @@ _pg_polygon_vertices_astuple(pgPolygonBase *poly)
     }
     Py_ssize_t i;
     for (i = 0; i < poly->verts_num; i++) {
-        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i],
-                                                    poly->vertices[i + 1]);
+        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i * 2],
+                                                    poly->vertices[i * 2 + 1]);
         if (!tup) {
             Py_DECREF(vertices);
             return NULL;
@@ -78,14 +80,20 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
     Py_ssize_t length;
 
     if (pgPolygon_Check(obj)) {
-        out->verts_num = pgPolygon_GETVERTSNUM(obj);
-        out->vertices = PyMem_New(double, out->verts_num * 2);
+        pgPolygonBase *poly = &pgPolygon_AsPolygon(obj);
+
+        out->verts_num = poly->verts_num;
         if (!out->vertices) {
-            return 0;
+            /* Only allocate new memory if the polygon vertices' memory is
+             * not allocated, just copy the values otherwise*/
+            out->vertices = PyMem_New(double, poly->verts_num * 2);
+            if (!out->vertices) {
+                return 0;
+            }
         }
 
-        memcpy(&(out->vertices), &pgPolygon_GETVERTICES(obj),
-               sizeof(double) * out->verts_num * 2);
+        memcpy(out->vertices, poly->vertices,
+               poly->verts_num * 2 * sizeof(double));
 
         return 1;
     }
@@ -97,19 +105,22 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
         if (length >= 3) {
             Py_ssize_t i;
             out->verts_num = length;
-            out->vertices = PyMem_New(double, length * 2);
 
             if (!out->vertices) {
-                return 0;
-            }
-
-            for (i = 0; i < length; i++) {
-                if (!pg_TwoDoublesFromObj(f_arr[i], &(out->vertices[i]),
-                                          &(out->vertices[i + 1]))) {
+                /* Only allocate new memory if the polygon vertices' memory is
+                 * not allocated*/
+                out->vertices = PyMem_New(double, length * 2);
+                if (!out->vertices) {
                     return 0;
                 }
             }
 
+            for (i = 0; i < out->verts_num; i++) {
+                if (!pg_TwoDoublesFromObj(f_arr[i], &(out->vertices[i * 2]),
+                                          &(out->vertices[i * 2 + 1]))) {
+                    return 0;
+                }
+            }
             return 1;
         }
         else if (length == 1) {
@@ -200,7 +211,6 @@ pg_polygon_init(pgPolygonObject *self, PyObject *args, PyObject *kwds)
                         "Argument must be Polygon style object");
         return -1;
     }
-
     return 0;
 }
 
@@ -216,17 +226,21 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
         Py_DECREF(polygon_obj);
         return NULL;
     }
+
     if (polygon_obj) {
-        double *vertices_2 = PyMem_New(double, verts_num * 2);
-        if (!vertices_2) {
+
+        polygon_obj->polygon.vertices = PyMem_New(double, verts_num * 2);
+        if (!polygon_obj->polygon.vertices) {
             Py_DECREF(polygon_obj);
             return NULL;
         }
-        polygon_obj->polygon.vertices = vertices_2;
-        memcpy(&(polygon_obj->polygon.vertices), vertices,
+
+        memcpy(polygon_obj->polygon.vertices, vertices,
                verts_num * 2 * sizeof(double));
+
         polygon_obj->polygon.verts_num = verts_num;
     }
+
     return (PyObject *)polygon_obj;
 }
 
@@ -272,9 +286,9 @@ pg_polygon_dealloc(pgPolygonObject *self)
 static PyObject *
 pg_polygon_repr(pgPolygonObject *self)
 {
-    return PyUnicode_FromFormat("pygame.Polygon(%S, %S)",
-                                _pg_polygon_vertices_aslist(&self->polygon),
-                                PyLong_FromLong((int)self->polygon.verts_num));
+    return PyUnicode_FromFormat("<Polygon(%S, %S)>",
+                                PyLong_FromLong((int)self->polygon.verts_num),
+                                _pg_polygon_vertices_aslist(&self->polygon));
 }
 
 static PyObject *
@@ -289,7 +303,16 @@ pg_polygon_getsafepickle(pgPolygonObject *self, void *closure)
     Py_RETURN_TRUE;
 }
 
-static struct PyMethodDef pg_polygon_methods[] = {{NULL, NULL, 0, NULL}};
+static PyObject *
+pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
+{
+    return pgPolygon_New(&self->polygon);
+}
+
+static struct PyMethodDef pg_polygon_methods[] = {
+    {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}};
 
 static PyObject *
 pg_polygon_get_verts_num(pgPolygonObject *self, void *closure)

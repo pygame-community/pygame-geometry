@@ -29,7 +29,7 @@ class PolygonTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                p = Polygon(value)
+                po = Polygon(value)
 
     def test_Construction_invalid_arguments_number(self):
         """Checks whether passing the wrong number of arguments to the constructor
@@ -40,11 +40,11 @@ class PolygonTypeTest(unittest.TestCase):
 
         # No args
         with self.assertRaises(TypeError):
-            p = Polygon()
+            po = Polygon()
 
         for arg_seq in arguments:
             with self.assertRaises(TypeError):
-                p = Polygon(*arg_seq)
+                po = Polygon(*arg_seq)
 
     def test_construction_invalid_polygon(self):
         """Checks whether the constructor works correctly with invalid polygons"""
@@ -55,32 +55,68 @@ class PolygonTypeTest(unittest.TestCase):
 
         for polygon in invalid_polygons:
             with self.assertRaises(TypeError):
-                p = Polygon(polygon)
+                po = Polygon(polygon)
 
-    def test_construction_TUP(self):
+    def test_construction_tuple(self):
         """Checks whether the constructor works correctly with tuples"""
-        p = Polygon((p1, p2, p3, p4))
+        po = Polygon((p1, p2, p3, p4))
 
-        self.assertEqual(p.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
 
-    def test_construction_LIST(self):
+    def test_construction_list(self):
         """Checks whether the constructor works correctly with lists"""
-        p = Polygon([p1, p2, p3, p4])
+        po = Polygon([p1, p2, p3, p4])
+        po_2 = Polygon([p1, p2, p3])
 
-        self.assertEqual(p.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, [p1, p2, p3])
 
-    def test_construction_args(self):
+    def test_construction_n_args(self):
         """Checks whether the constructor works correctly with n arguments"""
-        p = Polygon(p1, p2, p3, p4)
-        self.assertEqual(p.vertices, [p1, p2, p3, p4])
+        po = Polygon(p1, p2, p3, p4)
+        po_2 = Polygon(p1, p2, p3)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, [p1, p2, p3])
 
     def test_construction_frompolygon(self):
         """Checks whether the constructor works correctly with another polygon"""
         po = Polygon([p1, p2, p3, p4])
-        p = Polygon(po)
+        po_2 = Polygon(po)
 
-        self.assertEqual(p.vertices, [p1, p2, p3, p4])
-        self.assertEqual(p.vertices, po.vertices)
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, po.vertices)
+
+    def test_copy_invalid_args(self):
+        """Checks whether the copy method raises the appropriate errors with invalid
+        args"""
+
+        args = [
+            (1,),
+            (1, 2),
+            (1, 2, 3),
+            (1, 2, 3, 4),
+        ]
+        po = Polygon([p1, p2, p3, p4])
+
+        for value in args:
+            with self.assertRaises(TypeError):
+                po.copy(*value)
+
+    def test_copy_return_type(self):
+        """Checks whether the copy method returns a polygon"""
+        po = Polygon([p1, p2, p3, p4])
+
+        self.assertIsInstance(po.copy(), Polygon)
+        self.assertEqual(type(po.copy()), Polygon)
+
+    def test_copy(self):
+        """Checks whether the copy method works correctly"""
+        po = Polygon([p1, p2, p3, p4])
+        po_2 = po.copy()
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, po.vertices)
 
 
 if __name__ == "__main__":
