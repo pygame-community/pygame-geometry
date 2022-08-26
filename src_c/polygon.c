@@ -36,11 +36,18 @@ inline static PyObject *
 _pg_polygon_vertices_aslist(pgPolygonBase *poly)
 {
     PyObject *vertices = PyList_New(poly->verts_num);
+    if (!vertices) {
+        return NULL;
+    }
     Py_ssize_t i;
     for (i = 0; i < poly->verts_num; i++) {
-        PyList_SET_ITEM(vertices, i,
-                        pg_tuple_from_values_double(poly->vertices[i],
-                                                    poly->vertices[i + 1]));
+        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i],
+                                                    poly->vertices[i + 1]);
+        if (!tup) {
+            Py_DECREF(vertices);
+            return NULL;
+        }
+        PyList_SET_ITEM(vertices, i, tup);
     }
     return vertices;
 }
@@ -49,11 +56,18 @@ inline static PyObject *
 _pg_polygon_vertices_astuple(pgPolygonBase *poly)
 {
     PyObject *vertices = PyTuple_New(poly->verts_num);
+    if (!vertices) {
+        return NULL;
+    }
     Py_ssize_t i;
     for (i = 0; i < poly->verts_num; i++) {
-        PyTuple_SET_ITEM(vertices, i,
-                         pg_tuple_from_values_double(poly->vertices[i],
-                                                     poly->vertices[i + 1]));
+        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i],
+                                                    poly->vertices[i + 1]);
+        if (!tup) {
+            Py_DECREF(vertices);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(vertices, i, tup);
     }
     return vertices;
 }
@@ -177,7 +191,6 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 
     return 0;
 }
-// return 1 if success and 0 if failure
 
 static int
 pg_polygon_init(pgPolygonObject *self, PyObject *args, PyObject *kwds)
@@ -287,24 +300,7 @@ pg_polygon_get_verts_num(pgPolygonObject *self, void *closure)
 static PyObject *
 pg_polygon_get_vertices(pgPolygonObject *self, void *closure)
 {
-    pgPolygonBase s_poly = self->polygon;
-    PyObject *vertices = PyList_New(s_poly.verts_num);
-
-    Py_ssize_t i;
-    for (i = 0; i < s_poly.verts_num; i++) {
-        PyObject *vertex = pg_tuple_from_values_double(s_poly.vertices[i],
-                                                       s_poly.vertices[i + 1]);
-        if (!vertex) {
-            Py_DECREF(vertices);
-            return NULL;
-        }
-
-        PyList_SET_ITEM(vertices, i, vertex);
-        /*        PyList_SET_ITEM(vertices, i,
-                                Py_BuildValue("(dd)",
-           self->polygon.vertices[i], self->polygon.vertices[i + 1]));*/
-    }
-    return vertices;
+    return _pg_polygon_vertices_aslist(&self->polygon);
 }
 
 static PyGetSetDef pg_polygon_getsets[] = {
