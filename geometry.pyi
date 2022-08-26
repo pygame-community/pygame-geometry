@@ -9,6 +9,7 @@ from typing import (
     Iterator,
 )
 
+from pygame._common import RectValue
 from typing_extensions import Literal as Literal
 from typing_extensions import Protocol
 
@@ -89,6 +90,13 @@ class Line(Sequence[float]):
     def collideline(self, x1: float, y1: float, x2: float, y2: float) -> bool: ...
     @overload
     def collideline(self, first: Sequence[float], second: Sequence[float]) -> bool: ...
+    def colliderect(self, rect: RectValue) -> bool: ...
+    @overload
+    def colliderect(self, left_top: Coordinate, width_height: Coordinate) -> bool: ...
+    @overload
+    def colliderect(
+        self, left: float, top: float, width: float, height: float
+    ) -> bool: ...
     @overload
     def collidecircle(self, circle: CircleValue) -> bool: ...
     @overload

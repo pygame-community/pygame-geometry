@@ -203,4 +203,14 @@ void **_PGSLOTS_rect;
 
 #define import_pygame_rect() _LOAD_SLOTS_FROM_PYGAME(rect)
 
+#ifndef HAVE_IMMINTRIN_H
+#if (defined(_M_IX86) || defined(_M_X64) || defined(_M_AMD64)) && \
+    (defined(_MSC_VER) && _MSC_VER >= 1600)
+#define HAVE_IMMINTRIN_H 1
+#elif defined(__has_include) && (defined(__i386__) || defined(__x86_64)) && \
+    __has_include(<immintrin.h>)
+#define HAVE_IMMINTRIN_H 1
+#endif
+#endif /* ~HAVE_IMMINTRIN_H */
+
 #endif /* ~_PYGAME_H */
