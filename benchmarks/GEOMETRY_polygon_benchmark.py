@@ -23,6 +23,10 @@ GLOB = {
     "p2_f": (50.0, 100.0),
     "p3_f": (70.0, 55.0),
     "p4_f": (100.0, 23.0),
+    "poly3_int_list": [(50, 50), (50, 100), (70, 55)],
+    "poly4_int_list": [(50, 50), (50, 100), (70, 55), (100, 23)],
+    "poly3_float_list": [(50.0, 50.0), (50.0, 100.0), (70.0, 55.0)],
+    "poly4_float_list": [(50.0, 50.0), (50.0, 100.0), (70.0, 55.0), (100.0, 23.0)],
 }
 
 creation_tests = [
@@ -32,10 +36,10 @@ creation_tests = [
     ("(3) float 3 args", "Polygon(p1_f, p2_f, p3_f)"),
     ("(4) int 4 args", "Polygon(p1_i, p2_i, p3_i, p4_i)"),
     ("(4) float 4 args", "Polygon(p1_f, p2_f, p3_f, p4_f)"),
-    ("(3) int 1 arg", "Polygon([p1_i, p2_i, p3_i])"),
-    ("(3) float 1 arg", "Polygon([p1_f, p2_f, p3_f])"),
-    ("(4) int 1 arg", "Polygon([p1_i, p2_i, p3_i, p4_i])"),
-    ("(4) float 1 arg", "Polygon([p1_f, p2_f, p3_f, p4_f])"),
+    ("(3) int 1 arg", "Polygon(poly3_int_list)"),
+    ("(3) float 1 arg", "Polygon(poly3_float_list)"),
+    ("(4) int 1 arg", "Polygon(poly4_int_list)"),
+    ("(4) float 1 arg", "Polygon(poly4_float_list)"),
 ]
 
 getters_tests = [
