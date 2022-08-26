@@ -1,8 +1,9 @@
 #include "line.c"
 #include "circle.c"
+#include "polygon.c"
 #include "collisions.c"
 
-#define PYGAMEAPI_GEOMETRY_NUMSLOTS 17
+#define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
 
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
@@ -11,19 +12,21 @@ MODINIT_DEFINE(geometry)
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_GEOMETRY_NUMSLOTS];
 
-    static struct PyModuleDef _module = {PyModuleDef_HEAD_INIT,
-                                         "geometry",
-                                         "Module for shapes like Line, Circle "
-                                         "Polygon and extra functionalities\n",
-                                         -1,
-                                         _pg_module_methods,
-                                         NULL,
-                                         NULL,
-                                         NULL,
-                                         NULL};
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "geometry",
+        "Module for shapes like Line, Circle, "
+        "Polygon and extra functionalities\n",
+        -1,
+        _pg_module_methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL};
 
     import_pygame_base();
     import_pygame_rect();
+
     if (PyErr_Occurred()) {
         return NULL;
     }
@@ -33,6 +36,9 @@ MODINIT_DEFINE(geometry)
         return NULL;
     }
     if (PyType_Ready(&pgCircle_Type) < 0) {
+        return NULL;
+    }
+    if (PyType_Ready(&pgPolygon_Type) < 0) {
         return NULL;
     }
 
@@ -60,10 +66,23 @@ MODINIT_DEFINE(geometry)
         Py_DECREF(module);
         return NULL;
     }
-
     Py_INCREF(&pgCircle_Type);
     if (PyModule_AddObject(module, "Circle", (PyObject *)&pgCircle_Type)) {
         Py_DECREF(&pgCircle_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    Py_INCREF(&pgPolygon_Type);
+    if (PyModule_AddObject(module, "PolygonType",
+                           (PyObject *)&pgPolygon_Type)) {
+        Py_DECREF(&pgPolygon_Type);
+        Py_DECREF(module);
+        return NULL;
+    }
+    Py_INCREF(&pgPolygon_Type);
+    if (PyModule_AddObject(module, "Polygon", (PyObject *)&pgPolygon_Type)) {
+        Py_DECREF(&pgPolygon_Type);
         Py_DECREF(module);
         return NULL;
     }
@@ -86,6 +105,10 @@ MODINIT_DEFINE(geometry)
     c_api[14] = pgCircle_New;
     c_api[15] = pgCircle_New3;
     c_api[16] = pgCircle_FromObject;
+    c_api[17] = &pgPolygon_Type;
+    c_api[18] = pgPolygon_New;
+    c_api[19] = pgPolygon_New2;
+    c_api[20] = pgPolygon_FromObject;
 
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

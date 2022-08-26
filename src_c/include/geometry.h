@@ -55,8 +55,29 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
 
 static PyTypeObject pgCircle_Type;
 static PyTypeObject pgLine_Type;
+static PyTypeObject pgPolygon_Type;
+
+typedef struct {
+    Py_ssize_t verts_num;
+    double *vertices;
+} pgPolygonBase;
+
+typedef struct {
+    PyObject_HEAD pgPolygonBase polygon;
+    PyObject *weakreflist;
+} pgPolygonObject;
+
+#define pgPolygon_CAST(o) ((pgPolygonObject *)(o))
+#define pgPolygon_AsPolygon(o) (pgPolygon_CAST(o)->polygon)
+#define pgPolygon_GETVERTICES(o) (pgPolygon_AsPolygon(o).vertices)
+#define pgPolygon_GETVERTSNUM(o) (pgPolygon_AsPolygon(o).verts_num)
+
+// return 1 if success and 0 if failure
+static int
+pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out);
 
 #define pgCircle_Check(o) ((o)->ob_type == &pgCircle_Type)
 #define pgLine_Check(o) ((o)->ob_type == &pgLine_Type)
+#define pgPolygon_Check(o) ((o)->ob_type == &pgPolygon_Type)
 
 #endif /* ~_GEOMETRY_H */
