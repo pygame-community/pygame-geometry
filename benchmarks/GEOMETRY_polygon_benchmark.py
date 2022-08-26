@@ -26,8 +26,8 @@ GLOB = {
 }
 
 creation_tests = [
-    ("(3) poly", "Polygon(po3)"),
-    ("(4) Polygon", "Polygon(po4)"),
+    ("(3) polygon", "Polygon(po3)"),
+    ("(4) polygon", "Polygon(po4)"),
     ("(3) int 3 args", "Polygon(p1_i, p2_i, p3_i)"),
     ("(3) float 3 args", "Polygon(p1_f, p2_f, p3_f)"),
     ("(4) int 4 args", "Polygon(p1_i, p2_i, p3_i, p4_i)"),
