@@ -65,7 +65,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 
     if (pgPolygon_Check(obj)) {
         out->verts_num = pgPolygon_GETVERTSNUM(obj);
-        out->vertices = PyMem_New(double, length * 2);
+        out->vertices = PyMem_New(double, out->verts_num * 2);
         if (!out->vertices) {
             return 0;
         }
