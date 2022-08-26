@@ -204,6 +204,39 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 }
 
 static int
+pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
+                             pgPolygonBase *out)
+{
+    if (nargs == 1) {
+        return pgPolygon_FromObject(args[0], out);
+    }
+    else if (nargs >= 3) {
+        Py_ssize_t i;
+        out->verts_num = nargs;
+
+        if (!out->vertices) {
+            /* Only allocate new memory if the polygon vertices' memory is
+             * not allocated*/
+            out->vertices = PyMem_New(double, nargs * 2);
+            if (!out->vertices) {
+                return 0;
+            }
+        }
+
+        for (i = 0; i < nargs; i++) {
+            if (!pg_TwoDoublesFromObj(args[i], &(out->vertices[i * 2]),
+                                      &(out->vertices[i * 2 + 1]))) {
+                return 0;
+            }
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+
+static int
 pg_polygon_init(pgPolygonObject *self, PyObject *args, PyObject *kwds)
 {
     if (!pgPolygon_FromObject(args, &(self->polygon))) {
@@ -228,7 +261,6 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
     }
 
     if (polygon_obj) {
-
         polygon_obj->polygon.vertices = PyMem_New(double, verts_num * 2);
         if (!polygon_obj->polygon.vertices) {
             Py_DECREF(polygon_obj);
