@@ -11,7 +11,7 @@ p4 = (332.0, 64.0)
 
 
 class PolygonTypeTest(unittest.TestCase):
-    def dest_Construction_invalid_type(self):
+    def test_Construction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
         raises the appropriate errors
         """
@@ -31,7 +31,7 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 p = Polygon(value)
 
-    def dest_Construction_invalid_arguments_number(self):
+    def test_Construction_invalid_arguments_number(self):
         """Checks whether passing the wrong number of arguments to the constructor
         raises the appropriate errors
         """
@@ -46,7 +46,7 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 p = Polygon(*arg_seq)
 
-    def dest_construction_invalid_polygon(self):
+    def test_construction_invalid_polygon(self):
         """Checks whether the constructor works correctly with invalid polygons"""
         invalid_polygons = (
             [p1],  # 1
@@ -62,21 +62,19 @@ class PolygonTypeTest(unittest.TestCase):
         p = Polygon((p1, p2, p3, p4))
 
         self.assertEqual(p.vertices, [p1, p2, p3, p4])
-        print("==========================")
 
-    def dest_construction_LIST(self):
+    def test_construction_LIST(self):
         """Checks whether the constructor works correctly with lists"""
         p = Polygon([p1, p2, p3, p4])
 
         self.assertEqual(p.vertices, [p1, p2, p3, p4])
-        print("==========================")
 
-    def dest_construction_args(self):
+    def test_construction_args(self):
         """Checks whether the constructor works correctly with n arguments"""
         p = Polygon(p1, p2, p3, p4)
         self.assertEqual(p.vertices, [p1, p2, p3, p4])
 
-    def dest_construction_frompolygon(self):
+    def test_construction_frompolygon(self):
         """Checks whether the constructor works correctly with another polygon"""
         po = Polygon([p1, p2, p3, p4])
         p = Polygon(po)
