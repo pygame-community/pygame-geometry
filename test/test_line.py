@@ -331,6 +331,44 @@ class LineTypeTest(unittest.TestCase):
             (-0.7071067811865476, -0.7071067811865476),
         )
 
+    def test_meth_move(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        ret = line.move(1, 2)
+
+        self.assertEqual(ret.x1, 2.1)
+        self.assertEqual(ret.y1, 4.2)
+        self.assertEqual(ret.x2, 4.3)
+        self.assertEqual(ret.y2, 6.4)
+
+        with self.assertRaises(TypeError):
+            line.move()
+
+        with self.assertRaises(TypeError):
+            line.move(1)
+
+        with self.assertRaises(TypeError):
+            line.move(1, 2, 3)
+
+    def test_meth_move_ip(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        line.move_ip(1, 2)
+
+        self.assertEqual(line.x1, 2.1)
+        self.assertEqual(line.y1, 4.2)
+        self.assertEqual(line.x2, 4.3)
+        self.assertEqual(line.y2, 6.4)
+
+        with self.assertRaises(TypeError):
+            line.move()
+
+        with self.assertRaises(TypeError):
+            line.move(1)
+
+        with self.assertRaises(TypeError):
+            line.move(1, 2, 3)
+
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)
         B = Line(0, 1, 1, 0)

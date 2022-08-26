@@ -390,7 +390,8 @@ pg_line_colliderect(pgLineObject *self, PyObject *args)
 }
 
 static PyObject *
-pg_line_move_ip(pgLineObject *self, PyObject * const* args, Py_ssize_t nargs) {
+pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
     double Dx = 0, Dy = 0;
 
     if (nargs == 1) {
@@ -416,12 +417,12 @@ pg_line_move_ip(pgLineObject *self, PyObject * const* args, Py_ssize_t nargs) {
     Py_RETURN_NONE;
 
 error:
-    return RAISE(PyExc_TypeError,
-                 "move_ip requires a pair of numbers");
+    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
 }
 
 static PyObject *
-pg_line_move(pgLineObject *self, PyObject * const* args, Py_ssize_t nargs) {
+pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
     double Dx = 0, Dy = 0;
 
     if (nargs == 1) {
@@ -439,7 +440,9 @@ pg_line_move(pgLineObject *self, PyObject * const* args, Py_ssize_t nargs) {
         goto error;
     }
 
-    pgLineObject *ret = _pg_line_subtype_new4(Py_TYPE(self), self->line.x1, self->line.y1, self->line.x2, self->line.y2);
+    pgLineObject *ret =
+        _pg_line_subtype_new4(Py_TYPE(self), self->line.x1, self->line.y1,
+                              self->line.x2, self->line.y2);
 
     ret->line.x1 += Dx;
     ret->line.y1 += Dy;
@@ -449,8 +452,7 @@ pg_line_move(pgLineObject *self, PyObject * const* args, Py_ssize_t nargs) {
     return ret;
 
 error:
-    return RAISE(PyExc_TypeError,
-                 "move_ip requires a pair of numbers");
+    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
 }
 
 static struct PyMethodDef pg_line_methods[] = {
