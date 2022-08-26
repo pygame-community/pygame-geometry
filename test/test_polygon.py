@@ -87,6 +87,26 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
 
+    def test_construction_objwithpolygonattr(self):
+        """Checks whether the constructor works correctly with an object with a polygon
+        attribute"""
+
+        class Test:
+            def __init__(self, poly):
+                self.polygon = poly
+
+        test = Test([p1, p2, p3, p4])  # list
+        test_2 = Test((p1, p2, p3, p4))  # tuple
+        test_3 = Test(Polygon([p1, p2, p3, p4]))  # polygon
+
+        po = Polygon(test)
+        po_2 = Polygon(test_2)
+        po_3 = Polygon(test_3)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_3.vertices, [p1, p2, p3, p4])
+
     def test_copy_invalid_args(self):
         """Checks whether the copy method raises the appropriate errors with invalid
         args"""
