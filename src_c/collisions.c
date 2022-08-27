@@ -294,24 +294,27 @@ pgCollision_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2)
     pgPolygonBase *poly_1 = polygon_1;
     pgPolygonBase *poly_2 = polygon_2;
 
-    for (int shape = 0; shape < 2; shape++) {
+    int shape;
+    for (shape = 0; shape < 2; shape++) {
         if (shape == 1) {
             polygon_1 = poly_2;
             polygon_2 = poly_1;
         }
-        for (int it_poly_1 = 0 ; it_poly_1 < polygon_1->verts_num; it_poly_1++) {
-            double diag_start_x = polygon_1->center[0];
-            double diag_start_y = polygon_1->center[1];
+        Py_ssize_t it_poly_1;
+        for (it_poly_1 = 0 ; it_poly_1 < polygon_1->verts_num; it_poly_1++) {
+            double diag_start_x = polygon_1->c_x;
+            double diag_start_y = polygon_1->c_y;
 
             double diag_end_x = polygon_1->vertices[2 * it_poly_1];
             double diag_end_y = polygon_1->vertices[2 * it_poly_1 + 1];
 
-            for (int it_poly_2 = 0; it_poly_2 < polygon_2->verts_num; it_poly_2++) {
-                double segment_start_x = polygon_2->vertices(it_poly_2 * 2);
-                double segment_start_y = polygon_2->vertices(it_poly_2 * 2 + 1);
+            Py_ssize_t it_poly_2;
+            for (it_poly_2 = 0; it_poly_2 < polygon_2->verts_num; it_poly_2++) {
+                double segment_start_x = polygon_2->vertices[it_poly_2 * 2];
+                double segment_start_y = polygon_2->vertices[it_poly_2 * 2 + 1];
 
-                double segment_end_x = polygon_2->vertices(((it_poly_2 + 1) % polygon_2->verts_num) * 2);
-                double segment_end_y = polygon_2->vertices(((it_poly_2 + 1) % polygon_2->verts_num) * 2 + 1);
+                double segment_end_x = polygon_2->vertices[((it_poly_2 + 1) % polygon_2->verts_num) * 2];
+                double segment_end_y = polygon_2->vertices[((it_poly_2 + 1) % polygon_2->verts_num) * 2 + 1];
 
                 float h = (segment_end_x - segment_start_x) * (diag_start_y - diag_end_y) - (diag_start_x - diag_end_x) * (segment_end_y - segment_start_y);
                 float t1 = ((segment_start_y - segment_end_y) * (diag_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (diag_start_y - segment_start_y)) / h;
@@ -334,12 +337,13 @@ pgCollision_PolyLine(pgPolygonBase *polygon, pgLineBase *line)
     double line_end_x = line->x2;
     double line_end_y = line->y2;
 
-    for (int it_poly = 0; it_poly < polygon->verts_num; it_poly++) {
-        double segment_start_x = polygon->vertices(it_poly * 2);
-        double segment_start_y = polygon->vertices(it_poly * 2 + 1);
+    Py_ssize_t it_poly;
+    for (it_poly = 0; it_poly < polygon->verts_num; it_poly++) {
+        double segment_start_x = polygon->vertices[it_poly * 2];
+        double segment_start_y = polygon->vertices[it_poly * 2 + 1];
 
-        double segment_end_x = polygon->vertices(((it_poly + 1) % polygon->verts_num) * 2);
-        double segment_end_y = polygon->vertices(((it_poly + 1) % polygon->verts_num) * 2 + 1);
+        double segment_end_x = polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2];
+        double segment_end_y = polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2 + 1];
 
         float h =
             (segment_end_x - segment_start_x) * (line_start_y - line_end_y) - (line_start_x - line_end_x) * (segment_end_y - segment_start_y);

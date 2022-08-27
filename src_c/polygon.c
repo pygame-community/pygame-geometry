@@ -15,12 +15,13 @@ set_polygon_center_coords(pgPolygonBase *polygon)
     }
     double sum_x = 0;
     double sum_y = 0;
-    for (int i = 0; i < polygon->verts_num; i++) {
+    Py_ssize_t i;
+    for (i = 0; i < polygon->verts_num; i++) {
         sum_x += polygon->vertices[i * 2];
         sum_y += polygon->vertices[i * 2 + 1];
     }
-    polygon->center_x = sum_x / polygon->verts_num;
-    polygon->center_y = sum_y / polygon->verts_mum;
+    polygon->c_x = sum_x / polygon->verts_num;
+    polygon->c_y = sum_y / polygon->verts_mum;
     return 1;
 }
 
@@ -139,6 +140,8 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
                     return 0;
                 }
             }
+            /*Function to set polygon center*/
+            set_polygon_center_coords(out);
             return 1;
         }
         else if (length == 1) {
@@ -174,7 +177,8 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
                 Py_DECREF(tmp);
                 tmp = NULL;
             }
-
+            /*Function to set polygon center*/
+            set_polygon_center_coords(out);
             return 1;
         }
         else if (length == 1) {
@@ -304,6 +308,8 @@ pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self) {
         self->polygon.vertices = NULL;
         self->polygon.verts_num = 0;
+        self->polygon.c_x = 0;
+        self->polygon.c_y = 0;
         self->weakreflist = NULL;
     }
 

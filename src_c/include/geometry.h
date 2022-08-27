@@ -1,4 +1,4 @@
-/*#include "C:\Users\Maqa\AppData\Local\Programs\Python\Python310\include\Python.h"*/
+#include "C:\Users\Maqa\AppData\Local\Programs\Python\Python310\include\Python.h"
 
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
@@ -62,7 +62,7 @@ static PyTypeObject pgPolygon_Type;
 typedef struct {
     Py_ssize_t verts_num;
     double *vertices;
-    double center_x, center_y;
+    double c_x, c_y;
 } pgPolygonBase;
 
 typedef struct {
@@ -74,8 +74,8 @@ typedef struct {
 #define pgPolygon_AsPolygon(o) (pgPolygon_CAST(o)->polygon)
 #define pgPolygon_GETVERTICES(o) (pgPolygon_AsPolygon(o).vertices)
 #define pgPolygon_GETVERTSNUM(o) (pgPolygon_AsPolygon(o).verts_num)
-#define pgPolygon_GETCENTER_X(o) (pgPolygon_AsPolygon(o).center_x)
-#define pgPolygon_GETCENTER_Y(o) (pgPolygon_AsPolygon(o).center_y)
+#define pgPolygon_GETCENTER_X(o) (pgPolygon_AsPolygon(o).c_x)
+#define pgPolygon_GETCENTER_Y(o) (pgPolygon_AsPolygon(o).c_y)
 
 // return 1 if success and 0 if failure
 static int
