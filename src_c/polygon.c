@@ -7,6 +7,23 @@
 #include <stddef.h>
 #include <math.h>
 
+static int
+set_polygon_center_coords(pgPolygonBase *polygon)
+{
+    if (!polygon) {
+        return 0;
+    }
+    double sum_x = 0;
+    double sum_y = 0;
+    for (int i = 0; i < polygon->verts_num; i++) {
+        sum_x += polygon->vertices[i * 2];
+        sum_y += polygon->vertices[i * 2 + 1];
+    }
+    polygon->center_x = sum_x / polygon->verts_num;
+    polygon->center_y = sum_y / polygon->verts_mum;
+    return 1;
+}
+
 static PyObject *
 pg_tuple_from_values_double(double val1, double val2)
 {
@@ -94,7 +111,8 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 
         memcpy(out->vertices, poly->vertices,
                poly->verts_num * 2 * sizeof(double));
-
+        /* Function to set polygon center*/
+        set_polygon_center_coords(out);
         return 1;
     }
 
@@ -271,6 +289,8 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
                verts_num * 2 * sizeof(double));
 
         polygon_obj->polygon.verts_num = verts_num;
+        /*Function to set polygon center*/
+        set_polygon_center_coords(&(polygon_obj->polygon));
     }
 
     return (PyObject *)polygon_obj;
