@@ -426,6 +426,7 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
     if (pgCircle_Check(arg)) {
         pgCircleBase *temp = &pgCircle_AsCircle(arg);
         if (temp == scirc) {
+            /*a circle is always contained within itself*/
             Py_RETURN_TRUE;
         }
         double dx, dy, dr;
@@ -505,8 +506,7 @@ static PyNumberMethods pg_circle_as_number = {
 static PyObject *
 pg_circle_repr(pgCircleObject *self)
 {
-    // dont comments on it (-_-)
-    return PyUnicode_FromFormat("pygame.Circle(%S, %S, %S)",
+    return PyUnicode_FromFormat("<Circle((%S, %S), %S)>",
                                 PyFloat_FromDouble(self->circle.x),
                                 PyFloat_FromDouble(self->circle.y),
                                 PyFloat_FromDouble(self->circle.r));
