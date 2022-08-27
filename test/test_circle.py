@@ -784,6 +784,71 @@ class CircleTypeTest(unittest.TestCase):
 
         self.assertEqual(type(c.move_ip(1, 1)), type(None))
 
+    def test_contains_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1, (1, 1))
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.contains(value)
+
+    def test_contains_argnum(self):
+        c = Circle(10, 10, 4)
+
+        invalid_args = [(Circle(10, 10, 4), Circle(10, 10, 4))]
+
+        with self.assertRaises(TypeError):
+            c.contains()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                c.contains(*arg)
+
+    def test_contains_return_type(self):
+        c = Circle(10, 10, 4)
+
+        self.assertIsInstance(c.contains(Circle(10, 10, 4)), bool)
+
+    def test_contains_circle(self):
+        """Ensures that the contains method correctly determines if a circle is
+        contained within another circle"""
+        c = Circle(10, 10, 4)
+        c2 = Circle(10, 10, 2)
+        c3 = Circle(100, 100, 5)
+        c4 = Circle(16, 10, 7)
+
+        # self
+        self.assertTrue(c.contains(c))
+
+        # contained circle
+        self.assertTrue(c.contains(c2))
+
+        # not contained circle
+        self.assertFalse(c.contains(c3))
+
+        # intersecting circle
+        self.assertFalse(c.contains(c4))
+
+    def test_contains_line(self):
+        """Ensures that the contains method correctly determines if a line is
+        contained within another circle"""
+        c = Circle(0, 0, 15)
+
+        l1 = Line(-5, 0, 5, 0)
+        l2 = Line(100, 150, 200, 225)
+        l3 = Line(0, 0, 50, 50)
+
+        # contained line
+        self.assertTrue(c.contains(l1))
+
+        # not contained line
+        self.assertFalse(c.contains(l2))
+
+        # intersecting line
+        self.assertFalse(c.contains(l3))
+
 
 if __name__ == "__main__":
     unittest.main()

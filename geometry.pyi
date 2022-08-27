@@ -18,6 +18,8 @@ from pygame.rect import Rect
 
 Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
 
+Shape = Union["Line", "Circle", "Rect", "Polygon"]
+
 _CanBeLine = Union[
     Rect,
     "Line",
@@ -155,6 +157,7 @@ class Circle:
     def move_ip(self, dx: float, dy: float) -> None: ...
     @overload
     def move_ip(self, d: Coordinate) -> None: ...
+    def contains(self, shape: Shape) -> bool: ...
 
 class Polygon:
     vertices: List[Coordinate]

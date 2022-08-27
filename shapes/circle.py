@@ -166,6 +166,15 @@ class Circle(Shape):
         return dx * dx + dy * dy <= self.r_sqr
 
     # def collideline(self, other: Line) -> bool:
+    def contains(self, other: Circle) -> bool:
+        """Checks whether the circle contains the other circle,
+        returns True if they do, False otherwise
+        """
+
+        dx = self.x - other.x
+        dy = self.y - other.y
+        dr = self.r - other.r
+        return dx * dx + dy * dy <= dr * dr
 
     def __call__(self, *args, **kwargs):
         return (self.x, self.y), self.r
