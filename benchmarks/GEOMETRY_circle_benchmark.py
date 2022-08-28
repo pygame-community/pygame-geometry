@@ -69,7 +69,6 @@ getters_tests = [
 ]
 
 setters_tests = [
-
     ("x int", "c1.x = 3"),
     ("x float", "c1.x = 3.0"),
     ("y int", "c1.y = 3"),
