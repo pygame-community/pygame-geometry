@@ -1,6 +1,6 @@
 from pygame import Rect
 from benchmark_utils import TestSuite
-from geometry import Circle
+from geometry import Circle, Line
 
 r1 = Rect(0, 0, 10, 10)
 r2 = Rect(10, 10, 4, 4)
@@ -10,6 +10,9 @@ c1 = Circle(10, 10, 10)
 c2 = Circle(20, 5, 15)
 c3 = Circle(50, 50, 15)
 c4 = Circle(10, 10, 15)
+
+l1 = Line(0, 0, 10, 10)
+l2 = Line(0, 0, 10, -10)
 
 p1 = (10, 10)
 p2 = (1000, 1000)
@@ -25,6 +28,8 @@ GLOB = {
     "c2": c2,
     "c3": c3,
     "c4": c4,
+    "l1": l1,
+    "l2": l2,
     "p1": p1,
     "p2": p2,
     "p3": p3,
@@ -113,6 +118,16 @@ CP_collision_tests = [
     ("Non colliding 2 float", "c1.collidepoint(1000.0, 1000.0)"),
 ]
 
+CL_collision_tests = [
+    ("Colliding", "c1.collideline(l1)"),
+    ("Non colliding", "c1.collideline(l2)"),
+    ("Colliding 1 int", "c1.collideline((0, 0, 10, 10))"),
+    ("Non colliding 1 int", "c1.collideline((0, 0, 10, -10))"),
+    ("Colliding 1 float", "c1.collideline((0.0, 0.0, 10.0, 10.0))"),
+    ("Non colliding 1 float", "c1.collideline((0.0, 0.0, 10.0, -10.0))"),
+]
+
+
 CS_collision_tests = [
     ("RECT colliding", "c1.collideswith(r1)"),
     ("RECT non colliding", "c1.collideswith(r2)"),
@@ -120,6 +135,8 @@ CS_collision_tests = [
     ("CIRCLE non colliding", "c1.collideswith(c2)"),
     ("POINT colliding", "c1.collideswith(p1)"),
     ("POINT non colliding", "c1.collideswith(p2)"),
+    ("LINE colliding", "c1.collideswith(l1)"),
+    ("LINE non colliding", "c1.collideswith(l2)"),
 ]
 
 # === Test Suites ===
@@ -131,10 +148,11 @@ GROUPS = [
     ("Copy", copy_tests),
     ("Conversion", conversion_tests),
     ("Update", update_tests),
-    # ("Move", move_tests),
+    ("Move", move_tests),
     ("Collision: Circle-Circle ", CC_collision_tests),
     ("Collision: Circle-Rect", CR_collision_tests),
     ("Collision: Circle-Point", CP_collision_tests),
+    ("Collision: Circle-Line", CL_collision_tests),
     ("Collision: Circle-Shape", CS_collision_tests),
 ]
 
