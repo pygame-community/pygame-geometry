@@ -630,6 +630,26 @@ pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
 }
 
 static PyObject *
+pg_circle_getdiameter(pgCircleObject *self, void *closure)
+{
+    return PyFloat_FromDouble(2 * self->circle.r);
+}
+
+static int
+pg_circle_setdiameter(pgCircleObject *self, PyObject *value, void *closure)
+{
+    double val;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
+        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+        return -1;
+    }
+    self->circle.r = val / 2;
+    self->circle.r_sqr = self->circle.r * self->circle.r;
+    return 0;
+}
+
+static PyObject *
 pg_circle_getsafepickle(pgCircleObject *self, void *closure)
 {
     Py_RETURN_TRUE;
@@ -652,6 +672,10 @@ static PyGetSetDef pg_circle_getsets[] = {
     {"y", (getter)pg_circle_gety, (setter)pg_circle_sety, NULL, NULL},
     {"r", (getter)pg_circle_getr, (setter)pg_circle_setr, NULL, NULL},
     {"r_sqr", (getter)pg_circle_getr_sqr, (setter)pg_circle_setr_sqr, NULL,
+     NULL},
+    {"d", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
+     NULL},
+    {"diameter", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
      NULL},
     {"center", (getter)pg_circle_getcenter, (setter)pg_circle_setcenter, NULL,
      NULL},
