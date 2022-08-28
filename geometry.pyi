@@ -111,6 +111,8 @@ class Circle:
     y: float
     r: float
     r_sqr: float
+    d: float
+    diameter: float
     area: float
     circumference: float
     center: Tuple[float, float]
