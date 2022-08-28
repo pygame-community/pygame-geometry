@@ -313,15 +313,23 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
     else if (pgRect_Check(arg)) {
         result = pgCollision_RectCircle(&pgRect_AsRect(arg), &self->circle);
     }
+    else if (pgLine_Check(arg)) {
+        result = pgCollision_LineCircle(&pgLine_AsLine(arg), &self->circle);
+    }
     else if (PySequence_Check(arg)) {
         double x, y;
         if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
             return RAISE(PyExc_TypeError,
-                         "Invalid arguments, must be a sequence of 2 numbers");
+                         "Invalid point argument, must be a sequence of 2 numbers");
         }
-        return PyBool_FromLong(
-            pgCollision_CirclePoint(&pgCircle_AsCircle(self), x, y));
+        result = pgCollision_CirclePoint(&self->circle, x, y);
     }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid shape argument, must be a CircleType, RectType, "
+                     "LineType or a sequence of 2 numbers");
+    }
+
     return PyBool_FromLong(result);
 }
 
