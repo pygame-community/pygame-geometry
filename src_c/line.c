@@ -240,32 +240,13 @@ pg_line_parallel_test(pgLineObject *self, PyObject *const *args, Py_ssize_t narg
                      "Line.is_parallel requires a line or LineLike object");
     }
 
-    double dem1 = other_line.x1 - other_line.x2;
-    double dem2 = self->line.x1 - self->line.x2;
+    double dx1 = self->line.x2 - self->line.x1;
+    double dy1 = self->line.y2 - self->line.y1;
+    double dx2 = other_line.x2 - other_line.x1;
+    double dy2 = other_line.y2 - other_line.y1;
 
-    if (dem1 == 0 && dem2 == 0) {
-        return PyBool_FromLong(1);
-    }
-    else if (dem1 == 0) {
-        if (dem2 != 0) {
-            return PyBool_FromLong(0);
-        }
-    }
-    else if (dem2 == 0) {
-        if (dem1 != 0) {
-            return PyBool_FromLong(0);
-        }
-    }
-
-    double slope1 = (other_line.y1 - other_line.y2) / dem1;
-    double slope2 = (self->line.y1 - self->line.y2) / dem2;
-
-    if (slope1 - slope2 == 0) {
-        return PyBool_FromLong(1);
-    }
-    else {
-        return PyBool_FromLong(0);
-    }
+    double cross = dx1 * dy2 - dy1 * dx2;
+    return PyBool_FromLong(cross == 0);
 }
 
 static PyObject *
