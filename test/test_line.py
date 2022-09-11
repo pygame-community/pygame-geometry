@@ -304,7 +304,7 @@ class LineTypeTest(unittest.TestCase):
         line2 = Line(1, 1, 11, 11)
         line3 = Line(1, 3, 11, 11)
         line4 = Line(0, 0, 0, 2)
-        
+
         self.assertTrue(line1.is_parallel(line2))
         self.assertFalse(line1.is_parallel(line3))
         self.assertFalse(line1.is_parallel(line4))
