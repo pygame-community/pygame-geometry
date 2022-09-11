@@ -231,6 +231,44 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
+pg_line_parallel_test(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    pgLineBase other_line;
+
+    if (!pgLine_FromObjectFastcall(args, nargs, &other_line)) {
+        return RAISE(PyExc_TypeError,
+                     "Line.is_parallel requires a line or LineLike object");
+    }
+
+    double dem1 = other_line.x1 - other_line.x2;
+    double dem2 = self->line.x1 - self->line.x2;
+
+    if (dem1 == 0 && dem2 == 0) {
+        return PyBool_FromLong(1);
+    }
+    else if (dem1 == 0) {
+        if (dem2 != 0) {
+            return PyBool_FromLong(0);
+        }
+    }
+    else if (dem2 == 0) {
+        if (dem1 != 0) {
+            return PyBool_FromLong(0);
+        }
+    }
+
+    double slope1 = (other_line.y1 - other_line.y2) / dem1;
+    double slope2 = (self->line.y1 - self->line.y2) / dem2;
+
+    if (slope1 - slope2 == 0) {
+        return PyBool_FromLong(1);
+    }
+    else {
+        return PyBool_FromLong(0);
+    }
+}
+
+static PyObject *
 pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject **farr;
@@ -392,6 +430,7 @@ pg_line_colliderect(pgLineObject *self, PyObject *args)
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
+    {"is_parallel", (PyCFunction)pg_line_parallel_test, METH_FASTCALL, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
