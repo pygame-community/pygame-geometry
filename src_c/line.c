@@ -231,7 +231,7 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_parallel_test(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+pg_line_is_parallel(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     pgLineBase other_line;
 
@@ -411,7 +411,7 @@ pg_line_colliderect(pgLineObject *self, PyObject *args)
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
-    {"is_parallel", (PyCFunction)pg_line_parallel_test, METH_FASTCALL, NULL},
+    {"is_parallel", (PyCFunction)pg_line_is_parallel, METH_FASTCALL, NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
