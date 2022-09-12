@@ -605,6 +605,24 @@ class LineTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14.14, 13.13, 12.12, 11.11])
 
+    def test_meth_perpendicular(self):
+        # prepare the lines
+        l = Line(0, 0, 1, 1)
+        l2 = Line(1, 0, 1, 0)
+        l3 = Line(-12, 0, 31, 1)
+
+        # self perpendicular
+        self.assertFalse(l.is_perpendicular(l))
+
+        # perpendicular
+        self.assertTrue(l.is_perpendicular(l2))
+
+        # not perpendicular
+        self.assertFalse(l.is_perpendicular(l3))
+
+        # parallel
+        self.assertFalse(l.is_perpendicular(Line(3, 3, 6, 6)))
+
 
 if __name__ == "__main__":
     unittest.main()

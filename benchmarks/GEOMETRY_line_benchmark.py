@@ -130,6 +130,12 @@ raycast_tests = [
     ("raycast", "l1.raycast(rand_lines)"),
 ]
 
+perpendicular_tests = [
+    ("perpendicular", "l1.is_perpendicular()"),
+    ("not perpendicular", "l2.is_perpendicular()"),
+    ("parallel", "l3.is_perpendicular()"),
+]
+
 # === Test Suites ===
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
