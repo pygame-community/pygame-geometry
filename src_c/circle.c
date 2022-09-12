@@ -91,6 +91,13 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
             }
             return 1;
         }
+        else if (length == 2) {
+            if (!pg_TwoDoublesFromObj(f_arr[0], &(out->x), &(out->y)) ||
+                !_pg_circle_set_radius(f_arr[1], &(out->r))) {
+                return 0;
+            }
+            return 1;
+        }
         else {
             /* Sequences of size other than 3 or 1 are not supported
             (don't wanna support infinite sequence nesting anymore)*/
