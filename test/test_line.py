@@ -299,6 +299,17 @@ class LineTypeTest(unittest.TestCase):
 
         self.assertIsNot(line, line_2)
 
+    def test_meth_parallel(self):
+        line1 = Line(0, 0, 10, 10)
+        line2 = Line(1, 1, 11, 11)
+        line3 = Line(1, 3, 11, 11)
+        line4 = Line(0, 0, 0, 2)
+
+        self.assertTrue(line1.is_parallel(line2))
+        self.assertFalse(line1.is_parallel(line3))
+        self.assertFalse(line1.is_parallel(line4))
+        self.assertTrue(line1.is_parallel(line1))
+
     def test_meth_raycast(self):
         lineA = Line(0, 0, 10, 10)
         lineB = Line(0, 0, -1, -1)
