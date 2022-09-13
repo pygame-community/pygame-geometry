@@ -5,4 +5,4 @@
 3. Run `python -m pip install setuptools -U`
 4. Install the latest version of [git](https://gitforwindows.org/)
 5. Run `git clone https://github.com/novialriptide/pygame_geometry.git`
-6. Run `cd pygame_geometry; pip install .`
+6. Run `cd pygame_geometry; python -m pip install .`
