@@ -57,25 +57,34 @@ conversion_tests = [
     ("as_rect", "c1.as_rect()"),
 ]
 
-attributes_tests = [
-    ("x get", "c1.x"),
-    ("x set int", "c1.x = 3"),
-    ("x set float", "c1.x = 3.0"),
-    ("y get", "c1.y"),
-    ("y set int", "c1.y = 3"),
-    ("y set float", "c1.y = 3.0"),
-    ("radius get", "c1.r"),
-    ("radius set int", "c1.r = 3"),
-    ("radius set float", "c1.r = 3.0"),
-    ("center get", "c1.center"),
-    ("center set int", "c1.center = (3, 3)"),
-    ("center set float", "c1.center = (3.0, 3.0)"),
-    ("area get", "c1.area"),
-    ("area set int", "c1.area = 3"),
-    ("area set float", "c1.area = 3.0"),
-    ("circumference get", "c1.circumference"),
-    ("circumference set int", "c1.circumference = 3"),
-    ("circumference set float", "c1.circumference = 3.0"),
+getters_tests = [
+    ("x", "c1.x"),
+    ("y", "c1.y"),
+    ("radius", "c1.r"),
+    ("diameter", "c1.diameter"),
+    ("d", "c1.d"),
+    ("center", "c1.center"),
+    ("area", "c1.area"),
+    ("circumference", "c1.circumference"),
+]
+
+setters_tests = [
+    ("x int", "c1.x = 3"),
+    ("x float", "c1.x = 3.0"),
+    ("y int", "c1.y = 3"),
+    ("y float", "c1.y = 3.0"),
+    ("radius int", "c1.r = 3"),
+    ("radius float", "c1.r = 3.0"),
+    ("diameter int", "c1.diameter = 3"),
+    ("diameter float", "c1.diameter = 3.0"),
+    ("d int", "c1.d = 3"),
+    ("d float", "c1.d = 3.0"),
+    ("center int", "c1.center = (3, 3)"),
+    ("center float", "c1.center = (3.0, 3.0)"),
+    ("area int", "c1.area = 3"),
+    ("area float", "c1.area = 3.0"),
+    ("circumference int", "c1.circumference = 3"),
+    ("circumference float", "c1.circumference = 3.0"),
 ]
 
 update_tests = [
@@ -144,7 +153,8 @@ CS_collision_tests = [
 # If you want to remove or skip tests from a suite, just remove or comment them out
 GROUPS = [
     ("Creation", creation_tests),
-    ("Attributes", attributes_tests),
+    ("Attribute Getters", getters_tests),
+    ("Attribute Setters", setters_tests),
     ("Copy", copy_tests),
     ("Conversion", conversion_tests),
     ("Update", update_tests),

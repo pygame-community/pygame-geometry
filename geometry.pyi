@@ -105,6 +105,14 @@ class Line(Sequence[float]):
         self, sequence: Sequence[Union["Line", Circle]]
     ) -> Optional[Tuple[float, float]]: ...
     def as_rect(self) -> Rect: ...
+    @overload
+    def move(self, x: float, y: float) -> "Line": ...
+    @overload
+    def move(self, x_y: Coordinate) -> "Line": ...
+    @overload
+    def move_ip(self, x: float, y: float) -> None: ...
+    @overload
+    def move_ip(self, x_y: Coordinate) -> None: ...
     def is_parallel(self, line: LineValue) -> bool: ...
 
 class Circle:
@@ -112,6 +120,8 @@ class Circle:
     y: float
     r: float
     r_sqr: float
+    d: float
+    diameter: float
     area: float
     circumference: float
     center: Tuple[float, float]
