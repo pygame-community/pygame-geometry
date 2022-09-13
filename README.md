@@ -1,31 +1,39 @@
-# `pygame.geometry` Python Prototype Project
-Hello! This project is a Python prototype for a pygame.geometry module. You will be able to use new Shape types like `Circle`, `Line`, and `Polygon` to enchance, simplify, and optimize your game code!
-This project adds new shapes along with new shape functionality. Each shape will have many methods for updating as well as methods for collision detection and shape conversion (shape->enclosing rect).
-This project will also focus on adding widely used functionalities in game engines such as Rays and RayCasting.
+# pygame_geometry
+pygame_geometry is a free Python implementation of
+polygons, circles, lines, and raycasting. The main
+purpose of this repository is to help users integrate
+special colliders easier for their video game. The plan
+for the project's future is to migrate all modules to
+the main [pygame repository](https://github.com/pygame/pygame).
 
-## Implementation
+## Installation
+Please follow [this guide](https://github.com/novialriptide/pygame_geometry#build)
+to install pygame_geometry.
 
-The `shapes` directory includes all the currently implemented shapes source(`.py`) files, including the shape.py file.
-The `src_c` directory includes all `.c` and `.h` files that constitute the geometry module.
-- `Line` (line segment)
-- `Circle`
-- `Polygon`
-- `raycast()`
+## Help
+The documentation is a work in progress, but you can check
+out the `examples` folder to learn how to use this library.
 
-## Examples
+## Contributing Guidelines
+In order to contribute to the project, you must follow these guidelines...
+1. Follow PEP8 convention naming rules for C and Python
+2. Lint your code with [black](https://github.com/psf/black)
+3. Please make an issue first before submitting a pull request
+4. Always add unittests when you're introducing something new
+5. For C code, try to use `FASTCALL` as much as you can
+6. Make sure your code actually works before you submit a pull
+request
+7. Please be patient when waiting for pull request reviews,
+we are all unpaid-volunteers
 
-The `examples` directory includes visual and functional examples to show the usage of new functionality.
-   
-## Tests
-
-The `tests` directory includes unittests that ensure the current implementations work as intended.
-   
-## Benchmarks
-
-The `benchmarks` directory includes runtime benchmarks for each shape. Benchmarks typically test basic shape functionalities, but can also test interactions between different functionalities.
+*Click [here](https://github.com/novialriptide/pygame_geometry#build)
+for more info on how to build `pygame_geometry` from source.*
 
 ## Credits
+Thanks to [Emc2356](https://github.com/Emc2356) and
+[itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the
+majority of the `pygame.geometry` work.
 
-Thanks to [Emc2356](https://github.com/Emc2356) and [itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the majority of the `pygame.geometry` work.
-
-This project is under the supervision of [Starbuck5](https://github.com/Starbuck5) & [novialriptide](https://github.com/novialriptide).
+This project is under the supervision of
+[Starbuck5](https://github.com/Starbuck5)
+& [novialriptide](https://github.com/novialriptide).
