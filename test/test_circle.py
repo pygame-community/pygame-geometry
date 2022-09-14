@@ -390,16 +390,16 @@ class CircleTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                c.collidecircle(value)
+                c.collide_circle(value)
 
     def test_collidecircle_argnum(self):
         c = Circle(10, 10, 4)
         # no params
         with self.assertRaises(TypeError):
-            c.collidecircle()
+            c.collide_circle()
 
         with self.assertRaises(TypeError):
-            c.collidecircle(Circle(10, 10, 4), Circle(10, 10, 4))
+            c.collide_circle(Circle(10, 10, 4), Circle(10, 10, 4))
 
     def test_collidecircle(self):
         c = Circle(0, 0, 5)
@@ -413,42 +413,42 @@ class CircleTypeTest(unittest.TestCase):
 
         # touching
         self.assertTrue(
-            c.collidecircle(c2), "Expected True, circles should collide here"
+            c.collide_circle(c2), "Expected True, circles should collide here"
         )
 
         # partly colliding
         self.assertTrue(
-            c.collidecircle(c6), "Expected True, circles should collide here"
+            c.collide_circle(c6), "Expected True, circles should collide here"
         )
 
         # self colliding
         self.assertTrue(
-            c.collidecircle(c), "Expected True, circles should collide with self"
+            c.collide_circle(c), "Expected True, circles should collide with self"
         )
 
         # completely colliding
         self.assertTrue(
-            c.collidecircle(c_same), "Expected True, circles should collide with self"
+            c.collide_circle(c_same), "Expected True, circles should collide with self"
         )
 
         # not touching
         self.assertFalse(
-            c.collidecircle(c3), "Expected False, circles should not collide here"
+            c.collide_circle(c3), "Expected False, circles should not collide here"
         )
 
         # barely not touching
         self.assertFalse(
-            c.collidecircle(c4), "Expected False, circles should not collide here"
+            c.collide_circle(c4), "Expected False, circles should not collide here"
         )
 
         # small circle inside big circle
         self.assertTrue(
-            c.collidecircle(c5), "Expected True, circles should collide here"
+            c.collide_circle(c5), "Expected True, circles should collide here"
         )
 
         # big circle outside small circle
         self.assertTrue(
-            c5.collidecircle(c), "Expected False, circles should collide here"
+            c5.collide_circle(c), "Expected False, circles should collide here"
         )
 
     def test_collideline_argtype(self):
@@ -459,7 +459,7 @@ class CircleTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                c.collideline(value)
+                c.collide_line(value)
 
     def test_collideline_argnum(self):
         c = Circle(10, 10, 4)
@@ -467,12 +467,12 @@ class CircleTypeTest(unittest.TestCase):
 
         # no params
         with self.assertRaises(TypeError):
-            c.collidepoint()
+            c.collide_point()
 
         # too many params
         for arg in args:
             with self.assertRaises(TypeError):
-                c.collidepoint(*arg)
+                c.collide_point(*arg)
 
     def test_collideline(self):
         c = Circle(0, 0, 5)
@@ -481,32 +481,32 @@ class CircleTypeTest(unittest.TestCase):
         l2 = Line(50, 0, 0, 10)
 
         # colliding single
-        self.assertTrue(c.collideline(l), "Expected True, line should collide here")
+        self.assertTrue(c.collide_line(l), "Expected True, line should collide here")
 
         # not colliding single
         self.assertFalse(
-            c.collideline(l2), "Expected False, line should not collide here"
+            c.collide_line(l2), "Expected False, line should not collide here"
         )
 
         # colliding 2 args
         self.assertTrue(
-            c.collideline((0, 0), (10, 10)), "Expected True, line should collide here"
+            c.collide_line((0, 0), (10, 10)), "Expected True, line should collide here"
         )
 
         # not colliding 2 args
         self.assertFalse(
-            c.collideline((50, 0), (0, 10)),
+            c.collide_line((50, 0), (0, 10)),
             "Expected False, line should not collide here",
         )
 
         # colliding 4 args
         self.assertTrue(
-            c.collideline(0, 0, 10, 10), "Expected True, line should collide here"
+            c.collide_line(0, 0, 10, 10), "Expected True, line should collide here"
         )
 
         # not colliding 4 args
         self.assertFalse(
-            c.collideline(50, 0, 0, 10), "Expected False, line should not collide here"
+            c.collide_line(50, 0, 0, 10), "Expected False, line should not collide here"
         )
 
     def test_collidepoint_argtype(self):
@@ -517,7 +517,7 @@ class CircleTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                c.collidepoint(value)
+                c.collide_point(value)
 
     def test_collidepoint_argnum(self):
         c = Circle(10, 10, 4)
@@ -525,12 +525,12 @@ class CircleTypeTest(unittest.TestCase):
 
         # no params
         with self.assertRaises(TypeError):
-            c.collidepoint()
+            c.collide_point()
 
         # too many params
         for arg in args:
             with self.assertRaises(TypeError):
-                c.collidepoint(*arg)
+                c.collide_point(*arg)
 
     def test_collidepoint(self):
         c = Circle(0, 0, 5)
@@ -539,21 +539,21 @@ class CircleTypeTest(unittest.TestCase):
         p2 = (10, 10)
 
         # colliding single
-        self.assertTrue(c.collidepoint(p1), "Expected True, point should collide here")
+        self.assertTrue(c.collide_point(p1), "Expected True, point should collide here")
 
         # not colliding single
         self.assertFalse(
-            c.collidepoint(p2), "Expected False, point should not collide here"
+            c.collide_point(p2), "Expected False, point should not collide here"
         )
 
         # colliding 2 args
         self.assertTrue(
-            c.collidepoint(3, 3), "Expected True, point should collide here"
+            c.collide_point(3, 3), "Expected True, point should collide here"
         )
 
         # not colliding 2 args
         self.assertFalse(
-            c.collidepoint(10, 10), "Expected False, point should not collide here"
+            c.collide_point(10, 10), "Expected False, point should not collide here"
         )
 
     def test_colliderect_argtype(self):
@@ -564,19 +564,19 @@ class CircleTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                c.colliderect(value)
+                c.collide_rect(value)
 
     def test_colliderect_argnum(self):
         c = Circle(10, 10, 4)
         args = [(1), (1, 1), (1, 1, 1), (1, 1, 1, 1, 1)]
         # no params
         with self.assertRaises(TypeError):
-            c.colliderect()
+            c.collide_rect()
 
         # invalid num
         for arg in args:
             with self.assertRaises(TypeError):
-                c.colliderect(*arg)
+                c.collide_rect(*arg)
 
     def test_colliderect(self):
         msgt = "Expected True, rect should collide here"
@@ -589,22 +589,22 @@ class CircleTypeTest(unittest.TestCase):
         r3 = Rect(0, 5, 4, 4)
 
         # colliding single
-        self.assertTrue(c.colliderect(r1), msgt)
+        self.assertTrue(c.collide_rect(r1), msgt)
 
         # not colliding single
-        self.assertFalse(c.colliderect(r2), msgf)
+        self.assertFalse(c.collide_rect(r2), msgf)
 
         # barely colliding single
-        self.assertTrue(c.colliderect(r3), msgt)
+        self.assertTrue(c.collide_rect(r3), msgt)
 
         # colliding 4 args
-        self.assertTrue(c.colliderect(2, 2, 4, 4), msgt)
+        self.assertTrue(c.collide_rect(2, 2, 4, 4), msgt)
 
         # not colliding 4 args
-        self.assertFalse(c.colliderect(10, 15, 43, 24), msgf)
+        self.assertFalse(c.collide_rect(10, 15, 43, 24), msgf)
 
         # barely colliding single
-        self.assertTrue(c.colliderect(0, 4.9999999999999, 4, 4), msgt)
+        self.assertTrue(c.collide_rect(0, 4.9999999999999, 4, 4), msgt)
 
     def test_collideswith_argtype(self):
         """tests if the function correctly handles incorrect types as parameters"""
@@ -614,7 +614,7 @@ class CircleTypeTest(unittest.TestCase):
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
-                c.collideswith(value)
+                c.collides_with(value)
 
     def test_collideswith_argnum(self):
         c = Circle(10, 10, 4)
@@ -622,40 +622,40 @@ class CircleTypeTest(unittest.TestCase):
 
         # no params
         with self.assertRaises(TypeError):
-            c.collideswith()
+            c.collides_with()
 
         # too many params
         for arg in args:
             with self.assertRaises(TypeError):
-                c.collideswith(*arg)
+                c.collides_with(*arg)
 
     def test_collideswith(self):
-        """Ensures the collideswith function correctly registers collisions with circles, lines, rects and points"""
+        """Ensures the collides_with function correctly registers collisions with circles, lines, rects and points"""
         c = Circle(0, 0, 5)
 
         # circle
         c2 = Circle(0, 10, 15)
         c3 = Circle(100, 100, 1)
-        self.assertTrue(c.collideswith(c2), E_T + "circles should collide here")
-        self.assertFalse(c.collideswith(c3), E_F + "circles should not collide here")
+        self.assertTrue(c.collides_with(c2), E_T + "circles should collide here")
+        self.assertFalse(c.collides_with(c3), E_F + "circles should not collide here")
 
         # line
         l = Line(0, 0, 10, 10)
         l2 = Line(50, 0, 50, 10)
-        self.assertTrue(c.collideswith(l), E_T + "line should collide here")
-        self.assertFalse(c.collideswith(l2), E_F + "line should not collide here")
+        self.assertTrue(c.collides_with(l), E_T + "line should collide here")
+        self.assertFalse(c.collides_with(l2), E_F + "line should not collide here")
 
         # rect
         r = Rect(0, 0, 10, 10)
         r2 = Rect(50, 0, 10, 10)
-        self.assertTrue(c.collideswith(r), E_T + "rect should collide here")
-        self.assertFalse(c.collideswith(r2), E_F + "rect should not collide here")
+        self.assertTrue(c.collides_with(r), E_T + "rect should collide here")
+        self.assertFalse(c.collides_with(r2), E_F + "rect should not collide here")
 
         # point
         p = (0, 0)
         p2 = (50, 0)
-        self.assertTrue(c.collideswith(p), E_T + "point should collide here")
-        self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
+        self.assertTrue(c.collides_with(p), E_T + "point should collide here")
+        self.assertFalse(c.collides_with(p2), E_F + "point should not collide here")
 
     def test_as_rect_invalid_args(self):
 

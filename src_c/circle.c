@@ -223,7 +223,7 @@ pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
 }
 
 static PyObject *
-pg_circle_collideline(pgCircleObject *self, PyObject *const *args,
+pg_circle_collide_line(pgCircleObject *self, PyObject *const *args,
                       Py_ssize_t nargs)
 {
     pgLineBase line;
@@ -234,7 +234,7 @@ pg_circle_collideline(pgCircleObject *self, PyObject *const *args,
 }
 
 static PyObject *
-pg_circle_collidepoint(pgCircleObject *self, PyObject *const *args,
+pg_circle_collide_point(pgCircleObject *self, PyObject *const *args,
                        Py_ssize_t nargs)
 {
     double px = 0, py = 0;
@@ -262,7 +262,7 @@ error:
                  "collidepoint requires a point or PointLike object");
 }
 static PyObject *
-pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
+pg_circle_collide_rect(pgCircleObject *self, PyObject *const *args,
                       Py_ssize_t nargs)
 {
     SDL_Rect temp;
@@ -303,7 +303,7 @@ pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
 }
 
 static PyObject *
-pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
+pg_circle_collides_with(pgCircleObject *self, PyObject *arg)
 {
     int result = 0;
     if (pgCircle_Check(arg)) {
@@ -426,12 +426,12 @@ pg_circle_move_ip(pgCircleObject *self, PyObject *const *args,
 }
 
 static struct PyMethodDef pg_circle_methods[] = {
-    {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
+    {"collide_circle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
-    {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},
-    {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
-    {"colliderect", (PyCFunction)pg_circle_colliderect, METH_FASTCALL, NULL},
-    {"collideswith", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
+    {"collide_line", (PyCFunction)pg_circle_collide_line, METH_FASTCALL, NULL},
+    {"collide_point", (PyCFunction)pg_circle_collide_point, METH_FASTCALL, NULL},
+    {"collide_rect", (PyCFunction)pg_circle_collide_rect, METH_FASTCALL, NULL},
+    {"collides_with", (PyCFunction)pg_circle_collides_with, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_circle_move, METH_FASTCALL, NULL},

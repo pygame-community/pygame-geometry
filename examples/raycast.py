@@ -62,7 +62,7 @@ while running:
 
         ray = geometry.Line(origin_pos, ray_endpoint)
 
-        point = ray.raycast(colliders) or ray_endpoint
+        point = ray.ray_cast(colliders) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
     line_width = 3

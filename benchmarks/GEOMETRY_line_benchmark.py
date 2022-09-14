@@ -13,33 +13,6 @@ def random_line():
     return Line(random_pos(), random_pos())
 
 
-l1 = Line(0, 0, 10, 10)
-l2 = Line(0, 10, 10, 0)
-l3 = Line(100, 100, 30, 22)
-l4 = Line(0, 0, 1, 1)
-
-rand_lines = [random_line() for _ in range(100)]
-
-c1 = Circle(5, 5, 10)
-c2 = Circle(20, 20, 5)
-c3 = Circle(0, 0, 150)
-
-r1 = Rect(3, 5, 10, 10)
-r2 = Rect(100, 100, 4, 4)
-r3 = Rect(-30, -30, 100, 100)
-
-GLOB = {
-    "Line": Line,
-    "l1": l1,
-    "l2": l2,
-    "l3": l3,
-    "l4": l4,
-    "c1": c1,
-    "c2": c2,
-    "c3": c3,
-    "rand_lines": rand_lines,
-}
-
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
 # The name is a string containing the name of the test
@@ -48,6 +21,22 @@ GLOB = {
 # calculated across REP runs
 # the formula is time = (time per CPT calls repeated REP times) / REP
 # ====================================================
+
+GLOB = {
+    "Line": Line,
+    "l1": Line(0, 0, 10, 10),
+    "l2": Line(0, 10, 10, 0),
+    "l3": Line(100, 100, 30, 22),
+    "l4": Line(0, 0, 1, 1),
+    "c1": Circle(5, 5, 10),
+    "c2": Circle(20, 20, 5),
+    "c3": Circle(0, 0, 150),
+    "r1": Rect(3, 5, 10, 10),
+    "r2": Rect(100, 100, 4, 4),
+    "r3": Rect(-30, -30, 100, 100),
+    "rand_lines": [random_line() for _ in range(100)],
+}
+
 creation_tests = [
     ("Line int", "Line(0, 0, 10, 10)"),
     ("Line float", "Line(0.0, 0.0, 10.0, 10.0)"),
@@ -62,25 +51,28 @@ conversion_tests = [
     # ("as_circle", "l1.as_circle()"),
 ]
 
-attributes_tests = [
-    ("x1 get", "l1.x1"),
-    ("x1 set int", "l1.x1 = 1"),
-    ("x1 set float", "l1.x1 = 1.0"),
-    ("y1 get", "l1.y1"),
-    ("y1 set int", "l1.y1 = 1"),
-    ("y1 set float", "l1.y1 = 1.0"),
-    ("x2 get", "l1.x2"),
-    ("x2 set int", "l1.x2 = 1"),
-    ("x2 set float", "l1.x2 = 1.0"),
-    ("y2 get", "l1.y2"),
-    ("y2 set int", "l1.y2 = 1"),
-    ("y2 set float", "l1.y2 = 1.0"),
-    ("a get", "l1.a"),
-    ("a set int", "l1.a = (1, 1)"),
-    ("a set float", "l1.a = (1.0, 1.0)"),
-    ("b get", "l1.b"),
-    ("b set int", "l1.b = (1, 1)"),
-    ("b set float", "l1.b = (1.0, 1.0)"),
+getters_tests = [
+    ("x1", "l1.x1"),
+    ("y1", "l1.y1"),
+    ("x2", "l1.x2"),
+    ("y2", "l1.y2"),
+    ("a", "l1.a"),
+    ("b", "l1.b"),
+]
+
+setters_tests = [
+    ("x1 int", "l1.x1 = 1"),
+    ("x1 float", "l1.x1 = 1.0"),
+    ("y1 int", "l1.y1 = 1"),
+    ("y1 float", "l1.y1 = 1.0"),
+    ("x2 int", "l1.x2 = 1"),
+    ("x2 float", "l1.x2 = 1.0"),
+    ("y2 int", "l1.y2 = 1"),
+    ("y2 float", "l1.y2 = 1.0"),
+    ("a int", "l1.a = (1, 1)"),
+    ("a float", "l1.a = (1.0, 1.0)"),
+    ("b int", "l1.b = (1, 1)"),
+    ("b float", "l1.b = (1.0, 1.0)"),
 ]
 
 update_tests = [
@@ -99,35 +91,35 @@ move_tests = [
 ]
 
 LL_collision_tests = [
-    ("Colliding", "l1.collideline(l2)"),
-    ("Non colliding", "l1.collideline(l3)"),
+    ("Colliding", "l1.collide_line(l2)"),
+    ("Non colliding", "l1.collide_line(l3)"),
 ]
 
 LC_collision_tests = [
-    ("Colliding", "l1.collidecircle(c1)"),
-    ("Non colliding", "l1.collidecircle(c2)"),
-    ("inside circle", "l1.collidecircle(c3)"),
+    ("Colliding", "l1.collide_circle(c1)"),
+    ("Non colliding", "l1.collide_circle(c2)"),
+    ("inside circle", "l1.collide_circle(c3)"),
 ]
 
 LR_collision_tests = [
-    ("Colliding", "l1.colliderect(r1)"),
-    ("Non colliding", "l1.colliderect(r2)"),
-    ("inside rect", "l1.colliderect(r3)"),
+    ("Colliding", "l1.collide_rect(r1)"),
+    ("Non colliding", "l1.collide_rect(r2)"),
+    ("inside rect", "l1.collide_rect(r3)"),
 ]
 
 LP_collision_tests = [
-    ("Colliding 1 int", "l4.collidepoint((1, 1))"),
-    ("Non colliding 1 int", "l4.collidepoint((3, 3))"),
-    ("Colliding 1 float", "l4.collidepoint((1.0, 1.0))"),
-    ("Non colliding 1 float", "l4.collidepoint((3.0, 3.0))"),
-    ("Colliding 2 int", "l4.collidepoint(1, 1)"),
-    ("Non colliding 2 int", "l4.collidepoint(3, 3)"),
-    ("Colliding 2 float", "l4.collidepoint(1.0, 1.0)"),
-    ("Non colliding 2 float", "l4.collidepoint(3.0, 3.0)"),
+    ("Colliding 1 int", "l4.collide_point((1, 1))"),
+    ("Non colliding 1 int", "l4.collide_point((3, 3))"),
+    ("Colliding 1 float", "l4.collide_point((1.0, 1.0))"),
+    ("Non colliding 1 float", "l4.collide_point((3.0, 3.0))"),
+    ("Colliding 2 int", "l4.collide_point(1, 1)"),
+    ("Non colliding 2 int", "l4.collide_point(3, 3)"),
+    ("Colliding 2 float", "l4.collide_point(1.0, 1.0)"),
+    ("Non colliding 2 float", "l4.collide_point(3.0, 3.0)"),
 ]
 
 raycast_tests = [
-    ("raycast", "l1.raycast(rand_lines)"),
+    ("raycast", "l1.ray_cast(rand_lines)"),
 ]
 
 # === Test Suites ===
@@ -135,14 +127,15 @@ raycast_tests = [
 # If you want to remove or skip tests from a suite, just remove or comment them out
 GROUPS = [
     ("Creation", creation_tests),
-    ("Attributes", attributes_tests),
+    ("Attribute Getters", getters_tests),
+    ("Attribute Setters", setters_tests),
     ("Copy", copy_tests),
     ("Conversion", conversion_tests),
     ("Update", update_tests),
     # ("Move", move_tests),
     ("Collision: Line-Line", LL_collision_tests),
     ("Collision: Line-Circle", LC_collision_tests),
-    # ("Collision: Line-Rect", LR_collision_tests),
+    ("Collision: Line-Rect", LR_collision_tests),
     ("Collision: Line-Point", LP_collision_tests),
     ("Raycast", raycast_tests),
 ]

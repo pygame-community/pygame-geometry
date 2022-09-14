@@ -310,7 +310,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(line1.is_parallel(line4))
         self.assertTrue(line1.is_parallel(line1))
 
-    def test_meth_raycast(self):
+    def test_meth_ray_cast(self):
         lineA = Line(0, 0, 10, 10)
         lineB = Line(0, 0, -1, -1)
 
@@ -321,83 +321,83 @@ class LineTypeTest(unittest.TestCase):
         E = Circle(0, 0, 1)
 
         with self.assertRaises(TypeError):
-            lineA.raycast(A, B, C)
+            lineA.ray_cast(A, B, C)
 
         with self.assertRaises(TypeError):
-            lineA.raycast()
+            lineA.ray_cast()
 
         with self.assertRaises(TypeError):
-            lineA.raycast(lineA, "5")
+            lineA.ray_cast(lineA, "5")
 
-        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
+        self.assertEqual(lineA.ray_cast([lineA, A, B, C]), (0.5, 0.5))
         self.assertEqual(
-            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
+            lineA.ray_cast([D, E]), (0.7071067811865475, 0.7071067811865475)
         )
-        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
+        self.assertEqual(lineA.ray_cast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
         self.assertEqual(
-            lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476)
+            lineB.ray_cast([D, E]), (-0.7071067811865476, -0.7071067811865476)
         )
         self.assertEqual(
-            lineB.raycast([lineA, lineB, A, B, C, D, E]),
+            lineB.ray_cast([lineA, lineB, A, B, C, D, E]),
             (-0.7071067811865476, -0.7071067811865476),
         )
 
-    def test_meth_collideline(self):
+    def test_meth_collide_line(self):
         A = Line(0, 0, 1, 1)
         B = Line(0, 1, 1, 0)
 
-        self.assertTrue(A.collideline(B))
-        self.assertFalse(A.collideline(A))
+        self.assertTrue(A.collide_line(B))
+        self.assertFalse(A.collide_line(A))
 
         with self.assertRaises(TypeError):
-            A.collideline()
+            A.collide_line()
 
         with self.assertRaises(TypeError):
-            A.collideline(1, 5)
+            A.collide_line(1, 5)
 
-    def test_meth_colliderect(self):
+    def test_meth_collide_rect(self):
         A = Line(0, 0, 1, 1)
         B = Rect(1, 1, 1, 1)
         C = Rect(-2, -2, 1, 1)
 
-        self.assertTrue(A.colliderect(B))
-        self.assertFalse(A.colliderect(C))
+        self.assertTrue(A.collide_rect(B))
+        self.assertFalse(A.collide_rect(C))
 
         with self.assertRaises(TypeError):
-            A.colliderect()
+            A.collide_rect()
 
         with self.assertRaises(TypeError):
-            A.colliderect(1, 5)
+            A.collide_rect(1, 5)
 
-    def test_meth_collidepoint(self):
+    def test_meth_collide_point(self):
         A = Line(0, 0, 1, 1)
 
-        self.assertTrue(A.collidepoint(0, 0))
-        self.assertTrue(A.collidepoint(0.5, 0.5))
-        self.assertTrue(A.collidepoint(1, 1))
-        self.assertFalse(A.collidepoint(-1, -1))
-        self.assertFalse(A.collidepoint(0.5, 0.6))
-        self.assertFalse(A.collidepoint(100, 5))
+        self.assertTrue(A.collide_point(0, 0))
+        self.assertTrue(A.collide_point(0.5, 0.5))
+        self.assertTrue(A.collide_point(1, 1))
+        self.assertFalse(A.collide_point(-1, -1))
+        self.assertFalse(A.collide_point(0.5, 0.6))
+        self.assertFalse(A.collide_point(100, 5))
 
         with self.assertRaises(TypeError):
-            A.collidepoint()
+            A.collide_point()
 
         with self.assertRaises(TypeError):
-            A.collidepoint(1, 2, 3)
+            A.collide_point(1, 2, 3)
 
-    def test_meth_collidecircle(self):
+    def test_meth_collide_circle(self):
         A = Line(0, 0, 1, 1)
         B = Circle(0, 0, 1)
         C = Circle(-1, -1, 0.5)
 
-        self.assertTrue(A.collidecircle(B))
-        self.assertFalse(A.collidecircle(C))
+        self.assertTrue(A.collide_circle(B))
+        self.assertFalse(A.collide_circle(C))
 
         with self.assertRaises(TypeError):
-            A.collidecircle()
+            A.collide_circle()
 
         with self.assertRaises(TypeError):
-            A.collidecircle(1, 2, 3, 4)
+            A.collide_circle(1, 2, 3, 4)
 
     def test_meth_update(self):
         line = Line(0, 0, 1, 1)
