@@ -1,4 +1,4 @@
-name: cppcheck Static Analysis
+name: C++ Code Quality
 
 # Run cppcheck on src_c changes to main branch, or any PR to main.
 on:
