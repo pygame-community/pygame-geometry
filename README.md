@@ -14,7 +14,7 @@ for the project's future is to migrate all modules to
 the main [pygame repository](https://github.com/pygame/pygame).
 
 ## Installation
-Please follow [this guide](https://github.com/novialriptide/pygame_geometry#build)
+Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
 to install pygame_geometry.
 
 ## Help
@@ -33,7 +33,7 @@ request
 7. Please be patient when waiting for pull request reviews,
 we are all unpaid-volunteers
 
-*Click [here](https://github.com/novialriptide/pygame_geometry#build)
+*Click [here](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
 for more info on how to build `pygame_geometry` from source.*
 
 ## Credits
