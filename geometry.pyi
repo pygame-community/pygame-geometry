@@ -113,12 +113,15 @@ class Line(Sequence[float]):
     def move_ip(self, x: float, y: float) -> None: ...
     @overload
     def move_ip(self, x_y: Coordinate) -> None: ...
+    def is_parallel(self, line: LineValue) -> bool: ...
 
 class Circle:
     x: float
     y: float
     r: float
     r_sqr: float
+    d: float
+    diameter: float
     area: float
     circumference: float
     center: Tuple[float, float]

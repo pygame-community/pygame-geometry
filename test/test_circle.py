@@ -8,6 +8,9 @@ from pygame import Rect
 
 from geometry import Circle, Line
 
+E_T = "Expected True, "
+E_F = "Expected False, "
+
 
 class CircleTypeTest(unittest.TestCase):
     def testConstruction_invalid_type(self):
@@ -322,6 +325,40 @@ class CircleTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del c.circumference
 
+    def test_diameter(self):
+        """Ensures the diameter is calculated correctly."""
+        c = Circle(0, 0, 1)
+
+        self.assertEqual(c.diameter, 2.0)
+        self.assertEqual(c.d, 2.0)
+
+    def test_diameter_update(self):
+        """Ensures the diameter is updated correctly."""
+        c = Circle(0, 0, 1)
+
+        c.r = 2
+        self.assertEqual(c.diameter, 4.0)
+        self.assertEqual(c.d, 4.0)
+
+        c.r_sqr = 100
+        self.assertEqual(c.diameter, 20.0)
+        self.assertEqual(c.d, 20.0)
+
+    def test_diameter_invalid_value(self):
+        """Ensures the diameter handles invalid values correctly."""
+        c = Circle(0, 0, 1)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], -1, 0):
+            with self.assertRaises(TypeError):
+                c.diameter = value
+
+    def test_diameter_del(self):
+        """Ensures the diameter attribute can't be deleted."""
+        c = Circle(0, 0, 1)
+
+        with self.assertRaises(AttributeError):
+            del c.diameter
+
     def test_copy(self):
         c = Circle(10, 10, 4)
         # check 1 arg passed
@@ -568,6 +605,57 @@ class CircleTypeTest(unittest.TestCase):
 
         # barely colliding single
         self.assertTrue(c.colliderect(0, 4.9999999999999, 4, 4), msgt)
+
+    def test_collideswith_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collideswith(value)
+
+    def test_collideswith_argnum(self):
+        c = Circle(10, 10, 4)
+        args = [tuple(range(x)) for x in range(2, 4)]
+
+        # no params
+        with self.assertRaises(TypeError):
+            c.collideswith()
+
+        # too many params
+        for arg in args:
+            with self.assertRaises(TypeError):
+                c.collideswith(*arg)
+
+    def test_collideswith(self):
+        """Ensures the collideswith function correctly registers collisions with circles, lines, rects and points"""
+        c = Circle(0, 0, 5)
+
+        # circle
+        c2 = Circle(0, 10, 15)
+        c3 = Circle(100, 100, 1)
+        self.assertTrue(c.collideswith(c2), E_T + "circles should collide here")
+        self.assertFalse(c.collideswith(c3), E_F + "circles should not collide here")
+
+        # line
+        l = Line(0, 0, 10, 10)
+        l2 = Line(50, 0, 50, 10)
+        self.assertTrue(c.collideswith(l), E_T + "line should collide here")
+        self.assertFalse(c.collideswith(l2), E_F + "line should not collide here")
+
+        # rect
+        r = Rect(0, 0, 10, 10)
+        r2 = Rect(50, 0, 10, 10)
+        self.assertTrue(c.collideswith(r), E_T + "rect should collide here")
+        self.assertFalse(c.collideswith(r2), E_F + "rect should not collide here")
+
+        # point
+        p = (0, 0)
+        p2 = (50, 0)
+        self.assertTrue(c.collideswith(p), E_T + "point should collide here")
+        self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
     def test_as_rect_invalid_args(self):
 
