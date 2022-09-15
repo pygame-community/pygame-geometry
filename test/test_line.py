@@ -377,6 +377,9 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             line.move(1, 2, 3)
 
+        with self.assertRaises(TypeError):
+            line.move("1", "2")
+
     def test_meth_move_ip(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
 
@@ -395,6 +398,9 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             line.move_ip(1, 2, 3)
+
+        with self.assertRaises(TypeError):
+            line.move_ip("1", "2")
 
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
