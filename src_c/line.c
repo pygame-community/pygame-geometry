@@ -409,16 +409,9 @@ pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto error;
     }
 
-    pgLineObject *ret =
-        _pg_line_subtype_new4(Py_TYPE(self), self->line.x1, self->line.y1,
-                              self->line.x2, self->line.y2);
-
-    ret->line.x1 += Dx;
-    ret->line.y1 += Dy;
-    ret->line.x2 += Dx;
-    ret->line.y2 += Dy;
-
-    return ret;
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
+                                 self->line.y1 + Dy, self->line.x2 + Dx,
+                                 self->line.y2 + Dy);
 
 error:
     return RAISE(PyExc_TypeError, "move requires a pair of numbers");

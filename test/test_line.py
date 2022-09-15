@@ -388,13 +388,13 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 6.4)
 
         with self.assertRaises(TypeError):
-            line.move()
+            line.move_ip()
 
         with self.assertRaises(TypeError):
-            line.move(1)
+            line.move_ip(1)
 
         with self.assertRaises(TypeError):
-            line.move(1, 2, 3)
+            line.move_ip(1, 2, 3)
 
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
