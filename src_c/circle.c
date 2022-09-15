@@ -377,8 +377,8 @@ pg_circle_move(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto error;
     }
 
-    return pgCircle_New3(self->circle.x + Dx, self->circle.y + Dy,
-                         self->circle.r);
+    return _pg_circle_subtype_new3(Py_TYPE(self), self->circle.x + Dx,
+                                   self->circle.y + Dy, self->circle.r);
 error:
     return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
