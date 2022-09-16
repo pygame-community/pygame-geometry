@@ -13,6 +13,12 @@ special colliders easier for their video game. The plan
 for the project's future is to migrate all modules to
 the main [pygame repository](https://github.com/pygame/pygame).
 
+**Everything you see in this repository is subject to change as
+this project is heavily in development.** This decision is also
+subject to change when this project migrates to the
+[official pygame repository](https://github.com/pygame/pygame) or
+becomes a third-party library.
+
 ## Installation
 Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
 to install pygame_geometry.
