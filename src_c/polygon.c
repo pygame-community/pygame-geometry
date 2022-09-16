@@ -7,6 +7,10 @@
 #include <stddef.h>
 #include <math.h>
 
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif /* ~PI */
+
 static PyObject *
 pg_tuple_from_values_double(double val1, double val2)
 {
@@ -316,6 +320,65 @@ pg_polygon_dealloc(pgPolygonObject *self)
 }
 
 static PyObject *
+pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
+                          Py_ssize_t nargs)
+{
+    int sides;
+    double radius;
+    double angle = 0;
+    double Cx, Cy;
+
+    if (nargs == 3) {
+        if (!pg_IntFromObj(args[0], &sides) ||
+            !pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
+            !pg_DoubleFromObj(args[2], &radius)) {
+            goto error;
+        }
+    }
+    else if (nargs == 4) {
+        if (!pg_IntFromObj(args[0], &sides) ||
+            !pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
+            !pg_DoubleFromObj(args[2], &radius) ||
+            !pg_DoubleFromObj(args[3], &angle)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    angle *= PI / 180.0;
+
+    if (sides < 3) {
+        if (sides < 0) {
+            return RAISE(PyExc_ValueError,
+                         "the sides can not be a negative number");
+        }
+        return RAISE(PyExc_ValueError, "polygons need at least 3 sides");
+    }
+
+    double *verticies = PyMem_New(double, sides * 2);
+    if (!verticies) {
+        return PyErr_NoMemory();
+    }
+
+    int loop;
+    for (loop = 0; loop < sides; loop++) {
+        verticies[loop * 2 + 0] =
+            Cx + radius * cos(angle + PI * 2 * loop / sides);
+        verticies[loop * 2 + 1] =
+            Cy + radius * sin(angle + PI * 2 * loop / sides);
+    }
+
+    PyObject *ret = pgPolygon_New2(verticies, sides);
+    PyMem_Free(verticies);
+
+    return ret;
+error:
+    return RAISE(PyExc_TypeError, "mismatched arguments");
+}
+
+static PyObject *
 pg_polygon_repr(pgPolygonObject *self)
 {
     return PyUnicode_FromFormat("<Polygon(%S, %S)>",
@@ -342,6 +405,8 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
+    {"normal_polygon", (PyCFunction)pg_polygon_normal_polygon,
+     METH_STATIC | METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};

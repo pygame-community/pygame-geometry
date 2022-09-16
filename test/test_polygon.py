@@ -4,6 +4,8 @@ from pygame import Vector2
 
 from geometry import Polygon
 
+import math
+
 p1 = (12.0, 12.0)
 p2 = (32.0, 43.0)
 p3 = (22.0, 4.0)
@@ -122,6 +124,29 @@ class PolygonTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(TypeError):
                 po.copy(*value)
+
+    def test_static_normal_polygon(self):
+        center = (150.5, 100.1)
+        radius = 50.2
+        sides = 10
+        angle = 20.6
+
+        polygon_pg = Polygon.normal_polygon(sides, center, radius, angle)
+        vertices_pg = polygon_pg.vertices
+
+        vertices = []
+
+        for i in range(sides):
+            vertices.append(
+                (
+                    center[0]
+                    + radius * math.cos(math.radians(angle) + math.pi * 2 * i / sides),
+                    center[1]
+                    + radius * math.sin(math.radians(angle) + math.pi * 2 * i / sides),
+                )
+            )
+
+        self.assertEqual(vertices_pg, vertices)
 
     def test_copy_return_type(self):
         """Checks whether the copy method returns a polygon"""
