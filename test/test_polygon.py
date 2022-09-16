@@ -148,6 +148,45 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(vertices_pg, vertices)
 
+        invalid_types = (
+            None,
+            [],
+            "1",
+            "123",
+            (1,),
+            [1, 2, 3],
+            [p1, p2, p3, 32],
+            [p1, p2, "(1, 1)"],
+        )
+
+        for invalid_type in invalid_types:
+            with self.assertRaises(TypeError):
+                Polygon.normal_polygon(5, invalid_type, 5.5, 1)
+
+        for invalid_type in invalid_types + (1, 2):
+            with self.assertRaises(TypeError):
+                Polygon.normal_polygon(invalid_type, (1, 2.2), 5.5, 1)
+
+        for invalid_type in invalid_types + (1, 2):
+            with self.assertRaises(TypeError):
+                Polygon.normal_polygon(5, (1, 2.2), invalid_type, 1)
+
+        for invalid_type in invalid_types + (1, 2):
+            with self.assertRaises(TypeError):
+                Polygon.normal_polygon(5, (1, 2.2), 5.5, invalid_type)
+
+        with self.assertRaises(TypeError):
+            Polygon.normal_polygon(1, (1, 2.2), 5.5, 1, 5)
+
+        with self.assertRaises(TypeError):
+            Polygon.normal_polygon()
+
+        with self.assertRaises(ValueError):
+         Polygon.normal_polygon(-1, center, radius, angle)
+
+        with self.assertRaises(ValueError):
+         Polygon.normal_polygon(2, center, radius, angle)
+
     def test_copy_return_type(self):
         """Checks whether the copy method returns a polygon"""
         po = Polygon([p1, p2, p3, p4])
