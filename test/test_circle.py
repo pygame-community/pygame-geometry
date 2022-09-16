@@ -325,6 +325,40 @@ class CircleTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del c.circumference
 
+    def test_diameter(self):
+        """Ensures the diameter is calculated correctly."""
+        c = Circle(0, 0, 1)
+
+        self.assertEqual(c.diameter, 2.0)
+        self.assertEqual(c.d, 2.0)
+
+    def test_diameter_update(self):
+        """Ensures the diameter is updated correctly."""
+        c = Circle(0, 0, 1)
+
+        c.r = 2
+        self.assertEqual(c.diameter, 4.0)
+        self.assertEqual(c.d, 4.0)
+
+        c.r_sqr = 100
+        self.assertEqual(c.diameter, 20.0)
+        self.assertEqual(c.d, 20.0)
+
+    def test_diameter_invalid_value(self):
+        """Ensures the diameter handles invalid values correctly."""
+        c = Circle(0, 0, 1)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], -1, 0):
+            with self.assertRaises(TypeError):
+                c.diameter = value
+
+    def test_diameter_del(self):
+        """Ensures the diameter attribute can't be deleted."""
+        c = Circle(0, 0, 1)
+
+        with self.assertRaises(AttributeError):
+            del c.diameter
+
     def test_copy(self):
         c = Circle(10, 10, 4)
         # check 1 arg passed
