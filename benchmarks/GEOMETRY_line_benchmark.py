@@ -119,7 +119,7 @@ LP_collision_tests = [
 ]
 
 raycast_tests = [
-    ("raycast", "l1.ray_cast(rand_lines)"),
+    ("raycast", "l1.raycast(rand_lines)"),
 ]
 
 # === Test Suites ===
@@ -132,7 +132,7 @@ GROUPS = [
     ("Copy", copy_tests),
     ("Conversion", conversion_tests),
     ("Update", update_tests),
-    # ("Move", move_tests),
+    ("Move", move_tests),
     ("Collision: Line-Line", LL_collision_tests),
     ("Collision: Line-Circle", LC_collision_tests),
     ("Collision: Line-Rect", LR_collision_tests),

@@ -211,8 +211,8 @@ pg_circle_copy(pgCircleObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
-                        Py_ssize_t nargs)
+pg_circle_collide_circle(pgCircleObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
 {
     pgCircleBase other_circle;
     if (!pgCircle_FromObjectFastcall(args, nargs, &other_circle)) {
@@ -224,18 +224,20 @@ pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
 
 static PyObject *
 pg_circle_collide_line(pgCircleObject *self, PyObject *const *args,
-                      Py_ssize_t nargs)
+                       Py_ssize_t nargs)
 {
     pgLineBase line;
     if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
-        return RAISE(PyExc_TypeError, "A CircleType object was expected");
+        return RAISE(
+            PyExc_TypeError,
+            "Circle.collide_line requires a Line or a LineLike object");
     }
     return PyBool_FromLong(pgCollision_LineCircle(&line, &(self->circle)));
 }
 
 static PyObject *
 pg_circle_collide_point(pgCircleObject *self, PyObject *const *args,
-                       Py_ssize_t nargs)
+                        Py_ssize_t nargs)
 {
     double px = 0, py = 0;
 
@@ -259,11 +261,11 @@ pg_circle_collide_point(pgCircleObject *self, PyObject *const *args,
 
 error:
     return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
+                 "collide_point requires a point or PointLike object");
 }
 static PyObject *
 pg_circle_collide_rect(pgCircleObject *self, PyObject *const *args,
-                      Py_ssize_t nargs)
+                       Py_ssize_t nargs)
 {
     SDL_Rect temp;
 
@@ -274,15 +276,17 @@ pg_circle_collide_rect(pgCircleObject *self, PyObject *const *args,
                 return NULL;
             else
                 return RAISE(PyExc_TypeError,
-                             "Invalid rect, all 4 fields must be numeric");
+                             "Circle.collide_rect requires a Rect or a "
+                             "RectLike object");
         }
         return PyBool_FromLong(pgCollision_RectCircle(tmp, &(self->circle)));
     }
     else if (nargs == 2) {
         if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
             !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
-            return RAISE(PyExc_TypeError,
-                         "Invalid rect, all 4 fields must be numeric");
+            return RAISE(
+                PyExc_TypeError,
+                "Circle.collide_rect requires a Rect or a RectLike object");
         }
     }
     else if (nargs == 4) {
@@ -290,13 +294,15 @@ pg_circle_collide_rect(pgCircleObject *self, PyObject *const *args,
             !pg_IntFromObj(args[1], &temp.y) ||
             !pg_IntFromObj(args[2], &temp.w) ||
             !pg_IntFromObj(args[3], &temp.h)) {
-            return RAISE(PyExc_TypeError,
-                         "Invalid rect, all 4 fields must be numeric");
+            return RAISE(
+                PyExc_TypeError,
+                "Circle.collide_rect requires a Rect or a RectLike object");
         }
     }
     else {
-        return RAISE(PyExc_TypeError,
-                     "Invalid arguments number, must be 1, 2 or 4");
+        return RAISE(
+            PyExc_TypeError,
+            "Circle.collide_rect requires a Rect or a RectLike object");
     }
 
     return PyBool_FromLong(pgCollision_RectCircle(&temp, &(self->circle)));
@@ -326,9 +332,10 @@ pg_circle_collides_with(pgCircleObject *self, PyObject *arg)
         result = pgCollision_CirclePoint(&self->circle, x, y);
     }
     else {
-        return RAISE(PyExc_TypeError,
-                     "Invalid shape argument, must be a CircleType, RectType, "
-                     "LineType or a sequence of 2 numbers");
+        return RAISE(
+            PyExc_TypeError,
+            "Circle.collides_with requires either a CircleType, RectType, "
+            "LineType or a sequence of 2 numbers");
     }
 
     return PyBool_FromLong(result);
@@ -414,10 +421,11 @@ error:
 }
 
 static struct PyMethodDef pg_circle_methods[] = {
-    {"collide_circle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
+    {"collide_circle", (PyCFunction)pg_circle_collide_circle, METH_FASTCALL,
      NULL},
     {"collide_line", (PyCFunction)pg_circle_collide_line, METH_FASTCALL, NULL},
-    {"collide_point", (PyCFunction)pg_circle_collide_point, METH_FASTCALL, NULL},
+    {"collide_point", (PyCFunction)pg_circle_collide_point, METH_FASTCALL,
+     NULL},
     {"collide_rect", (PyCFunction)pg_circle_collide_rect, METH_FASTCALL, NULL},
     {"collides_with", (PyCFunction)pg_circle_collides_with, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
@@ -663,8 +671,8 @@ static PyGetSetDef pg_circle_getsets[] = {
      NULL},
     {"d", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
      NULL},
-    {"diameter", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
-     NULL},
+    {"diameter", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter,
+     NULL, NULL},
     {"center", (getter)pg_circle_getcenter, (setter)pg_circle_setcenter, NULL,
      NULL},
     {"area", (getter)pg_circle_getarea, (setter)pg_circle_setarea, NULL, NULL},

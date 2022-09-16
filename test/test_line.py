@@ -310,7 +310,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(line1.is_parallel(line4))
         self.assertTrue(line1.is_parallel(line1))
 
-    def test_meth_ray_cast(self):
+    def test_meth_raycast(self):
         lineA = Line(0, 0, 10, 10)
         lineB = Line(0, 0, -1, -1)
 
@@ -321,24 +321,24 @@ class LineTypeTest(unittest.TestCase):
         E = Circle(0, 0, 1)
 
         with self.assertRaises(TypeError):
-            lineA.ray_cast(A, B, C)
+            lineA.raycast(A, B, C)
 
         with self.assertRaises(TypeError):
-            lineA.ray_cast()
+            lineA.raycast()
 
         with self.assertRaises(TypeError):
-            lineA.ray_cast(lineA, "5")
+            lineA.raycast(lineA, "5")
 
-        self.assertEqual(lineA.ray_cast([lineA, A, B, C]), (0.5, 0.5))
+        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
         self.assertEqual(
-            lineA.ray_cast([D, E]), (0.7071067811865475, 0.7071067811865475)
+            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
         )
-        self.assertEqual(lineA.ray_cast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
+        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
         self.assertEqual(
-            lineB.ray_cast([D, E]), (-0.7071067811865476, -0.7071067811865476)
+            lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476)
         )
         self.assertEqual(
-            lineB.ray_cast([lineA, lineB, A, B, C, D, E]),
+            lineB.raycast([lineA, lineB, A, B, C, D, E]),
             (-0.7071067811865476, -0.7071067811865476),
         )
 

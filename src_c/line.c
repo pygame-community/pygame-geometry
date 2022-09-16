@@ -250,7 +250,7 @@ pg_line_is_parallel(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
-pg_line_ray_cast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject **farr;
     Py_ssize_t loop;
@@ -321,7 +321,7 @@ pg_line_collide_line(pgLineObject *self, PyObject *const *args,
 
     if (!pgLine_FromObjectFastcall(args, nargs, &B)) {
         return RAISE(PyExc_TypeError,
-                     "Line.collideline requires a line or LineLike object");
+                     "Line.collide_line requires a line or LineLike object");
     }
 
     return PyBool_FromLong(pgCollision_LineLine(&self->line, &B));
@@ -352,7 +352,7 @@ pg_line_collide_point(pgLineObject *self, PyObject *const *args,
 
 error:
     return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
+                 "collide_point requires a point or PointLike object");
 }
 
 static PyObject *
@@ -364,7 +364,7 @@ pg_line_collide_circle(pgLineObject *self, PyObject *const *args,
     if (!pgCircle_FromObjectFastcall(args, nargs, &circle)) {
         return RAISE(
             PyExc_TypeError,
-            "Line.collidecircle requires a circle or CircleLike object");
+            "Line.collide_circle requires a circle or CircleLike object");
     }
     return PyBool_FromLong(pgCollision_LineCircle(&self->line, &circle));
 }
@@ -403,7 +403,7 @@ pg_line_collide_rect(pgLineObject *self, PyObject *args)
 
     if (!(rect = pgRect_FromObject(args, &temp))) {
         return RAISE(PyExc_TypeError,
-                     "Line.colliderect requires a Rect or a RectLike object");
+                     "Line.collide_rect requires a Rect or a RectLike object");
     }
     return PyBool_FromLong(pgCollision_RectLine(rect, &self->line));
 }
@@ -471,7 +471,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"is_parallel", (PyCFunction)pg_line_is_parallel, METH_FASTCALL, NULL},
-    {"ray_cast", (PyCFunction)pg_line_ray_cast, METH_FASTCALL, NULL},
+    {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collide_line", (PyCFunction)pg_line_collide_line, METH_FASTCALL, NULL},
     {"collide_point", (PyCFunction)pg_line_collide_point, METH_FASTCALL, NULL},
     {"collide_circle", (PyCFunction)pg_line_collide_circle, METH_FASTCALL, NULL},
