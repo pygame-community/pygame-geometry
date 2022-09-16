@@ -408,6 +408,65 @@ pg_line_collide_rect(pgLineObject *self, PyObject *args)
     return PyBool_FromLong(pgCollision_RectLine(rect, &self->line));
 }
 
+static PyObject *
+pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double Dx = 0, Dy = 0;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &Dx) ||
+            !pg_DoubleFromObj(args[1], &Dy)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
+                                 self->line.y1 + Dy, self->line.x2 + Dx,
+                                 self->line.y2 + Dy);
+
+error:
+    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
+}
+
+static PyObject *
+pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double Dx = 0, Dy = 0;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &Dx) ||
+            !pg_DoubleFromObj(args[1], &Dy)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    self->line.x1 += Dx;
+    self->line.y1 += Dy;
+    self->line.x2 += Dx;
+    self->line.y2 += Dy;
+
+    Py_RETURN_NONE;
+
+error:
+    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -419,6 +478,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collide_rect", (PyCFunction)pg_line_collide_rect, METH_VARARGS, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
+    {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
+    {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
