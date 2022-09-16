@@ -131,9 +131,8 @@ raycast_tests = [
 ]
 
 perpendicular_tests = [
-    ("perpendicular", "l1.is_perpendicular()"),
-    ("not perpendicular", "l2.is_perpendicular()"),
-    ("parallel", "l3.is_perpendicular()"),
+    ("perp.", "l1.is_perpendicular(l3)"),
+    ("not perp.", "l1.is_perpendicular(l4)"),
 ]
 
 # === Test Suites ===
@@ -151,6 +150,7 @@ GROUPS = [
     # ("Collision: Line-Rect", LR_collision_tests),
     ("Collision: Line-Point", LP_collision_tests),
     ("Raycast", raycast_tests),
+    ("Perpendicular", perpendicular_tests),
 ]
 
 TestSuite("Geometry Module - Line", GROUPS, GLOB).run_suite()

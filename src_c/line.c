@@ -398,7 +398,7 @@ pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
     if (!pgLine_FromObjectFastcall(args, nargs, &other_line)) {
         return RAISE(
             PyExc_TypeError,
-            "Line.is_perpendicular requires a line or LineLike object");
+            "Line.is_perpendicular requires a Line or LineLike object");
     }
 
     double dx1 = self->line.x2 - self->line.x1;
