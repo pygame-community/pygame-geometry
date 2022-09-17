@@ -12,8 +12,7 @@ pygame.init()
 def get_new_circle_surf(
     circle_obj: Circle, color: Union[str, Tuple[int, int, int]], surface_alpha: int
 ) -> pygame.Surface:
-    surf = pygame.surface.Surface((circle_obj.d, circle_obj.d))
-    surf.set_colorkey("black")
+    surf = pygame.surface.Surface((circle_obj.d, circle_obj.d), pygame.SRCALPHA)
     pygame.draw.circle(surf, color, (circle_obj.r, circle_obj.r), circle_obj.r)
     surf.set_alpha(surface_alpha)
     return surf
