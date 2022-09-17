@@ -3,6 +3,7 @@
 [![C++ Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml)
 [![Ubuntu latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml)
 [![Windows latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml)
+[![MacOS latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml)
 ![Commits per week](https://img.shields.io/github/commit-activity/w/novialriptide/pygame_geometry/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
