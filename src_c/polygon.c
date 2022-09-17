@@ -328,31 +328,25 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
     double angle = 0;
     double Cx, Cy;
 
-    if (nargs == 3) {
-        if (!PyLong_Check(args[0])) {
-            goto error;
-        }
-        sides = (int)PyLong_AsLong(args[0]);
-
-        if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
-            !pg_DoubleFromObj(args[2], &radius)) {
-            goto error;
-        }
+    if (nargs < 3 || nargs > 4) {
+        return RAISE(PyExc_TypeError,
+                     "invalid number of arguments, expected 3 or 4 arguments");
     }
-    else if (nargs == 4) {
-        if (!PyLong_Check(args[0])) {
-            goto error;
-        }
-        sides = (int)PyLong_AsLong(args[0]);
-
-        if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
-            !pg_DoubleFromObj(args[2], &radius) ||
-            !pg_DoubleFromObj(args[3], &angle)) {
-            goto error;
-        }
-    }
-    else {
+    if (!PyLong_Check(args[0])) {
         goto error;
+    }
+    sides = PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) {
+        return NULL;
+    }
+    if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
+        !pg_DoubleFromObj(args[2], &radius)) {
+        goto error;
+    }
+    if (nargs == 4) {
+        if (!pg_DoubleFromObj(args[3], &angle)) {
+            goto error;
+        }
     }
 
     angle *= PI / 180.0;
@@ -367,15 +361,14 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
 
     double *verticies = PyMem_New(double, sides * 2);
     if (!verticies) {
-        return PyErr_NoMemory();
+        return NULL;
     }
 
     int loop;
     for (loop = 0; loop < sides; loop++) {
-        verticies[loop * 2 + 0] =
-            Cx + radius * cos(angle + PI * 2 * loop / sides);
-        verticies[loop * 2 + 1] =
-            Cy + radius * sin(angle + PI * 2 * loop / sides);
+        double ang = angle + PI * 2 * loop / sides;
+        verticies[loop * 2] = Cx + radius * cos(ang);
+        verticies[loop * 2 + 1] = Cy + radius * sin(ang);
     }
 
     PyObject *ret = pgPolygon_New2(verticies, sides);
