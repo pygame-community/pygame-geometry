@@ -27,21 +27,6 @@ to install pygame_geometry.
 The documentation is a work in progress, but you can check
 out the `examples` folder to learn how to use this library.
 
-## Contributing Guidelines
-In order to contribute to the project, you must follow these guidelines...
-1. Follow PEP8 convention naming rules for C and Python
-2. Lint your code with [black](https://github.com/psf/black)
-3. Please make an issue first before submitting a pull request
-4. Always add unittests when you're introducing something new
-5. For C code, try to use `FASTCALL` as much as you can
-6. Make sure your code actually works before you submit a pull
-request
-7. Please be patient when waiting for pull request reviews,
-we are all unpaid-volunteers
-
-*Click [here](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
-for more info on how to build `pygame_geometry` from source.*
-
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and
 [itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the
