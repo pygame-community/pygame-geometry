@@ -3,10 +3,23 @@ from typing import List, Tuple, Union
 
 import pygame
 
-from shapes.circle import Circle
-from utility_functions import rand_color, rand_bw_color
+from geometry import Circle
 
 pygame.init()
+
+from random import randint
+from typing import Tuple
+
+
+def rand_color(minv: int = 0, maxv: int = 255) -> Tuple[int, int, int]:
+    """returns a random RGB color with min and max as min and max threshold"""
+    return randint(minv, maxv), randint(minv, maxv), randint(minv, maxv)
+
+
+def rand_bw_color(minv: int, maxv: int) -> Tuple[int, int, int]:
+    """returns a random RGB BW color"""
+    shade = randint(minv, maxv)
+    return shade, shade, shade
 
 
 def get_new_circle_surf(
@@ -83,7 +96,7 @@ while keep:
     screen.fill(BACKGROUND_COLOR)
     clock.tick_busy_loop(FPS)
 
-    mouse_circle.move_to_ip(*pygame.mouse.get_pos())
+    mouse_circle.center = pygame.mouse.get_pos()
 
     # main update and draw loop, draw every shape and update their size
     for shape, color, coll_color in zip(shapes, colors, colliding_colors):
@@ -94,9 +107,7 @@ while keep:
         if feed_active and mouse_circle.collideswith(shape):
             if is_circle:
                 shape.r += 0.2
-                shape.d = 2 * shape.r
-                shape.r_sqr = shape.r**2
-                pygame.draw.circle(screen, coll_color, *shape())
+                pygame.draw.circle(screen, coll_color, shape.center, shape.r)
             elif is_rect:
                 shape.inflate_ip(1, 1)
                 pygame.draw.rect(screen, coll_color, shape)
@@ -113,9 +124,7 @@ while keep:
                     )
 
                 shape.r -= 0.25
-                shape.d = 2 * shape.r
-                shape.r_sqr = shape.r**2
-                pygame.draw.circle(screen, color, *shape())
+                pygame.draw.circle(screen, color, shape.center, shape.r)
             elif is_rect:
                 value = 0.25
 
@@ -143,7 +152,7 @@ while keep:
         acc_amt = 0
     else:
         acc_amt *= acc_multiplier
-        mouse_circle.scale_by_ip(1 + acc_amt)
+        mouse_circle.r *= 1 + acc_amt
         mouse_circle_surf = get_new_circle_surf(mouse_circle, "white", ALPHA_VALUE)
 
     # select and draw the mouse_circle border color
