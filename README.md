@@ -20,8 +20,10 @@ subject to change when this project migrates to the
 becomes a third-party library.
 
 ## Installation
-Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
-to install pygame_geometry.
+### Download an experimental build
+```
+pip install git+https://github.com/novialriptide/pygame_geometry
+```
 
 ## Help
 The documentation is a work in progress, but you can check
