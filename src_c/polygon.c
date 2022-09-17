@@ -329,15 +329,23 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
     double Cx, Cy;
 
     if (nargs == 3) {
-        if (!pg_IntFromObj(args[0], &sides) ||
-            !pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
+        if (!PyLong_Check(args[0])) {
+            goto error;
+        }
+        sides = (int)PyLong_AsLong(args[0]);
+
+        if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
             !pg_DoubleFromObj(args[2], &radius)) {
             goto error;
         }
     }
     else if (nargs == 4) {
-        if (!pg_IntFromObj(args[0], &sides) ||
-            !pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
+        if (!PyLong_Check(args[0])) {
+            goto error;
+        }
+        sides = (int)PyLong_AsLong(args[0]);
+
+        if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
             !pg_DoubleFromObj(args[2], &radius) ||
             !pg_DoubleFromObj(args[3], &angle)) {
             goto error;
@@ -375,7 +383,7 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
 
     return ret;
 error:
-    return RAISE(PyExc_TypeError, "mismatched arguments");
+    return RAISE(PyExc_TypeError, "mismatched argument types");
 }
 
 static PyObject *
