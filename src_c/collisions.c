@@ -297,28 +297,28 @@ pgCollision_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2)
     int shape;
     for (shape = 0; shape < 2; shape++) {
         if (shape == 1) {
-            polygon_1 = poly_2;
-            polygon_2 = poly_1;
+            poly_1 = polygon_2;
+            poly_2 = polygon_1;
         }
         Py_ssize_t it_poly_1;
-        for (it_poly_1 = 0 ; it_poly_1 < polygon_1->verts_num; it_poly_1++) {
-            double diag_start_x = polygon_1->c_x;
-            double diag_start_y = polygon_1->c_y;
+        for (it_poly_1 = 0 ; it_poly_1 < poly_1->verts_num; it_poly_1++) {
+            double diag_start_x = poly_1->c_x;
+            double diag_start_y = poly_1->c_y;
 
-            double diag_end_x = polygon_1->vertices[2 * it_poly_1];
-            double diag_end_y = polygon_1->vertices[2 * it_poly_1 + 1];
+            double diag_end_x = poly_1->vertices[2 * it_poly_1];
+            double diag_end_y = poly_1->vertices[2 * it_poly_1 + 1];
 
             Py_ssize_t it_poly_2;
-            for (it_poly_2 = 0; it_poly_2 < polygon_2->verts_num; it_poly_2++) {
-                double segment_start_x = polygon_2->vertices[it_poly_2 * 2];
-                double segment_start_y = polygon_2->vertices[it_poly_2 * 2 + 1];
+            for (it_poly_2 = 0; it_poly_2 < poly_2->verts_num; it_poly_2++) {
+                double segment_start_x = poly_2->vertices[it_poly_2 * 2];
+                double segment_start_y = poly_2->vertices[it_poly_2 * 2 + 1];
 
-                double segment_end_x = polygon_2->vertices[((it_poly_2 + 1) % polygon_2->verts_num) * 2];
-                double segment_end_y = polygon_2->vertices[((it_poly_2 + 1) % polygon_2->verts_num) * 2 + 1];
+                double segment_end_x = poly_2->vertices[((it_poly_2 + 1) % poly_2->verts_num) * 2];
+                double segment_end_y = poly_2->vertices[((it_poly_2 + 1) % poly_2->verts_num) * 2 + 1];
 
-                float h = (segment_end_x - segment_start_x) * (diag_start_y - diag_end_y) - (diag_start_x - diag_end_x) * (segment_end_y - segment_start_y);
-                float t1 = ((segment_start_y - segment_end_y) * (diag_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (diag_start_y - segment_start_y)) / h;
-                float t2 = ((diag_start_y - diag_end_y) * (diag_start_x - segment_start_x) + (diag_end_x - diag_start_x) * (diag_start_y - segment_start_y)) / h;
+                double h = (segment_end_x - segment_start_x) * (diag_start_y - diag_end_y) - (diag_start_x - diag_end_x) * (segment_end_y - segment_start_y);
+                double t1 = ((segment_start_y - segment_end_y) * (diag_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (diag_start_y - segment_start_y)) / h;
+                double t2 = ((diag_start_y - diag_end_y) * (diag_start_x - segment_start_x) + (diag_end_x - diag_start_x) * (diag_start_y - segment_start_y)) / h;
 
                 if (t1 >= 0.0f && t1 < 1.0f && t2 >= 0.0f && t2 < 1.0f) {
                     return 1;
@@ -345,10 +345,9 @@ pgCollision_PolyLine(pgPolygonBase *polygon, pgLineBase *line)
         double segment_end_x = polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2];
         double segment_end_y = polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2 + 1];
 
-        float h =
-            (segment_end_x - segment_start_x) * (line_start_y - line_end_y) - (line_start_x - line_end_x) * (segment_end_y - segment_start_y);
-        float t1 = ((segment_start_y - segment_end_y) * (line_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (line_start_y - segment_start_y)) / h;
-        float t2 = ((line_start_y - line_end_y) * (line_start_x - segment_start_x) + (line_end_x - line_start_x) * (line_start_y - segment_start_y)) / h;
+        double h = (segment_end_x - segment_start_x) * (line_start_y - line_end_y) - (line_start_x - line_end_x) * (segment_end_y - segment_start_y);
+        double t1 = ((segment_start_y - segment_end_y) * (line_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (line_start_y - segment_start_y)) / h;
+        double t2 = ((line_start_y - line_end_y) * (line_start_x - segment_start_x) + (line_end_x - line_start_x) * (line_start_y - segment_start_y)) / h;
 
         if (t1 >= 0.0f && t1 < 1.0f && t2 >= 0.0f && t2 < 1.0f) {
             return 1;
@@ -363,18 +362,223 @@ pgCollision_PolyRect(pgPolygonBase *poly, SDL_Rect *rect)
     double r_x = (double)rect->x, r_y = (double)rect->y, r_w = (double)rect->w,
            r_h = (double)rect->h;
     double rect_vertices[8] = {
-        r_x, r_y,
-        r_x + r_w, r_y,
-        r_x + r_w, r_y + r_h,
-        r_x, r_y + r_h,
-    }
-
-    return 0;
+        r_x, r_y, r_x + r_w, r_y, r_x + r_w, r_y + r_h, r_x, r_y + r_h,
+    };
+    pgPolygonBase rect_poly;
+    rect_poly.verts_num = 4;
+    rect_poly.vertices = rect_vertices;
+    rect_poly.c_x = r_x + r_w / 2;
+    rect_poly.c_y = r_y + r_h / 2;
+    return pgCollision_PolyPoly(poly, &rect_poly);
 }
 
 static int
 pgCollision_PolyCircle(pgPolygonBase *poly, pgCircleBase *circle)
 {
+    double offset_x;
+    double offset_y;
+    Py_ssize_t it_poly;
+    for (it_poly = 0; it_poly < poly->verts_num; it_poly++) {
+        double segment_start_x = poly->vertices[it_poly * 2];
+        double segment_start_y = poly->vertices[it_poly * 2 + 1];
 
+        double segment_end_x = poly->vertices[((it_poly + 1) % poly->verts_num) * 2];
+        double segment_end_y = poly->vertices[((it_poly + 1) % poly->verts_num) * 2 + 1];
+
+        double radius_normal_x = segment_start_y - segment_end_y;
+        double radius_normal_y = segment_end_x - segment_start_x;
+
+        double radius_start_x = circle->x;
+        double radius_start_y = circle->y;
+
+        double radius_end_x = circle->x + radius_normal_x * circle->r;
+        double radius_end_y = circle->y + radius_normal_y * circle->r;
+
+        double h = (segment_end_x - segment_start_x) * (radius_start_y - radius_end_y) - (radius_start_x - radius_end_x) * (segment_end_y - segment_start_y);
+        double t1 = ((segment_start_y - segment_end_y) * (radius_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (radius_start_y - segment_start_y)) / h;
+        double t2 = ((radius_start_y - radius_end_y) * (radius_start_x - segment_start_x) + (radius_end_x - radius_start_x) * (radius_start_y - segment_start_y)) / h;
+
+        if (t1 >= 0.0f && t1 < 1.0f && t2 >= 0.0f && t2 < 1.0f) {
+            //Check with the normal of radius perpendicular to line segment
+            offset_x = (radius_end_x - radius_start_x) * t1;
+            offset_y = (radius_end_y - radius_start_y) * t1;
+            
+            double offsetSMag = offset_x * offset_x + offset_y * offset_y;
+            if (offsetSMag - circle->r * circle->r < 0.0f) {
+                return 1;
+            }
+        }
+        else {
+            //check with the line to the selected vertex of the polygon
+            offset_x = radius_start_x - segment_start_x;
+            offset_y = radius_start_y - segment_start_y;
+
+            double offsetSMag = offset_x * offset_x + offset_y * offset_y;
+            if (offsetSMag - circle->r * circle->r < 0.0f) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+static int
+pgIntersection_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2)
+{
+    pgPolygonBase *poly_1 = polygon_1;
+    pgPolygonBase *poly_2 = polygon_2;
+    
+    int shape;
+    for (shape = 0; shape < 2; shape++)
+    {
+        if (shape == 1)
+        {
+            poly_1 = polygon_2;
+            poly_2 = polygon_1;
+        }
+        Py_ssize_t it_poly_1;
+        for (it_poly_1 = 0; it_poly_1 < poly_1->verts_num; it_poly_1++)
+        {
+            double diag_start_x = poly_1->c_x;
+            double diag_start_y = poly_1->c_y;
+
+            double diag_end_x = poly_1->vertices[2 * it_poly_1];
+            double diag_end_y = poly_1->vertices[2 * it_poly_1 + 1];
+
+            double offset_x = 0;
+            double offset_y = 0;
+
+            Py_ssize_t it_poly_2;
+            for (it_poly_2 = 0; it_poly_2 < poly_2->verts_num;
+                 it_poly_2++)
+            {
+                double segment_start_x = poly_2->vertices[it_poly_2 * 2];
+                double segment_start_y = poly_2->vertices[it_poly_2 * 2 + 1];
+
+                double segment_end_x = poly_2->vertices[((it_poly_2 + 1) % poly_2->verts_num) * 2];
+                double segment_end_y = poly_2->vertices[((it_poly_2 + 1) % poly_2->verts_num) * 2 + 1];
+
+                double h = (segment_end_x - segment_start_x) * (diag_start_y - diag_end_y) - (diag_start_x - diag_end_x) * (segment_end_y - segment_start_y);
+                double t1 = ((segment_start_y - segment_end_y) * (diag_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (diag_start_y - segment_start_y)) / h;
+                double t2 = ((diag_start_y - diag_end_y) * (diag_start_x - segment_start_x) + (diag_end_x - diag_start_x) * (diag_start_y - segment_start_y)) / h;
+
+                if (t1 >= 0 && t1 < 1 && t2 >= 0 && t2 < 1)
+                {
+                    offset_x += (diag_end_x - diag_start_x) * (1 - t1);
+                    offset_y += (diag_end_y - diag_start_y) * (1 - t1);
+                }
+            }
+            Py_ssize_t poly_1_it;
+            for (poly_1_it = 0; poly_1_it < poly_1->verts_num; poly_1_it++)
+            {
+                poly_1->vertices[poly_1_it * 2] += offset_x;
+                poly_1->vertices[poly_1_it * 2 + 1] += offset_y;
+            }
+            poly_1->c_x += offset_x;
+            poly_2->c_y += offset_y;
+        }
+    }
+    return 0;
+}
+
+static int
+pgIntersection_PolyLine(pgPolygonBase *polygon, pgLineBase *line)
+{
+    
+}
+
+static int
+pgIntersection_PolyRect(pgPolygonBase *polygon, SDL_Rect *rect)
+{
+    int result;
+    double r_x = (double)rect->x, r_y = (double)rect->y, r_w = (double)rect->w,
+           r_h = (double)rect->h;
+    double rect_vertices[8] = {
+        r_x, r_y, r_x + r_w, r_y, r_x + r_w, r_y + r_h, r_x, r_y + r_h,
+    };
+    pgPolygonBase rect_poly;
+    rect_poly.verts_num = 4;
+    rect_poly.vertices = rect_vertices;
+    rect_poly.c_x = r_x + r_w / 2;
+    rect_poly.c_y = r_y + r_h / 2;
+    result = pgIntersection_PolyPoly(polygon, &rect_poly);
+    if (rect_poly.c_x != r_x + r_w / 2 || rect_poly.c_y != r_y + r_h / 2)
+    {
+        rect->x += rect_poly.c_x - (r_x + r_w / 2);
+        rect->y += rect_poly.c_y - (r_y + r_h / 2);
+    }
+    return result;
+}
+
+static int
+pgIntersection_PolyCircle(pgPolygonBase *polygon, pgCircleBase *circle)
+{
+    double offset_x;
+    double offset_y;
+    Py_ssize_t it_poly;
+    for (it_poly = 0; it_poly < polygon->verts_num; it_poly++)
+    {
+        double segment_start_x = polygon->vertices[it_poly * 2];
+        double segment_start_y = polygon->vertices[it_poly * 2 + 1];
+
+        double segment_end_x =
+            polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2];
+        double segment_end_y =
+            polygon->vertices[((it_poly + 1) % polygon->verts_num) * 2 + 1];
+
+        double radius_normal_x = segment_start_y - segment_end_y;
+        double radius_normal_y = segment_end_x - segment_start_x;
+
+        double radius_start_x = circle->x;
+        double radius_start_y = circle->y;
+
+        double radius_end_x = circle->x + radius_normal_x * circle->r;
+        double radius_end_y = circle->y + radius_normal_y * circle->r;
+
+        double h = (segment_end_x - segment_start_x) * (radius_start_y - radius_end_y) - (radius_start_x - radius_end_x) * (segment_end_y - segment_start_y);
+        double t1 = ((segment_start_y - segment_end_y) * (radius_start_x - segment_start_x) + (segment_end_x - segment_start_x) * (radius_start_y - segment_start_y)) / h;
+        double t2 = ((radius_start_y - radius_end_y) * (radius_start_x - segment_start_x) + (radius_end_x - radius_start_x) * (radius_start_y - segment_start_y)) / h;
+
+        if (t1 >= 0.0f && t1 < 1.0f && t2 >= 0.0f && t2 < 1.0f)
+        {
+            // Check with the normal of radius perpendicular to line segment
+            offset_x = (radius_end_x - radius_start_x) * t1;
+            offset_y = (radius_end_y - radius_start_y) * t1;
+
+            double offsetSMag = offset_x * offset_x + offset_y * offset_y;
+            if (offsetSMag - circle->r * circle->r < 0.0f)
+            {
+                Py_ssize_t poly_it;
+                for (poly_it = 0; poly_it < polygon->verts_num; poly_it++)
+                {
+                    polygon->vertices[poly_it * 2] += offset_x;
+                    polygon->vertices[poly_it * 2 + 1] += offset_y;
+                }
+                polygon->c_x += offset_x;
+                polygon->c_y += offset_y;
+                return 1;
+            }
+        }
+        else
+        {
+            // check with the line to the selected vertex of the polygon
+            offset_x = radius_start_x - segment_start_x;
+            offset_y = radius_start_y - segment_start_y;
+
+            double offsetSMag = offset_x * offset_x + offset_y * offset_y;
+            if (offsetSMag - circle->r * circle->r < 0.0f)
+            {
+                Py_ssize_t poly_it;
+                for (poly_it = 0; poly_it < polygon->verts_num; poly_it++)
+                {
+                    polygon->vertices[poly_it * 2] += offset_x;
+                    polygon->vertices[poly_it * 2 + 1] += offset_y;
+                }
+                polygon->c_x += offset_x;
+                polygon->c_y += offset_y;
+                return 1;
+            }
+        }
+    }
     return 0;
 }

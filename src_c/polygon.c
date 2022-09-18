@@ -367,6 +367,87 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
     return pgPolygon_New(&self->polygon);
 }
 
+static PyObject *
+pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double x = 0, y = 0;
+    switch (nargs) {
+        case 1:
+            if (PySequence_Check(args[0])) {
+                if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
+                    return RAISE(PyExc_TypeError,
+                                 "Invalid arguments, must be a sequence of 2 "
+                                 "numbers");
+                }
+            }
+            else if (!pg_DoubleFromObj(args[0], &x)) {
+                return RAISE(PyExc_TypeError, "Polygon.move numeric values");
+            }
+            break;
+        case 2:
+            if (!pg_DoubleFromObj(args[0], &x) ||
+                !pg_DoubleFromObj(args[1], &y)) {
+                return RAISE(PyExc_TypeError,
+                             "Invalid arguments, must be 2 numbers");
+            }
+            break;
+        default:
+            return RAISE(PyExc_TypeError,
+                         "Polygon.move requires 1 or 2 numbers");
+    }
+
+    Py_ssize_t it;
+    for (it = 0; it < self->polygon.verts_num; it++) {
+        self->polygon.vertices[it * 2] += x;
+        self->polygon.vertices[it * 2 + 1] += y;
+    }
+    self->polygon.c_x += x;
+    self->polygon.c_y += y;
+
+    return pgPolygon_New(self);
+}
+
+static PyObject *
+pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
+                  Py_ssize_t nargs)
+{
+    double x = 0, y = 0;
+    switch (nargs) {
+        case 1:
+            if (PySequence_Check(args[0])) {
+                if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
+                    return RAISE(PyExc_TypeError,
+                                 "Invalid arguments, must be a sequence of 2 "
+                                 "numbers");
+                }
+            }
+            else if (!pg_DoubleFromObj(args[0], &x)) {
+                return RAISE(PyExc_TypeError, "Polygon.move_ip numeric values");
+            }
+            break;
+        case 2:
+            if (!pg_DoubleFromObj(args[0], &x) ||
+                !pg_DoubleFromObj(args[1], &y)) {
+                return RAISE(PyExc_TypeError,
+                             "Invalid arguments, must be 2 numbers");
+            }
+            break;
+        default:
+            return RAISE(PyExc_TypeError,
+                         "Polygon.move_ip requires 1 or 2 numbers");
+    }
+
+    Py_ssize_t it;
+    for (it = 0; it < self->polygon.verts_num; it++) {
+        self->polygon.vertices[it * 2] += x;
+        self->polygon.vertices[it * 2 + 1] += y;
+    }
+    self->polygon.c_x += x;
+    self->polygon.c_y += y;
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
