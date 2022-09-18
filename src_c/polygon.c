@@ -347,9 +347,8 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
         if (!pg_DoubleFromObj(args[3], &angle)) {
             goto error;
         }
+        angle *= PI / 180.0;
     }
-
-    angle *= PI / 180.0;
 
     if (sides < 3) {
         if (sides < 0) {
@@ -359,20 +358,22 @@ pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
         return RAISE(PyExc_ValueError, "polygons need at least 3 sides");
     }
 
-    double *verticies = PyMem_New(double, sides * 2);
-    if (!verticies) {
-        return NULL;
+    double *vertices = PyMem_New(double, sides * 2);
+    if (!vertices) {
+        return RAISE(PyExc_MemoryError,
+                     "cannot allocate memory for the polygon vertices");
     }
 
     int loop;
+    double fac = PI * 2 / sides;
     for (loop = 0; loop < sides; loop++) {
-        double ang = angle + PI * 2 * loop / sides;
-        verticies[loop * 2] = Cx + radius * cos(ang);
-        verticies[loop * 2 + 1] = Cy + radius * sin(ang);
+        double ang = angle + fac * loop;
+        vertices[loop * 2] = Cx + radius * cos(ang);
+        vertices[loop * 2 + 1] = Cy + radius * sin(ang);
     }
 
-    PyObject *ret = pgPolygon_New2(verticies, sides);
-    PyMem_Free(verticies);
+    PyObject *ret = pgPolygon_New2(vertices, sides);
+    PyMem_Free(vertices);
 
     return ret;
 error:
