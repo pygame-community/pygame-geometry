@@ -20,7 +20,7 @@ subject to change when this project migrates to the
 [official pygame repository](https://github.com/pygame/pygame) or
 becomes a third-party library.
 
-If you have any ideas/concerns or need further explainations/help, please consider joining our `Discord GEOMETRY thread` [here](https://discord.com/channels/772505616680878080/1002836330482511943).
+If you have any ideas/concerns or need further explanations/help, please consider joining our `Discord GEOMETRY thread` [here](https://discord.com/channels/772505616680878080/1002836330482511943).
 
 ## Installation
 ### Download an experimental build
