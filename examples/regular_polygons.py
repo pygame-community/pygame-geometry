@@ -41,10 +41,7 @@ class Game:
                 pg.quit()
                 sys.exit()
             if pg.MOUSEBUTTONDOWN and any(pg.mouse.get_pressed()):
-                if self.toggle_mouse_button:
-                    self.toggle_mouse_button = False
-                else:
-                    self.toggle_mouse_button = True
+                self.toggle_mouse_button = not self.toggle_mouse_button
 
     def draw(self, num_sides=3, color=(255, 255, 255)):
         """
@@ -53,12 +50,9 @@ class Game:
         box_side = 2 * self.radius
         box = pg.Surface((box_side, box_side))
         box.fill(DARK_GREY)
-
         box_x, box_y = pg.mouse.get_pos()
-
         polygon_radius = box_side // 2
         polygon_center = (box_side // 2, box_side // 2)
-
         polygon = geometry.Polygon.normal_polygon(
             num_sides,
             polygon_center,
@@ -83,7 +77,7 @@ class Game:
             self.events()
 
             if self.toggle_mouse_button:
-                num_sides = SIDES[random.randint(0, len(SIDES) - 1)]
+                num_sides = random.choice(SIDES)
                 color = (
                     random.randint(0, 255),
                     random.randint(0, 255),
