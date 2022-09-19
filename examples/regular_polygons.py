@@ -35,8 +35,9 @@ class Game:
         Method events: handles the events
         """
         for event in pg.event.get():
-            if event.type == pg.QUIT or \
-                    (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
+            if event.type == pg.QUIT or (
+                    event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
+            ):
                 print("\nQuitting program...")
                 pg.quit()
                 sys.exit()
@@ -54,10 +55,7 @@ class Game:
         polygon_radius = box_side // 2
         polygon_center = (box_side // 2, box_side // 2)
         polygon = geometry.Polygon.normal_polygon(
-            num_sides,
-            polygon_center,
-            polygon_radius,
-            30
+            num_sides, polygon_center, polygon_radius, 30
         )
 
         self.screen.fill(DARK_GREY)
@@ -81,7 +79,7 @@ class Game:
                 color = (
                     random.randint(0, 255),
                     random.randint(0, 255),
-                    random.randint(0, 255)
+                    random.randint(0, 255),
                 )
                 self.draw(num_sides=num_sides, color=color)
 
