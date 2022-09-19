@@ -6,7 +6,7 @@ from math import sqrt
 from pygame import Vector2, Vector3
 from pygame import Rect
 
-from geometry import Circle, Line
+from geometry import Circle, Line, Polygon
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -871,6 +871,92 @@ class CircleTypeTest(unittest.TestCase):
         c = Circle(10, 10, 4)
 
         self.assertEqual(type(c.move_ip(1, 1)), type(None))
+
+        def test_contains_argtype(self):
+            """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1, (1, 1))
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.contains(value)
+
+    def test_contains_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        invalid_args = [(Circle(10, 10, 4), Circle(10, 10, 4))]
+
+        with self.assertRaises(TypeError):
+            c.contains()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                c.contains(*arg)
+
+    def test_contains_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        self.assertIsInstance(c.contains(Circle(10, 10, 4)), bool)
+
+    def test_contains_circle(self):
+        """Ensures that the contains method correctly determines if a circle is
+        contained within the circle"""
+        c = Circle(10, 10, 4)
+        c2 = Circle(10, 10, 2)
+        c3 = Circle(100, 100, 5)
+        c4 = Circle(16, 10, 7)
+
+        # self
+        self.assertTrue(c.contains(c))
+
+        # contained circle
+        self.assertTrue(c.contains(c2))
+
+        # not contained circle
+        self.assertFalse(c.contains(c3))
+
+        # intersecting circle
+        self.assertFalse(c.contains(c4))
+
+    def test_contains_line(self):
+        """Ensures that the contains method correctly determines if a line is
+        contained within the circle"""
+        c = Circle(0, 0, 15)
+
+        l1 = Line(-5, 0, 5, 0)
+        l2 = Line(100, 150, 200, 225)
+        l3 = Line(0, 0, 50, 50)
+
+        # contained line
+        self.assertTrue(c.contains(l1))
+
+        # not contained line
+        self.assertFalse(c.contains(l2))
+
+        # intersecting line
+        self.assertFalse(c.contains(l3))
+
+    def test_contains_polygon(self):
+        """Ensures that the contains method correctly determines if a polygon is
+        contained within the circle"""
+        c = Circle(0, 0, 15)
+
+        p1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+        p2 = Polygon([(100, 150), (200, 225), (150, 200)])
+        p3 = Polygon([(0, 0), (50, 50), (50, -50), (0, -50)])
+
+        # contained polygon
+        self.assertTrue(c.contains(p1))
+
+        # not contained polygon
+        self.assertFalse(c.contains(p2))
+
+        # intersecting polygon
+        self.assertFalse(c.contains(p3))
 
 
 if __name__ == "__main__":

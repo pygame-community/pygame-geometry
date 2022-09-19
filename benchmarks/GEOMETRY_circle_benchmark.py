@@ -1,6 +1,6 @@
 from pygame import Rect
 from benchmark_utils import TestSuite
-from geometry import Circle, Line
+from geometry import Circle, Line, Polygon
 
 r1 = Rect(0, 0, 10, 10)
 r2 = Rect(10, 10, 4, 4)
@@ -10,9 +10,15 @@ c1 = Circle(10, 10, 10)
 c2 = Circle(20, 5, 15)
 c3 = Circle(50, 50, 15)
 c4 = Circle(10, 10, 15)
+c5 = Circle(0, 0, 15)
 
-l1 = Line(0, 0, 10, 10)
-l2 = Line(0, 0, 10, -10)
+l1 = Line(10, 10, 13, 13)
+l2 = Line(100, 300, 546, 344)
+l3 = Line(10, 10, 100, 43)
+
+poly1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+poly2 = Polygon([(100, 150), (200, 225), (150, 200)])
+poly3 = Polygon([(0, 0), (50, 50), (50, -50), (0, -50)])
 
 p1 = (10, 10)
 p2 = (1000, 1000)
@@ -28,12 +34,17 @@ GLOB = {
     "c2": c2,
     "c3": c3,
     "c4": c4,
+    "c5": c5,
     "l1": l1,
     "l2": l2,
+    "l3": l3,
     "p1": p1,
     "p2": p2,
     "p3": p3,
     "p4": p4,
+    "poly1": poly1,
+    "poly2": poly2,
+    "poly3": poly3,
 }
 
 # === Tests ===
@@ -148,6 +159,22 @@ CS_collision_tests = [
     ("LINE non colliding", "c1.collideswith(l2)"),
 ]
 
+contains_tests = [
+    ("circle self", "c1.contains(c1)"),
+    ("circle contained", "c4.contains(c1)"),
+    ("circle not contained", "c4.contains(c3)"),
+    ("circle intersecting", "c1.contains(c2)"),
+    ("line contained", "c1.contains(l1)"),
+    ("line not contained", "c1.contains(l2)"),
+    ("line intersecting", "c1.contains(l3)"),
+    ("poly contained", "c5.contains(poly1)"),
+    ("poly not contained", "c5.contains(poly2)"),
+    ("poly intersecting", "c5.contains(poly3)"),
+    ("rect contained", "c1.contains(r1)"),
+    ("rect not contained", "c1.contains(r2)"),
+    ("rect intersecting", "c1.contains(r3)"),
+]
+
 # === Test Suites ===
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
@@ -164,6 +191,7 @@ GROUPS = [
     ("Collision: Circle-Point", CP_collision_tests),
     ("Collision: Circle-Line", CL_collision_tests),
     ("Collision: Circle-Shape", CS_collision_tests),
+    ("Contains", contains_tests),
 ]
 
 TestSuite("Geometry Module - Circle", GROUPS, GLOB).run_suite()
