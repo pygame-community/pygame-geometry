@@ -409,6 +409,27 @@ pg_line_colliderect(pgLineObject *self, PyObject *args)
 }
 
 static PyObject *
+pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
+{
+    pgLineBase other_line;
+
+    if (!pgLine_FromObjectFastcall(args, nargs, &other_line)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Line.is_perpendicular requires a Line or LineLike object");
+    }
+
+    double dx1 = self->line.x2 - self->line.x1;
+    double dy1 = self->line.y2 - self->line.y1;
+    double dx2 = other_line.x2 - other_line.x1;
+    double dy2 = other_line.y2 - other_line.y1;
+
+    double dot = dx1 * dx2 + dy1 * dy2;
+
+    return PyBool_FromLong(dot == 0);
+}
+
 pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double Dx = 0, Dy = 0;
@@ -471,6 +492,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"is_parallel", (PyCFunction)pg_line_is_parallel, METH_FASTCALL, NULL},
+    {"is_perpendicular", (PyCFunction)pg_line_is_perpendicular, METH_FASTCALL,
+     NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
