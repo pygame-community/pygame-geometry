@@ -430,6 +430,7 @@ pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
     return PyBool_FromLong(dot == 0);
 }
 
+static PyObject *
 pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double Dx = 0, Dy = 0;
