@@ -130,6 +130,11 @@ raycast_tests = [
     ("raycast", "l1.raycast(rand_lines)"),
 ]
 
+perpendicular_tests = [
+    ("perp.", "l1.is_perpendicular(l3)"),
+    ("not perp.", "l1.is_perpendicular(l4)"),
+]
+
 # === Test Suites ===
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
@@ -145,6 +150,7 @@ GROUPS = [
     # ("Collision: Line-Rect", LR_collision_tests),
     ("Collision: Line-Point", LP_collision_tests),
     ("Raycast", raycast_tests),
+    ("Perpendicular", perpendicular_tests),
 ]
 
 TestSuite("Geometry Module - Line", GROUPS, GLOB).run_suite()

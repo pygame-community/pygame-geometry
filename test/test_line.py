@@ -675,6 +675,61 @@ class LineTypeTest(unittest.TestCase):
             else:
                 self.assertEqual(l[0].slope, l[1])
 
+    def test_meth_perpendicular(self):
+        # prepare the lines
+        l = Line(0, 0, 1, 1)
+        l2 = Line(1, 0, 1, 0)
+        l3 = Line(-12, 0, 31, 1)
+        l4 = Line(3, 3, 6, 6)
+
+        # self perpendicular
+        self.assertFalse(l.is_perpendicular(l))
+        self.assertFalse(l.is_perpendicular((0, 0, 1, 1)))
+        self.assertFalse(l.is_perpendicular(((0, 0), (1, 1))))
+        self.assertFalse(l.is_perpendicular([0, 0, 1, 1]))
+        self.assertFalse(l.is_perpendicular([(0, 0), (1, 1)]))
+
+        # perpendicular
+        self.assertTrue(l.is_perpendicular(l2))
+        self.assertTrue(l.is_perpendicular((1, 0, 1, 0)))
+        self.assertTrue(l.is_perpendicular(((1, 0), (1, 0))))
+        self.assertTrue(l.is_perpendicular([1, 0, 1, 0]))
+        self.assertTrue(l.is_perpendicular([(1, 0), (1, 0)]))
+
+        # not perpendicular
+        self.assertFalse(l.is_perpendicular(l3))
+        self.assertFalse(l.is_perpendicular((-12, 0, 31, 1)))
+        self.assertFalse(l.is_perpendicular(((-12, 0), (31, 1))))
+        self.assertFalse(l.is_perpendicular([-12, 0, 31, 1]))
+        self.assertFalse(l.is_perpendicular([(-12, 0), (31, 1)]))
+
+        # parallel
+        self.assertFalse(l.is_perpendicular(l4))
+        self.assertFalse(l.is_perpendicular((3, 3, 6, 6)))
+        self.assertFalse(l.is_perpendicular(((3, 3), (6, 6))))
+        self.assertFalse(l.is_perpendicular([3, 3, 6, 6]))
+        self.assertFalse(l.is_perpendicular([(3, 3), (6, 6)]))
+
+    def test_meth_perpendicular_argtype(self):
+
+        l = Line(0, 0, 1, 1)
+        args = [
+            1,
+            1.1,
+            "string",
+            [1, 2, 3],
+            [1, "s", 3, 4],
+            (1, 2, 3),
+            (1, "s", 3, 4),
+            ((1, "s"), (3, 4)),
+            ((1, 4), (3, "4")),
+            {1: 2, 3: 4},
+            object(),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.is_perpendicular(value)
+
 
 if __name__ == "__main__":
     unittest.main()
