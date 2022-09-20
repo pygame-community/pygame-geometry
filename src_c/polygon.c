@@ -368,6 +368,99 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
 }
 
 static PyObject *
+pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
+{
+    pgCircleBase circle;
+    if (!pgCircle_FromObjectFastcall(args, nargs, &circle)) {
+        return RAISE(PyExc_TypeError, "A CircleType object was expected");
+    }
+    return PyBool_FromLong(
+        pgCollision_PolyPoly(&(self->polygon), &circle));
+}
+
+static PyObject *
+pg_polygon_collideline(pgPolygonObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
+{
+    pgLineBase line;
+    if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
+        return RAISE(PyExc_TypeError, "A CircleType object was expected");
+    }
+    return PyBool_FromLong(pgCollision_PolyLine(, &(self->polygon), &line));
+}
+
+static PyObject *
+pg_polygon_colliderect(pgPolygonObject *self, PyObject *const *args,
+                      Py_ssize_t nargs)
+{
+    SDL_Rect temp;
+
+    if (nargs == 1) {
+        SDL_Rect *tmp;
+        if (!(tmp = pgRect_FromObject(args[0], &temp))) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+        return PyBool_FromLong(pgCollision_RectCircle(tmp, &(self->circle)));
+    }
+    else if (nargs == 2) {
+        if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
+            !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else if (nargs == 4) {
+        if (!pg_IntFromObj(args[0], &temp.x) ||
+            !pg_IntFromObj(args[1], &temp.y) ||
+            !pg_IntFromObj(args[2], &temp.w) ||
+            !pg_IntFromObj(args[3], &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid arguments number, must be 1, 2 or 4");
+    }
+
+    return PyBool_FromLong(pgCollision_PolyRect(&(self->polygon), &temp));
+}
+
+static PyObject *
+pg_polygon_collideswith(pgPolygonObject *self, PyObject *arg)
+{
+    int result = 0;
+    if (pgPolygon_Check(arg)) {
+        result =
+            pgCollision_PolyPoly(self->polygon, &pgPolygon_AsPolygon(arg));
+    }
+    else if (pgCircle_Check(arg)) {
+        result =
+            pgCollision_PolyCircle(&self->polygon, &pgCircle_AsCircle(arg));
+    }
+    else if (pgRect_Check(arg)) {
+        result = pgCollision_PolyRect(&self->polygon, &pgRect_AsRect(arg));
+    }
+    /*
+    else if (PySequence_Check(arg)) {
+        double x, y;
+        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid arguments, must be a sequence of 2 numbers");
+        }
+        return PyBool_FromLong(
+            pgCollision_CirclePoint(&pgCircle_AsCircle(self), x, y));
+    }
+    */
+    return PyBool_FromLong(result);
+}
+
+static PyObject *
 pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double x = 0, y = 0;

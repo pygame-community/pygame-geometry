@@ -43,7 +43,6 @@ pgCollision_PolyRect(pgPolygonBase *poly, SDL_Rect *rect);
 static int
 pgCollision_PolyCircle(pgPolygonBase *poly, pgCircleBase *circle);
 static int
-
 pgIntersection_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2);
 static int
 pgIntersection_PolyLine(pgPolygonBase *polygon, pgLineBase *line);
