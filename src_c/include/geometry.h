@@ -1,3 +1,4 @@
+#include "C:\Users\Maqa\AppData\Local\Programs\Python\Python310\include\Python.h"
 
 #ifndef _GEOMETRY_H
 #define _GEOMETRY_H
