@@ -36,7 +36,7 @@ class Game:
         """
         for event in pg.event.get():
             if event.type == pg.QUIT or (
-                    event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
             ):
                 print("\nQuitting program...")
                 pg.quit()
