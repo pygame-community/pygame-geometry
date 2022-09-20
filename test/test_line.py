@@ -660,6 +660,21 @@ class LineTypeTest(unittest.TestCase):
         r[::-1] = r
         self.assertEqual(r, [14.14, 13.13, 12.12, 11.11])
 
+    def test_slope_getter(self):
+        lines = [
+            [Line(2, 2, 4, 4), 1, False],
+            [Line(4.6, 2.3, 1.6, 7.3), -5 / 3, True],
+            [Line(2, 0, 2, 1), 0, False],
+            [Line(0, 0, 0, 0), 0, False],
+            [Line(1.2, 3.2, 4.5, 3.2), 0, False],
+        ]
+
+        for l in lines:
+            if l[2]:
+                self.assertAlmostEqual(l[0].slope, l[1])
+            else:
+                self.assertEqual(l[0].slope, l[1])
+
 
 if __name__ == "__main__":
     unittest.main()
