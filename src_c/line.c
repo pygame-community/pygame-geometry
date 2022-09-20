@@ -231,6 +231,25 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
+pg_line_is_parallel(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    pgLineBase other_line;
+
+    if (!pgLine_FromObjectFastcall(args, nargs, &other_line)) {
+        return RAISE(PyExc_TypeError,
+                     "Line.is_parallel requires a line or LineLike object");
+    }
+
+    double dx1 = self->line.x2 - self->line.x1;
+    double dy1 = self->line.y2 - self->line.y1;
+    double dx2 = other_line.x2 - other_line.x1;
+    double dy2 = other_line.y2 - other_line.y1;
+
+    double cross = dx1 * dy2 - dy1 * dx2;
+    return PyBool_FromLong(cross == 0);
+}
+
+static PyObject *
 pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject **farr;
@@ -389,9 +408,93 @@ pg_line_colliderect(pgLineObject *self, PyObject *args)
     return PyBool_FromLong(pgCollision_RectLine(rect, &self->line));
 }
 
+static PyObject *
+pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
+{
+    pgLineBase other_line;
+
+    if (!pgLine_FromObjectFastcall(args, nargs, &other_line)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Line.is_perpendicular requires a Line or LineLike object");
+    }
+
+    double dx1 = self->line.x2 - self->line.x1;
+    double dy1 = self->line.y2 - self->line.y1;
+    double dx2 = other_line.x2 - other_line.x1;
+    double dy2 = other_line.y2 - other_line.y1;
+
+    double dot = dx1 * dx2 + dy1 * dy2;
+
+    return PyBool_FromLong(dot == 0);
+}
+
+static PyObject *
+pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double Dx = 0, Dy = 0;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &Dx) ||
+            !pg_DoubleFromObj(args[1], &Dy)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
+                                 self->line.y1 + Dy, self->line.x2 + Dx,
+                                 self->line.y2 + Dy);
+
+error:
+    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
+}
+
+static PyObject *
+pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    double Dx = 0, Dy = 0;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &Dx) ||
+            !pg_DoubleFromObj(args[1], &Dy)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    self->line.x1 += Dx;
+    self->line.y1 += Dy;
+    self->line.x2 += Dx;
+    self->line.y2 += Dy;
+
+    Py_RETURN_NONE;
+
+error:
+    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
+    {"is_parallel", (PyCFunction)pg_line_is_parallel, METH_FASTCALL, NULL},
+    {"is_perpendicular", (PyCFunction)pg_line_is_perpendicular, METH_FASTCALL,
+     NULL},
     {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
@@ -399,6 +502,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_VARARGS, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
+    {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
+    {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */

@@ -1,0 +1,16 @@
+name: MacOS latest
+
+on: [push, pull_request]
+
+jobs:
+  on_build_actions:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install package
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests    
+        run: python3 -m unittest

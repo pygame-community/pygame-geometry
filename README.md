@@ -1,31 +1,42 @@
-# `pygame.geometry` Python Prototype Project
-Hello! This project is a Python prototype for a pygame.geometry module. You will be able to use new Shape types like `Circle`, `Line`, and `Polygon` to enchance, simplify, and optimize your game code!
-This project adds new shapes along with new shape functionality. Each shape will have many methods for updating as well as methods for collision detection and shape conversion (shape->enclosing rect).
-This project will also focus on adding widely used functionalities in game engines such as Rays and RayCasting.
+# pygame_geometry
+[![Python Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml)
+[![C++ Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml)
+[![Ubuntu latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml)
+[![Windows latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml)
+[![MacOS latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml)
+![Commits per week](https://img.shields.io/github/commit-activity/w/novialriptide/pygame_geometry/main)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## Implementation
+pygame_geometry is a free Python implementation of
+polygons, circles, lines, and raycasting. The main
+purpose of this repository is to help users integrate
+special colliders easier for their video game. The plan
+for the project's future is to migrate all modules to
+the main [pygame repository](https://github.com/pygame/pygame).
 
-The `shapes` directory includes all the currently implemented shapes source(`.py`) files, including the shape.py file.
-The `src_c` directory includes all `.c` and `.h` files that constitute the geometry module.
-- `Line` (line segment)
-- `Circle`
-- `Polygon`
-- `raycast()`
+**Everything you see in this repository is subject to change as
+this project is heavily in development.** This decision is also
+subject to change when this project migrates to the
+[official pygame repository](https://github.com/pygame/pygame) or
+becomes a third-party library.
 
-## Examples
+If you have any ideas/concerns or need further explanations/help, please consider joining our `Discord GEOMETRY thread` [here](https://discord.com/channels/772505616680878080/1002836330482511943).
 
-The `examples` directory includes visual and functional examples to show the usage of new functionality.
-   
-## Tests
+## Installation
+### Download an experimental build
+```
+pip install git+https://github.com/novialriptide/pygame_geometry
+```
 
-The `tests` directory includes unittests that ensure the current implementations work as intended.
-   
-## Benchmarks
-
-The `benchmarks` directory includes runtime benchmarks for each shape. Benchmarks typically test basic shape functionalities, but can also test interactions between different functionalities.
+## Help
+The documentation is a work in progress, but you can check
+out the `examples` folder to learn how to use this library.
 
 ## Credits
+Thanks to [Emc2356](https://github.com/Emc2356) and
+[itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the
+majority of the `pygame.geometry` work.
 
-Thanks to [Emc2356](https://github.com/Emc2356) and [itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the majority of the `pygame.geometry` work.
-
-This project is under the supervision of [Starbuck5](https://github.com/Starbuck5) & [novialriptide](https://github.com/novialriptide).
+This project is under the supervision of
+[Starbuck5](https://github.com/Starbuck5)
+& [novialriptide](https://github.com/novialriptide).

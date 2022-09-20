@@ -299,6 +299,17 @@ class LineTypeTest(unittest.TestCase):
 
         self.assertIsNot(line, line_2)
 
+    def test_meth_parallel(self):
+        line1 = Line(0, 0, 10, 10)
+        line2 = Line(1, 1, 11, 11)
+        line3 = Line(1, 3, 11, 11)
+        line4 = Line(0, 0, 0, 2)
+
+        self.assertTrue(line1.is_parallel(line2))
+        self.assertFalse(line1.is_parallel(line3))
+        self.assertFalse(line1.is_parallel(line4))
+        self.assertTrue(line1.is_parallel(line1))
+
     def test_meth_raycast(self):
         lineA = Line(0, 0, 10, 10)
         lineB = Line(0, 0, -1, -1)
@@ -357,6 +368,50 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             A.colliderect(1, 5)
+
+    def test_meth_move(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        ret = line.move(1, 2)
+
+        self.assertEqual(ret.x1, 2.1)
+        self.assertEqual(ret.y1, 4.2)
+        self.assertEqual(ret.x2, 4.3)
+        self.assertEqual(ret.y2, 6.4)
+
+        with self.assertRaises(TypeError):
+            line.move()
+
+        with self.assertRaises(TypeError):
+            line.move(1)
+
+        with self.assertRaises(TypeError):
+            line.move(1, 2, 3)
+
+        with self.assertRaises(TypeError):
+            line.move("1", "2")
+
+    def test_meth_move_ip(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        line.move_ip(1, 2)
+
+        self.assertEqual(line.x1, 2.1)
+        self.assertEqual(line.y1, 4.2)
+        self.assertEqual(line.x2, 4.3)
+        self.assertEqual(line.y2, 6.4)
+
+        with self.assertRaises(TypeError):
+            line.move_ip()
+
+        with self.assertRaises(TypeError):
+            line.move_ip(1)
+
+        with self.assertRaises(TypeError):
+            line.move_ip(1, 2, 3)
+
+        with self.assertRaises(TypeError):
+            line.move_ip("1", "2")
 
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
@@ -604,6 +659,61 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(r, [11.11, 12.12, 13.13, 14.14])
         r[::-1] = r
         self.assertEqual(r, [14.14, 13.13, 12.12, 11.11])
+
+    def test_meth_perpendicular(self):
+        # prepare the lines
+        l = Line(0, 0, 1, 1)
+        l2 = Line(1, 0, 1, 0)
+        l3 = Line(-12, 0, 31, 1)
+        l4 = Line(3, 3, 6, 6)
+
+        # self perpendicular
+        self.assertFalse(l.is_perpendicular(l))
+        self.assertFalse(l.is_perpendicular((0, 0, 1, 1)))
+        self.assertFalse(l.is_perpendicular(((0, 0), (1, 1))))
+        self.assertFalse(l.is_perpendicular([0, 0, 1, 1]))
+        self.assertFalse(l.is_perpendicular([(0, 0), (1, 1)]))
+
+        # perpendicular
+        self.assertTrue(l.is_perpendicular(l2))
+        self.assertTrue(l.is_perpendicular((1, 0, 1, 0)))
+        self.assertTrue(l.is_perpendicular(((1, 0), (1, 0))))
+        self.assertTrue(l.is_perpendicular([1, 0, 1, 0]))
+        self.assertTrue(l.is_perpendicular([(1, 0), (1, 0)]))
+
+        # not perpendicular
+        self.assertFalse(l.is_perpendicular(l3))
+        self.assertFalse(l.is_perpendicular((-12, 0, 31, 1)))
+        self.assertFalse(l.is_perpendicular(((-12, 0), (31, 1))))
+        self.assertFalse(l.is_perpendicular([-12, 0, 31, 1]))
+        self.assertFalse(l.is_perpendicular([(-12, 0), (31, 1)]))
+
+        # parallel
+        self.assertFalse(l.is_perpendicular(l4))
+        self.assertFalse(l.is_perpendicular((3, 3, 6, 6)))
+        self.assertFalse(l.is_perpendicular(((3, 3), (6, 6))))
+        self.assertFalse(l.is_perpendicular([3, 3, 6, 6]))
+        self.assertFalse(l.is_perpendicular([(3, 3), (6, 6)]))
+
+    def test_meth_perpendicular_argtype(self):
+
+        l = Line(0, 0, 1, 1)
+        args = [
+            1,
+            1.1,
+            "string",
+            [1, 2, 3],
+            [1, "s", 3, 4],
+            (1, 2, 3),
+            (1, "s", 3, 4),
+            ((1, "s"), (3, 4)),
+            ((1, 4), (3, "4")),
+            {1: 2, 3: 4},
+            object(),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.is_perpendicular(value)
 
 
 if __name__ == "__main__":

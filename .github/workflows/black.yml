@@ -1,4 +1,4 @@
-name: Lint
+name: Python Code Quality
 
 on: [push, pull_request]
 

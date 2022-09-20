@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pygame
 
-from shapes.circle import Circle
+from geometry import Circle
 
 pygame.init()
 
@@ -51,14 +51,15 @@ while keep:
     screen.fill(BACKGROUND_COLOR)
     clock.tick_busy_loop(FPS)
 
-    pygame.draw.circle(screen, colorc(), *test_c())
+    pygame.draw.circle(screen, colorc(), test_c.center, test_c.r)
     pygame.draw.rect(screen, colorr(), test_r)
 
-    mouse_shape.move_to_ip(*pygame.mouse.get_pos())
+    mouse_shape.center = pygame.mouse.get_pos()
     pygame.draw.circle(
         screen,
         (198, 255, 130) if colliding_c or colliding_r else (89, 130, 255),
-        *mouse_shape()
+        mouse_shape.center,
+        mouse_shape.r,
     )
 
     if mouse_shape.colliderect(test_r):
@@ -75,7 +76,7 @@ while keep:
         acc_amt = 0
     else:
         acc_amt *= acc_multiplier
-        mouse_shape.scale_by_ip(1 + acc_amt)
+        mouse_shape.r *= 1 + acc_amt
 
     # event loop
     for event in pygame.event.get():
