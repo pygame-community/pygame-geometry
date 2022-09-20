@@ -21,7 +21,7 @@ set_polygon_center_coords(pgPolygonBase *polygon)
         sum_y += polygon->vertices[i * 2 + 1];
     }
     polygon->c_x = sum_x / polygon->verts_num;
-    polygon->c_y = sum_y / polygon->verts_mum;
+    polygon->c_y = sum_y / polygon->verts_num;
     return 1;
 }
 
@@ -376,7 +376,7 @@ pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "A CircleType object was expected");
     }
     return PyBool_FromLong(
-        pgCollision_PolyPoly(&(self->polygon), &circle));
+        pgCollision_PolyCircle(&(self->polygon), &circle));
 }
 
 static PyObject *
@@ -387,7 +387,7 @@ pg_polygon_collideline(pgPolygonObject *self, PyObject *const *args,
     if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
         return RAISE(PyExc_TypeError, "A CircleType object was expected");
     }
-    return PyBool_FromLong(pgCollision_PolyLine(, &(self->polygon), &line));
+    return PyBool_FromLong(pgCollision_PolyLine(&(self->polygon), &line));
 }
 
 static PyObject *
@@ -405,7 +405,7 @@ pg_polygon_colliderect(pgPolygonObject *self, PyObject *const *args,
                 return RAISE(PyExc_TypeError,
                              "Invalid rect, all 4 fields must be numeric");
         }
-        return PyBool_FromLong(pgCollision_RectCircle(tmp, &(self->circle)));
+        return PyBool_FromLong(pgCollision_PolyRect(&(self->polygon), tmp));
     }
     else if (nargs == 2) {
         if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
@@ -437,7 +437,7 @@ pg_polygon_collideswith(pgPolygonObject *self, PyObject *arg)
     int result = 0;
     if (pgPolygon_Check(arg)) {
         result =
-            pgCollision_PolyPoly(self->polygon, &pgPolygon_AsPolygon(arg));
+            pgCollision_PolyPoly(&self->polygon, &pgPolygon_AsPolygon(arg));
     }
     else if (pgCircle_Check(arg)) {
         result =
@@ -497,7 +497,7 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
     self->polygon.c_x += x;
     self->polygon.c_y += y;
 
-    return pgPolygon_New(self);
+    return pgPolygon_New(&(self->polygon));
 }
 
 static PyObject *
