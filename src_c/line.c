@@ -922,6 +922,15 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_line_getlength(pgLineObject *self)
+{
+    pgLineBase line;
+    pgLine_FromObject((PyObject*)self, &line);
+    double length = pgLine_Length(line);
+    return PyFloat_FromDouble(length);
+}
+
+static PyObject *
 pg_line_getsafepickle(pgLineObject *self, void *closure)
 {
     Py_RETURN_TRUE;
@@ -934,6 +943,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {"y2", (getter)pg_line_gety2, (setter)pg_line_sety2, NULL, NULL},
     {"a", (getter)pg_line_geta, (setter)pg_line_seta, NULL, NULL},
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
+    {"length", (getter)pg_line_getlength, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
