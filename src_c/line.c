@@ -799,8 +799,8 @@ pg_line_richcompare(PyObject *o1, PyObject *o2, int opid)
         goto Unimplemented;
     }
 
-    length1 = pgLine_Length(o1line);
-    length2 = pgLine_Length(o2line);
+    length1 = pgLine_Length(&o1line);
+    length2 = pgLine_Length(&o2line);
 
     switch (opid) {
         case Py_LT:
@@ -933,7 +933,7 @@ pg_line_getlength(pgLineObject *self)
         Py_DECREF(line_length);
         return NULL;
     }
-    double length = pgLine_Length(line);
+    double length = pgLine_Length(&line);
     line_length = PyFloat_FromDouble(length);
     return line_length;
 }
