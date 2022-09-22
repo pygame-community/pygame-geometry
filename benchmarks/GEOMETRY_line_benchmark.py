@@ -5,41 +5,6 @@ from benchmark_utils import TestSuite
 from geometry import Circle
 from geometry import Line
 
-
-def random_line():
-    def random_pos():
-        return random.randrange(0, 800), random.randrange(0, 800)
-
-    return Line(random_pos(), random_pos())
-
-
-l1 = Line(0, 0, 10, 10)
-l2 = Line(0, 10, 10, 0)
-l3 = Line(100, 100, 30, 22)
-l4 = Line(0, 0, 1, 1)
-
-rand_lines = [random_line() for _ in range(100)]
-
-c1 = Circle(5, 5, 10)
-c2 = Circle(20, 20, 5)
-c3 = Circle(0, 0, 150)
-
-r1 = Rect(3, 5, 10, 10)
-r2 = Rect(100, 100, 4, 4)
-r3 = Rect(-30, -30, 100, 100)
-
-GLOB = {
-    "Line": Line,
-    "l1": l1,
-    "l2": l2,
-    "l3": l3,
-    "l4": l4,
-    "c1": c1,
-    "c2": c2,
-    "c3": c3,
-    "rand_lines": rand_lines,
-}
-
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
 # The name is a string containing the name of the test
@@ -48,6 +13,33 @@ GLOB = {
 # calculated across REP runs
 # the formula is time = (time per CPT calls repeated REP times) / REP
 # ====================================================
+
+GLOB = {
+    "Line": Line,
+    "l1": Line(0, 0, 10, 10),
+    "l2": Line(0, 10, 10, 0),
+    "l3": Line(100, 100, 30, 22),
+    "l4": Line(0, 0, 1, 1),
+    "c1": Circle(5, 5, 10),
+    "c2": Circle(20, 20, 5),
+    "c3": Circle(0, 0, 150),
+    "r1": Rect(3, 5, 10, 10),
+    "r2": Rect(100, 100, 4, 4),
+    "r3": Rect(-30, -30, 100, 100),
+    "lines": [
+        Line((200, 74), (714, 474)),
+        Line((275, 203), (622, 172)),
+        Line((40, 517), (524, 662)),
+        Line((91, 604), (245, 113)),
+        Line((212, 165), (734, 386)),
+        Line((172, 55), (112, 166)),
+        Line((787, 130), (9, 453)),
+        Line((637, 5), (423, 768)),
+        Line((697, 658), (693, 410)),
+        Line((20, 105), (205, 406))
+    ],
+}
+
 creation_tests = [
     ("Line int", "Line(0, 0, 10, 10)"),
     ("Line float", "Line(0.0, 0.0, 10.0, 10.0)"),
@@ -62,25 +54,28 @@ conversion_tests = [
     # ("as_circle", "l1.as_circle()"),
 ]
 
-attributes_tests = [
-    ("x1 get", "l1.x1"),
-    ("x1 set int", "l1.x1 = 1"),
-    ("x1 set float", "l1.x1 = 1.0"),
-    ("y1 get", "l1.y1"),
-    ("y1 set int", "l1.y1 = 1"),
-    ("y1 set float", "l1.y1 = 1.0"),
-    ("x2 get", "l1.x2"),
-    ("x2 set int", "l1.x2 = 1"),
-    ("x2 set float", "l1.x2 = 1.0"),
-    ("y2 get", "l1.y2"),
-    ("y2 set int", "l1.y2 = 1"),
-    ("y2 set float", "l1.y2 = 1.0"),
-    ("a get", "l1.a"),
-    ("a set int", "l1.a = (1, 1)"),
-    ("a set float", "l1.a = (1.0, 1.0)"),
-    ("b get", "l1.b"),
-    ("b set int", "l1.b = (1, 1)"),
-    ("b set float", "l1.b = (1.0, 1.0)"),
+getters_tests = [
+    ("x1", "l1.x1"),
+    ("y1", "l1.y1"),
+    ("x2", "l1.x2"),
+    ("y2", "l1.y2"),
+    ("a", "l1.a"),
+    ("b", "l1.b"),
+]
+
+setters_tests = [
+    ("x1 int", "l1.x1 = 1"),
+    ("x1 float", "l1.x1 = 1.0"),
+    ("y1 int", "l1.y1 = 1"),
+    ("y1 float", "l1.y1 = 1.0"),
+    ("x2 int", "l1.x2 = 1"),
+    ("x2 float", "l1.x2 = 1.0"),
+    ("y2 int", "l1.y2 = 1"),
+    ("y2 float", "l1.y2 = 1.0"),
+    ("a int", "l1.a = (1, 1)"),
+    ("a float", "l1.a = (1.0, 1.0)"),
+    ("b int", "l1.b = (1, 1)"),
+    ("b float", "l1.b = (1.0, 1.0)"),
 ]
 
 update_tests = [
@@ -127,7 +122,7 @@ LP_collision_tests = [
 ]
 
 raycast_tests = [
-    ("raycast", "l1.raycast(rand_lines)"),
+    ("raycast", "l1.raycast(lines)"),
 ]
 
 perpendicular_tests = [
@@ -140,14 +135,15 @@ perpendicular_tests = [
 # If you want to remove or skip tests from a suite, just remove or comment them out
 GROUPS = [
     ("Creation", creation_tests),
-    ("Attributes", attributes_tests),
+    ("Attribute Getters", getters_tests),
+    ("Attribute Setters", setters_tests),
     ("Copy", copy_tests),
     ("Conversion", conversion_tests),
     ("Update", update_tests),
-    # ("Move", move_tests),
+    ("Move", move_tests),
     ("Collision: Line-Line", LL_collision_tests),
     ("Collision: Line-Circle", LC_collision_tests),
-    # ("Collision: Line-Rect", LR_collision_tests),
+    ("Collision: Line-Rect", LR_collision_tests),
     ("Collision: Line-Point", LP_collision_tests),
     ("Raycast", raycast_tests),
     ("Perpendicular", perpendicular_tests),

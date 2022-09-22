@@ -2,40 +2,6 @@ from pygame import Rect
 from benchmark_utils import TestSuite
 from geometry import Circle, Line
 
-r1 = Rect(0, 0, 10, 10)
-r2 = Rect(10, 10, 4, 4)
-r3 = Rect(0, 0, 100, 100)
-
-c1 = Circle(10, 10, 10)
-c2 = Circle(20, 5, 15)
-c3 = Circle(50, 50, 15)
-c4 = Circle(10, 10, 15)
-
-l1 = Line(0, 0, 10, 10)
-l2 = Line(0, 0, 10, -10)
-
-p1 = (10, 10)
-p2 = (1000, 1000)
-p3 = (10.0, 10.0)
-p4 = (1000.0, 1000.0)
-
-GLOB = {
-    "Circle": Circle,
-    "r1": r1,
-    "r2": r2,
-    "r3": r3,
-    "c1": c1,
-    "c2": c2,
-    "c3": c3,
-    "c4": c4,
-    "l1": l1,
-    "l2": l2,
-    "p1": p1,
-    "p2": p2,
-    "p3": p3,
-    "p4": p4,
-}
-
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
 # The name is a string containing the name of the test
@@ -44,6 +10,24 @@ GLOB = {
 # calculated across REP runs
 # the formula is time = (time per CPT calls repeated REP times) / REP
 # ====================================================
+
+GLOB = {
+    "Circle": Circle,
+    "r1": Rect(0, 0, 10, 10),
+    "r2": Rect(10, 10, 4, 4),
+    "r3": Rect(0, 0, 100, 100),
+    "c1": Circle(10, 10, 10),
+    "c2": Circle(20, 5, 15),
+    "c3": Circle(50, 50, 15),
+    "c4": Circle(10, 10, 15),
+    "l1": Line(0, 0, 10, 10),
+    "l2": Line(0, 0, 10, -10),
+    "p1": (10, 10),
+    "p2": (1000, 1000),
+    "p3": (10.0, 10.0),
+    "p4": (1000.0, 1000.0),
+}
+
 creation_tests = [
     ("Circle int", "Circle(0, 0, 5)"),
     ("Circle float", "Circle(0.0, 0.0, 5.0)"),
@@ -136,7 +120,6 @@ CL_collision_tests = [
     ("Non colliding 1 float", "c1.collideline((0.0, 0.0, 10.0, -10.0))"),
 ]
 
-
 CS_collision_tests = [
     ("RECT colliding", "c1.collideswith(r1)"),
     ("RECT non colliding", "c1.collideswith(r2)"),
@@ -151,6 +134,7 @@ CS_collision_tests = [
 # === Test Suites ===
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
+
 GROUPS = [
     ("Creation", creation_tests),
     ("Attribute Getters", getters_tests),
