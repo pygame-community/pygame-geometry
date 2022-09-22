@@ -34,20 +34,4 @@ pgCollision_RectLine(SDL_Rect *, pgLineBase *);
 static int
 pgCollision_RectCircle(SDL_Rect *, pgCircleBase *);
 
-static int
-pgCollision_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2);
-static int
-pgCollision_PolyLine(pgPolygonBase *polygon, pgLineBase *line);
-static int
-pgCollision_PolyRect(pgPolygonBase *poly, SDL_Rect *rect);
-static int
-pgCollision_PolyCircle(pgPolygonBase *poly, pgCircleBase *circle);
-static int
-pgIntersection_PolyPoly(pgPolygonBase *polygon_1, pgPolygonBase *polygon_2);
-static int
-pgIntersection_PolyLine(pgPolygonBase *polygon, pgLineBase *line);
-static int
-pgIntersection_PolyRect(pgPolygonBase *polygon, SDL_Rect *rect);
-static int
-pgIntersection_PolyCircle(pgPolygonBase *polygon, pgCircleBase *circle);
 #endif /* ~_PG_COLLISIONS_H */
