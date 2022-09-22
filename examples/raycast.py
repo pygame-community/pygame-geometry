@@ -9,7 +9,6 @@ screen = pygame.display.set_mode((800, 800))
 collisions_lines = []
 collisions_circles = []
 collisions_rects = []
-line = geometry.Line(1, 2, 3, 4)
 
 
 def generate_random_lines(amt):
@@ -19,6 +18,7 @@ def generate_random_lines(amt):
     for x in range(amt):
         line = geometry.Line(random_pos(), random_pos())
         collisions_lines.append(line)
+
 
 def generate_random_circles(amt):
     def random_pos(rad):
