@@ -6,7 +6,7 @@
 #include "simd_collisions_avx2.c"
 #endif /* ~__AVX2__ */
 
-#define PYGAMEAPI_GEOMETRY_NUMSLOTS 25
+#define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
 
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
@@ -97,25 +97,21 @@ MODINIT_DEFINE(geometry)
     c_api[3] = pgCollision_CircleCircle;
     c_api[4] = pgCollision_RectLine;
     c_api[5] = pgCollision_RectCircle;
-    c_api[6] = pgCollision_PolyPoly;
-    c_api[7] = pgCollision_PolyCircle;
-    c_api[8] = pgCollision_PolyRect;
-    c_api[9] = pgCollision_PolyLine;
-    c_api[10] = &pgLine_Type;
-    c_api[11] = pgLine_New;
-    c_api[12] = pgLine_New4;
-    c_api[13] = pgLine_FromObject;
-    c_api[14] = pgLine_FromObjectFastcall;
-    c_api[15] = pgLine_Length;
-    c_api[16] = pgLine_LengthSquared;
-    c_api[17] = &pgCircle_Type;
-    c_api[18] = pgCircle_New;
-    c_api[19] = pgCircle_New3;
-    c_api[20] = pgCircle_FromObject;
-    c_api[21] = &pgPolygon_Type;
-    c_api[22] = pgPolygon_New;
-    c_api[23] = pgPolygon_New2;
-    c_api[24] = pgPolygon_FromObject;
+    c_api[6] = &pgLine_Type;
+    c_api[7] = pgLine_New;
+    c_api[8] = pgLine_New4;
+    c_api[9] = pgLine_FromObject;
+    c_api[10] = pgLine_FromObjectFastcall;
+    c_api[11] = pgLine_Length;
+    c_api[12] = pgLine_LengthSquared;
+    c_api[13] = &pgCircle_Type;
+    c_api[14] = pgCircle_New;
+    c_api[15] = pgCircle_New3;
+    c_api[16] = pgCircle_FromObject;
+    c_api[17] = &pgPolygon_Type;
+    c_api[18] = pgPolygon_New;
+    c_api[19] = pgPolygon_New2;
+    c_api[20] = pgPolygon_FromObject;
 
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
