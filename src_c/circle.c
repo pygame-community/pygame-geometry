@@ -93,7 +93,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         }
         else if (length == 2) {
             if (!pg_TwoDoublesFromObj(f_arr[0], &(out->x), &(out->y)) ||
-                !_pg_circle_set_radius(f_arr[1], &(out->r))) {
+                !_pg_circle_set_radius(f_arr[1], out)) {
                 return 0;
             }
             return 1;
@@ -143,7 +143,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
             Py_DECREF(tmp);
 
             tmp = PySequence_ITEM(obj, 1);
-            if (!_pg_circle_set_radius(tmp, &(out->r))) {
+            if (!_pg_circle_set_radius(tmp, out)) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -202,6 +202,13 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
 {
     if (nargs == 1) {
         return pgCircle_FromObject(args[0], out);
+    }
+    else if (nargs == 2) {
+        if (!pg_TwoDoublesFromObj(args[0], &(out->x), &(out->y)) ||
+            !_pg_circle_set_radius(args[1], out)) {
+            return 0;
+        }
+        return 1;
     }
     else if (nargs == 3) {
         if (!pg_DoubleFromObj(args[0], &(out->x)) ||
