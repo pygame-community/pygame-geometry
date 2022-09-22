@@ -922,6 +922,18 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_line_getslope(pgLineObject *self, void *closure)
+{
+    double dem = self->line.x2 - self->line.x1;
+    if (dem == 0) {
+        return PyFloat_FromDouble(0);
+    }
+
+    double slope = (self->line.y2 - self->line.y1) / dem;
+    return PyFloat_FromDouble(slope);
+}
+
+static PyObject *
 pg_line_getsafepickle(pgLineObject *self, void *closure)
 {
     Py_RETURN_TRUE;
@@ -934,6 +946,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {"y2", (getter)pg_line_gety2, (setter)pg_line_sety2, NULL, NULL},
     {"a", (getter)pg_line_geta, (setter)pg_line_seta, NULL, NULL},
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
+    {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
