@@ -7,17 +7,20 @@
 #include <stddef.h>
 #include <math.h>
 
-static double
-pgLine_Length(pgLineBase line)
+static inline double
+pgLine_Length(pgLineBase *line)
 {
-    return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
-                (line.y2 - line.y1) * (line.y2 - line.y1));
+    double dx = line->x2 - line->x1;
+    double dy = line->y2 - line->y1;
+    return sqrt(dx * dx + dy * dy);
 }
-static double
-pgLine_LengthSquared(pgLineBase line)
+
+static inline double
+pgLine_LengthSquared(pgLineBase *line)
 {
-    return (line.x2 - line.x1) * (line.x2 - line.x1) +
-           (line.y2 - line.y1) * (line.y2 - line.y1);
+    double dx = line->x2 - line->x1;
+    double dy = line->y2 - line->y1;
+    return dx * dx + dy * dy;
 }
 
 static PyObject *
