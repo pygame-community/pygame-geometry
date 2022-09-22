@@ -925,17 +925,9 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-pg_line_getlength(pgLineObject *self)
+pg_line_getlength(pgLineObject *self, void *closure)
 {
-    pgLineBase line;
-    PyObject *line_length;
-    if (!pgLine_FromObject((PyObject*)self, &line)) {
-        Py_DECREF(line_length);
-        return NULL;
-    }
-    double length = pgLine_Length(&line);
-    line_length = PyFloat_FromDouble(length);
-    return line_length;
+    return PyFloat_FromDouble(pgLine_Length(&self->line));
 }
 
 static PyObject *
