@@ -259,6 +259,32 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del line.a
 
+    def test_attrib_b(self):
+        """a full test for the y1 attribute"""
+        expected_x1 = 10.0
+        expected_y1 = 2.0
+        expected_x2 = 5.0
+        expected_y2 = 6.0
+        expected_a = expected_x1, expected_y1
+        expected_b = expected_x2, expected_y2
+        line = Line(expected_a, (0, 1))
+
+        line.b = expected_b
+
+        self.assertEqual(line.a, expected_a)
+        self.assertEqual(line.b, expected_b)
+
+        line = Line(0, 0, 1, 0)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], 1):
+            with self.assertRaises(TypeError):
+                line.b = value
+
+        line = Line(0, 0, 1, 0)
+
+        with self.assertRaises(AttributeError):
+            del line.b
+
     def test_attrib_length(self):
         """a full test for the length attribute"""
         expected_length = 3.0
