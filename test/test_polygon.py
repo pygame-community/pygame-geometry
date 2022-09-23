@@ -2,6 +2,7 @@ import unittest
 
 from pygame import Vector2
 
+import geometry
 from geometry import Polygon
 
 import math
@@ -131,7 +132,7 @@ class PolygonTypeTest(unittest.TestCase):
         sides = 10
         angle = 20.6
 
-        polygon_pg = Polygon.normal_polygon(sides, center, radius, angle)
+        polygon_pg = geometry.regular_polygon(sides, center, radius, angle)
         vertices_pg = polygon_pg.vertices
 
         vertices = []
@@ -161,31 +162,31 @@ class PolygonTypeTest(unittest.TestCase):
 
         for invalid_type in invalid_types + [(1, 2)]:
             with self.assertRaises(TypeError):
-                Polygon.normal_polygon(invalid_type, (1, 2.2), 5.5, 1)
+                geometry.regular_polygon(invalid_type, (1, 2.2), 5.5, 1)
 
         for invalid_type in invalid_types:
             with self.assertRaises(TypeError):
-                Polygon.normal_polygon(5, invalid_type, 5.5, 1)
+                geometry.regular_polygon(5, invalid_type, 5.5, 1)
 
         for invalid_type in invalid_types + [(1, 2)]:
             with self.assertRaises(TypeError):
-                Polygon.normal_polygon(5, (1, 2.2), invalid_type, 1)
+                geometry.regular_polygon(5, (1, 2.2), invalid_type, 1)
 
         for invalid_type in invalid_types + [(1, 2)]:
             with self.assertRaises(TypeError):
-                Polygon.normal_polygon(5, (1, 2.2), 5.5, invalid_type)
+                geometry.regular_polygon(5, (1, 2.2), 5.5, invalid_type)
 
         with self.assertRaises(TypeError):
-            Polygon.normal_polygon(1, (1, 2.2), 5.5, 1, 5)
+            geometry.regular_polygon(1, (1, 2.2), 5.5, 1, 5)
 
         with self.assertRaises(TypeError):
-            Polygon.normal_polygon()
+            geometry.regular_polygon()
 
         with self.assertRaises(ValueError):
-            Polygon.normal_polygon(-1, center, radius, angle)
+            geometry.regular_polygon(-1, center, radius, angle)
 
         with self.assertRaises(ValueError):
-            Polygon.normal_polygon(2, center, radius, angle)
+            geometry.regular_polygon(2, center, radius, angle)
 
     def test_copy_return_type(self):
         """Checks whether the copy method returns a polygon"""

@@ -2,13 +2,17 @@
 #include "circle.c"
 #include "polygon.c"
 #include "collisions.c"
+#include "functions.c"
 #ifdef __AVX2__
 #include "simd_collisions_avx2.c"
 #endif /* ~__AVX2__ */
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
 
-static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
+static PyMethodDef _pg_module_methods[] = {
+    {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
+     NULL},
+    {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
 {

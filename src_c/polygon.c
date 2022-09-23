@@ -7,10 +7,6 @@
 #include <stddef.h>
 #include <math.h>
 
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif /* ~PI */
-
 static PyObject *
 pg_tuple_from_values_double(double val1, double val2)
 {
@@ -320,67 +316,6 @@ pg_polygon_dealloc(pgPolygonObject *self)
 }
 
 static PyObject *
-pg_polygon_normal_polygon(PyObject *_null, PyObject *const *args,
-                          Py_ssize_t nargs)
-{
-    int sides;
-    double radius;
-    double angle = 0;
-    double Cx, Cy;
-
-    if (nargs < 3 || nargs > 4) {
-        return RAISE(PyExc_TypeError,
-                     "invalid number of arguments, expected 3 or 4 arguments");
-    }
-    if (!PyLong_Check(args[0])) {
-        goto error;
-    }
-    sides = PyLong_AsLong(args[0]);
-    if (PyErr_Occurred()) {
-        return NULL;
-    }
-    if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy) ||
-        !pg_DoubleFromObj(args[2], &radius)) {
-        goto error;
-    }
-    if (nargs == 4) {
-        if (!pg_DoubleFromObj(args[3], &angle)) {
-            goto error;
-        }
-        angle *= PI / 180.0;
-    }
-
-    if (sides < 3) {
-        if (sides < 0) {
-            return RAISE(PyExc_ValueError,
-                         "the sides can not be a negative number");
-        }
-        return RAISE(PyExc_ValueError, "polygons need at least 3 sides");
-    }
-
-    double *vertices = PyMem_New(double, sides * 2);
-    if (!vertices) {
-        return RAISE(PyExc_MemoryError,
-                     "cannot allocate memory for the polygon vertices");
-    }
-
-    int loop;
-    double fac = PI * 2 / sides;
-    for (loop = 0; loop < sides; loop++) {
-        double ang = angle + fac * loop;
-        vertices[loop * 2] = Cx + radius * cos(ang);
-        vertices[loop * 2 + 1] = Cy + radius * sin(ang);
-    }
-
-    PyObject *ret = pgPolygon_New2(vertices, sides);
-    PyMem_Free(vertices);
-
-    return ret;
-error:
-    return RAISE(PyExc_TypeError, "mismatched argument types");
-}
-
-static PyObject *
 pg_polygon_repr(pgPolygonObject *self)
 {
     return PyUnicode_FromFormat("<Polygon(%S, %S)>",
@@ -407,8 +342,6 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
-    {"normal_polygon", (PyCFunction)pg_polygon_normal_polygon,
-     METH_STATIC | METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
