@@ -32,13 +32,31 @@ class CircleTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 c = Circle(0, 0, value)
 
+    def test2ndConstruction_invalid_type(self):
+        """Checks whether passing wrong types to the 2nd constructor
+        raises the appropriate errors
+        """
+        invalid_types = (None, [], "1", (1,), [1, 2, 3], Vector2(1, 1))
+
+        # Test x
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c = Circle((value, 0), 1)
+        # Test y
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c = Circle((0, value), 1)
+        # Test r
+        for value in invalid_types + (-1,):
+            with self.assertRaises(TypeError):
+                c = Circle((0, 0), value)
+
     def testConstruction_invalid_arguments_number(self):
         """Checks whether passing the wrong number of arguments to the constructor
         raises the appropriate errors
         """
         arguments = (
             (1,),  # one non vec3 non circle arg
-            (1, 1),  # two args
             (1, 1, 1, 1),  # four args
         )
 
