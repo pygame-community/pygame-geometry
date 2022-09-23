@@ -292,6 +292,16 @@ class LineTypeTest(unittest.TestCase):
 
         self.assertEqual(line.length, expected_length)
 
+        line.x1 = 2
+        expected_length = 2.0
+
+        self.assertEqual(line.length, expected_length)
+
+        line1 = Line(7, 3, 2, 3)
+        line2 = Line(9, 5, 4, 5)
+
+        self.assertEqual(line1.length, line2.length)
+
     def test_meth_copy(self):
         line = Line(1, 2, 3, 4)
         # check 1 arg passed
