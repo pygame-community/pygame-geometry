@@ -109,27 +109,22 @@ def build() -> None:
     update_times_file()
 
 
-def main() -> None:
-    if consume_arg("--format"):
-        cmd = ["clang-format", "-i"] + [
-            str(file) for file in Path("./src_c/").glob("**/*.[c|h]")
-        ]
-        print(shlex.join(cmd))
-        subprocess.call(cmd)
+if consume_arg("--format"):
+    cmd = ["clang-format", "-i"] + [
+        str(file) for file in Path("./src_c/").glob("**/*.[c|h]")
+    ]
+    print(shlex.join(cmd))
+    subprocess.call(cmd)
 
-        cmd = ["black", "."]
-        print(shlex.join(cmd))
-        subprocess.call(cmd)
+    cmd = ["black", "."]
+    print(shlex.join(cmd))
+    subprocess.call(cmd)
 
-    if consume_arg("--test"):
-        cmd = ["python", "-m", "unittest"] + [
-            str(file) for file in Path("./test/").glob("test_*.py")
-        ]
-        print(shlex.join(cmd))
-        subprocess.call(cmd)
+if consume_arg("--test"):
+    cmd = ["python", "-m", "unittest"] + [
+        str(file) for file in Path("./test/").glob("test_*.py")
+    ]
+    print(shlex.join(cmd))
+    subprocess.call(cmd)
 
-    build()
-
-
-if __name__ == "__main__":
-    main()
+build()
