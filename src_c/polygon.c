@@ -358,6 +358,71 @@ pg_polygon_get_vertices(pgPolygonObject *self, void *closure)
     return _pg_polygon_vertices_aslist(&self->polygon);
 }
 
+static int
+pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v) 
+{
+    pgPolygonBase *poly = &self->polygon;
+
+    if (i < 0) { 
+        i += poly->verts_num;
+    }
+
+    if (i < 0 || i > poly->verts_num) {
+        PyErr_SetString(PyExc_IndexError, "Invalid vertex Index");
+        return -1;
+    }
+
+    double v1, v2;
+    if (!pg_TwoDoublesFromObj(v, &v1, &v2)) {
+        PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
+        return -1;
+    }
+    poly->vertices[i*2] = v1;
+    poly->vertices[i*2 +1] = v2;
+    return 0;
+}
+
+static int
+pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
+{
+    if (PyIndex_Check(op)) {
+        PyObject *index;
+        Py_ssize_t i;
+
+        index = PyNumber_Index(op);
+        if (index == NULL) {
+            return -1;
+        }
+        i = PyNumber_AsSsize_t(index, NULL);
+        Py_DECREF(index);
+        return pg_polygon_ass_vertex(self, i, value);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
+        return -1;
+    }
+}
+
+static PyObject *
+pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
+{
+    PyObject *vertices = _pg_polygon_vertices_aslist(&self->polygon);
+    PyObject *index = PyNumber_Index(op);
+    Py_ssize_t i;
+
+    if (index == NULL) {
+        return NULL;
+    }
+    i = PyNumber_AsSsize_t(index, NULL);
+    Py_DECREF(index);
+    return PyList_GetItem(vertices, i); 
+}
+
+static PyMappingMethods pg_polygon_as_mapping = {
+    .mp_subscript = (binaryfunc)pg_polygon_subscript,
+    .mp_ass_subscript = (objobjargproc)pg_polygon_ass_subscript,
+};
+
 static PyGetSetDef pg_polygon_getsets[] = {
     {"verts_num", (getter)pg_polygon_get_verts_num, NULL,
      "Number of vertices of the polygon", NULL},
@@ -374,6 +439,7 @@ static PyTypeObject pgPolygon_Type = {
     .tp_dealloc = (destructor)pg_polygon_dealloc,
     .tp_repr = (reprfunc)pg_polygon_repr,
     .tp_str = (reprfunc)pg_polygon_str,
+    .tp_as_mapping = &pg_polygon_as_mapping,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = NULL,
     .tp_weaklistoffset = offsetof(pgPolygonObject, weakreflist),

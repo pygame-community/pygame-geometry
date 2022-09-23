@@ -87,6 +87,16 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
 
+    def test_subscript(self):
+        """Checks whether reassigning a vertex works correctly"""
+        po = Polygon([p1, p2, p3, p4])
+
+        po[0] = (70.0, 80.0)
+        self.assertEqual(po[0], (70.0, 80.0))
+
+        po[1] = [45.0, 38.0]
+        self.assertEqual(po[1], (45.0, 38.0))
+
     def test_construction_objwithpolygonattr(self):
         """Checks whether the constructor works correctly with an object with a polygon
         attribute"""
