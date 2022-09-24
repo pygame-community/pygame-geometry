@@ -188,4 +188,118 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     return result;
 }
 
+// these return PyObject * on success and NULL on failure.
+
+static PG_FORCE_INLINE PyObject *
+pg_TupleFromDoublePair(double val1, double val2)
+{
+    /*this is demonstrated to be faster than Py_BuildValue*/
+    PyObject *tuple = PyTuple_New(2);
+    if (!tuple)
+        return NULL;
+
+    PyObject *tmp = PyFloat_FromDouble(val1);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 0, tmp);
+
+    tmp = PyFloat_FromDouble(val2);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 1, tmp);
+
+    return tuple;
+}
+
+static PG_FORCE_INLINE PyObject *
+pg_TupleFromIntPair(int val1, int val2)
+{
+    /*this is demonstrated to be faster than Py_BuildValue*/
+    PyObject *tuple = PyTuple_New(2);
+    if (!tuple)
+        return NULL;
+
+    PyObject *tmp = PyLong_FromLong(val1);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 0, tmp);
+
+    tmp = PyLong_FromLong(val2);
+    if (!tmp) {
+        Py_DECREF(tuple);
+        return NULL;
+    }
+    PyTuple_SET_ITEM(tuple, 1, tmp);
+
+    return tuple;
+}
+
+static PG_FORCE_INLINE PyObject *
+pg_PointList_FromArrayDouble(double *array, int arr_length)
+{
+    /*Takes an even length double array [1, 2, 3, 4, 5, 6, 7, 8] and returns
+     * a list of points:
+     * C_arr[1, 2, 3, 4, 5, 6, 7, 8] -> List((1, 2), (3, 4), (5, 6), (7, 8))*/
+
+    if (arr_length % 2) {
+        return RAISE(PyExc_ValueError, "array length must be even");
+    }
+
+    int num_points = arr_length / 2;
+    PyObject *sequence = PyList_New(num_points);
+    if (!sequence) {
+        return NULL;
+    }
+
+    int i;
+    PyObject *point = NULL;
+    for (i = 0; i < num_points; i++) {
+        point = pg_TupleFromDoublePair(array[i * 2], array[i * 2 + 1]);
+        if (!point) {
+            Py_DECREF(sequence);
+            return NULL;
+        }
+        PyList_SET_ITEM(sequence, i, point);
+    }
+
+    return sequence;
+}
+
+static PG_FORCE_INLINE PyObject *
+pg_PointTuple_FromArrayDouble(double *array, int arr_length)
+{
+    /*Takes an even length double array [1, 2, 3, 4, 5, 6, 7, 8] and returns
+     * a tuple of points:
+     * C_arr[1, 2, 3, 4, 5, 6, 7, 8] -> Tuple((1, 2), (3, 4), (5, 6), (7, 8))*/
+
+    if (arr_length % 2) {
+        return RAISE(PyExc_ValueError, "array length must be even");
+    }
+
+    int num_points = arr_length / 2;
+    PyObject *sequence = PyTuple_New(num_points);
+    if (!sequence) {
+        return NULL;
+    }
+
+    int i;
+    PyObject *point = NULL;
+    for (i = 0; i < num_points; i++) {
+        point = pg_TupleFromDoublePair(array[i * 2], array[i * 2 + 1]);
+        if (!point) {
+            Py_DECREF(sequence);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(sequence, i, point);
+    }
+
+    return sequence;
+}
+
 #endif /* ~_BASE_H */
