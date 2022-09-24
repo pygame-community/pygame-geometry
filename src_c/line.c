@@ -7,17 +7,20 @@
 #include <stddef.h>
 #include <math.h>
 
-static double
-pgLine_Length(pgLineBase line)
+static inline double
+pgLine_Length(pgLineBase *line)
 {
-    return sqrt((line.x2 - line.x1) * (line.x2 - line.x1) +
-                (line.y2 - line.y1) * (line.y2 - line.y1));
+    double dx = line->x2 - line->x1;
+    double dy = line->y2 - line->y1;
+    return sqrt(dx * dx + dy * dy);
 }
-static double
-pgLine_LengthSquared(pgLineBase line)
+
+static inline double
+pgLine_LengthSquared(pgLineBase *line)
 {
-    return (line.x2 - line.x1) * (line.x2 - line.x1) +
-           (line.y2 - line.y1) * (line.y2 - line.y1);
+    double dx = line->x2 - line->x1;
+    double dy = line->y2 - line->y1;
+    return dx * dx + dy * dy;
 }
 
 static PyObject *
@@ -796,8 +799,8 @@ pg_line_richcompare(PyObject *o1, PyObject *o2, int opid)
         goto Unimplemented;
     }
 
-    length1 = pgLine_Length(o1line);
-    length2 = pgLine_Length(o2line);
+    length1 = pgLine_Length(&o1line);
+    length2 = pgLine_Length(&o2line);
 
     switch (opid) {
         case Py_LT:
@@ -922,6 +925,11 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_line_getlength(pgLineObject *self, void *closure)
+{
+    return PyFloat_FromDouble(pgLine_Length(&self->line));
+}
+static PyObject *
 pg_line_getslope(pgLineObject *self, void *closure)
 {
     double dem = self->line.x2 - self->line.x1;
@@ -946,6 +954,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {"y2", (getter)pg_line_gety2, (setter)pg_line_sety2, NULL, NULL},
     {"a", (getter)pg_line_geta, (setter)pg_line_seta, NULL, NULL},
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
+    {"length", (getter)pg_line_getlength, NULL, NULL, NULL},
     {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},

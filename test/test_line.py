@@ -285,6 +285,64 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del line.b
 
+    def test_attrib_length(self):
+        """a full test for the length attribute"""
+        expected_length = 3.0
+        line = Line(1, 4, 4, 4)
+        self.assertEqual(line.length, expected_length)
+
+        line.x1 = 2
+        expected_length = 2.0
+        self.assertEqual(line.length, expected_length)
+
+        line.x1 = 2.7
+        expected_length = 1.2999999999999998
+        self.assertEqual(line.length, expected_length)
+
+        line.y1 = 2
+        expected_length = 2.3853720883753127
+        self.assertEqual(line.length, expected_length)
+
+        line.y1 = 2.7
+        expected_length = 1.8384776310850233
+        self.assertEqual(line.length, expected_length)
+
+        line.x2 = 2
+        expected_length = 1.4764823060233399
+        self.assertEqual(line.length, expected_length)
+
+        line.x2 = 2.7
+        expected_length = 1.2999999999999998
+        self.assertEqual(line.length, expected_length)
+
+        line.y2 = 2
+        expected_length = 0.7000000000000002
+        self.assertEqual(line.length, expected_length)
+
+        line.y2 = 2.7
+        expected_length = 0.0
+        self.assertEqual(line.length, expected_length)
+
+        line1 = Line(7, 3, 2, 3)
+        line2 = Line(9, 5, 4, 5)
+        self.assertEqual(line1.length, line2.length)
+
+        line = Line(7.6, 3.2, 2.1, 3.8)
+        expected_length = 5.532630477449222
+        self.assertEqual(line.length, expected_length)
+
+        line = Line(-9.8, -5.2, -4.4, -5.6)
+        expected_length = 5.414794548272353
+        self.assertEqual(line.length, expected_length)
+
+        line = Line(0, 0, 0, 0)
+        expected_length = 0
+        self.assertEqual(line.length, expected_length)
+
+        line = Line(3.2, 3.2, 3.2, 3.2)
+        expected_length = 0
+        self.assertEqual(line.length, expected_length)
+
     def test_meth_copy(self):
         line = Line(1, 2, 3, 4)
         # check 1 arg passed
