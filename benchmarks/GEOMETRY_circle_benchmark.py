@@ -77,13 +77,19 @@ update_tests = [
     ("update 3 float", "c1.update(1.0, 1.0, 3.0)"),
     ("update 1 tup int", "c1.update((1, 1, 3))"),
     ("update 1 tup float", "c1.update((1.0, 1.0, 3.0))"),
+    ("update 2 tup int", "c1.update((1, 1), 3)"),
+    ("update 2 tup float", "c1.update((1.0, 1.0), 3.0)"),
 ]
 
 move_tests = [
     ("move int", "c1.move(1, 1)"),
     ("move float", "c1.move(1.0, 1.0)"),
+    ("move tup int", "c1.move((1, 1))"),
+    ("move tup float", "c1.move((1.0, 1.0))"),
     ("move_ip int", "c1.move_ip(1, 1)"),
     ("move_ip float", "c1.move_ip(1.0, 1.0)"),
+    ("move_ip tup int", "c1.move_ip((1, 1))"),
+    ("move_ip tup float", "c1.move_ip((1.0, 1.0))"),
 ]
 
 CC_collision_tests = [
@@ -91,6 +97,14 @@ CC_collision_tests = [
     ("Non colliding", "c1.collidecircle(c3)"),
     ("A inside B", "c1.collidecircle(c4)"),
     ("B inside A", "c4.collidecircle(c1)"),
+    ("Colliding tup", "c1.collidecircle((20, 5, 15))"),
+    ("Non colliding tup", "c1.collidecircle((50, 50, 15))"),
+    ("A inside B tup", "c1.collidecircle((10, 10, 15))"),
+    ("B inside A tup", "c4.collidecircle((10, 10, 10))"),
+    ("Colliding tup 2", "c1.collidecircle(((20, 5), 15))"),
+    ("Non colliding tup 2", "c1.collidecircle(((50, 50), 15))"),
+    ("A inside B tup 2", "c1.collidecircle(((10, 10), 15))"),
+    ("B inside A tup 2", "c4.collidecircle(((10, 10), 10))"),
 ]
 
 CR_collision_tests = [
@@ -109,6 +123,10 @@ CP_collision_tests = [
     ("Non colliding 2 int", "c1.collidepoint(1000, 1000)"),
     ("Colliding 2 float", "c1.collidepoint(10.0, 10.0)"),
     ("Non colliding 2 float", "c1.collidepoint(1000.0, 1000.0)"),
+    ("Colliding 3 int", "c1.collidepoint((10, 10))"),
+    ("Non colliding 3 int", "c1.collidepoint((1000, 1000))"),
+    ("Colliding 3 float", "c1.collidepoint((10.0, 10.0))"),
+    ("Non colliding 3 float", "c1.collidepoint((1000.0, 1000.0))"),
 ]
 
 CL_collision_tests = [
@@ -118,6 +136,10 @@ CL_collision_tests = [
     ("Non colliding 1 int", "c1.collideline((0, 0, 10, -10))"),
     ("Colliding 1 float", "c1.collideline((0.0, 0.0, 10.0, 10.0))"),
     ("Non colliding 1 float", "c1.collideline((0.0, 0.0, 10.0, -10.0))"),
+    ("Colliding 2 int", "c1.collideline((0, 0), (10, 10))"),
+    ("Non colliding 2 int", "c1.collideline((0, 0), (10, -10))"),
+    ("Colliding 2 float", "c1.collideline((0.0, 0.0), (10.0, 10.0))"),
+    ("Non colliding 2 float", "c1.collideline((0.0, 0.0), (10.0, -10.0))"),
 ]
 
 CS_collision_tests = [
