@@ -8,7 +8,7 @@ p1 = (12.0, 12.0)
 p2 = (32.0, 43.0)
 p3 = (22.0, 4.0)
 p4 = (332.0, 64.0)
-_some_vertices = [[10.0, 10.0], [20.0, 20.0], [30.0, 10.0]]
+_some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
 class PolygonTypeTest(unittest.TestCase):
@@ -134,10 +134,14 @@ class PolygonTypeTest(unittest.TestCase):
     def test_copy(self):
         """Checks whether the copy method works correctly."""
         po = Polygon([p1, p2, p3, p4])
+        po_center_x = po.c_x
+        po_center_y = po.c_y
         po_2 = po.copy()
 
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
+        self.assertEqual(po_2.c_x, po_center_x)
+        self.assertEqual(po_2.c_y, po_center_y)
 
     def test_center_x(self):
         """Makes sure changing center x component does change the positions of vertices properly."""
@@ -145,10 +149,12 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(vertices)
         poly_c_x = poly.c_x
         poly.c_x = 100.0
+
+        vertices = [list(vertex) for vertex in vertices]
         for vertex in vertices:
             vertex[0] += 100.0 - poly_c_x
-
         vertices = [tuple(vertex) for vertex in vertices]
+
         self.assertEqual(poly.vertices, vertices)
 
     def test_center_x__invalid_value(self):
@@ -170,6 +176,8 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(vertices)
         poly_c_y = poly.c_y
         poly.c_y = 100.0
+
+        vertices = [list(vertex) for vertex in vertices]
         for vertex in vertices:
             vertex[1] += 100.0 - poly_c_y
 
@@ -195,6 +203,8 @@ class PolygonTypeTest(unittest.TestCase):
         poly_center = poly.center
         poly.center = (200.0, 200.0)
         vertices = _some_vertices.copy()
+
+        vertices = [list(vertex) for vertex in vertices]
         for vertex in vertices:
             vertex[0] += 200.0 - poly_center[0]
             vertex[1] += 200.0 - poly_center[1]
@@ -203,6 +213,10 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.vertices, vertices)
         self.assertEqual(poly.c_x, 200.0)
         self.assertEqual(poly.c_y, 200.0)
+
+        pre_poly_vertices = poly.vertices
+        poly.center = poly.center
+        self.assertEqual(poly.vertices, pre_poly_vertices)
 
     def test_center__invalid_value(self):
         """Ensures the function can handle the polygon center component by invalid data types."""
@@ -226,14 +240,17 @@ class PolygonTypeTest(unittest.TestCase):
         new_poly = poly.move(10.0, 10.0)
         vertices = _some_vertices.copy()
 
+        vertices = [list(vertex) for vertex in vertices]
         for vertex in vertices:
             vertex[0] += 10.0
             vertex[1] += 10.0
-
         vertices = [tuple(vertex) for vertex in vertices]
+
         self.assertEqual(vertices, new_poly.vertices)
-        self.assertEqual(new_poly.c_x, center_x + 10.0)
-        self.assertEqual(new_poly.c_y, center_y + 10.0)
+        self.assertNotEqual(poly.vertices, new_poly.vertices)
+        self.assertEqual(poly.vertices, _some_vertices)
+        self.assertAlmostEqual(new_poly.c_x, center_x + 10.0)
+        self.assertAlmostEqual(new_poly.c_y, center_y + 10.0)
 
     def test_move_inplace(self):
         """Checks whether polygon moved by (0, 0) and is the returned polygon identical."""
@@ -278,11 +295,12 @@ class PolygonTypeTest(unittest.TestCase):
         center_y = poly.c_y
 
         poly.move_ip(10.0, 10.0)
+        vertices = [list(vertex) for vertex in vertices]
         for vertex in vertices:
             vertex[0] += 10.0
             vertex[1] += 10.0
-
         vertices = [tuple(vertex) for vertex in vertices]
+
         self.assertEqual(poly.vertices, vertices)
         self.assertEqual(poly.c_x, center_x + 10.0)
         self.assertEqual(poly.c_y, center_y + 10.0)
