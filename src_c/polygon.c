@@ -392,7 +392,7 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
         arg = PySequence_Tuple(arg);
         Py_ssize_t i;
         for (i = 0; i < poly->verts_num; i++) {
-            PyObject *tup = pg_tuple_from_values_double(
+            PyObject *tup = pg_TupleFromDoublePair(
                 poly->vertices[i * 2], poly->vertices[i * 2 + 1]);
 
             double x1, y1, x2, y2;
