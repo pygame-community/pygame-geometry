@@ -42,75 +42,17 @@ _pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
 }
 
 static PyObject *
-pg_tuple_from_values_double(double val1, double val2)
-{
-    PyObject *tup = PyTuple_New(2);
-    if (!tup) {
-        return NULL;
-    }
-
-    PyObject *tmp = PyFloat_FromDouble(val1);
-    if (!tmp) {
-        Py_DECREF(tup);
-        return NULL;
-    }
-    PyTuple_SET_ITEM(tup, 0, tmp);
-
-    tmp = PyFloat_FromDouble(val2);
-    if (!tmp) {
-        Py_DECREF(tup);
-        return NULL;
-    }
-    PyTuple_SET_ITEM(tup, 1, tmp);
-
-    return tup;
-}
-
-static PyObject *
 _pg_polygon_vertices_aslist(pgPolygonBase *poly)
 {
-    PyObject *list = PyList_New(poly->verts_num);
-    if (!list) {
-        return NULL;
-    }
-    Py_ssize_t i;
-    size_t i2;
-
-    for (i = 0; i < poly->verts_num; i++) {
-        i2 = i * 2;
-        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i2],
-                                                    poly->vertices[i2 + 1]);
-        if (!tup) {
-            Py_DECREF(list);
-            return NULL;
-        }
-        PyList_SET_ITEM(list, i, tup);
-        tup = NULL;
-    }
-    return list;
+    return pg_PointList_FromArrayDouble(poly->vertices,
+                                        (int)poly->verts_num * 2);
 }
 
 static PyObject *
 _pg_polygon_vertices_astuple(pgPolygonBase *poly)
 {
-    PyObject *vertices = PyTuple_New(poly->verts_num);
-    if (!vertices) {
-        return NULL;
-    }
-    Py_ssize_t i;
-    size_t i2;
-    
-    for (i = 0; i < poly->verts_num; i++) {
-        i2 = i * 2;
-        PyObject *tup = pg_tuple_from_values_double(poly->vertices[i2],
-                                                    poly->vertices[i2 + 1]);
-        if (!tup) {
-            Py_DECREF(vertices);
-            return NULL;
-        }
-        PyTuple_SET_ITEM(vertices, i, tup);
-    }
-    return vertices;
+    return pg_PointTuple_FromArrayDouble(poly->vertices,
+                                         (int)poly->verts_num * 2);
 }
 
 static int

@@ -20,8 +20,6 @@ subject to change when this project migrates to the
 [official pygame repository](https://github.com/pygame/pygame) or
 becomes a third-party library.
 
-If you have any ideas/concerns or need further explanations/help, please consider joining our `Discord GEOMETRY thread` [here](https://discord.com/channels/772505616680878080/1002836330482511943).
-
 ## Installation
 ### Download an experimental build
 ```
@@ -31,6 +29,8 @@ pip install git+https://github.com/novialriptide/pygame_geometry
 ## Help
 The documentation is a work in progress, but you can check
 out the `examples` folder to learn how to use this library.
+
+Talk to us on [Discord](https://discord.gg/QzmpNXchW5)!
 
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and
