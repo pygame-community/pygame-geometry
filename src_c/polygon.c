@@ -10,13 +10,15 @@
 static PyObject *
 _pg_polygon_vertices_aslist(pgPolygonBase *poly)
 {
-    return pg_PointList_FromArrayDouble(poly->vertices, poly->verts_num * 2);
+    return pg_PointList_FromArrayDouble(poly->vertices,
+                                        (int)poly->verts_num * 2);
 }
 
 static PyObject *
 _pg_polygon_vertices_astuple(pgPolygonBase *poly)
 {
-    return pg_PointTuple_FromArrayDouble(poly->vertices, poly->verts_num * 2);
+    return pg_PointTuple_FromArrayDouble(poly->vertices,
+                                         (int)poly->verts_num * 2);
 }
 
 static int
