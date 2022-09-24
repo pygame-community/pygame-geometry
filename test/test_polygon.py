@@ -1,4 +1,3 @@
-from tkinter import CENTER
 import unittest
 
 from pygame import Vector2, Vector3
