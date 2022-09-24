@@ -132,6 +132,7 @@ _pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
 
     PyObject *item = PySequence_ITEM(obj, index);
     if (!item) {
+        PyErr_Clear();
         return 0;
     }
     result = pg_DoubleFromObj(item, val);
@@ -178,14 +179,15 @@ pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
             return 0;
         }
     }
-    else if (PySequence_Check(obj)) {
+    else if (PySequence_Check(obj) && !PyUnicode_Check(obj)) {
         length = PySequence_Length(obj);
         if (length == 2) {
-            if (!_pg_DoubleFromObjIndex(obj, 0, val1))
+            if (!_pg_DoubleFromObjIndex(obj, 0, val1)) {
                 return 0;
-
-            if (!_pg_DoubleFromObjIndex(obj, 1, val2))
+            }
+            if (!_pg_DoubleFromObjIndex(obj, 1, val2)) {
                 return 0;
+            }
         }
         else if (length == 1) {
             /* Handle case of ((x, y), ) 'nested sequence' */
