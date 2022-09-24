@@ -83,15 +83,19 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
 static int
 pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
 {
-    double Ax = line->x1;
-    double Ay = line->y1;
-    double Bx = line->x2;
-    double By = line->y2;
+    double dx = line->x1 - Cx;
+    double dy = line->y1 - Cy;
+    double dx2 = line->x2 - Cx;
+    double dy2 = line->y2 - Cy;
+    double dx3 = line->x1 - line->x2;
+    double dy3 = line->y1 - line->y2;
 
-    /* https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection */
-    return (Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) &&
-           ((Ax != Bx) ? (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax)
-                       : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay));
+    double d1 = sqrt((dx * dx) + (dy * dy));
+    double d2 = sqrt((dx2 * dx2) + (dy2 * dy2));
+    double d3 = sqrt((dx3 * dx3) + (dy3 * dy3));
+
+    double width = 0.1;   
+    return d1+d2 >= d3-width && d1+d2 <= d3+width;
 }
 
 static int

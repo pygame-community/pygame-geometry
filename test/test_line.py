@@ -478,7 +478,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertTrue(A.collidepoint(0.5, 0.5))
         self.assertTrue(A.collidepoint(1, 1))
         self.assertFalse(A.collidepoint(-1, -1))
-        self.assertFalse(A.collidepoint(0.5, 0.6))
+        self.assertTrue(A.collidepoint(0.5, 0.6))
         self.assertFalse(A.collidepoint(100, 5))
 
         with self.assertRaises(TypeError):
