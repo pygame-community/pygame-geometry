@@ -319,21 +319,20 @@ pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
         return -1;
     }
 
-    double v1, v2;
-    if (!pg_TwoDoublesFromObj(v, &v1, &v2)) {
+    double Vx, Vy;
+    if (!pg_TwoDoublesFromObj(v, &Vx, &Vy)) {
         PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
         return -1;
     }
-    poly->vertices[i * 2] = v1;
-    poly->vertices[i * 2 + 1] = v2;
+    poly->vertices[i * 2] = Vx;
+    poly->vertices[i * 2 + 1] = Vy;
     return 0;
 }
 
 static Py_ssize_t
 pg_polygon_seq_length(pgPolygonObject *self)
 {
-    pgPolygonBase *poly = &self->polygon;
-    return poly->verts_num;
+    return pgPolygon_GETVERTSNUM(self);
 }
 
 static int
@@ -360,7 +359,6 @@ pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
 static PyObject *
 pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
 {
-    PyObject *vertices = _pg_polygon_vertices_aslist(&self->polygon);
     PyObject *index = PyNumber_Index(op);
     Py_ssize_t i;
 
@@ -380,42 +378,63 @@ pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
         return RAISE(PyExc_IndexError, "Invalid vertex Index");
     }
 
-    return PyList_GetItem(vertices, i);
+    return pg_TupleFromDoublePair(poly->vertices[i * 2], poly->vertices[i * 2 + 1]);
 }
 
 static int
 pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
 {
-    pgPolygonBase *poly = &self->polygon;
-
-    if (PyTuple_Check(arg) || PyList_Check(arg)) {
-        arg = PySequence_Tuple(arg);
-        Py_ssize_t i;
-        for (i = 0; i < poly->verts_num; i++) {
-            PyObject *tup = pg_TupleFromDoublePair(
-                poly->vertices[i * 2], poly->vertices[i * 2 + 1]);
-
-            double x1, y1, x2, y2;
-            if (!pg_DoubleFromObj(PyTuple_GetItem(tup, 0), &x1) ||
-                !pg_DoubleFromObj(PyTuple_GetItem(tup, 1), &y1) ||
-                !pg_DoubleFromObj(PyTuple_GetItem(arg, 0), &x2) ||
-                !pg_DoubleFromObj(PyTuple_GetItem(arg, 1), &y2)) {
-                PyErr_SetString(PyExc_TypeError,
-                                "Elements may only contain numbers");
+    double x, y;
+    if (PySequence_FAST_CHECK(arg)) {
+        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+            PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+            return -1;
+        }
+        else if (PySequence_Check(arg)) {
+            if (PySequence_Size(arg) < 2) {
+                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
                 return -1;
             }
-            Py_DECREF(tup);
+            PyObject *tmp = PySequence_GetItem(arg, 0);
+            if (!tmp) {
+                return -1;
+            }
+            
+            if (!pg_DoubleFromObj(tmp, &x)) {
+                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+                return -1;
+            }
+            Py_DECREF(tmp);
 
-            if (x1 == x2 && y1 == y2) {
+            tmp = PySequence_GetItem(arg, 1);
+            if (!tmp) {
+                return NULL;
+            }
+            
+            if (!pg_DoubleFromObj(tmp, &y)) {
+                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+                return -1;
+            }
+            Py_DECREF(tmp);
+        }
+        else {
+            PyErr_SetString(PyExc_TypeError, "Expected a tuple");
+            return -1;
+        }
+
+        pgPolygonBase *poly = &self->polygon;
+        Py_ssize_t i;
+        for (i = 0; i < poly->verts_num; i+=2) {
+            if (poly->vertices[i] == x && poly->vertices[i+1] == y) {
                 return 1;
             }
         }
-        return 0;
     }
     else {
         PyErr_SetString(PyExc_TypeError, "Expected a tuple");
         return -1;
     }
+    return 0;
 }
 
 static PyMappingMethods pg_polygon_as_mapping = {
