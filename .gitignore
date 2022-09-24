@@ -129,14 +129,3 @@ dmypy.json
 .pyre/
 .vscode/settings.json
 .vscode/c_cpp_properties.json
-.vs/VSWorkspaceState.json
-.vs/slnx.sqlite
-.vs/ProjectSettings.json
-.vs/newpygamestuff/v17/ipch/AutoPCH/3cc4178b25cf09d/GEOMETRY.ipch
-.vs/newpygamestuff/v17/Browse.VC.opendb
-.vs/newpygamestuff/v17/Browse.VC.db-wal
-*.db-shm
-.vs/newpygamestuff/v17/Browse.VC.db
-.vs/newpygamestuff/v17/.suo
-.vs/newpygamestuff/FileContentIndex/read.lock
-*.vsidx
