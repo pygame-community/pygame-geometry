@@ -404,6 +404,8 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
                                 "Elements may only contain numbers");
                 return -1;
             }
+            Py_DECREF(tup);
+
             if (x1 == x2 && y1 == y2) {
                 return 1;
             }
