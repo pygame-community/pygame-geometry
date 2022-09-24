@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#define PI 3.14159265358979323846264
+
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
 static inline double
@@ -917,10 +919,18 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_line_getangle(pgLineObject *self, void *closure)
+{
+    double m = ((self->line.y2 - self->line.y1) / (self->line.x2 - self->line.x1));
+    return PyFloat_FromDouble(-(atan(m) * 180/PI));
+}
+
+static PyObject *
 pg_line_getlength(pgLineObject *self, void *closure)
 {
     return PyFloat_FromDouble(pgLine_Length(&self->line));
 }
+
 static PyObject *
 pg_line_getslope(pgLineObject *self, void *closure)
 {
@@ -948,6 +958,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"length", (getter)pg_line_getlength, NULL, NULL, NULL},
     {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
+    {"angle", (getter)pg_line_getangle, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */
