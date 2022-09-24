@@ -385,42 +385,40 @@ static int
 pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
 {
     double x, y;
-    if (PySequence_FAST_CHECK(arg)) {
-        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+    if (!PySequence_FAST_CHECK(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a sequence");
+        return -1;
+    }
+    if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+        return -1;
+    }
+    else if (PySequence_Check(arg)) {
+        if (PySequence_Size(arg) < 2) {
             PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
             return -1;
         }
-        else if (PySequence_Check(arg)) {
-            if (PySequence_Size(arg) < 2) {
-                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
-                return -1;
-            }
-            PyObject *tmp = PySequence_GetItem(arg, 0);
-            if (!tmp) {
-                return -1;
-            }
-            
-            if (!pg_DoubleFromObj(tmp, &x)) {
-                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
-                return -1;
-            }
-            Py_DECREF(tmp);
-
-            tmp = PySequence_GetItem(arg, 1);
-            if (!tmp) {
-                return NULL;
-            }
-            
-            if (!pg_DoubleFromObj(tmp, &y)) {
-                PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
-                return -1;
-            }
-            Py_DECREF(tmp);
-        }
-        else {
-            PyErr_SetString(PyExc_TypeError, "Expected a sequence");
+        PyObject *tmp = PySequence_GetItem(arg, 0);
+        if (!tmp) {
             return -1;
         }
+        
+        if (!pg_DoubleFromObj(tmp, &x)) {
+            PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+            return -1;
+        }
+        Py_DECREF(tmp);
+
+        tmp = PySequence_GetItem(arg, 1);
+        if (!tmp) {
+            return NULL;
+        }
+        
+        if (!pg_DoubleFromObj(tmp, &y)) {
+            PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+            return -1;
+        }
+        Py_DECREF(tmp);
 
         pgPolygonBase *poly = &self->polygon;
         Py_ssize_t i;
