@@ -1,4 +1,4 @@
-import geometry
+import pygame_geometry
 
 import pygame
 import random
@@ -16,7 +16,7 @@ def generate_random_lines(amt):
         return random.randrange(0, 800), random.randrange(0, 800)
 
     for x in range(amt):
-        line = geometry.Line(random_pos(), random_pos())
+        line = pygame_geometry.Line(random_pos(), random_pos())
         collisions_lines.append(line)
 
 
@@ -26,7 +26,7 @@ def generate_random_circles(amt):
 
     for x in range(amt):
         radius = random.randrange(5, 50)
-        circle = geometry.Circle(*random_pos(radius), radius)
+        circle = pygame_geometry.Circle(*random_pos(radius), radius)
         collisions_circles.append(circle)
 
 
@@ -60,7 +60,7 @@ while running:
         ray_endpoint.from_polar((150, x / ray_count * 360))
         ray_endpoint += origin_pos
 
-        ray = geometry.Line(origin_pos, ray_endpoint)
+        ray = pygame_geometry.Line(origin_pos, ray_endpoint)
 
         point = ray.raycast(colliders) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)

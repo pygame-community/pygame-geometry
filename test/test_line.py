@@ -3,7 +3,7 @@ from math import sqrt
 
 from pygame import Vector2, Rect
 
-from geometry import Circle, Line
+from pygame_geometry import Circle, Line
 
 
 class LineTypeTest(unittest.TestCase):

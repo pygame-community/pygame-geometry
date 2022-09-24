@@ -2,8 +2,8 @@ import random
 
 from pygame import Rect
 from benchmark_utils import TestSuite
-from geometry import Circle
-from geometry import Line
+from pygame_geometry import Circle
+from pygame_geometry import Line
 
 
 def random_line():

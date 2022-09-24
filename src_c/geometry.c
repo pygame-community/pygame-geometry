@@ -10,14 +10,14 @@
 
 static PyMethodDef _pg_module_methods[] = {{NULL, NULL, 0, NULL}};
 
-MODINIT_DEFINE(geometry)
+MODINIT_DEFINE(pygame_geometry)
 {
     PyObject *module, *apiobj;
     static void *c_api[PYGAMEAPI_GEOMETRY_NUMSLOTS];
 
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
-        "geometry",
+        "pygame_geometry",
         "Module for shapes like Line, Circle, "
         "Polygon and extra functionalities\n",
         -1,
@@ -113,7 +113,7 @@ MODINIT_DEFINE(geometry)
     c_api[19] = pgPolygon_New2;
     c_api[20] = pgPolygon_FromObject;
 
-    apiobj = encapsulate_api(c_api, "geometry");
+    apiobj = encapsulate_api(c_api, "pygame_geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_XDECREF(apiobj);
         Py_DECREF(module);

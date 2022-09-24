@@ -3,7 +3,7 @@ from typing import List, Tuple, Union
 
 import pygame
 
-from geometry import Circle
+from pygame_geometry import Circle
 
 pygame.init()
 

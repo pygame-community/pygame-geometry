@@ -2,7 +2,7 @@ import unittest
 
 from pygame import Vector2
 
-from geometry import Polygon
+from pygame_geometry import Polygon
 
 p1 = (12.0, 12.0)
 p2 = (32.0, 43.0)

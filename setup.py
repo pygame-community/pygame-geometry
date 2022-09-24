@@ -13,7 +13,7 @@ compiler_type = "msvc" if os.name == "nt" else "unix"
 
 extensions = [
     Extension(
-        "geometry",
+        "pygame_geometry",
         sources=["src_c/geometry.c"],
         extra_compile_args=compiler_options[compiler_type],
     )
@@ -22,7 +22,7 @@ extensions = [
 
 def build() -> None:
     setup(
-        name="geometry",
+        name="pygame_geometry",
         ext_modules=extensions,
     )
 

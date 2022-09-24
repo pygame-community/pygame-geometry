@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pygame
 
-from geometry import Circle
+from pygame_geometry import Circle
 
 pygame.init()
 

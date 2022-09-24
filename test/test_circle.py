@@ -6,7 +6,7 @@ from math import sqrt
 from pygame import Vector2, Vector3
 from pygame import Rect
 
-from geometry import Circle, Line
+from pygame_geometry import Circle, Line
 
 E_T = "Expected True, "
 E_F = "Expected False, "

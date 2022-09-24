@@ -1,6 +1,6 @@
 from pygame import Rect
 from benchmark_utils import TestSuite
-from geometry import Circle, Line
+from pygame_geometry import Circle, Line
 
 r1 = Rect(0, 0, 10, 10)
 r2 = Rect(10, 10, 4, 4)

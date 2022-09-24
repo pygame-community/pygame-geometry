@@ -1,6 +1,6 @@
 from benchmark_utils import TestSuite
 
-from geometry import Polygon
+from pygame_geometry import Polygon
 
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
