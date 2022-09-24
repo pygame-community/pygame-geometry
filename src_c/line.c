@@ -316,8 +316,8 @@ pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         Py_RETURN_NONE;
     }
     // construct the return with this formula: A+tB
-    return Py_BuildValue(
-        "(dd)", self->line.x1 + record * (self->line.x2 - self->line.x1),
+    return pg_TupleFromDoublePair(
+        self->line.x1 + record * (self->line.x2 - self->line.x1),
         self->line.y1 + record * (self->line.y2 - self->line.y1));
 }
 
@@ -879,13 +879,7 @@ __LINE_GETSET_NAME(y2)
 static PyObject *
 pg_line_geta(pgLineObject *self, void *closure)
 {
-    PyObject *tup = PyTuple_New(2);
-    if (!tup) {
-        return PyErr_NoMemory();
-    }
-    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x1));
-    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y1));
-    return tup;
+    return pg_TupleFromDoublePair(self->line.x1, self->line.y1);
 }
 
 static int
@@ -905,13 +899,7 @@ pg_line_seta(pgLineObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_line_getb(pgLineObject *self, void *closure)
 {
-    PyObject *tup = PyTuple_New(2);
-    if (!tup) {
-        return PyErr_NoMemory();
-    }
-    PyTuple_SET_ITEM(tup, 0, PyFloat_FromDouble(self->line.x2));
-    PyTuple_SET_ITEM(tup, 1, PyFloat_FromDouble(self->line.y2));
-    return tup;
+    return pg_TupleFromDoublePair(self->line.x2, self->line.y2);
 }
 
 static int
