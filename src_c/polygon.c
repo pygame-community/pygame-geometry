@@ -418,7 +418,7 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
             Py_DECREF(tmp);
         }
         else {
-            PyErr_SetString(PyExc_TypeError, "Expected a tuple");
+            PyErr_SetString(PyExc_TypeError, "Expected a sequence");
             return -1;
         }
 
@@ -431,7 +431,7 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
         }
     }
     else {
-        PyErr_SetString(PyExc_TypeError, "Expected a tuple");
+        PyErr_SetString(PyExc_TypeError, "Expected a sequence");
         return -1;
     }
     return 0;
