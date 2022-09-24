@@ -96,13 +96,18 @@ def build() -> None:
     if not needs_to_be_rebuild():
         return
 
-    with open("src_c/geometry.c", "rb+") as f:
-        f.write(b"")
+    with open("src_c/geometry.c", "r+") as f:
+        original_geometry_c = f.read()
+        f.write(" ")
 
     setup(
         name="geometry",
         ext_modules=extensions,
     )
+
+    with open("src_c/geometry.c", "w") as f:
+        f.truncate(0)
+        f.write(original_geometry_c)
 
     # we are updating the times because we changed geometry.c
     # to rebuild the project
