@@ -15,7 +15,7 @@ _set_polygon_center_coords(pgPolygonBase *polygon)
     }
     double sum_x = 0;
     double sum_y = 0;
-    size_t i2; 
+    Py_ssize_t i2;
     for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
         sum_x += polygon->vertices[i2];
         sum_y += polygon->vertices[i2 + 1];
@@ -31,7 +31,7 @@ _pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
     if (!polygon) {
         return 0;
     }
-    size_t i2;
+    Py_ssize_t i2;
     for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
         polygon->vertices[i2] += dx;
         polygon->vertices[i2 + 1] += dy;
@@ -85,7 +85,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 
         if (length >= 3) {
             Py_ssize_t i;
-            size_t i2;
+            Py_ssize_t i2;
             out->verts_num = length;
 
             if (!out->vertices) {
@@ -129,7 +129,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
 
         if (length >= 3) {
             Py_ssize_t i;
-            size_t i2;
+            Py_ssize_t i2;
             
             out->verts_num = length;
             out->vertices = PyMem_New(double, length * 2);
@@ -209,7 +209,7 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
     }
     else if (nargs >= 3) {
         Py_ssize_t i;
-        size_t i2;
+        Py_ssize_t i2;
         out->verts_num = nargs;
 
         if (!out->vertices) {
@@ -373,7 +373,7 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
     memcpy(verts, self->polygon.vertices, self->polygon.verts_num * 2 * sizeof(double));
     
-    size_t i2;
+    Py_ssize_t i2;
     for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
         verts[i2] += Dx;
         verts[i2 + 1] += Dy;
