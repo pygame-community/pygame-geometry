@@ -179,7 +179,7 @@ pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
             return 0;
         }
     }
-    else if (PySequence_Check(obj) && !PyUnicode_Check(obj)) {
+    else if (PySequence_Check(obj)) {
         length = PySequence_Length(obj);
         if (length == 2) {
             if (!_pg_DoubleFromObjIndex(obj, 0, val1)) {
@@ -189,7 +189,7 @@ pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
                 return 0;
             }
         }
-        else if (length == 1) {
+        else if (length == 1 && !PyUnicode_Check(obj)) {
             /* Handle case of ((x, y), ) 'nested sequence' */
             PyObject *tmp = PySequence_ITEM(obj, 0);
             int ret = pg_TwoDoublesFromObj(tmp, val1, val2);
