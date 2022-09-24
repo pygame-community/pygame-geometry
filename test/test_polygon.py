@@ -308,7 +308,14 @@ class PolygonTypeTest(unittest.TestCase):
 
     def test_move_ip_invalid_args(self):
         """tests if the function correctly handles incorrect types as parameters"""
-        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(_some_vertices.copy()))
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
 
         poly = Polygon(_some_vertices.copy())
 
@@ -324,6 +331,7 @@ class PolygonTypeTest(unittest.TestCase):
         for arg in invalid_args:
             with self.assertRaises(TypeError):
                 poly.move_ip(*arg)
+
 
 if __name__ == "__main__":
     unittest.main()
