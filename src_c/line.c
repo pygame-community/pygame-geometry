@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
+
 static inline double
 pgLine_Length(pgLineBase *line)
 {
@@ -65,7 +67,9 @@ static int
 pg_line_init(pgLineObject *self, PyObject *args, PyObject *kwds)
 {
     if (!pgLine_FromObject(args, &(self->line))) {
-        PyErr_SetString(PyExc_TypeError, "Argument must be rect style object");
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid line end points, expected 4 "
+                        "numbers or 2 sequences of 2 numbers");
         return -1;
     }
     return 0;
@@ -91,7 +95,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 !pg_DoubleFromObj(farray[3], &(out->y2))) {
                 return 0;
             }
-            return 1;
+            return IS_LINE_VALID(out);
         }
         else if (length == 2) {
             if (!pg_TwoDoublesFromObj(farray[0], &(out->x1), &(out->y1)) ||
@@ -99,14 +103,14 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 PyErr_Clear();
                 return 0;
             }
-            return 1;
+            return IS_LINE_VALID(out);
         }
         else if (length == 1) /*looks like an arg?*/ {
             if (PyUnicode_Check(farray[0]) ||
                 !pgLine_FromObject(farray[0], out)) {
                 return 0;
             }
-            return 1;
+            return IS_LINE_VALID(out);
         }
     }
     if (PySequence_Check(obj)) {
@@ -137,7 +141,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 return 0;
             }
             Py_DECREF(tmp);
-            return 1;
+            return IS_LINE_VALID(out);
         }
         else if (length == 2) {
             PyObject *tmp;
@@ -153,7 +157,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 return 0;
             }
             Py_DECREF(tmp);
-            return 1;
+            return IS_LINE_VALID(out);
         }
         else if (PyTuple_Check(obj) && length == 1) /*looks like an arg?*/ {
             PyObject *sub = PySequence_GetItem(obj, 0);
@@ -162,7 +166,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
                 return 0;
             }
             Py_DECREF(sub);
-            return 1;
+            return IS_LINE_VALID(out);
         }
     }
     if (PyObject_HasAttrString(obj, "line")) {
@@ -200,7 +204,7 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             !pg_TwoDoublesFromObj(args[1], &(out->x2), &(out->y2))) {
             return 0;
         }
-        return 1;
+        return IS_LINE_VALID(out);
     }
     else if (nargs == 4) {
         if (!pg_DoubleFromObj(args[0], &(out->x1)) ||
@@ -209,7 +213,7 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             !pg_DoubleFromObj(args[3], &(out->y2))) {
             return 0;
         }
-        return 1;
+        return IS_LINE_VALID(out);
     }
     return 0;
 }
@@ -234,7 +238,8 @@ pg_line_copy(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_is_parallel(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+pg_line_is_parallel(pgLineObject *self, PyObject *const *args,
+                    Py_ssize_t nargs)
 {
     pgLineBase other_line;
 
@@ -765,8 +770,7 @@ static PyMappingMethods pg_line_as_mapping = {
 static int
 pg_line_bool(pgLineObject *self)
 {
-    return self->line.x1 != 0 || self->line.y1 != 0 || self->line.x2 != 0 ||
-           self->line.y2 != 0;
+    return 1;
 }
 
 static PyNumberMethods pg_line_as_number = {
