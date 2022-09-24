@@ -157,7 +157,7 @@ class PolygonTypeTest(unittest.TestCase):
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
                 poly.c_x = value
-    
+
     def test_center_x__del(self):
         """Ensures that x component cannot be deleted."""
         poly = Polygon(_some_vertices.copy())
@@ -225,7 +225,7 @@ class PolygonTypeTest(unittest.TestCase):
 
         new_poly = poly.move(10.0, 10.0)
         vertices = _some_vertices.copy()
-        
+
         for vertex in vertices:
             vertex[0] += 10.0
             vertex[1] += 10.0
@@ -293,7 +293,7 @@ class PolygonTypeTest(unittest.TestCase):
         vertices = _some_vertices.copy()
         center_x = poly.c_x
         center_y = poly.c_y
-        
+
         poly.move_ip(0, 0)
 
         vertices = [tuple(vertex) for vertex in vertices]
