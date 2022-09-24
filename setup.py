@@ -94,7 +94,9 @@ def needs_to_be_rebuild() -> bool:
 
 def build() -> None:
     if not needs_to_be_rebuild():
+        print("latest version of geometry already built")
         return
+    print("building latest version of geometry...")
 
     with open("src_c/geometry.c", "r+") as f:
         original_geometry_c = f.read()
@@ -109,27 +111,38 @@ def build() -> None:
         f.truncate(0)
         f.write(original_geometry_c)
 
-    # we are updating the times because we changed geometry.c
-    # to rebuild the project
     update_times_file()
 
 
-if consume_arg("--format"):
-    cmd = ["clang-format", "-i"] + [
-        str(file) for file in Path("./src_c/").glob("**/*.[c|h]")
-    ]
-    print(shlex.join(cmd))
-    subprocess.call(cmd)
+if __name__ == "__main__":
+    for arg in sys.argv:
+        if arg in ("--format", "install", "--test"):
+            break
+    else:
+        setup(
+            name="geometry",
+            ext_modules=extensions,
+        )
+        sys.exit(0)
 
-    cmd = ["black", "."]
-    print(shlex.join(cmd))
-    subprocess.call(cmd)
+    if consume_arg("--format"):
+        cmd = ["clang-format", "-i"] + [
+            str(file) for file in Path("./src_c/").glob("**/*.[c|h]")
+        ]
+        print(shlex.join(cmd))
+        subprocess.call(cmd)
 
-if consume_arg("--test"):
-    cmd = ["python", "-m", "unittest"] + [
-        str(file) for file in Path("./test/").glob("test_*.py")
-    ]
-    print(shlex.join(cmd))
-    subprocess.call(cmd)
+        cmd = ["black", "."]
+        print(shlex.join(cmd))
+        subprocess.call(cmd)
 
-build()
+    run_tests = consume_arg("--test")
+
+    build()
+
+    if run_tests:
+        cmd = ["python", "-m", "unittest"] + [
+            str(file) for file in Path("./test/").glob("test_*.py")
+        ]
+        print(shlex.join(cmd))
+        subprocess.call(cmd)
