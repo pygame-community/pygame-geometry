@@ -357,7 +357,7 @@ class LineTypeTest(unittest.TestCase):
                 l.collideswith(value)
 
     def test_collideswith_argnum(self):
-        l = Circle(10, 10, 4)
+        l = Line(10, 10, 4, 4)
         args = [tuple(range(x)) for x in range(2, 4)]
 
         # no params
