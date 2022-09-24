@@ -478,7 +478,7 @@ pg_polygon_set_center_y(pgPolygonObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_polygon_get_center(pgPolygonObject *self, void *closure)
 {
-    return pg_tuple_from_values_double(self->polygon.c_x, self->polygon.c_y);
+    return pg_TupleFromDoublePair(self->polygon.c_x, self->polygon.c_y);
 }
 
 static int
