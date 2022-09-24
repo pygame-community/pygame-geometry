@@ -434,6 +434,38 @@ pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
 }
 
 static PyObject *
+pg_line_collideswith(pgLineObject *self, PyObject *arg)
+{
+    int result = 0;
+    if (pgLine_Check(arg)) {
+        result =
+            pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
+    }
+    else if (pgRect_Check(arg)) {
+        result = pgCollision_RectLine(&pgRect_AsRect(arg), &self->line);
+    }
+    else if (pgCircle_Check(arg)) {
+        result = pgCollision_LineCircle(&self->line, &pgCircle_AsCircle(arg));
+    }
+    else if (PySequence_Check(arg)) {
+        double x, y;
+        if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+            return RAISE(
+                PyExc_TypeError,
+                "Invalid point argument, must be a sequence of 2 numbers");
+        }
+        result = pgCollision_LinePoint(&self->line, x, y);
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid shape argument, must be a CircleType, RectType, "
+                     "LineType or a sequence of 2 numbers");
+    }
+
+    return PyBool_FromLong(result);
+}
+
+static PyObject *
 pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double Dx = 0, Dy = 0;
@@ -503,6 +535,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_VARARGS, NULL},
+    {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
