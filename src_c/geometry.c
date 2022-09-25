@@ -21,13 +21,17 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
         return RAISE(PyExc_TypeError,
                      "invalid number of arguments, expected 3 or 4 arguments");
     }
-    if (!PyLong_Check(args[0])) {
-        return RAISE(PyExc_TypeError,
-                     "the first parameter must be an integer");
-    }
     sides = PyLong_AsLong(args[0]);
-    if (sides == -1 && PyErr_Occurred()) {
+    if (PyErr_Occurred()) {
         return NULL;
+    }
+
+    if (sides < 3) {
+        if (sides < 0) {
+            return RAISE(PyExc_ValueError,
+                         "the sides can not be a negative number");
+        }
+        return RAISE(PyExc_ValueError, "polygons need at least 3 sides");
     }
 
     if (!pg_TwoDoublesFromObj(args[1], &Cx, &Cy)) {
@@ -46,14 +50,6 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
         angle *= PI / 180.0;
     }
 
-    if (sides < 3) {
-        if (sides < 0) {
-            return RAISE(PyExc_ValueError,
-                         "the sides can not be a negative number");
-        }
-        return RAISE(PyExc_ValueError, "polygons need at least 3 sides");
-    }
-
     double *vertices = PyMem_New(double, sides * 2);
     if (!vertices) {
         return RAISE(PyExc_MemoryError,
@@ -61,7 +57,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
     }
 
     int loop;
-    double fac = PI * 2 / sides;
+    double fac = TAU / sides;
     for (loop = 0; loop < sides; loop++) {
         double ang = angle + fac * loop;
         vertices[loop * 2] = Cx + radius * cos(ang);
