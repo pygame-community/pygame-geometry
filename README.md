@@ -10,9 +10,7 @@
 pygame_geometry is a free Python implementation of
 polygons, circles, lines, and raycasting. The main
 purpose of this repository is to help users integrate
-special colliders easier for their video game. The plan
-for the project's future is to migrate all modules to
-the main [pygame repository](https://github.com/pygame/pygame).
+special colliders easier for their video game.
 
 **Everything you see in this repository is subject to change as
 this project is heavily in development.** This decision is also
@@ -20,10 +18,9 @@ subject to change when this project migrates to the
 [official pygame repository](https://github.com/pygame/pygame) or
 becomes a third-party library.
 
-If you have any ideas/concerns or need further explanations/help, please consider joining our `Discord GEOMETRY thread` [here](https://discord.com/channels/772505616680878080/1002836330482511943).
-
 ## Installation
 ### Download an experimental build
+**Python 3.7+ required**
 ```
 pip install git+https://github.com/novialriptide/pygame_geometry
 ```
@@ -31,6 +28,8 @@ pip install git+https://github.com/novialriptide/pygame_geometry
 ## Help
 The documentation is a work in progress, but you can check
 out the `examples` folder to learn how to use this library.
+
+Talk to us on [Discord](https://discord.gg/QzmpNXchW5)!
 
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and

@@ -51,6 +51,7 @@ class Line(Sequence[float]):
     y2: float
     a: Tuple[float, float]
     b: Tuple[float, float]
+    length: float
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 
@@ -131,6 +132,8 @@ class Circle:
 
     @overload
     def __init__(self, x: float, y: float, r: float) -> None: ...
+    @overload
+    def __init__(self, pos: Sequence[float], r: float) -> None: ...
     @overload
     def __init__(self, circle: CircleValue) -> None: ...
     @overload
