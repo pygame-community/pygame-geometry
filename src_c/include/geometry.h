@@ -80,4 +80,8 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out);
 #define pgLine_Check(o) ((o)->ob_type == &pgLine_Type)
 #define pgPolygon_Check(o) ((o)->ob_type == &pgPolygon_Type)
 
+static PyObject *
+geometry_regular_polygon(PyObject *_null, PyObject *const *args,
+                         Py_ssize_t nargs);
+
 #endif /* ~_GEOMETRY_H */
