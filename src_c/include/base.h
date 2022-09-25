@@ -124,10 +124,10 @@ pg_DoubleFromObj(PyObject *obj, double *val)
     return 1;
 }
 
+/*Assumes obj is a Sequence, internal or conscious use only*/
 static PG_FORCE_INLINE int
 _pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
 {
-    /*Assumes obj is a Sequence, internal or conscious use only*/
     int result = 0;
 
     PyObject *item = PySequence_ITEM(obj, index);
