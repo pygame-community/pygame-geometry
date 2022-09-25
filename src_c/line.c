@@ -8,6 +8,7 @@
 #include <math.h>
 
 #define PI 3.14159265358979323846264
+#define RAD_TO_DEG(x) (x * 180/PI)
 
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
@@ -928,8 +929,8 @@ pg_line_getangle(pgLineObject *self, void *closure)
         return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0) : PyFloat_FromDouble(90.0);
     }
 
-    double m = (dy / dx);
-    return PyFloat_FromDouble(-(atan(m) * 180/PI));
+    double gradient = (dy / dx);
+    return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
 }
 
 static PyObject *
