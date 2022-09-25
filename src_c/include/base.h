@@ -145,14 +145,21 @@ static PG_FORCE_INLINE int
 pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, index);
 
-    if (!item) {
-        PyErr_Clear();
-        return 0;
+    if (PySequence_FAST_CHECK(obj) && index < PySequence_Fast_GET_SIZE(obj)) {
+        result =
+            pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, index), index, val);
     }
-    result = pg_DoubleFromObj(item, val);
-    Py_DECREF(item);
+    else {
+        PyObject *item = PySequence_GetItem(obj, index);
+
+        if (!item) {
+            PyErr_Clear();
+            return 0;
+        }
+        result = pg_DoubleFromObj(item, val);
+        Py_DECREF(item);
+    }
 
     return result;
 }
