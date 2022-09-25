@@ -141,8 +141,6 @@ if __name__ == "__main__":
     build()
 
     if run_tests:
-        cmd = ["python", "-m", "unittest"] + [
-            str(file) for file in Path("./test/").glob("test_*.py")
-        ]
+        cmd = ["python", "-m", "unittest"]
         print(shlex.join(cmd))
         subprocess.call(cmd)
