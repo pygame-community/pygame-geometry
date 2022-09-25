@@ -149,7 +149,7 @@ pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
     if ((PyTuple_Check(obj) || PyList_Check(obj)) &&
         index < PySequence_Fast_GET_SIZE(obj)) {
         result =
-            pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, index), index, val);
+            pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, index), val);
     }
     else {
         PyObject *item = PySequence_GetItem(obj, index);
