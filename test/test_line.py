@@ -345,7 +345,7 @@ class LineTypeTest(unittest.TestCase):
         expected_angle = -83.93394864782331
         line = Line(300.0, 400.0, 400.0, 1341.0)
         self.assertEqual(line.angle, expected_angle)
-        
+
         expected_angle = 16.17215901578255
         line = Line(300.0, 400.0, 400.0, 371.0)
         self.assertEqual(line.angle, expected_angle)
