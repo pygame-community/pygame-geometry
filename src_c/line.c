@@ -921,7 +921,14 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_line_getangle(pgLineObject *self, void *closure)
 {
-    double m = ((self->line.y2 - self->line.y1) / (self->line.x2 - self->line.x1));
+    double dx = self->line.x2 - self->line.x1;
+    double dy = self->line.y2 - self->line.y1;
+
+    if (dx == 0.0) {
+        return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0) : PyFloat_FromDouble(90.0);
+    }
+
+    double m = (dy / dx);
     return PyFloat_FromDouble(-(atan(m) * 180/PI));
 }
 
