@@ -942,9 +942,8 @@ pg_line_getsafepickle(pgLineObject *self, void *closure)
 static PyObject *
 pg_line_get_midpoint(pgLineObject *self, void *closure)
 {
-    // temporarily using Py_BuildValue, waiting for #84 to be merged
-    return Py_BuildValue("(dd)", (self->line.x1 + self->line.x2) / 2,
-                         (self->line.y1 + self->line.y2) / 2);
+    return pg_TupleFromDoublePair((self->line.x1 + self->line.x2) / 2,
+                                  (self->line.y1 + self->line.y2) / 2);
 }
 
 static int
