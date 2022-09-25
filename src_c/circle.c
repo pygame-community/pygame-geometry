@@ -592,7 +592,7 @@ pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getcenter(pgCircleObject *self, void *closure)
 {
-    return Py_BuildValue("(dd)", self->circle.x, self->circle.y);
+    return pg_TupleFromDoublePair(self->circle.x, self->circle.y);
 }
 
 static int
@@ -694,8 +694,8 @@ static PyGetSetDef pg_circle_getsets[] = {
      NULL},
     {"d", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
      NULL},
-    {"diameter", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter, NULL,
-     NULL},
+    {"diameter", (getter)pg_circle_getdiameter, (setter)pg_circle_setdiameter,
+     NULL, NULL},
     {"center", (getter)pg_circle_getcenter, (setter)pg_circle_setcenter, NULL,
      NULL},
     {"area", (getter)pg_circle_getarea, (setter)pg_circle_setarea, NULL, NULL},
