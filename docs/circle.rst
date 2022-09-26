@@ -48,7 +48,7 @@
         | :sg:`y = float`
 
         The `y` coordinate of the center of the circle. It can be reassigned to move the circle.
-        Reassigning the x attribute will move the circle to the new `y` coordinate.
+        Reassigning the `y` attribute will move the circle to the new `y` coordinate.
         The `x` and `r` attributes will not be affected.
 
     .. attribute:: r
