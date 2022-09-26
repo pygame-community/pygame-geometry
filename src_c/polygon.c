@@ -525,7 +525,7 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
     
     pgPolygonBase *poly = &self->polygon;
     Py_ssize_t i;
-    for (i = 0; i < poly->verts_num; i+=1) {
+    for (i = 0; i < poly->verts_num; i++) {
         if (poly->vertices[i * 2] == x && poly->vertices[i * 2 + 1] == y) {
             return 1;
         }
