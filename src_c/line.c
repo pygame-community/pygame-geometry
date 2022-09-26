@@ -7,8 +7,13 @@
 #include <stddef.h>
 #include <math.h>
 
+#ifndef PI
 #define PI 3.14159265358979323846264
+#endif
+
+#ifndef RAD_TO_DEG
 #define RAD_TO_DEG(x) (x * 180 / PI)
+#endif
 
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
@@ -446,8 +451,7 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
 {
     int result = 0;
     if (pgLine_Check(arg)) {
-        result =
-            pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
+        result = pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
     }
     else if (pgRect_Check(arg)) {
         result = pgCollision_RectLine(&pgRect_AsRect(arg), &self->line);
@@ -958,10 +962,9 @@ pg_line_getangle(pgLineObject *self, void *closure)
     double dx = self->line.x2 - self->line.x1;
     double dy = self->line.y2 - self->line.y1;
 
-    if (dx == 0.0) {
+    if (dx == 0.0)
         return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0)
                                                : PyFloat_FromDouble(90.0);
-    }
 
     double gradient = (dy / dx);
     return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
