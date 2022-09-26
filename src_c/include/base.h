@@ -110,45 +110,108 @@ pg_TwoFloatsFromObj(PyObject *obj, float *val1, float *val2)
 static PG_FORCE_INLINE int
 pg_DoubleFromObj(PyObject *obj, double *val)
 {
-    double f = PyFloat_AsDouble(obj);
+    if (PyFloat_Check(obj)) {
+        *val = PyFloat_AS_DOUBLE(obj);
+        return 1;
+    }
 
-    if (f == -1 && PyErr_Occurred()) {
+    *val = (double)PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
         PyErr_Clear();
         return 0;
     }
 
-    *val = f;
     return 1;
 }
 
+/*Assumes obj is a Sequence, internal or conscious use only*/
 static PG_FORCE_INLINE int
-pg_DoubleFromObjIndex(PyObject *obj, int _index, double *val)
+_pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
 {
     int result = 0;
-    PyObject *item = PySequence_GetItem(obj, _index);
 
+    PyObject *item = PySequence_ITEM(obj, index);
     if (!item) {
         PyErr_Clear();
         return 0;
     }
     result = pg_DoubleFromObj(item, val);
     Py_DECREF(item);
+
+    return result;
+}
+
+static PG_FORCE_INLINE int
+pg_DoubleFromObjIndex(PyObject *obj, int index, double *val)
+{
+    int result = 0;
+
+    if ((PyTuple_Check(obj) || PyList_Check(obj)) &&
+        index < PySequence_Fast_GET_SIZE(obj)) {
+        result = pg_DoubleFromObj(PySequence_Fast_GET_ITEM(obj, index), val);
+    }
+    else {
+        PyObject *item = PySequence_GetItem(obj, index);
+
+        if (!item) {
+            PyErr_Clear();
+            return 0;
+        }
+        result = pg_DoubleFromObj(item, val);
+        Py_DECREF(item);
+    }
+
     return result;
 }
 
 static PG_FORCE_INLINE int
 pg_TwoDoublesFromObj(PyObject *obj, double *val1, double *val2)
 {
-    if (PyTuple_Check(obj) && PyTuple_Size(obj) == 1) {
-        return pg_TwoDoublesFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
+    Py_ssize_t length;
+    /*Faster path for tuples and lists*/
+    if (PyTuple_Check(obj) || PyList_Check(obj)) {
+        length = PySequence_Fast_GET_SIZE(obj);
+        PyObject **f_arr = PySequence_Fast_ITEMS(obj);
+        if (length == 2) {
+            if (!pg_DoubleFromObj(f_arr[0], val1) ||
+                !pg_DoubleFromObj(f_arr[1], val2)) {
+                return 0;
+            }
+        }
+        else if (length == 1) {
+            /* Handle case of ((x, y), ) 'nested sequence' */
+            return pg_TwoDoublesFromObj(f_arr[0], val1, val2);
+        }
+        else {
+            return 0;
+        }
     }
-    if (!PySequence_Check(obj) || PySequence_Length(obj) != 2) {
+    else if (PySequence_Check(obj)) {
+        length = PySequence_Length(obj);
+        if (length == 2) {
+            if (!_pg_DoubleFromObjIndex(obj, 0, val1)) {
+                return 0;
+            }
+            if (!_pg_DoubleFromObjIndex(obj, 1, val2)) {
+                return 0;
+            }
+        }
+        else if (length == 1 && !PyUnicode_Check(obj)) {
+            /* Handle case of ((x, y), ) 'nested sequence' */
+            PyObject *tmp = PySequence_ITEM(obj, 0);
+            int ret = pg_TwoDoublesFromObj(tmp, val1, val2);
+            Py_DECREF(tmp);
+            return ret;
+        }
+        else {
+            PyErr_Clear();
+            return 0;
+        }
+    }
+    else {
         return 0;
     }
-    if (!pg_DoubleFromObjIndex(obj, 0, val1) ||
-        !pg_DoubleFromObjIndex(obj, 1, val2)) {
-        return 0;
-    }
+
     return 1;
 }
 
