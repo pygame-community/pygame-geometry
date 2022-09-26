@@ -449,6 +449,7 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
 {
     int result = 0;
     pgCircleBase *scirc = &self->circle;
+    double x, y;
 
     if (pgCircle_Check(arg)) {
         pgCircleBase *temp = &pgCircle_AsCircle(arg);
@@ -494,10 +495,13 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
         }
         result = 1;
     }
+    else if (pg_TwoDoublesFromObj(arg, &x, &y)) {
+        result = pgCollision_CirclePoint(scirc, x, y);
+    }
     else {
-        return RAISE(
-            PyExc_TypeError,
-            "Circle.contains requires a Circle, Line, Rect or Polygon");
+        return RAISE(PyExc_TypeError,
+                     "Invalid shape argument, must be a CircleType, RectType, "
+                     "LineType, PolygonType or a sequence of 2 numbers");
     }
 
     return PyBool_FromLong(result);

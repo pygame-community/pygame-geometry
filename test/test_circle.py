@@ -893,7 +893,7 @@ class CircleTypeTest(unittest.TestCase):
     def test_contains_argtype(self):
         """Tests if the function correctly handles incorrect types as parameters"""
 
-        invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1, (1, 1))
+        invalid_types = (None, [], "1", (1,), 1, (1, 2, 3))
 
         c = Circle(10, 10, 4)
 
