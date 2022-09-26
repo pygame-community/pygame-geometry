@@ -64,7 +64,7 @@
         | :sl:`radius of the circle squared`
         | :sg:`r_sqr -> float`
 
-        It is the radius of the circle squared. It can be reassigned. If reassigned, the radius
+        It's equivalent to `r*r`. It can be reassigned. If reassigned, the radius
         of the circle will be changed to the square root of the new value.
         The circle will not be moved from its original position.
 
@@ -74,8 +74,9 @@
         | :sg:`center = (x, y)`
 
         (Virtual attribute)
-        It is a tuple of two floats representing the center of the circle. It can be reassigned.
-        If reassigned, the circle will be moved to the new position. The radius will not be affected.
+        It's a tuple containing the `x` and `y` coordinates that represent the center
+        of the circle. It can be reassigned. If reassigned, the circle will be moved
+        to the new position. The radius will not be affected.
 
     .. attribute:: diameter, d
         | :sl:`diameter of the circle`
@@ -83,7 +84,8 @@
         | :sg:`diameter = float`
 
         (Virtual attribute)
-        It can be reassigned. If reassigned the radius will be changed to half the diameter.
+        It's calculated using the `d=2*r` formula.It can be reassigned. If reassigned
+        the radius will be changed to half the diameter.
         The circle will not be moved from its original position.
 
     .. attribute:: area
