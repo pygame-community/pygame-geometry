@@ -1,9 +1,12 @@
 import unittest
 from math import sqrt
 
-from pygame import Vector2, Rect
+from pygame import Vector2, Vector3, Rect
 
 from geometry import Circle, Line
+
+E_T = "Expected True, "
+E_F = "Expected False, "
 
 
 class LineTypeTest(unittest.TestCase):
@@ -390,6 +393,7 @@ class LineTypeTest(unittest.TestCase):
         expected_length = 5.414794548272353
         self.assertEqual(line.length, expected_length)
 
+
     def test_attrib_midpoint(self):
         """a full test for the midpoint attribute"""
         expected_x1 = 10.0
@@ -475,6 +479,58 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             del line.midpoint_y
+
+    def test_collideswith_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
+
+        l = Line(10, 10, 60, 60)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collideswith(value)
+
+    def test_collideswith_argnum(self):
+        l = Line(10, 10, 4, 4)
+        args = [tuple(range(x)) for x in range(2, 4)]
+
+        # no params
+        with self.assertRaises(TypeError):
+            l.collideswith()
+
+        # too many params
+        for arg in args:
+            with self.assertRaises(TypeError):
+                l.collideswith(*arg)
+
+    def test_collideswith(self):
+        """Ensures the collideswith function correctly registers collisions with circles, lines, rects and points"""
+        l = Line(10, 10, 200, 200)
+
+        # line
+        l2 = Line(400, 300, 10, 100)
+        l3 = Line(400, 300, 10, 200)
+
+        self.assertTrue(l.collideswith(l2), E_T + "lines should collide here")
+        self.assertFalse(l.collideswith(l3), E_F + "lines should not collide here")
+
+        # circle
+        c = Circle(10, 10, 10)
+        c2 = Circle(50, 10, 10)
+        self.assertTrue(l.collideswith(c), E_T + "circle should collide here")
+        self.assertFalse(l.collideswith(c2), E_F + "circle should not collide here")
+
+        # rect
+        r = Rect(10, 10, 10, 10)
+        r2 = Rect(50, 10, 10, 10)
+        self.assertTrue(l.collideswith(r), E_T + "rect should collide here")
+        self.assertFalse(l.collideswith(r2), E_F + "rect should not collide here")
+
+        # point
+        p = (11, 11)
+        p2 = (60, 80)
+        self.assertTrue(c.collideswith(p), E_T + "point should collide here")
+        self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
     def test_meth_copy(self):
         line = Line(1, 2, 3, 4)
