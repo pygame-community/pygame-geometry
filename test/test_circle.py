@@ -890,8 +890,8 @@ class CircleTypeTest(unittest.TestCase):
 
         self.assertEqual(type(c.move_ip(1, 1)), type(None))
 
-        def test_contains_argtype(self):
-            """Tests if the function correctly handles incorrect types as parameters"""
+    def test_contains_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
 
         invalid_types = (None, [], "1", (1,), Vector2(1, 1), 1, (1, 1))
 
