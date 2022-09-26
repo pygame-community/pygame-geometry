@@ -494,7 +494,7 @@ pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
     PyObject *index = PyNumber_Index(op);
     Py_ssize_t i;
 
-    if (index == NULL) {
+    if (!index) {
         return NULL;
     }
     i = PyNumber_AsSsize_t(index, NULL);
@@ -506,7 +506,7 @@ pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
         i += poly->verts_num;
     }
 
-    if (i < 0 || i > poly->verts_num) {
+    if (i < 0 || i > poly->verts_num-1) {
         return RAISE(PyExc_IndexError, "Invalid vertex Index");
     }
 
@@ -525,8 +525,8 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
     
     pgPolygonBase *poly = &self->polygon;
     Py_ssize_t i;
-    for (i = 0; i < poly->verts_num; i+=2) {
-        if (poly->vertices[i] == x && poly->vertices[i+1] == y) {
+    for (i = 0; i < poly->verts_num; i+=1) {
+        if (poly->vertices[i * 2] == x && poly->vertices[i * 2 + 1] == y) {
             return 1;
         }
     }

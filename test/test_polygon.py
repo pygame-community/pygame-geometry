@@ -101,28 +101,64 @@ class PolygonTypeTest(unittest.TestCase):
         po[1] = [45.0, 38.0]
         self.assertEqual(po[1], (45.0, 38.0))
 
-    def test_length(self):
         po = Polygon([p1, p2, p3, p4])
+
+        self.assertEqual(po[0], p1)
+        self.assertEqual(po[1], p2)
+        self.assertEqual(po[2], p3)
+        self.assertEqual(po[3], p4)
+
+        self.assertEqual(po[-3], p2)
+        self.assertEqual(po[-2], p3)
+        self.assertEqual(po[-1], p4)
+
+        invalid_indexes = [4, 7, 100, -5, -7, -100]
+        for invalid_index in invalid_indexes:
+            with self.assertRaises(IndexError):
+                po[invalid_index]
+
+        po[0] = po[0]
+        self.assertEqual(po[0], po[0])
+
+        po2 = Polygon([p1, p2, p3, p4])
+
+        valid_indexes = [0, 1, 2, 3, -1, -2, -3, -4]
+        for valid_index in valid_indexes:
+            self.assertEqual(po[valid_index], po2[valid_index])
+
+    def test_length(self):
+        po = Polygon((p1, p2, p3, p4))
         self.assertEqual(len(po), 4)
 
-        po = Polygon([p1, p2, p3, p4, [75.0, 83.0], [23.0, 12.0], [90.0, 134.0]])
+        po = Polygon([p1, p2, p3, p4, (54.0, 39.0)])
+        self.assertEqual(len(po), 5)
+
+        po = Polygon([p1, p2, p3, p4, (75.0, 83.0), [23.0, 12.0], [90.0, 134.0]])
         self.assertEqual(len(po), 7)
 
     def test_contains(self):
         po = Polygon([p1, p2, p3, p4])
         self.assertTrue(p1 in po)
         self.assertTrue(p2 in po)
+        self.assertTrue(p3 in po)
+        self.assertTrue(p4 in po)
 
         self.assertFalse([90.0, 47.0] in po)
         self.assertFalse((35.0, 9.0) in po)
 
-        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1, (1, 2, 3))
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 value in po
 
-        invalid_values = ([17.0, None], ["1", 47.0], (None, None), ("123", "456"))
+        invalid_values = (
+            [17.0, None],
+            ["1", 47.0],
+            (None, None),
+            ("123", "456"),
+            (17.0, "12"),
+        )
 
         for value in invalid_values:
             with self.assertRaises(TypeError):
