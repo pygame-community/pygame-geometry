@@ -31,14 +31,6 @@
     that are stored in the Circle object itself. Virtual attributes are the result
     of calculations that utilize the Circle's non-virtual attributes.
 
-    ::
-
-       x, y
-       r, r_sqr
-       center
-       diameter, d
-       area, circumference
-
     Here is the list of all the attributes of the Circle class:
 
     .. attribute:: x
