@@ -26,10 +26,9 @@
     Some methods have an alternate "in-place" version that returns None but affects the
     original Circle. These "in-place" methods are denoted with the "ip" suffix.
 
-    The Circle object has both virtual and non-virtual attributes which can be used
-    to move, measure or scale the Circle. The non-virtual attributes are attributes
-    that are stored in the Circle object itself. Virtual attributes are the result
-    of calculations that utilize the Circle's non-virtual attributes.
+    The Circle object has both virtual and non-virtual attributes. Non-virtual attributes
+    are attributes that are stored in the Circle object itself. Virtual attributes are the
+    result of calculations that utilize the Circle's non-virtual attributes.
 
     Here is the list of all the attributes of the Circle class:
 
