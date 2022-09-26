@@ -393,7 +393,6 @@ class LineTypeTest(unittest.TestCase):
         expected_length = 5.414794548272353
         self.assertEqual(line.length, expected_length)
 
-
     def test_attrib_midpoint(self):
         """a full test for the midpoint attribute"""
         expected_x1 = 10.0
