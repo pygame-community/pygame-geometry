@@ -960,12 +960,13 @@ static PyObject *
 pg_line_getangle(pgLineObject *self, void *closure)
 {
     double dx = self->line.x2 - self->line.x1;
-    double dy = self->line.y2 - self->line.y1;
 
     if (dx == 0.0)
         return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0)
                                                : PyFloat_FromDouble(90.0);
 
+    double dy = self->line.y2 - self->line.y1;
+    
     double gradient = (dy / dx);
     return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
 }
