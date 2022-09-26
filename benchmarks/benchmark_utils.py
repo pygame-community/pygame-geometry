@@ -80,10 +80,18 @@ class TestGroup:
         print("\n\n")
 
     def test_pair(self, test_name: str, func: str, table: list) -> float:
+        # ensure that the objects utilized in the tests are not modified by the tests
+        item = func.split(".")[0]
+        saved_item = None
+        if item in self.globs.keys() and len(item) == 2:
+            saved_item = self.globs[item]
+            self.globs[item] = saved_item.copy()
 
         lst = timeit.repeat(
             func, globals=self.globs, number=self.num, repeat=self.repeat_num
         )
+        if saved_item:
+            self.globs[item] = saved_item
         table.append(self.get_row(test_name, lst))
         return fmean(lst)
 

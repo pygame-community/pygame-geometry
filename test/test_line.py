@@ -1,9 +1,12 @@
 import unittest
 from math import sqrt
 
-from pygame import Vector2, Rect
+from pygame import Vector2, Vector3, Rect
 
 from geometry import Circle, Line
+
+E_T = "Expected True, "
+E_F = "Expected False, "
 
 
 class LineTypeTest(unittest.TestCase):
@@ -128,6 +131,61 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y1, 2.2)
         self.assertEqual(line.x2, 3.3)
         self.assertEqual(line.y2, 4.4)
+
+    def testConstruction_degenerate(self):
+        """Ensures that you can't create degenerate lines (lines with zero length)"""
+
+        # 4 args
+        with self.assertRaises(TypeError):
+            Line(1.0, 2.0, 1.0, 2.0)
+        with self.assertRaises(TypeError):
+            Line(1, 2, 1, 2)
+
+        # 1 list arg 4
+        with self.assertRaises(TypeError):
+            Line([1, 2, 1, 2])
+        with self.assertRaises(TypeError):
+            Line([1.0, 2.0, 1.0, 2.0])
+
+        # 1 tuple arg 4
+        with self.assertRaises(TypeError):
+            Line((1, 2, 1, 2))
+        with self.assertRaises(TypeError):
+            Line((1.0, 2.0, 1.0, 2.0))
+
+        # two tuple args
+        with self.assertRaises(TypeError):
+            Line((1, 2), (1, 2))
+        with self.assertRaises(TypeError):
+            Line((1.0, 2.0), (1.0, 2.0))
+
+        # two list args
+        with self.assertRaises(TypeError):
+            Line([1, 2], [1, 2])
+        with self.assertRaises(TypeError):
+            Line([1.0, 2.0], [1.0, 2.0])
+
+        # one list two tuple args
+        with self.assertRaises(TypeError):
+            Line([1, 2], (1, 2))
+        with self.assertRaises(TypeError):
+            Line((1, 2), [1, 2])
+        with self.assertRaises(TypeError):
+            Line([1.0, 2.0], (1.0, 2.0))
+        with self.assertRaises(TypeError):
+            Line((1.0, 2.0), [1.0, 2.0])
+
+        # one list two sub-tuples arg
+        with self.assertRaises(TypeError):
+            Line([(1, 2), (1, 2)])
+        with self.assertRaises(TypeError):
+            Line([(1.0, 2.0), (1.0, 2.0)])
+
+        # one tuple two sub-lists arg
+        with self.assertRaises(TypeError):
+            Line(([1, 2], [1, 2]))
+        with self.assertRaises(TypeError):
+            Line(([1.0, 2.0], [1.0, 2.0]))
 
     def test_attrib_x1(self):
         """a full test for the x1 attribute"""
@@ -284,6 +342,108 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             del line.b
+
+    def test_attrib_length(self):
+        """a full test for the length attribute"""
+        expected_length = 3.0
+        line = Line(1, 4, 4, 4)
+        self.assertEqual(line.length, expected_length)
+
+        line.x1 = 2
+        expected_length = 2.0
+        self.assertEqual(line.length, expected_length)
+
+        line.x1 = 2.7
+        expected_length = 1.2999999999999998
+        self.assertEqual(line.length, expected_length)
+
+        line.y1 = 2
+        expected_length = 2.3853720883753127
+        self.assertEqual(line.length, expected_length)
+
+        line.y1 = 2.7
+        expected_length = 1.8384776310850233
+        self.assertEqual(line.length, expected_length)
+
+        line.x2 = 2
+        expected_length = 1.4764823060233399
+        self.assertEqual(line.length, expected_length)
+
+        line.x2 = 2.7
+        expected_length = 1.2999999999999998
+        self.assertEqual(line.length, expected_length)
+
+        line.y2 = 2
+        expected_length = 0.7000000000000002
+        self.assertEqual(line.length, expected_length)
+
+        line.y2 = 2.7
+        expected_length = 0.0
+        self.assertEqual(line.length, expected_length)
+
+        line1 = Line(7, 3, 2, 3)
+        line2 = Line(9, 5, 4, 5)
+        self.assertEqual(line1.length, line2.length)
+
+        line = Line(7.6, 3.2, 2.1, 3.8)
+        expected_length = 5.532630477449222
+        self.assertEqual(line.length, expected_length)
+
+        line = Line(-9.8, -5.2, -4.4, -5.6)
+        expected_length = 5.414794548272353
+        self.assertEqual(line.length, expected_length)
+
+    def test_collideswith_argtype(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)
+
+        l = Line(10, 10, 60, 60)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collideswith(value)
+
+    def test_collideswith_argnum(self):
+        l = Line(10, 10, 4, 4)
+        args = [tuple(range(x)) for x in range(2, 4)]
+
+        # no params
+        with self.assertRaises(TypeError):
+            l.collideswith()
+
+        # too many params
+        for arg in args:
+            with self.assertRaises(TypeError):
+                l.collideswith(*arg)
+
+    def test_collideswith(self):
+        """Ensures the collideswith function correctly registers collisions with circles, lines, rects and points"""
+        l = Line(10, 10, 200, 200)
+
+        # line
+        l2 = Line(400, 300, 10, 100)
+        l3 = Line(400, 300, 10, 200)
+
+        self.assertTrue(l.collideswith(l2), E_T + "lines should collide here")
+        self.assertFalse(l.collideswith(l3), E_F + "lines should not collide here")
+
+        # circle
+        c = Circle(10, 10, 10)
+        c2 = Circle(50, 10, 10)
+        self.assertTrue(l.collideswith(c), E_T + "circle should collide here")
+        self.assertFalse(l.collideswith(c2), E_F + "circle should not collide here")
+
+        # rect
+        r = Rect(10, 10, 10, 10)
+        r2 = Rect(50, 10, 10, 10)
+        self.assertTrue(l.collideswith(r), E_T + "rect should collide here")
+        self.assertFalse(l.collideswith(r2), E_F + "rect should not collide here")
+
+        # point
+        p = (11, 11)
+        p2 = (60, 80)
+        self.assertTrue(c.collideswith(p), E_T + "point should collide here")
+        self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
     def test_meth_copy(self):
         line = Line(1, 2, 3, 4)
@@ -508,10 +668,8 @@ class LineTypeTest(unittest.TestCase):
 
     def test_bool(self):
         line = Line(10, 10, 4, 56)
-        line2 = Line(0, 0, 0, 0)
 
         self.assertTrue(bool(line))
-        self.assertFalse(bool(line2))
 
     def test__str__(self):
         line = Line(10.1, 10.2, 4.3, 56.4)
@@ -522,7 +680,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(repr(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
 
     def test_seq_length(self):
-        self.assertEqual(len(Line(0, 0, 0, 0)), 4)
+        self.assertEqual(len(Line(1, 2, 3, 4)), 4)
 
     def test_seq_getitem(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
@@ -630,7 +788,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertRaises(TypeError, r.__getitem__, None)
 
     def test_ass_subscript(self):
-        r = Line(0, 0, 0, 0)
+        r = Line(1, 2, 3, 4)
         r[...] = 1.1, 2.2, 3.3, 4.4
         self.assertEqual(r, [1.1, 2.2, 3.3, 4.4])
         self.assertRaises(TypeError, r.__setitem__, None, 0)
@@ -651,14 +809,79 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(r, [100.5, 2.2, 3.3, 400.45])
         r[1:3] = 0
         self.assertEqual(r, [100.5, 0, 0, 400.45])
-        r[...] = 0
-        self.assertEqual(r, [0, 0, 0, 0])
-        r[:] = 9.9
-        self.assertEqual(r, [9.9, 9.9, 9.9, 9.9])
         r[:] = 11.11, 12.12, 13.13, 14.14
         self.assertEqual(r, [11.11, 12.12, 13.13, 14.14])
         r[::-1] = r
         self.assertEqual(r, [14.14, 13.13, 12.12, 11.11])
+
+    def test_slope_getter(self):
+        lines = [
+            [Line(2, 2, 4, 4), 1, False],
+            [Line(4.6, 2.3, 1.6, 7.3), -5 / 3, True],
+            [Line(2, 0, 2, 1), 0, False],
+            [Line(1.2, 3.2, 4.5, 3.2), 0, False],
+        ]
+
+        for l in lines:
+            if l[2]:
+                self.assertAlmostEqual(l[0].slope, l[1])
+            else:
+                self.assertEqual(l[0].slope, l[1])
+
+    def test_meth_perpendicular(self):
+        # prepare the lines
+        l = Line(0, 0, 1, 1)
+        l2 = Line(1, 0, 0, 1)
+        l3 = Line(-12, 0, 31, 1)
+        l4 = Line(3, 3, 6, 6)
+
+        # self perpendicular
+        self.assertFalse(l.is_perpendicular(l))
+        self.assertFalse(l.is_perpendicular((0, 0, 1, 1)))
+        self.assertFalse(l.is_perpendicular(((0, 0), (1, 1))))
+        self.assertFalse(l.is_perpendicular([0, 0, 1, 1]))
+        self.assertFalse(l.is_perpendicular([(0, 0), (1, 1)]))
+
+        # perpendicular
+        self.assertTrue(l.is_perpendicular(l2))
+        self.assertTrue(l.is_perpendicular((1, 0, 0, 1)))
+        self.assertTrue(l.is_perpendicular(((1, 0), (0, 1))))
+        self.assertTrue(l.is_perpendicular([1, 0, 0, 1]))
+        self.assertTrue(l.is_perpendicular([(1, 0), (0, 1)]))
+
+        # not perpendicular
+        self.assertFalse(l.is_perpendicular(l3))
+        self.assertFalse(l.is_perpendicular((-12, 0, 31, 1)))
+        self.assertFalse(l.is_perpendicular(((-12, 0), (31, 1))))
+        self.assertFalse(l.is_perpendicular([-12, 0, 31, 1]))
+        self.assertFalse(l.is_perpendicular([(-12, 0), (31, 1)]))
+
+        # parallel
+        self.assertFalse(l.is_perpendicular(l4))
+        self.assertFalse(l.is_perpendicular((3, 3, 6, 6)))
+        self.assertFalse(l.is_perpendicular(((3, 3), (6, 6))))
+        self.assertFalse(l.is_perpendicular([3, 3, 6, 6]))
+        self.assertFalse(l.is_perpendicular([(3, 3), (6, 6)]))
+
+    def test_meth_perpendicular_argtype(self):
+
+        l = Line(0, 0, 1, 1)
+        args = [
+            1,
+            1.1,
+            "string",
+            [1, 2, 3],
+            [1, "s", 3, 4],
+            (1, 2, 3),
+            (1, "s", 3, 4),
+            ((1, "s"), (3, 4)),
+            ((1, 4), (3, "4")),
+            {1: 2, 3: 4},
+            object(),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.is_perpendicular(value)
 
 
 if __name__ == "__main__":
