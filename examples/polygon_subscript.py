@@ -16,10 +16,9 @@ while running:
             pygame.quit()
             running = False
 
-    pygame.draw.polygon(screen, (0, 0, 150), polygon.vertices, 4)
+    pygame.draw.polygon(screen, (255, 0, 0), polygon.vertices, 4)
 
-    mx, my = pygame.mouse.get_pos()
-    polygon[0] = (mx, my)
+    polygon[0] = pygame.mouse.get_pos()
 
     pygame.display.update()
     clock.tick(60)
