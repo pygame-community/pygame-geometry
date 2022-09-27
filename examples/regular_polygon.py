@@ -74,7 +74,8 @@ class Game:
                     self.sides = self.sides - 1 if self.sides > 3 else 3
 
     def draw_polygon(
-        self, num_sides=3,
+        self,
+        num_sides=3,
         center=(0.0, 0.0),
         radius=1.0,
         angle=0.0,
