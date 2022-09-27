@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#define _PI 0.01745329251994
+
 static int
 _set_polygon_center_coords(pgPolygonBase *polygon)
 {
@@ -418,9 +420,83 @@ error:
     return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
+static PyObject*
+pg_polygon_rotate(pgPolygonObject *self, PyObject *const *args,
+                  Py_ssize_t nargs)
+{
+    double degree = 0.0;
+    if (nargs == 1) {
+        if (!pg_DoubleFromObj(args[0], &degree)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    degree *= _PI;
+    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
+    if (!verts) {
+        return NULL;
+    }
+    memcpy(verts, self->polygon.vertices,
+           self->polygon.verts_num * 2 * sizeof(double));
+
+    Py_ssize_t i2;
+    for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
+        double Dx = verts[i2] - self->polygon.c_x;
+        double Dy = verts[i2 + 1] - self->polygon.c_y;
+        verts[i2] += Dx * (cos(degree) - 1) - Dy * sin(degree);
+        verts[i2 + 1] += Dx * sin(degree) + Dy * (cos(degree) - 1);
+    }
+
+    PyObject *tmp = _pg_polygon_subtype_new2(Py_TYPE(self), verts,
+                                             self->polygon.verts_num);
+    if (!tmp) {
+        PyMem_Free(verts);
+        return NULL;
+    }
+    PyMem_Free(verts);
+    return tmp;
+error:
+    return RAISE(PyExc_TypeError, "rotate requires a number");
+}
+
+static PyObject *
+pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
+                  Py_ssize_t nargs)
+{
+    double degree = 0.0;
+    if (nargs == 1) {
+        if (!pg_DoubleFromObj(args[0], &degree)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    degree *= _PI;
+    Py_ssize_t i2;
+    for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
+        double Dx = self->polygon.vertices[i2] - self->polygon.c_x;
+        double Dy = self->polygon.vertices[i2 + 1] - self->polygon.c_y;
+        self->polygon.vertices[i2] +=
+            Dx * (cos(degree) - 1) - Dy * sin(degree);
+        self->polygon.vertices[i2 + 1] +=
+            Dx * sin(degree) + Dy * (cos(degree) - 1);
+    }
+
+    Py_RETURN_NONE;
+error:
+    return RAISE(PyExc_TypeError, "rotate_ip requires a number");
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
+    {"rotate", (PyCFunction)pg_polygon_rotate, METH_FASTCALL, NULL},
+    {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_FASTCALL, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
