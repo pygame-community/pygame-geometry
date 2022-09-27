@@ -91,6 +91,29 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
 
+    def test_perimeter(self):
+        po = Polygon([p1, p2, p3, p4])
+        expected_perimeter = 392.9064458467271
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon([10.0, 10.0], [20.0, 20.0], [40.0, 50.0], [70.0, 900.0])
+        expected_perimeter = 900.7268953769676
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon((10.0, 45.0), (20.0, 4.5), (40.0, 77.45), (70.0, 900.0))
+        expected_perimeter = 940.4551372815756
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon([[6.0, 12.0], [95.0, 634.3], [21.0, 21.0]])
+        expected_perimeter = 1246.3803200052544
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon(
+            [[6.0, 12.0], [95.0, 634.3], [21.0, 21.0], [42.0, 1.0], [9.0, 72.0]]
+        )
+        expected_perimeter = 1353.674636529508
+        self.assertEqual(po.perimeter, expected_perimeter)
+
     def test_subscript(self):
         """Checks whether reassigning a vertex works correctly"""
         po = Polygon([p1, p2, p3, p4])

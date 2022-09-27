@@ -590,6 +590,25 @@ pg_polygon_get_center(pgPolygonObject *self, void *closure)
     return pg_TupleFromDoublePair(self->polygon.c_x, self->polygon.c_y);
 }
 
+static PyObject *
+pg_polygon_get_perimeter(pgPolygonObject *self, void *closure) 
+{
+    pgPolygonBase *poly = &self->polygon;
+
+    double perimeter = 0;
+    for (int i = 0; i < poly->verts_num - 1; i++) {
+        double Vx = poly->vertices[i * 2];
+        double Vy = poly->vertices[i * 2 + 1];
+
+        double Vx2 = poly->vertices[(i + 1) * 2];
+        double Vy2 = poly->vertices[(i + 1) * 2 + 1];
+
+        perimeter += sqrt((Vx2 - Vx) * (Vx2 - Vx) + (Vy2 - Vy) * (Vy2 - Vy));
+    }
+
+    return PyFloat_FromDouble(perimeter);
+}
+
 static int
 pg_polygon_set_center(pgPolygonObject *self, PyObject *value, void *closure)
 {
@@ -615,6 +634,8 @@ static PyGetSetDef pg_polygon_getsets[] = {
      "Number of vertices of the polygon", NULL},
     {"vertices", (getter)pg_polygon_get_vertices, NULL,
      "Vertices of the polygon", NULL},
+    {"perimeter", (getter)pg_polygon_get_perimeter, NULL,
+     "Perimeter of the polygon", NULL},
     {"__safe_for_unpickling__", (getter)pg_polygon_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */

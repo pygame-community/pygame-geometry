@@ -175,6 +175,7 @@ class Circle:
 class Polygon:
     vertices: List[Coordinate]
     verts_num: int
+    perimeter: float
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 
