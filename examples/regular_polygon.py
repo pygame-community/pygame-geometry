@@ -26,7 +26,7 @@ class Game:
         self.display = pg.display
         self.screen = self.display.set_mode((640, 480))
         self.clock = pg.time.Clock()
-        self.radius = 16
+        self.radius = 20
         self.sides = 3
         self.mouse_left = False
         self.mouse_right = False
@@ -34,9 +34,16 @@ class Game:
         self.font = pg.font.SysFont("Consolas", 14, True)
         self.text_timer = 20
         self.text_alpha = 255
-        self.polygon_names = {3: "triangle", 4: "square", 5: "pentagon",
-                              6: "hexagon", 7: "heptagon", 8: "octagon",
-                              9: "enneagon", 10: "decagon"}
+        self.polygon_names = {
+            3: "triangle",
+            4: "square",
+            5: "pentagon",
+            6: "hexagon",
+            7: "heptagon",
+            8: "octagon",
+            9: "enneagon",
+            10: "decagon",
+        }
         self.polygon_text_pos = (600, 466)
 
     def events(self):
@@ -45,7 +52,7 @@ class Game:
         """
         for event in pg.event.get():
             if event.type == pg.QUIT or (
-                    event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
             ):
                 print("\nQuitting program...")
                 pg.quit()
@@ -66,8 +73,13 @@ class Game:
                 elif event.y < 0:
                     self.sides = self.sides - 1 if self.sides > 3 else 3
 
-    def draw_polygon(self, num_sides=3, center=(0.0, 0.0),
-                     radius=1.0, angle=0.0, color=(255, 255, 255)):
+    def draw_polygon(
+        self, num_sides=3,
+        center=(0.0, 0.0),
+        radius=1.0,
+        angle=0.0,
+        color=(255, 255, 255),
+    ):
         """
         Method draw_polygon: draws a regular polygon
         """
@@ -93,9 +105,7 @@ class Game:
         text_bg_size = text_bg.get_size()
         text_bg_rect = text_bg.get_rect(center=pos)
         # pos - (text_bg_size // 2)
-        text_bg_rect.center = tuple(
-            (p - tbg // 2) for p, tbg in zip(pos, text_bg_size)
-        )
+        text_bg_rect.center = tuple((p - tbg // 2) for p, tbg in zip(pos, text_bg_size))
         text_bg.fill(GRAY_BACKGROUND)
         self.screen.blit(text_bg, text_bg_rect.center)
         self.screen.blit(text_surface, text_rect)
@@ -107,32 +117,31 @@ class Game:
         # Mouse events
         if self.mouse_left:
             angle = math.tau * random.uniform(0.0, 1.0)
-            x = pg.mouse.get_pos()[0] \
-                + round(math.cos(angle) * self.radius * 0.5)
-            y = pg.mouse.get_pos()[1] \
-                + round(math.sin(angle) * self.radius * 0.5)
+            x = pg.mouse.get_pos()[0] + round(math.cos(angle) * self.radius * 0.5)
+            y = pg.mouse.get_pos()[1] + round(math.sin(angle) * self.radius * 0.5)
             color = (
                 random.randint(0, 255),
                 random.randint(0, 255),
                 random.randint(0, 255),
             )
             self.draw_polygon(
-                num_sides=self.sides, center=(x, y),
-                radius=self.radius, angle=33.33333, color=color
+                num_sides=self.sides,
+                center=(x, y),
+                radius=self.radius,
+                angle=33.33333,
+                color=color,
             )
         elif self.mouse_right:
             self.screen.fill(GRAY_BACKGROUND)
         elif self.mouse_wheel:
             self.draw_text(
-                f"{self.polygon_names[self.sides]}",
-                "white", self.polygon_text_pos
+                f"{self.polygon_names[self.sides]}", "white", self.polygon_text_pos
             )
             self.mouse_wheel = False
 
         # Screen Title
         title = self.font.render(
-            "Mouse: left = draw | right = reset | wheel = change polygon",
-            True, "white"
+            "Mouse: left = draw | right = reset | wheel = change polygon", True, "white"
         )
         title_background = pg.surface.Surface((640, title.get_height() + 5))
         title_background.set_alpha(180)
