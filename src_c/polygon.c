@@ -130,7 +130,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
         if (length >= 3) {
             Py_ssize_t i;
             Py_ssize_t i2;
-            
+
             out->verts_num = length;
             out->vertices = PyMem_New(double, length * 2);
             if (!out->vertices) {
@@ -221,7 +221,7 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             }
         }
         double x_coord_sum = 0.0;
-        double y_coord_sum = 0.0;   
+        double y_coord_sum = 0.0;
         for (i = 0; i < nargs; i++) {
             i2 = i * 2;
             if (!pg_TwoDoublesFromObj(args[i], &(out->vertices[i2]),
@@ -229,10 +229,10 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                 return 0;
             }
             x_coord_sum += out->vertices[i2];
-            y_coord_sum += out->vertices[i2 + 1];         
+            y_coord_sum += out->vertices[i2 + 1];
         }
         out->c_x = x_coord_sum / out->verts_num;
-        out->c_y = y_coord_sum / out->verts_num;   
+        out->c_y = y_coord_sum / out->verts_num;
         return 1;
     }
 
@@ -367,19 +367,21 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
         goto error;
     }
 
-    double *verts = PyMem_New(double, self->polygon.verts_num*2);
+    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
     if (!verts) {
         return NULL;
     }
-    memcpy(verts, self->polygon.vertices, self->polygon.verts_num * 2 * sizeof(double));
-    
+    memcpy(verts, self->polygon.vertices,
+           self->polygon.verts_num * 2 * sizeof(double));
+
     Py_ssize_t i2;
     for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
         verts[i2] += Dx;
         verts[i2 + 1] += Dy;
     }
-    
-    PyObject *tmp = _pg_polygon_subtype_new2(Py_TYPE(self), verts, self->polygon.verts_num);
+
+    PyObject *tmp = _pg_polygon_subtype_new2(Py_TYPE(self), verts,
+                                             self->polygon.verts_num);
     if (!tmp) {
         PyMem_Free(verts);
         return NULL;
@@ -392,7 +394,7 @@ error:
 
 static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
-                  Py_ssize_t nargs)
+                   Py_ssize_t nargs)
 {
     double Dx = 0.0, Dy = 0.0;
 
@@ -506,23 +508,24 @@ pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
         i += poly->verts_num;
     }
 
-    if (i < 0 || i > poly->verts_num-1) {
+    if (i < 0 || i > poly->verts_num - 1) {
         return RAISE(PyExc_IndexError, "Invalid vertex Index");
     }
 
-    return pg_TupleFromDoublePair(poly->vertices[i * 2], poly->vertices[i * 2 + 1]);
+    return pg_TupleFromDoublePair(poly->vertices[i * 2],
+                                  poly->vertices[i * 2 + 1]);
 }
 
 static int
 pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
 {
     double x, y;
-    
+
     if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
         PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
         return -1;
     }
-    
+
     pgPolygonBase *poly = &self->polygon;
     Py_ssize_t i;
     for (i = 0; i < poly->verts_num; i++) {
@@ -530,7 +533,7 @@ pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
             return 1;
         }
     }
-    
+
     return 0;
 }
 
@@ -600,17 +603,17 @@ pg_polygon_set_center(pgPolygonObject *self, PyObject *value, void *closure)
         return -1;
     }
     _pg_move_polygon_helper(&(self->polygon), (new_c_x - self->polygon.c_x),
-                 (new_c_y - self->polygon.c_y));
+                            (new_c_y - self->polygon.c_y));
     return 0;
 }
 
 static PyGetSetDef pg_polygon_getsets[] = {
     {"c_x", (getter)pg_polygon_get_center_x, (setter)pg_polygon_set_center_x,
-    NULL, NULL},
+     NULL, NULL},
     {"c_y", (getter)pg_polygon_get_center_y, (setter)pg_polygon_set_center_y,
-    NULL, NULL},
+     NULL, NULL},
     {"center", (getter)pg_polygon_get_center, (setter)pg_polygon_set_center,
-    NULL, NULL},
+     NULL, NULL},
     {"verts_num", (getter)pg_polygon_get_verts_num, NULL,
      "Number of vertices of the polygon", NULL},
     {"vertices", (getter)pg_polygon_get_vertices, NULL,
