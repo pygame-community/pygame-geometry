@@ -357,8 +357,8 @@ class LineTypeTest(unittest.TestCase):
         line = Line(45.0, 32.0, 94.0, 67.0)
         self.assertEqual(line.angle, expected_angle)
 
-        expected_angle = -54.00319251197706
-        line = Line(544.0, 235.0, 382.0, 12.0)
+        expected_angle = -53.88065915052026
+        line = Line(544.0, 235.0, 382.0, 13.0)
         self.assertEqual(line.angle, expected_angle)
 
     def test_attrib_length(self):
