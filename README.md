@@ -1,4 +1,5 @@
 # pygame_geometry
+[![PRS Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/novialriptide/pygame_geometry/issues)
 [![Python Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml)
 [![C++ Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml)
 [![Ubuntu latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml)
