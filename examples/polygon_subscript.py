@@ -30,4 +30,4 @@ while running:
     polygon[index] = pygame.mouse.get_pos()
 
     pygame.display.update()
-    clock.tick(165)
+    clock.tick(60)
