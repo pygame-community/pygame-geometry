@@ -20,10 +20,10 @@ while running:
         elif event.type == pygame.MOUSEWHEEL:
             color = (randint(30, 255), randint(30, 255), randint(30, 255))
             if event.y > 0:
-                index = (index + 1) % len(polygon)
+                index = (index + 1) % polygon.verts_num
 
             else:
-                index = (index - 1) % len(polygon)
+                index = (index - 1) % polygon.verts_num
 
     pygame.draw.polygon(screen, color, polygon.vertices, 4)
 
