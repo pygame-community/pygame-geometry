@@ -21,7 +21,7 @@
         ((x, y), radius)
         (x, y, radius)
 
-    Specifically, To construct a circle you can pass the x, y, and radius values as separate
+    Specifically, to construct a circle you can pass the x, y, and radius values as separate
     arguments or as a sequence(list or tuple).
 
     The Circle functions which modify the position or size return a new copy of the
