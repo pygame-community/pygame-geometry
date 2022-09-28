@@ -15,14 +15,14 @@
     the center of the circle and a radius. Circles can also be created from python objects that
     are already a `Circle` or have an attribute named "circle".
 
+    Specifically, to construct a circle you can pass the x, y, and radius values as separate
+    arguments or inside a sequence(list or tuple).
+
     Any function that requires a Circle argument also accepts any of these
     values as Circles, the following are all valid ways:
     ::
         ((x, y), radius)
         (x, y, radius)
-
-    Specifically, to construct a circle you can pass the x, y, and radius values as separate
-    arguments or as a sequence(list or tuple).
 
     The Circle functions which modify the position or size return a new copy of the
     Circle with the affected changes. The original Circle is not modified.
