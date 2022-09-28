@@ -11,7 +11,7 @@
     | :sg:`Circle(x, y, radius) -> Circle`
 
     The `Circle` class provides many useful methods for collision / transform and intersection.
-    A `Circle` can be created from a combination of a pair of coordinates (x, y) that represents
+    A `Circle` can be created from a combination of a pair of coordinates that represent
     the center of the circle and a radius. Circles can also be created from python objects that
     are already a `Circle` or have an attribute named "circle".
 
@@ -21,12 +21,15 @@
         ((x, y), radius)
         (x, y, radius)
 
-    The Circle functions that change its position or size return a new copy of the
+    Specifically, To construct a circle you can pass the x, y, and radius values as separate
+    arguments or as a sequence(list or tuple).
+
+    The Circle functions which modify the position or size return a new copy of the
     Circle with the affected changes. The original Circle is not modified.
     Some methods have an alternate "in-place" version that returns None but affects the
     original Circle. These "in-place" methods are denoted with the "ip" suffix.
 
-    The Circle object has both virtual and non-virtual attributes. Non-virtual attributes
+    The Circle class has both virtual and non-virtual attributes. Non-virtual attributes
     are attributes that are stored in the Circle object itself. Virtual attributes are the
     result of calculations that utilize the Circle's non-virtual attributes.
 
@@ -34,7 +37,7 @@
 
     .. attribute:: x
         | :sl:`x coordinate of the center of the circle`
-        | :sg:`x -> int`
+        | :sg:`x -> float`
         | :sg:`x = float`
 
         The `x` coordinate of the center of the circle. It can be reassigned to move the circle.
@@ -43,7 +46,7 @@
 
     .. attribute:: y
         | :sl:`y coordinate of the center of the circle`
-        | :sg:`y -> int`
+        | :sg:`y -> float`
         | :sg:`y = float`
 
         The `y` coordinate of the center of the circle. It can be reassigned to move the circle.
@@ -62,6 +65,7 @@
     .. attribute:: r_sqr
         | :sl:`radius of the circle squared`
         | :sg:`r_sqr -> float`
+        | :sg:`r_sqr = float`
 
         It's equivalent to `r*r`. It can be reassigned. If reassigned, the radius
         of the circle will be changed to the square root of the new value.
@@ -83,7 +87,7 @@
         | :sg:`diameter = float`
 
         (Virtual attribute)
-        It's calculated using the `d=2*r` formula.It can be reassigned. If reassigned
+        It's calculated using the `d=2*r` formula. It can be reassigned. If reassigned
         the radius will be changed to half the diameter.
         The circle will not be moved from its original position.
 
@@ -94,7 +98,7 @@
 
         (Virtual attribute)
         It's calculated using the `area=pi*r*r` formula. It can be reassigned.
-        If reassigned it will resize the circle radius to produce a circle with matching
+        If reassigned the circle radius will be changed to produce a circle with matching
         area. The circle will not be moved from its original position.
 
     .. attribute:: circumference
@@ -104,5 +108,5 @@
 
         (Virtual attribute)
         It's calculated using the `circumference=2*pi*r` formula. It can be reassigned.
-        If reassigned it will resize the circle radius to produce a circle with matching
+        If reassigned the circle radius will be changed to produce a circle with matching
         circumference. The circle will not be moved from its original position.
