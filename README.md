@@ -19,9 +19,8 @@ subject to change when this project migrates to the
 [official pygame repository](https://github.com/pygame/pygame) or
 becomes a third-party library.
 
-## Installation
+## Installation (Python 3.7+)
 ### Download an experimental build
-**Python 3.7+ required**
 ```
 pip install git+https://github.com/novialriptide/pygame_geometry
 ```
