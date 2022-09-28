@@ -35,7 +35,7 @@ class _HasLineAttribute(Protocol):
 LineValue = Union[_CanBeLine, _HasLineAttribute]
 
 _CanBeCircle = Union[Vector3, Circle, Tuple[float, float, float], Sequence[float]]
-_CanBeCollided = Union[Circle, Rect, Sequence[int, int]]
+_CanBeCollided = Union[Circle, Rect, Line, Sequence[int, int]]
 
 class _HasCirclettribute(Protocol):
     # An object that has a circle attribute that is either a circle, or a function
