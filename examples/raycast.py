@@ -60,9 +60,8 @@ while running:
         ray_endpoint.from_polar((150, x / ray_count * 360))
         ray_endpoint += origin_pos
 
-        ray = geometry.Line(origin_pos, ray_endpoint)
-
-        point = ray.raycast(colliders) or ray_endpoint
+        print(origin_pos, ray_endpoint)
+        point = geometry.raycast(origin_pos, colliders, endpoint=ray_endpoint) or ray_endpoint
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
     line_width = 3

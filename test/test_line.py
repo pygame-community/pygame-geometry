@@ -1,9 +1,8 @@
 import unittest
-from math import sqrt
 
 from pygame import Vector2, Vector3, Rect
 
-from geometry import Circle, Line
+from geometry import Circle, Line, raycast
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -487,38 +486,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(line1.is_parallel(line3))
         self.assertFalse(line1.is_parallel(line4))
         self.assertTrue(line1.is_parallel(line1))
-
-    def test_meth_raycast(self):
-        lineA = Line(0, 0, 10, 10)
-        lineB = Line(0, 0, -1, -1)
-
-        A = Line(0, 10, 10, 0)
-        B = Line(0, 1, 1, 0)
-        C = Line(-1, -2, -3, -4)
-        D = Circle(5, 5, 1)
-        E = Circle(0, 0, 1)
-
-        with self.assertRaises(TypeError):
-            lineA.raycast(A, B, C)
-
-        with self.assertRaises(TypeError):
-            lineA.raycast()
-
-        with self.assertRaises(TypeError):
-            lineA.raycast(lineA, "5")
-
-        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
-        self.assertEqual(
-            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
-        )
-        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
-        self.assertEqual(
-            lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476)
-        )
-        self.assertEqual(
-            lineB.raycast([lineA, lineB, A, B, C, D, E]),
-            (-0.7071067811865476, -0.7071067811865476),
-        )
 
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)

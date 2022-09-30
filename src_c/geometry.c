@@ -7,6 +7,104 @@
 #endif /* ~__AVX2__ */
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
+static PyObject *
+pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *startpoint;
+    PyObject *endpoint;
+    PyObject **farr;
+    PyObject **collisions;
+    Py_ssize_t loop;
+    double angle = 0;
+    double max_dist = 0;
+    double target_pos[2] = {0, 0};
+
+    static char *keywords[] = {"start_pos", "collisions", "endpoint", "angle", "max", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|Odd",
+        keywords, &startpoint, &collisions, &endpoint, &angle, &max_dist))
+    {
+        return NULL;
+    }
+
+    farr = PySequence_Fast_ITEMS(collisions);
+
+    if (!PySequence_Check(startpoint) || !PySequence_Check(endpoint)) {
+        return RAISE(PyExc_TypeError, "positions must be sequences");
+    }
+
+    Py_ssize_t arg0_length = PySequence_Size(startpoint);
+    Py_ssize_t arg1_length = PySequence_Size(endpoint);
+    Py_ssize_t col_length = PySequence_Size(collisions);
+
+    if (arg0_length != arg1_length) {
+        Py_RETURN_NONE; // start and end pos vector length isnt the same
+    }
+    else if (arg0_length != 2) {
+        Py_RETURN_NONE; // start pos length is invalid
+    }
+    else if (arg1_length != 2) {
+        Py_RETURN_NONE; // end pos length is invalid
+    }
+
+    pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(&pgLine_Type, NULL, NULL);
+    if (line) {
+        line->line.x1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 0));
+        line->line.y1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 1));
+    }
+
+    if (endpoint) {
+        line->line.x2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 0));
+        line->line.y2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 1));
+    }
+
+    if (angle && max_dist) {
+
+    }
+
+    // find the best t
+    double record = DBL_MAX;
+    double temp_t = 0;
+
+    for (loop = 0; loop < col_length; loop++) {
+        if (pgCircle_Check(farr[loop])) {
+            if (pgIntersection_LineCircle(&(line->line),
+                                          &pgCircle_AsCircle(farr[loop]), NULL,
+                                          NULL, &temp_t)) {
+                record = MIN(record, temp_t);
+            }
+        }
+        else if (pgLine_Check(farr[loop])) {
+            if (pgIntersection_LineLine(&(line->line),
+                                        &pgLine_AsLine(farr[loop]), NULL, NULL,
+                                        &temp_t)) {
+                record = MIN(record, temp_t);
+            }
+        }
+        else if (pgRect_Check(farr[loop])) {
+            if (pgIntersection_LineRect(&(line->line),
+                                        &pgRect_AsRect(farr[loop]), NULL, NULL,
+                                        &temp_t)) {
+                record = MIN(record, temp_t);
+            }
+        }
+        else {
+            return RAISE(PyExc_TypeError,
+                         "first argument of raycast() must be a sequence of "
+                         "Line, Circle or Rect objects");
+        }
+    }
+
+    if (record == DBL_MAX) {
+        Py_RETURN_NONE;
+    }
+
+    // construct the return with this formula: A+tB
+    return pg_TupleFromDoublePair(
+        line->line.x1 + record * (line->line.x2 - line->line.x1),
+        line->line.y1 + record * (line->line.y2 - line->line.y1));
+}
+
+
 
 static PyObject *
 geometry_regular_polygon(PyObject *_null, PyObject *const *args,
@@ -74,6 +172,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
      NULL},
+    {"raycast", (PyCFunction)pg_raycast, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
@@ -187,3 +286,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
+                 
