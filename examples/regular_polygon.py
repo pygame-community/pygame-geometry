@@ -129,7 +129,7 @@ class Game:
                 num_sides=self.sides,
                 center=(x, y),
                 radius=self.radius,
-                angle=33.33333,
+                angle=random.randint(0, 360),
                 color=color,
             )
         elif self.mouse_right:
