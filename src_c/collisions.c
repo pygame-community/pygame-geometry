@@ -90,12 +90,11 @@ pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
     double dx3 = line->x1 - line->x2;
     double dy3 = line->y1 - line->y2;
 
-    double d1 = sqrt((dx * dx) + (dy * dy));
-    double d2 = sqrt((dx2 * dx2) + (dy2 * dy2));
-    double d3 = sqrt((dx3 * dx3) + (dy3 * dy3));
+    double d = sqrt(dx * dx + dy * dy) + sqrt(dx2 * dx2 + dy2 * dy2);
+    double d3 = sqrt(dx3 * dx3 + dy3 * dy3);
 
     double width = 0.000001;   
-    return d1+d2 >= d3-width && d1+d2 <= d3+width;
+    return d >= d3-width && d <= d3+width;
 }
 
 static int
