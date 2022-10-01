@@ -473,11 +473,37 @@ static PyNumberMethods pg_circle_as_number = {
 static PyObject *
 pg_circle_repr(pgCircleObject *self)
 {
-    // dont comments on it (-_-)
-    return PyUnicode_FromFormat("pygame.Circle(%S, %S, %S)",
-                                PyFloat_FromDouble(self->circle.x),
-                                PyFloat_FromDouble(self->circle.y),
-                                PyFloat_FromDouble(self->circle.r));
+    PyObject *x, *y, *r;
+
+    x = PyFloat_FromDouble(self->circle.x);
+    if (!x) {
+        return NULL;
+    }
+    y = PyFloat_FromDouble(self->circle.y);
+    if (!y) {
+        Py_DECREF(x);
+        return NULL;
+    }
+    r = PyFloat_FromDouble(self->circle.r);
+    if (!r) {
+        Py_DECREF(x);
+        Py_DECREF(y);
+        return NULL;
+    }
+
+    PyObject *result = PyUnicode_FromFormat("<Circle((%R, %R), %R)>", x, y, r);
+    if (!result) {
+        Py_DECREF(x);
+        Py_DECREF(y);
+        Py_DECREF(r);
+        return NULL;
+    }
+
+    Py_DECREF(x);
+    Py_DECREF(y);
+    Py_DECREF(r);
+
+    return result;
 }
 
 static PyObject *

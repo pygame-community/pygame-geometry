@@ -443,8 +443,7 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
 {
     int result = 0;
     if (pgLine_Check(arg)) {
-        result =
-            pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
+        result = pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
     }
     else if (pgRect_Check(arg)) {
         result = pgCollision_RectLine(&pgRect_AsRect(arg), &self->line);
@@ -813,11 +812,46 @@ static PyNumberMethods pg_line_as_number = {
 static PyObject *
 pg_line_repr(pgLineObject *self)
 {
-    // dont comments on it (-_-)
-    return PyUnicode_FromFormat(
-        "pygame.Line(%S, %S, %S, %S)", PyFloat_FromDouble(self->line.x1),
-        PyFloat_FromDouble(self->line.y1), PyFloat_FromDouble(self->line.x2),
-        PyFloat_FromDouble(self->line.y2));
+    PyObject *result, *x1, *y1, *x2, *y2;
+
+    x1 = PyFloat_FromDouble(self->line.x1);
+    if (!x1) {
+        return NULL;
+    }
+    y1 = PyFloat_FromDouble(self->line.y1);
+    if (!y1) {
+        Py_DECREF(x1);
+        return NULL;
+    }
+    x2 = PyFloat_FromDouble(self->line.x2);
+    if (!x2) {
+        Py_DECREF(x1);
+        Py_DECREF(y1);
+        return NULL;
+    }
+    y2 = PyFloat_FromDouble(self->line.y2);
+    if (!y2) {
+        Py_DECREF(x1);
+        Py_DECREF(y1);
+        Py_DECREF(x2);
+        return NULL;
+    }
+
+    result =
+        PyUnicode_FromFormat("<Line((%R, %R), (%R, %R))>", x1, y1, x2, y2);
+    if (!result) {
+        Py_DECREF(x1);
+        Py_DECREF(y1);
+        Py_DECREF(x2);
+        Py_DECREF(y2);
+        return NULL;
+    }
+    Py_DECREF(x1);
+    Py_DECREF(y1);
+    Py_DECREF(x2);
+    Py_DECREF(y2);
+
+    return result;
 }
 
 static PyObject *
