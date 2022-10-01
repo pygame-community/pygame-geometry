@@ -336,7 +336,7 @@ pg_polygon_repr(pgPolygonObject *self)
         return NULL;
     }
 
-    result = PyUnicode_FromFormat("<Polygon(%R, %R)>", verts, verts_num);
+    result = PyUnicode_FromFormat("<Polygon(%R, %R)>", verts_num, verts);
     if (!result) {
         Py_DECREF(verts);
         Py_DECREF(verts_num);

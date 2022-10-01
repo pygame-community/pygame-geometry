@@ -377,6 +377,20 @@ class CircleTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del c.diameter
 
+    def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        c_str = "<Circle((10.3, 3.2), 4.3)>"
+        circle = Circle((10.3, 3.2), 4.3)
+        self.assertEqual(str(circle), c_str)
+        self.assertEqual(circle.__str__(), c_str)
+
+    def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        c_repr = "<Circle((10.3, 3.2), 4.3)>"
+        circle = Circle((10.3, 3.2), 4.3)
+        self.assertEqual(repr(circle), c_repr)
+        self.assertEqual(circle.__repr__(), c_repr)
+
     def test_copy(self):
         c = Circle(10, 10, 4)
         # check 1 arg passed
