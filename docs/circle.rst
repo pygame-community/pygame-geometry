@@ -38,7 +38,6 @@
     .. attribute:: x
         | :sl:`x coordinate of the center of the circle`
         | :sg:`x -> float`
-        | :sg:`x = float`
 
         The `x` coordinate of the center of the circle. It can be reassigned to move the circle.
         Reassigning the `x` attribute will move the circle to the new `x` coordinate.
@@ -47,7 +46,6 @@
     .. attribute:: y
         | :sl:`y coordinate of the center of the circle`
         | :sg:`y -> float`
-        | :sg:`y = float`
 
         The `y` coordinate of the center of the circle. It can be reassigned to move the circle.
         Reassigning the `y` attribute will move the circle to the new `y` coordinate.
@@ -56,7 +54,6 @@
     .. attribute:: r
         | :sl:`radius of the circle`
         | :sg:`r -> float`
-        | :sg:`r = float`
 
         It is not possible to set the radius to a negative value. It can be reassigned.
         If reassigned it will only change the radius of the circle.
@@ -65,7 +62,6 @@
     .. attribute:: r_sqr
         | :sl:`radius of the circle squared`
         | :sg:`r_sqr -> float`
-        | :sg:`r_sqr = float`
 
         It's equivalent to `r*r`. It can be reassigned. If reassigned, the radius
         of the circle will be changed to the square root of the new value.
@@ -73,8 +69,7 @@
 
     .. attribute:: center
         | :sl:`x and y coordinates of the center of the circle`
-        | :sg:`center -> (x, y)`
-        | :sg:`center = (x, y)`
+        | :sg:`center -> (float, float)`
 
         It's a tuple containing the `x` and `y` coordinates that represent the center
         of the circle. It can be reassigned. If reassigned, the circle will be moved
@@ -83,7 +78,6 @@
     .. attribute:: diameter, d
         | :sl:`diameter of the circle`
         | :sg:`diameter -> float`
-        | :sg:`diameter = float`
 
         It's calculated using the `d=2*r` formula. It can be reassigned. If reassigned
         the radius will be changed to half the diameter.
@@ -92,7 +86,6 @@
     .. attribute:: area
         | :sl:`area of the circle`
         | :sg:`area -> float`
-        | :sg:`area = float`
 
         It's calculated using the `area=pi*r*r` formula. It can be reassigned.
         If reassigned the circle radius will be changed to produce a circle with matching
@@ -101,7 +94,6 @@
     .. attribute:: circumference
         | :sl:`circumference of the circle`
         | :sg:`circumference -> float`
-        | :sg:`circumference = float`
 
         It's calculated using the `circumference=2*pi*r` formula. It can be reassigned.
         If reassigned the circle radius will be changed to produce a circle with matching
