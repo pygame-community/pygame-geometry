@@ -672,12 +672,18 @@ class LineTypeTest(unittest.TestCase):
         self.assertTrue(bool(line))
 
     def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        l_str = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(str(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(str(line), l_str)
+        self.assertEqual(line.__str__(), l_str)
 
     def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        l_repr = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(repr(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(repr(line), l_repr)
+        self.assertEqual(line.__repr__(), l_repr)
 
     def test_seq_length(self):
         self.assertEqual(len(Line(1, 2, 3, 4)), 4)

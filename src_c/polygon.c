@@ -349,9 +349,24 @@ pg_polygon_dealloc(pgPolygonObject *self)
 static PyObject *
 pg_polygon_repr(pgPolygonObject *self)
 {
-    return PyUnicode_FromFormat("<Polygon(%S, %S)>",
-                                PyLong_FromLong((int)self->polygon.verts_num),
-                                _pg_polygon_vertices_aslist(&self->polygon));
+    PyObject *result, *verts, *verts_num;
+
+    verts = _pg_polygon_vertices_aslist(&self->polygon);
+    if (!verts) {
+        return NULL;
+    }
+    verts_num = PyLong_FromLong((long)self->polygon.verts_num);
+    if (!verts_num) {
+        Py_DECREF(verts);
+        return NULL;
+    }
+
+    result = PyUnicode_FromFormat("<Polygon(%R, %R)>", verts_num, verts);
+
+    Py_DECREF(verts);
+    Py_DECREF(verts_num);
+
+    return result;
 }
 
 static PyObject *

@@ -369,6 +369,20 @@ class PolygonTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del poly.center
 
+    def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        p_str = "<Polygon(3, [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])>"
+        polygon = Polygon([(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+        self.assertEqual(str(polygon), p_str)
+        self.assertEqual(polygon.__str__(), p_str)
+
+    def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        p_repr = "<Polygon(3, [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])>"
+        polygon = Polygon([(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+        self.assertEqual(repr(polygon), p_repr)
+        self.assertEqual(polygon.__repr__(), p_repr)
+
     def test_move(self):
         """Checks whether polygon moved correctly."""
         poly = Polygon(_some_vertices.copy())
