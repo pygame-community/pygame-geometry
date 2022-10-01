@@ -330,7 +330,7 @@ pg_polygon_repr(pgPolygonObject *self)
     if (!verts) {
         return NULL;
     }
-    verts_num = PyLong_FromLong((int)self->polygon.verts_num);
+    verts_num = PyLong_FromLong((long)self->polygon.verts_num);
     if (!verts_num) {
         Py_DECREF(verts);
         return NULL;
