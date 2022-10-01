@@ -839,13 +839,7 @@ pg_line_repr(pgLineObject *self)
 
     result =
         PyUnicode_FromFormat("<Line((%R, %R), (%R, %R))>", x1, y1, x2, y2);
-    if (!result) {
-        Py_DECREF(x1);
-        Py_DECREF(y1);
-        Py_DECREF(x2);
-        Py_DECREF(y2);
-        return NULL;
-    }
+
     Py_DECREF(x1);
     Py_DECREF(y1);
     Py_DECREF(x2);

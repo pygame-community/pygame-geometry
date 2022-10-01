@@ -492,12 +492,6 @@ pg_circle_repr(pgCircleObject *self)
     }
 
     PyObject *result = PyUnicode_FromFormat("<Circle((%R, %R), %R)>", x, y, r);
-    if (!result) {
-        Py_DECREF(x);
-        Py_DECREF(y);
-        Py_DECREF(r);
-        return NULL;
-    }
 
     Py_DECREF(x);
     Py_DECREF(y);
