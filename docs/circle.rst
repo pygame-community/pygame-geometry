@@ -76,7 +76,6 @@
         | :sg:`center -> (x, y)`
         | :sg:`center = (x, y)`
 
-        (Virtual attribute)
         It's a tuple containing the `x` and `y` coordinates that represent the center
         of the circle. It can be reassigned. If reassigned, the circle will be moved
         to the new position. The radius will not be affected.
@@ -86,7 +85,6 @@
         | :sg:`diameter -> float`
         | :sg:`diameter = float`
 
-        (Virtual attribute)
         It's calculated using the `d=2*r` formula. It can be reassigned. If reassigned
         the radius will be changed to half the diameter.
         The circle will not be moved from its original position.
@@ -96,7 +94,6 @@
         | :sg:`area -> float`
         | :sg:`area = float`
 
-        (Virtual attribute)
         It's calculated using the `area=pi*r*r` formula. It can be reassigned.
         If reassigned the circle radius will be changed to produce a circle with matching
         area. The circle will not be moved from its original position.
@@ -106,7 +103,6 @@
         | :sg:`circumference -> float`
         | :sg:`circumference = float`
 
-        (Virtual attribute)
         It's calculated using the `circumference=2*pi*r` formula. It can be reassigned.
         If reassigned the circle radius will be changed to produce a circle with matching
         circumference. The circle will not be moved from its original position.
