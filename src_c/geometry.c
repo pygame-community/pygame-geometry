@@ -90,7 +90,7 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         }
         else {
             return RAISE(PyExc_TypeError,
-                         "first argument of raycast() must be a sequence of "
+                         "collisions must be a sequence of "
                          "Line, Circle or Rect objects");
         }
     }
