@@ -26,5 +26,6 @@ class RaycastTest(unittest.TestCase):
             result = raycast(x[0], collisions, endpoint=x[1])
             print(result)
 
+
 if __name__ == "__main__":
     unittest.main()
