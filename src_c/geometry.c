@@ -36,14 +36,11 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
     Py_ssize_t arg1_length = PySequence_Size(endpoint);
     Py_ssize_t col_length = PySequence_Size(collisions);
 
-    if (arg0_length != arg1_length) {
-        Py_RETURN_NONE; // start and end pos vector length isnt the same
-    }
-    else if (arg0_length != 2) {
-        Py_RETURN_NONE; // start pos length is invalid
+    if (arg0_length != 2) {
+        return RAISE(PyExc_TypeError, "incorrect start position size");
     }
     else if (arg1_length != 2) {
-        Py_RETURN_NONE; // end pos length is invalid
+        return RAISE(PyExc_TypeError, "incorrect end position size");
     }
 
     pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(&pgLine_Type, NULL, NULL);
@@ -52,13 +49,17 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         line->line.y1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 1));
     }
 
+    if (endpoint && (angle || max_dist)) {
+        return RAISE(PyExc_TypeError, "incorrect amount of arguments");
+    }
+
     if (endpoint) {
         line->line.x2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 0));
         line->line.y2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 1));
     }
-
-    if (angle && max_dist) {
-
+    else if (angle && max_dist) {
+        line->line.x2 = cos(angle * PI / 180) * max_dist;
+        line->line.y2 = sin(angle * PI / 180) * max_dist;
     }
 
     // find the best t
