@@ -56,9 +56,11 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         line->line.x2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 0));
         line->line.y2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 1));
     }
-    else if (angle && max_dist) {
-        line->line.x2 = line->line.x1 - cos(angle * PI / 180) * max_dist;
-        line->line.y2 = line->line.y1 - sin(angle * PI / 180) * max_dist;
+    else {
+        double offset1 = cos(angle * PI / 180) * max_dist;
+        double offset2 = sin(angle * PI / 180) * max_dist;
+        line->line.x2 = line->line.x1 - offset1;
+        line->line.y2 = line->line.y1 - offset2;
     }
 
     // find the best t
@@ -288,4 +290,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                  
+                     
