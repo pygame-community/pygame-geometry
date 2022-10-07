@@ -15,7 +15,7 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject **farr;
     PyObject **collisions;
     Py_ssize_t loop;
-    double angle = 0;
+    double angle;
     double max_dist;
     double target_pos[2] = {0, 0};
 
@@ -43,10 +43,6 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (arg0_length != 2) {
         return RAISE(PyExc_TypeError, "incorrect start position size");
-    }
-
-    if ((endpoint != NULL && angle) || (endpoint != NULL && max_dist)) {
-        return RAISE(PyExc_TypeError, "incorrect amount of arguments");
     }
 
     if (endpoint != NULL) {
@@ -293,4 +289,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                 
+                  
