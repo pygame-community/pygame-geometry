@@ -288,5 +288,4 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
     double dy = cy - test_y;
 
     return dx * dx + dy * dy <= circle->r_sqr;
-    return 0;
 }
