@@ -11,12 +11,12 @@ static PyObject *
 pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     PyObject *startpoint;
-    PyObject *endpoint;
+    PyObject *endpoint = NULL;
     PyObject **farr;
     PyObject **collisions;
     Py_ssize_t loop;
     double angle = 0;
-    double max_dist = 0;
+    double max_dist;
     double target_pos[2] = {0, 0};
 
     static char *keywords[] = {"start_pos", "collisions", "endpoint", "angle", "max", NULL};
@@ -28,19 +28,8 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
 
     farr = PySequence_Fast_ITEMS(collisions);
 
-    if (!PySequence_Check(startpoint) || !PySequence_Check(endpoint)) {
+    if (!PySequence_Check(startpoint)) {
         return RAISE(PyExc_TypeError, "positions must be sequences");
-    }
-
-    Py_ssize_t arg0_length = PySequence_Size(startpoint);
-    Py_ssize_t arg1_length = PySequence_Size(endpoint);
-    Py_ssize_t col_length = PySequence_Size(collisions);
-
-    if (arg0_length != 2) {
-        return RAISE(PyExc_TypeError, "incorrect start position size");
-    }
-    else if (arg1_length != 2) {
-        return RAISE(PyExc_TypeError, "incorrect end position size");
     }
 
     pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(&pgLine_Type, NULL, NULL);
@@ -48,19 +37,34 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         line->line.x1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 0));
         line->line.y1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 1));
     }
+    
+    Py_ssize_t arg0_length = PySequence_Size(startpoint);
+    Py_ssize_t col_length = PySequence_Size(collisions);
 
-    if (endpoint && (angle || max_dist)) {
+    if (arg0_length != 2) {
+        return RAISE(PyExc_TypeError, "incorrect start position size");
+    }
+
+    if (endpoint != NULL && (angle || max_dist)) {
         return RAISE(PyExc_TypeError, "incorrect amount of arguments");
     }
 
-    if (endpoint) {
+    if (endpoint != NULL) {
+        if (!PySequence_Check(endpoint)) {
+            return RAISE(PyExc_TypeError, "positions must be sequences");
+        }
+        Py_ssize_t arg1_length = PySequence_Size(endpoint);
+        if (arg1_length != 2) {
+            return RAISE(PyExc_TypeError, "incorrect end position size");
+        }
         line->line.x2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 0));
         line->line.y2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 1));
     }
     else if (angle && max_dist) {
-        line->line.x2 = cos(angle * PI / 180) * max_dist;
-        line->line.y2 = sin(angle * PI / 180) * max_dist;
+        line->line.x2 = line->line.x1 - cos(angle * PI / 180) * max_dist;
+        line->line.y2 = line->line.y1 - sin(angle * PI / 180) * max_dist;
     }
+    printf("%lf, %lf\n", line->line.x2, line->line.y2);
 
     // find the best t
     double record = DBL_MAX;
@@ -96,7 +100,9 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 
     if (record == DBL_MAX) {
-        Py_RETURN_NONE;
+        return pg_TupleFromDoublePair(
+            line->line.x2,
+            line->line.y2);
     }
 
     // construct the return with this formula: A+tB
