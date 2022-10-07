@@ -60,7 +60,6 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         line->line.x2 = line->line.x1 - cos(angle * PI / 180) * max_dist;
         line->line.y2 = line->line.y1 - sin(angle * PI / 180) * max_dist;
     }
-    printf("%lf, %lf\n", line->line.x2, line->line.y2);
 
     // find the best t
     double record = DBL_MAX;
