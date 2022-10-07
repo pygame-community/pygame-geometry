@@ -45,7 +45,7 @@ pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
         return RAISE(PyExc_TypeError, "incorrect start position size");
     }
 
-    if (endpoint != NULL && (angle || max_dist)) {
+    if ((endpoint != NULL && angle) || (endpoint != NULL && max_dist)) {
         return RAISE(PyExc_TypeError, "incorrect amount of arguments");
     }
 
