@@ -193,14 +193,14 @@ def regular_polygon(
 ) -> Polygon: ...
 @overload
 def raycast(
-    startpoint: Coordinate,
-    collisions: Sequence[Circle, Line],
-    endpoint: Union[Coordinate, None] = None,
-) -> Union[Coordinate, None]: ...
+    originpos: Coordinate,
+    endpos: Coordinate,
+    colliders: List[Rect, Circle, Line],
+) -> Coordinate: ...
 @overload
 def raycast(
-    startpoint: Coordinate,
-    collisions: Sequence[Circle, Line],
-    angle: Union[float, None] = None,
-    max: Union[float, None] = None,
-) -> Union[Coordinate, None]: ...
+    originpos: Coordinate,
+    angle: float,
+    max_dist: float,
+    colliders: List[Rect, Circle, Line],
+) -> Coordinate: ...

@@ -7,60 +7,57 @@
 #endif /* ~__AVX2__ */
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
+
 static PyObject *
 pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
-    PyObject *startpoint;
-    PyObject *endpoint = NULL;
+    double start_x, start_y;
+    double end_x, end_y;
     PyObject **farr;
-    PyObject **collisions;
+    Py_ssize_t col_length;
     Py_ssize_t loop;
     double angle;
     double max_dist;
-    double target_pos[2] = {0, 0};
 
-    static char *keywords[] = {"start_pos", "collisions", "endpoint", "angle", "max", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO|Odd",
-        keywords, &startpoint, &collisions, &endpoint, &angle, &max_dist))
-    {
-        return NULL;
+    if (nargs == 3) {
+        if (!PySequence_Check(args[0]) || !PySequence_Check(args[1]) || !PySequence_FAST_CHECK(args[2])) {
+            return RAISE(PyExc_TypeError,
+                        "argument of raycast() must be a sequence");
+        }
+        
+        if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
+            return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
+        }
+        if (!pg_TwoDoublesFromObj(args[1], &end_x, &end_y)) {
+            return RAISE(PyExc_TypeError, "the end position requires a pair of floats");
+        }
+        farr = PySequence_Fast_ITEMS(args[2]);
+        col_length = PySequence_Fast_GET_SIZE(args[2]);
+    }
+    else if (nargs == 4) {
+        if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
+            return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
+        }
+        if (!PyLong_Check(args[1])) {
+            angle = PyLong_AsLong(args[1]);
+            end_x = start_x - cos(angle * PI / 180) * max_dist;
+            end_y = start_y - sin(angle * PI / 180) * max_dist;
+        }
+        farr = PySequence_Fast_ITEMS(args[2]);
+        col_length = PySequence_Fast_GET_SIZE(args[2]);
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                    "invalid number of arguments");
     }
 
-    farr = PySequence_Fast_ITEMS(collisions);
-
-    if (!PySequence_Check(startpoint)) {
-        return RAISE(PyExc_TypeError, "positions must be sequences");
-    }
 
     pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(&pgLine_Type, NULL, NULL);
     if (line) {
-        line->line.x1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 0));
-        line->line.y1 = PyFloat_AsDouble(PySequence_GetItem(startpoint, 1));
-    }
-    
-    Py_ssize_t arg0_length = PySequence_Size(startpoint);
-    Py_ssize_t col_length = PySequence_Size(collisions);
-
-    if (arg0_length != 2) {
-        return RAISE(PyExc_TypeError, "incorrect start position size");
-    }
-
-    if (endpoint != NULL) {
-        if (!PySequence_Check(endpoint)) {
-            return RAISE(PyExc_TypeError, "positions must be sequences");
-        }
-        Py_ssize_t arg1_length = PySequence_Size(endpoint);
-        if (arg1_length != 2) {
-            return RAISE(PyExc_TypeError, "incorrect end position size");
-        }
-        line->line.x2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 0));
-        line->line.y2 = PyFloat_AsDouble(PySequence_GetItem(endpoint, 1));
-    }
-    else {
-        double offset1 = cos(angle * PI / 180) * max_dist;
-        double offset2 = sin(angle * PI / 180) * max_dist;
-        line->line.x2 = line->line.x1 - offset1;
-        line->line.y2 = line->line.y1 - offset2;
+        line->line.x1 = start_x;
+        line->line.y1 = start_y;
+        line->line.x2 = end_x;
+        line->line.y2 = end_y;
     }
 
     // find the best t
@@ -176,7 +173,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
      NULL},
-    {"raycast", (PyCFunction)pg_raycast, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"raycast", (PyCFunction)pg_raycast, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
@@ -290,4 +287,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                     
+                       
