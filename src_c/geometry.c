@@ -38,13 +38,16 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
             return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
         }
-        if (!PyLong_Check(args[1])) {
-            angle = PyLong_AsLong(args[1]);
-            end_x = start_x - cos(angle * PI / 180) * max_dist;
-            end_y = start_y - sin(angle * PI / 180) * max_dist;
+        if (!PyFloat_Check(args[1]) && !pg_DoubleFromObj(args[1], &angle)) {
+            return RAISE(PyExc_TypeError, "invalid angle");
         }
-        farr = PySequence_Fast_ITEMS(args[2]);
-        col_length = PySequence_Fast_GET_SIZE(args[2]);
+        if (!PyFloat_Check(args[2]) && !pg_DoubleFromObj(args[2], &max_dist)) {
+            return RAISE(PyExc_TypeError, "invalid max distance");
+        }
+        end_x = start_x - cos(angle * PI / 180) * max_dist;
+        end_y = start_y - sin(angle * PI / 180) * max_dist;
+        farr = PySequence_Fast_ITEMS(args[3]);
+        col_length = PySequence_Fast_GET_SIZE(args[3]);
     }
     else {
         return RAISE(PyExc_TypeError,
@@ -287,4 +290,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                       
+                        
