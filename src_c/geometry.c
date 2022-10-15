@@ -8,7 +8,7 @@
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
 static PyObject *
-pg_raycast(PyObject *self, PyObject *args, PyObject *kwargs)
+pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
     PyObject *startpoint;
     PyObject *endpoint = NULL;
