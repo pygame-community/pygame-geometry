@@ -502,6 +502,125 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.move_ip(*arg)
 
+    def test_rotate(self):
+        """Tests whether the polygon rotates correctly."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+
+    def test_rotate_invalid_args(self):
+        """Tests whether the function can handle invalid parameter types correctly."""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector2(1, 1),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.rotate(value)
+
+    def test_rotate_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.rotate(*arg)
+
+    def test_rotate_return_type(self):
+        """Tests whether the function returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertIsInstance(poly.rotate(1), Polygon)
+        self.assertIsInstance(poly.rotate(1.0), Polygon)
+        self.assertIsInstance(poly.rotate(0), Polygon)
+        self.assertIsInstance(poly.rotate(0.0), Polygon)
+        self.assertIsInstance(poly.rotate(-23.13), Polygon)
+
+    def test_rotate_ip(self):
+        """Tests whether the polygon rotates correctly."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+
+        poly.rotate_ip(90)
+
+    def test_rotate_ip_invalid_args(self):
+        """Tests whether the function can handle invalid parameter types correctly."""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector2(1, 1),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(value)
+
+    def test_rotate_ip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        with self.assertRaises(TypeError):
+            poly.rotate_ip()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(*arg)
+
+    def test_rotate_ip_return_type(self):
+        """Tests whether the function returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertEqual(type(poly.rotate_ip(0.0)), type(None))
+        self.assertEqual(type(poly.rotate_ip(1.0)), type(None))
+        self.assertEqual(type(poly.rotate_ip(-1.0)), type(None))
+
+    def test_rotate_ip_inplace(self):
+        """Ensures that rotating the polygon by 0 degrees will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.rotate_ip(0)
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_rotate_inplace(self):
+        """Ensures that rotating the polygon by 0 degrees will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.rotate(0)
+
+        self.assertEqual(new_poly.vertices, poly.vertices)
+        self.assertEqual(new_poly.c_x, poly.c_x)
+        self.assertEqual(new_poly.c_y, poly.c_y)
+
+        self.assertEqual(new_poly.vertices, vertices)
+        self.assertEqual(new_poly.c_x, center_x)
+        self.assertEqual(new_poly.c_y, center_y)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -7,6 +7,10 @@
 #include <stddef.h>
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static int
 _set_polygon_center_coords(pgPolygonBase *polygon)
 {
@@ -460,9 +464,88 @@ error:
     return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
+static void
+_pg_rotate_polygon_helper(double *vertices, Py_ssize_t verts_num, double angle,
+                          double c_x, double c_y)
+{
+    double angle_rad = angle * M_PI / 180.0;
+    double cos_a = cos(angle_rad) - 1;
+    double sin_a = sin(angle_rad);
+
+    Py_ssize_t i2;
+    for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+        double dx = vertices[i2] - c_x;
+        double dy = vertices[i2 + 1] - c_y;
+        vertices[i2] += dx * cos_a - dy * sin_a;
+        vertices[i2 + 1] += dx * sin_a + dy * cos_a;
+    }
+}
+
+static PyObject *
+pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
+{
+    double angle = 0.0;
+
+    if (!pg_DoubleFromObj(arg, &angle)) {
+        return RAISE(PyExc_TypeError, "angle parameter must be numeric");
+    }
+
+    if (angle == 0.0) {
+        /* No rotation, return a copy */
+        return _pg_polygon_subtype_new2(Py_TYPE(self), self->polygon.vertices,
+                                        self->polygon.verts_num);
+    }
+
+    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
+    if (!verts) {
+        return NULL;
+    }
+
+    memcpy(verts, self->polygon.vertices,
+           self->polygon.verts_num * 2 * sizeof(double));
+
+    _pg_rotate_polygon_helper(verts, self->polygon.verts_num, angle,
+                              self->polygon.c_x, self->polygon.c_y);
+
+    /*This could use more optimization as it calculates the center of the
+     * rotated polygon. It's not needed because we rotate around the center of
+     * the polygon anyway so the center should always stay the same. We need a
+     * suite of functions that account for this*/
+    PyObject *tmp = _pg_polygon_subtype_new2_transfer(Py_TYPE(self), verts,
+                                                      self->polygon.verts_num);
+    if (!tmp) {
+        PyMem_Free(verts);
+        return NULL;
+    }
+
+    return tmp;
+}
+
+static PyObject *
+pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
+{
+    double angle = 0.0;
+
+    if (!pg_DoubleFromObj(arg, &angle)) {
+        return RAISE(PyExc_TypeError, "angle parameter must be numeric");
+    }
+
+    if (angle == 0.0) {
+        /* No rotation, return None immediately */
+        Py_RETURN_NONE;
+    }
+
+    _pg_rotate_polygon_helper(self->polygon.vertices, self->polygon.verts_num,
+                              angle, self->polygon.c_x, self->polygon.c_y);
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
+    {"rotate", (PyCFunction)pg_polygon_rotate, METH_O, NULL},
+    {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
