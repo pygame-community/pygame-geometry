@@ -289,3 +289,29 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
 
     return dx * dx + dy * dy <= circle->r_sqr;
 }
+
+static int
+pgCollision_PolygonPoint(pgPolygonBase *poly, double x, double y)
+{
+    int collision = 0;
+    Py_ssize_t i, j;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        double xi = poly->vertices[i * 2];
+        double yi = poly->vertices[i * 2 + 1];
+
+        if (x == xi && y == yi) {
+            return 1;
+        }
+
+        double xj = poly->vertices[j * 2];
+        double yj = poly->vertices[j * 2 + 1];
+
+        if (((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            collision = !collision;
+        }
+    }
+
+    return collision;
+}

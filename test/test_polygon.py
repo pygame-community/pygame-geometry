@@ -502,6 +502,75 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.move_ip(*arg)
 
+    def test_collidepoint(self):
+        """Tests whether the collidepoint method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        # check that the center of the polygon collides with the polygon
+        self.assertTrue(poly.collidepoint(poly.center))
+
+        # check that each vertex collides with the polygon
+        for vertex in poly.vertices:
+            self.assertTrue(poly.collidepoint(vertex))
+
+        # check that a point outside the polygon does not collide with the polygon
+        self.assertFalse(poly.collidepoint((100.0, 100.0)))
+
+        # check that a point on the edge of the polygon collides with the polygon
+        self.assertTrue(poly.collidepoint((15.0, 15.0)))
+
+        # check that a point sligtly outside the polygon does not collide with the polygon
+        e = 0.000000000000001
+        self.assertFalse(poly.collidepoint((15.0 - e, 15.0)))
+
+    def test_collidepoint_invalid_args(self):
+        """Tests whether the collidepoint method correctly handles invalid parameters."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collidepoint(value)
+
+    def test_collidepoint_argnum(self):
+        """Tests whether the collidepoint method correctly handles invalid parameter
+        numbers. """
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [((1, 1), (1, 1)), ((1, 1), (1, 1), (1, 1))]
+
+        with self.assertRaises(TypeError):
+            poly.collidepoint()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.collidepoint(*arg)
+
+    def test_collidepoint_return_type(self):
+        """Tests whether the collidepoint method returns a boolean."""
+
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertIsInstance(poly.collidepoint(poly.center), bool)
+
+        for vertex in poly.vertices:
+            self.assertIsInstance(poly.collidepoint(vertex), bool)
+
+        self.assertIsInstance(poly.collidepoint(poly.center), bool)
+
+        self.assertIsInstance(poly.collidepoint((100.0, 100.0)), bool)
+
+        e = 0.000000000000001
+        self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
+
 
 if __name__ == "__main__":
     unittest.main()

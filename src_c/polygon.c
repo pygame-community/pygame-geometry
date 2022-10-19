@@ -460,9 +460,38 @@ error:
     return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
+static PyObject *
+pg_polygon_collidepoint(pgPolygonObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
+{
+    double x, y;
+
+    if (nargs == 1) {
+        if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
+            goto error;
+        }
+    }
+    else if (nargs == 2) {
+        if (!pg_DoubleFromObj(args[0], &x) || !pg_DoubleFromObj(args[1], &y)) {
+            goto error;
+        }
+    }
+    else {
+        goto error;
+    }
+
+    return PyBool_FromLong(pgCollision_PolygonPoint(&self->polygon, x, y));
+
+error:
+    return RAISE(PyExc_TypeError,
+                 "collidepoint requires a point or PointLike object");
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
+    {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
+     NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
