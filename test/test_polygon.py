@@ -542,7 +542,7 @@ class PolygonTypeTest(unittest.TestCase):
 
     def test_collidepoint_argnum(self):
         """Tests whether the collidepoint method correctly handles invalid parameter
-        numbers. """
+        numbers."""
         poly = Polygon(_some_vertices.copy())
 
         invalid_args = [((1, 1), (1, 1)), ((1, 1), (1, 1), (1, 1))]
