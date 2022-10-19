@@ -38,6 +38,19 @@ class RaycastTest(unittest.TestCase):
             self.assertEqual(result, x[2])
 
     def test_raycast_angle(self):
+        with self.assertRaises(TypeError):
+            for x in ["1", 1, (0, 0, 0), [0, 0, 0], []]:
+                raycast(x, 4, 5, [])
+
+            for x in [(0, 0), (0, 0, 0), [0, 0, 0]]:
+                raycast((0, 0), x, 5, [])
+
+            for x in [(0, 0), (0, 0, 0), [0, 0, 0]]:
+                raycast((0, 0), 4, x, [])
+
+            for x in ["1", 1, (0, 0, 0), [0, 0, 0]]:
+                raycast((0, 0), 4, 5, x)
+
         colliders = [
             Line(785.0, 360.0, 59.0, 582.0),
             Line(253.0, 59.0, 743.0, 617.0),
