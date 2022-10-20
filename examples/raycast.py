@@ -64,7 +64,7 @@ while running:
         origin_pos = pygame.mouse.get_pos()
         angle = (x / ray_count) * 360
 
-        point = geometry.raycast(origin_pos, colliders, angle=angle, max=150)
+        point = geometry.raycast(origin_pos, angle, 150, colliders)
         pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
     line_width = 3

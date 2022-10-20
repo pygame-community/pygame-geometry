@@ -21,8 +21,7 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
     if (nargs == 3) {
         if (!PySequence_Check(args[0]) || !PySequence_Check(args[1]) || !PySequence_FAST_CHECK(args[2])) {
-            return RAISE(PyExc_TypeError,
-                        "argument of raycast() must be a sequence");
+            return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
         }
         
         if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
@@ -35,17 +34,25 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         col_length = PySequence_Fast_GET_SIZE(args[2]);
     }
     else if (nargs == 4) {
+        if (!PySequence_Check(args[0]) || !PySequence_FAST_CHECK(args[3])) {
+            return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
+        }
+
         if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
             return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
         }
-        if (!PyFloat_Check(args[1]) && !pg_DoubleFromObj(args[1], &angle)) {
+        if (!pg_DoubleFromObj(args[1], &angle)) {
             return RAISE(PyExc_TypeError, "invalid angle");
         }
-        if (!PyFloat_Check(args[2]) && !pg_DoubleFromObj(args[2], &max_dist)) {
+        if (!pg_DoubleFromObj(args[2], &max_dist)) {
             return RAISE(PyExc_TypeError, "invalid max distance");
         }
         end_x = start_x - cos(angle * PI / 180) * max_dist;
         end_y = start_y - sin(angle * PI / 180) * max_dist;
+
+        if (!PySequence_FAST_CHECK(args[3])) {
+            return RAISE(PyExc_TypeError, "an internal error has occured");
+        }
         farr = PySequence_Fast_ITEMS(args[3]);
         col_length = PySequence_Fast_GET_SIZE(args[3]);
     }
@@ -55,13 +62,11 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     }
 
 
-    pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(&pgLine_Type, NULL, NULL);
-    if (line) {
-        line->line.x1 = start_x;
-        line->line.y1 = start_y;
-        line->line.x2 = end_x;
-        line->line.y2 = end_y;
-    }
+    pgLineBase line;
+    line.x1 = start_x;
+    line.y1 = start_y;
+    line.x2 = end_x;
+    line.y2 = end_y;
 
     // find the best t
     double record = DBL_MAX;
@@ -69,21 +74,21 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
     for (loop = 0; loop < col_length; loop++) {
         if (pgCircle_Check(farr[loop])) {
-            if (pgIntersection_LineCircle(&(line->line),
+            if (pgIntersection_LineCircle(&(line),
                                           &pgCircle_AsCircle(farr[loop]), NULL,
                                           NULL, &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgLine_Check(farr[loop])) {
-            if (pgIntersection_LineLine(&(line->line),
+            if (pgIntersection_LineLine(&(line),
                                         &pgLine_AsLine(farr[loop]), NULL, NULL,
                                         &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgRect_Check(farr[loop])) {
-            if (pgIntersection_LineRect(&(line->line),
+            if (pgIntersection_LineRect(&(line),
                                         &pgRect_AsRect(farr[loop]), NULL, NULL,
                                         &temp_t)) {
                 record = MIN(record, temp_t);
@@ -98,14 +103,14 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
     if (record == DBL_MAX) {
         return pg_TupleFromDoublePair(
-            line->line.x2,
-            line->line.y2);
+            line.x2,
+            line.y2);
     }
 
     // construct the return with this formula: A+tB
     return pg_TupleFromDoublePair(
-        line->line.x1 + record * (line->line.x2 - line->line.x1),
-        line->line.y1 + record * (line->line.y2 - line->line.y1));
+        line.x1 + record * (line.x2 - line.x1),
+        line.y1 + record * (line.y2 - line.y1));
 }
 
 
@@ -290,4 +295,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                        
+                         
