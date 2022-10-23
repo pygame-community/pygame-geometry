@@ -52,191 +52,239 @@ class RaycastTest(unittest.TestCase):
                 raycast((0, 0), 4, 5, x)
 
         colliders = [
-            Line(378.0, 729.0, 140.0, 350.0),
-            Line(727.0, 53.0, 64.0, 92.0),
-            Line(786.0, 678.0, 703.0, 279.0),
-            Line(781.0, 79.0, 452.0, 739.0),
-            Line(97.0, 310.0, 431.0, 566.0),
-            Line(185.0, 726.0, 474.0, 506.0),
-            Line(715.0, 661.0, 232.0, 347.0),
-            Line(20.0, 759.0, 84.0, 538.0),
-            Line(606.0, 614.0, 413.0, 295.0),
-            Line(722.0, 20.0, 97.0, 764.0),
-            Line(11.0, 772.0, 564.0, 741.0),
-            Line(511.0, 246.0, 674.0, 353.0),
-            Line(703.0, 669.0, 539.0, 237.0),
-            Line(149.0, 211.0, 573.0, 398.0),
-            Line(173.0, 130.0, 376.0, 546.0),
-            Circle((499.0, 621.0), 41.0),
-            Circle((616.0, 383.0), 27.0),
-            Circle((227.0, 224.0), 15.0),
-            Circle((178.0, 516.0), 35.0),
-            Circle((140.0, 545.0), 11.0),
-            Circle((38.0, 733.0), 19.0),
-            Circle((326.0, 335.0), 24.0),
-            Circle((412.0, 584.0), 5.0),
-            Circle((710.0, 158.0), 49.0),
-            Circle((520.0, 40.0), 30.0),
-            Circle((271.0, 50.0), 28.0),
-            Circle((455.0, 588.0), 25.0),
-            Circle((154.0, 232.0), 38.0),
-            Circle((263.0, 118.0), 39.0),
-            Circle((272.0, 732.0), 37.0),
-            Rect(541, 110, 16, 47),
-            Rect(649, 110, 23, 14),
-            Rect(645, 495, 6, 7),
-            Rect(577, 240, 33, 30),
-            Rect(60, 723, 40, 32),
-            Rect(74, 388, 23, 47),
-            Rect(512, 577, 47, 29),
-            Rect(262, 521, 28, 23),
-            Rect(762, 491, 15, 5),
-            Rect(769, 434, 8, 34),
-            Rect(661, 633, 40, 41),
-            Rect(536, 550, 48, 46),
-            Rect(623, 134, 42, 24),
-            Rect(386, 426, 45, 41),
-            Rect(696, 103, 39, 24),
+            Line(485.0, 724.0, 596.0, 564.0),
+            Line(331.0, 74.0, 422.0, 39.0),
+            Line(337.0, 439.0, 537.0, 787.0),
+            Line(577.0, 667.0, 463.0, 363.0),
+            Line(443.0, 91.0, 592.0, 75.0),
+            Line(506.0, 495.0, 798.0, 16.0),
+            Line(130.0, 426.0, 710.0, 666.0),
+            Line(632.0, 474.0, 121.0, 179.0),
+            Line(361.0, 188.0, 58.0, 388.0),
+            Line(469.0, 233.0, 144.0, 346.0),
+            Line(725.0, 109.0, 154.0, 617.0),
+            Line(244.0, 693.0, 50.0, 350.0),
+            Line(377.0, 36.0, 363.0, 660.0),
+            Line(173.0, 549.0, 596.0, 105.0),
+            Line(329.0, 220.0, 752.0, 556.0),
+            Circle((204.0, 632.0), 37.0),
+            Circle((255.0, 115.0), 31.0),
+            Circle((59.0, 255.0), 7.0),
+            Circle((297.0, 147.0), 33.0),
+            Circle((243.0, 441.0), 23.0),
+            Circle((218.0, 462.0), 44.0),
+            Circle((193.0, 101.0), 29.0),
+            Circle((78.0, 329.0), 33.0),
+            Circle((673.0, 297.0), 16.0),
+            Circle((61.0, 587.0), 12.0),
+            Circle((168.0, 119.0), 21.0),
+            Circle((709.0, 591.0), 15.0),
+            Circle((104.0, 470.0), 48.0),
+            Circle((162.0, 561.0), 19.0),
+            Circle((704.0, 256.0), 28.0),
+            Rect(707, 423, 24, 43),
+            Rect(212, 254, 42, 48),
+            Rect(11, 173, 21, 16),
+            Rect(134, 513, 26, 36),
+            Rect(514, 52, 14, 46),
+            Rect(353, 245, 11, 8),
+            Rect(551, 14, 21, 32),
+            Rect(116, 306, 13, 37),
+            Rect(595, 157, 38, 47),
+            Rect(348, 189, 38, 46),
+            Rect(153, 642, 33, 33),
+            Rect(710, 252, 35, 37),
+            Rect(256, 505, 5, 43),
+            Rect(524, 692, 16, 17),
+            Rect(682, 17, 33, 5),
         ]
-        origin_pos = (457, 536)
-        self.assertEqual(raycast(origin_pos, 0.5, 150, colliders), (434.8448936979859, 535.8066553164122))
-        self.assertEqual(raycast(origin_pos, 1.5, 150, colliders), (435.3361201031828, 535.4327113401376))
-        self.assertEqual(raycast(origin_pos, 3.0, 150, colliders), (436.03428855976006, 534.9012336223279))
-        self.assertEqual(raycast(origin_pos, 4.0, 150, colliders), (436.4761932057342, 534.5648356219324))
-        self.assertEqual(raycast(origin_pos, 5.0, 150, colliders), (436.90086796269435, 534.241553800025))
-        self.assertEqual(raycast(origin_pos, 5.5, 150, colliders), (437.107133771836, 534.0845348449691))
-        self.assertEqual(raycast(origin_pos, 6.0, 150, colliders), (437.3095454476466, 533.9304498322414))
-        self.assertEqual(raycast(origin_pos, 8.0, 150, colliders), (438.08330147902666, 533.3414314000489))
-        self.assertEqual(raycast(origin_pos, 8.5, 150, colliders), (438.2683805955462, 533.2005407231136))
-        self.assertEqual(raycast(origin_pos, 9.5, 150, colliders), (438.6292927375729, 532.9257979160344))
-        self.assertEqual(raycast(origin_pos, 11.0, 150, colliders), (439.1490585048952, 532.5301284737822))
-        self.assertEqual(raycast(origin_pos, 12.0, 150, colliders), (439.4822506135418, 532.2764874222173))
-        self.assertEqual(raycast(origin_pos, 14.500000000000002, 150, colliders), (440.2734208461178, 531.6742125046854))
-        self.assertEqual(raycast(origin_pos, 15.0, 150, colliders), (440.42507908507923, 531.5587633262372))
-        self.assertEqual(raycast(origin_pos, 16.0, 150, colliders), (440.72235778300967, 531.3324612032452))
-        self.assertEqual(raycast(origin_pos, 17.0, 150, colliders), (441.01199480166565, 531.1119762755486))
-        self.assertEqual(raycast(origin_pos, 17.5, 150, colliders), (441.15409292797995, 531.0038046915032))
-        self.assertEqual(raycast(origin_pos, 19.0, 150, colliders), (441.5701558511727, 530.6870785908028))
-        self.assertEqual(raycast(origin_pos, 21.0, 150, colliders), (442.10289155372703, 530.2815358414534))
-        self.assertEqual(raycast(origin_pos, 25.0, 150, colliders), (443.1033952071358, 529.519906762734))
-        self.assertEqual(raycast(origin_pos, 25.999999999999996, 150, colliders), (443.3417770904572, 529.3384395851191))
-        self.assertEqual(raycast(origin_pos, 27.500000000000004, 150, colliders), (443.69164130390214, 529.0721069658877))
-        self.assertEqual(raycast(origin_pos, 29.000000000000004, 150, colliders), (444.03298069645956, 528.8122638296848))
-        self.assertEqual(raycast(origin_pos, 29.5, 150, colliders), (444.14499900753526, 528.7269903748867))
-        self.assertEqual(raycast(origin_pos, 36.0, 150, colliders), (445.5341048558335, 527.6695395561129))
-        self.assertEqual(raycast(origin_pos, 39.5, 150, colliders), (446.2412862419693, 527.13120078466))
-        self.assertEqual(raycast(origin_pos, 42.0, 150, colliders), (446.7338028984325, 526.7562746101898))
-        self.assertEqual(raycast(origin_pos, 44.5, 150, colliders), (447.21824443959036, 526.3874955823187))
-        self.assertEqual(raycast(origin_pos, 45.5, 150, colliders), (447.4102121535269, 526.2413609903947))
-        self.assertEqual(raycast(origin_pos, 51.99999999999999, 150, colliders), (448.64269566469187, 525.3031382483315))
-        self.assertEqual(raycast(origin_pos, 52.5, 150, colliders), (448.73695191831615, 525.2313860829428))
-        self.assertEqual(raycast(origin_pos, 53.0, 150, colliders), (448.8312018566675, 525.1596387250282))
-        self.assertEqual(raycast(origin_pos, 58.00000000000001, 150, colliders), (449.77652162645336, 524.4400181390321))
-        self.assertEqual(raycast(origin_pos, 63.50000000000001, 150, colliders), (450.83475897766755, 523.6344395325714))
-        self.assertEqual(raycast(origin_pos, 66.0, 150, colliders), (451.327495398013, 523.2593460637963))
-        self.assertEqual(raycast(origin_pos, 75.0, 150, colliders), (453.20349478460315, 521.8312496449388))
-        self.assertEqual(raycast(origin_pos, 79.0, 150, colliders), (454.1115133558892, 521.1400244349633))
-        self.assertEqual(raycast(origin_pos, 82.5, 150, colliders), (454.9587383076164, 520.4950781049287))
-        self.assertEqual(raycast(origin_pos, 84.5, 150, colliders), (455.469599869257, 520.1061869507386))
-        self.assertEqual(raycast(origin_pos, 86.5, 150, colliders), (456.0030551874463, 519.7000963970997))
-        self.assertEqual(raycast(origin_pos, 88.0, 150, colliders), (456.4197185429283, 519.3829132199162))
-        self.assertEqual(raycast(origin_pos, 88.5, 150, colliders), (456.5620294546062, 519.274579653933))
-        self.assertEqual(raycast(origin_pos, 90.5, 150, colliders), (457.14986569896024, 518.8270918554629))
-        self.assertEqual(raycast(origin_pos, 93.00000000000001, 150, colliders), (457.9311640291592, 518.2323318809168))
-        self.assertEqual(raycast(origin_pos, 93.50000000000001, 150, colliders), (458.09431333177156, 518.1081351799663))
-        self.assertEqual(raycast(origin_pos, 94.5, 150, colliders), (458.42811904517015, 517.854027024438))
-        self.assertEqual(raycast(origin_pos, 98.50000000000001, 150, colliders), (459.8767421273082, 516.7512689688311))
-        self.assertEqual(raycast(origin_pos, 99.00000000000001, 150, colliders), (460.07227475687137, 516.6024206003055))
-        self.assertEqual(raycast(origin_pos, 100.5, 150, colliders), (460.681015134949, 516.1390196204541))
-        self.assertEqual(raycast(origin_pos, 102.0, 150, colliders), (461.32593469181893, 515.6480773972313))
-        self.assertEqual(raycast(origin_pos, 103.0, 150, colliders), (461.7780738428553, 515.303888424124))
-        self.assertEqual(raycast(origin_pos, 103.49999999999999, 150, colliders), (462.0113256286716, 515.1263265110458))
-        self.assertEqual(raycast(origin_pos, 107.0, 150, colliders), (463.7974084834036, 513.766678663153))
-        self.assertEqual(raycast(origin_pos, 110.00000000000001, 150, colliders), (465.588536345172, 512.4031903254746))
-        self.assertEqual(raycast(origin_pos, 111.0, 150, colliders), (466.2517746476525, 511.8983030363891))
-        self.assertEqual(raycast(origin_pos, 112.5, 150, colliders), (467.320117926697, 511.08503133607843))
-        self.assertEqual(raycast(origin_pos, 120.49999999999999, 150, colliders), (475.19887350168125, 505.10444364291493))
-        self.assertEqual(raycast(origin_pos, 122.0, 150, colliders), (475.9859516901743, 505.6161259435088))
-        self.assertEqual(raycast(origin_pos, 123.5, 150, colliders), (476.7722905383138, 506.12732759633656))
-        self.assertEqual(raycast(origin_pos, 130.5, 150, colliders), (480.46392579147766, 508.52727266775156))
-        self.assertEqual(raycast(origin_pos, 133.5, 150, colliders), (482.0760714801013, 509.57533425414454))
-        self.assertEqual(raycast(origin_pos, 138.5, 150, colliders), (484.83809406866027, 511.3709348603713))
-        self.assertEqual(raycast(origin_pos, 140.5, 150, colliders), (485.97826348537683, 512.1121630111974))
-        self.assertEqual(raycast(origin_pos, 148.0, 150, colliders), (490.51185662613375, 515.0594678687495))
-        self.assertEqual(raycast(origin_pos, 148.5, 150, colliders), (490.8321025673525, 515.2676608822953))
-        self.assertEqual(raycast(origin_pos, 154.5, 150, colliders), (494.909238029761, 517.9182209965734))
-        self.assertEqual(raycast(origin_pos, 159.5, 150, colliders), (498.7257817129663, 520.3993694779947))
-        self.assertEqual(raycast(origin_pos, 160.5, 150, colliders), (499.5470704204033, 520.9332921573637))
-        self.assertEqual(raycast(origin_pos, 163.5, 150, colliders), (502.15052293675916, 522.625805801537))
-        self.assertEqual(raycast(origin_pos, 164.0, 150, colliders), (502.60682926243607, 522.9224521499067))
-        self.assertEqual(raycast(origin_pos, 166.0, 150, colliders), (504.5041256672967, 524.1558912205614))
-        self.assertEqual(raycast(origin_pos, 170.5, 150, colliders), (509.26853069799427, 527.2532477001454))
-        self.assertEqual(raycast(origin_pos, 174.0, 150, colliders), (513.5760981602272, 530.0536124685535))
-        self.assertEqual(raycast(origin_pos, 175.0, 150, colliders), (514.9272788514056, 530.932019791597))
-        self.assertEqual(raycast(origin_pos, 176.5, 150, colliders), (517.0713371304217, 532.3258796251603))
-        self.assertEqual(raycast(origin_pos, 177.0, 150, colliders), (517.8199585377303, 532.8125610369509))
-        self.assertEqual(raycast(origin_pos, 180.5, 150, colliders), (523.6171865617941, 536.581359379717))
-        self.assertEqual(raycast(origin_pos, 183.0, 150, colliders), (528.485716205644, 539.7464076367955))
-        self.assertEqual(raycast(origin_pos, 185.49999999999997, 150, colliders), (534.1498584373055, 543.428686437503))
-        self.assertEqual(raycast(origin_pos, 186.50000000000003, 150, colliders), (536.6890436161909, 545.0794196593871))
-        self.assertEqual(raycast(origin_pos, 189.0, 150, colliders), (543.8925162137662, 549.762422548908))
-        self.assertEqual(raycast(origin_pos, 190.0, 150, colliders), (536.3979454746479, 550.0))
-        self.assertEqual(raycast(origin_pos, 192.5, 150, colliders), (536.0, 553.5138783487922))
-        self.assertEqual(raycast(origin_pos, 197.00000000000003, 150, colliders), (536.0, 560.1527238352342))
-        self.assertEqual(raycast(origin_pos, 198.00000000000003, 150, colliders), (536.0, 561.6686560023996))
-        self.assertEqual(raycast(origin_pos, 199.0, 150, colliders), (536.0, 563.2018814498836))
-        self.assertEqual(raycast(origin_pos, 200.5, 150, colliders), (536.0, 565.5368896792995))
-        self.assertEqual(raycast(origin_pos, 204.0, 150, colliders), (535.721085837688, 571.0488855535742))
-        self.assertEqual(raycast(origin_pos, 204.5, 150, colliders), (535.3854052977043, 571.7222872447269))
-        self.assertEqual(raycast(origin_pos, 205.0, 150, colliders), (535.0499288376357, 572.3952795354421))
-        self.assertEqual(raycast(origin_pos, 209.50000000000003, 150, colliders), (529.4672546659584, 577.0))
-        self.assertEqual(raycast(origin_pos, 213.0, 150, colliders), (520.1344635163979, 577.0))
-        self.assertEqual(raycast(origin_pos, 217.99999999999997, 150, colliders), (512.0, 578.9707094578694))
-        self.assertEqual(raycast(origin_pos, 218.49999999999997, 150, colliders), (512.0, 579.7489754167304))
-        self.assertEqual(raycast(origin_pos, 223.5, 150, colliders), (503.6444248875445, 580.2639064530734))
-        self.assertEqual(raycast(origin_pos, 224.5, 150, colliders), (501.8776138942657, 580.1011083490575))
-        self.assertEqual(raycast(origin_pos, 228.0, 150, colliders), (496.6770762737872, 580.0658574615004))
-        self.assertEqual(raycast(origin_pos, 229.0, 150, colliders), (495.3872506505695, 580.1594803884893))
-        self.assertEqual(raycast(origin_pos, 231.50000000000003, 150, colliders), (492.42169496483757, 580.531173690551))
-        self.assertEqual(raycast(origin_pos, 233.0, 150, colliders), (490.78318729818596, 580.8318037618901))
-        self.assertEqual(raycast(origin_pos, 235.5, 150, colliders), (488.22994060398366, 581.4398455437004))
-        self.assertEqual(raycast(origin_pos, 236.0, 150, colliders), (487.7414564440176, 581.576083439135))
-        self.assertEqual(raycast(origin_pos, 242.00000000000003, 150, colliders), (482.28833690958584, 583.5604444904525))
-        self.assertEqual(raycast(origin_pos, 250.0, 150, colliders), (468.19865633699186, 566.7680554141175))
-        self.assertEqual(raycast(origin_pos, 251.0, 150, colliders), (467.43780015106097, 566.3135727377175))
-        self.assertEqual(raycast(origin_pos, 264.5, 150, colliders), (459.6416591191297, 563.4346789025301))
-        self.assertEqual(raycast(origin_pos, 265.0, 150, colliders), (459.3962778040275, 563.3895806319799))
-        self.assertEqual(raycast(origin_pos, 272.0, 150, colliders), (456.0563595169977, 563.0223278792669))
-        self.assertEqual(raycast(origin_pos, 272.5, 150, colliders), (455.8205664192301, 563.0134702139006))
-        self.assertEqual(raycast(origin_pos, 275.0, 150, colliders), (454.637576238284, 563.0026271577003))
-        self.assertEqual(raycast(origin_pos, 275.5, 150, colliders), (454.39950116406794, 563.0072130175915))
-        self.assertEqual(raycast(origin_pos, 276.5, 150, colliders), (453.92108478640023, 563.0232920111184))
-        self.assertEqual(raycast(origin_pos, 278.0, 150, colliders), (453.1962404013351, 563.0651558795684))
-        self.assertEqual(raycast(origin_pos, 282.5, 150, colliders), (450.94069457394755, 563.3317605115805))
-        self.assertEqual(raycast(origin_pos, 287.0, 150, colliders), (448.4808283427988, 563.8649549222723))
-        self.assertEqual(raycast(origin_pos, 291.0, 150, colliders), (445.9908910437321, 564.6797093539961))
-        self.assertEqual(raycast(origin_pos, 292.0, 150, colliders), (445.30000024933344, 564.9585155678487))
-        self.assertEqual(raycast(origin_pos, 292.5, 150, colliders), (444.9410200434404, 565.1129529595115))
-        self.assertEqual(raycast(origin_pos, 293.5, 150, colliders), (444.1916647487825, 565.457154370016))
-        self.assertEqual(raycast(origin_pos, 294.0, 150, colliders), (443.7991542995309, 565.6495848898888))
-        self.assertEqual(raycast(origin_pos, 296.0, 150, colliders), (442.0752902256903, 566.6001897847233))
-        self.assertEqual(raycast(origin_pos, 302.5, 150, colliders), (376.4050587479764, 662.5087168719328))
-        self.assertEqual(raycast(origin_pos, 307.0, 150, colliders), (366.72774652719283, 655.7953265070939))
-        self.assertEqual(raycast(origin_pos, 307.5, 150, colliders), (365.68578564869193, 655.0030010436852))
-        self.assertEqual(raycast(origin_pos, 309.0, 150, colliders), (416.65740049426057, 585.81896141687))
-        self.assertEqual(raycast(origin_pos, 310.0, 150, colliders), (416.9898896343985, 583.6821927682964))
-        self.assertEqual(raycast(origin_pos, 311.5, 150, colliders), (430.6771623791308, 565.7525555959804))
-        self.assertEqual(raycast(origin_pos, 312.5, 150, colliders), (430.1247710427803, 565.3291658291969))
-        self.assertEqual(raycast(origin_pos, 316.0, 150, colliders), (428.1757207174219, 563.8352829450898))
-        self.assertEqual(raycast(origin_pos, 318.0, 150, colliders), (427.0467880161415, 562.9699932099767))
-        self.assertEqual(raycast(origin_pos, 321.5, 150, colliders), (425.0337740110429, 561.427084271937))
-        self.assertEqual(raycast(origin_pos, 329.5, 150, colliders), (420.16658157095145, 557.696541563364))
-        self.assertEqual(raycast(origin_pos, 330.0, 150, colliders), (419.846033899076, 557.4508523298307))
-        self.assertEqual(raycast(origin_pos, 332.5, 150, colliders), (418.20682188949735, 556.1944503105129))
-        self.assertEqual(raycast(origin_pos, 337.5, 150, colliders), (414.71240543944253, 553.5160951871176))
-        self.assertEqual(raycast(origin_pos, 340.0, 150, colliders), (414.06046286413704, 551.6287133906224))
-        self.assertEqual(raycast(origin_pos, 341.5, 150, colliders), (417.01685380086155, 549.3781735771988))
-        self.assertEqual(raycast(origin_pos, 352.5, 150, colliders), (429.9050057267952, 539.5671236681836))
-        self.assertEqual(raycast(origin_pos, 353.0, 150, colliders), (430.2813429671906, 539.2806385716888))
-        self.assertEqual(raycast(origin_pos, 355.0, 150, colliders), (431.68104487898336, 538.2151215454106))
-        self.assertEqual(raycast(origin_pos, 355.5, 150, colliders), (432.0069968657103, 537.9669920053417))
+        origin_pos = (348, 201)
+        colliders = [
+            Line(595.0, 745.0, 441.0, 175.0),
+            Line(694.0, 724.0, 778.0, 765.0),
+            Line(368.0, 19.0, 30.0, 686.0),
+            Line(664.0, 720.0, 24.0, 771.0),
+            Line(333.0, 691.0, 694.0, 545.0),
+            Line(262.0, 769.0, 489.0, 588.0),
+            Line(560.0, 371.0, 404.0, 695.0),
+            Line(684.0, 174.0, 167.0, 484.0),
+            Line(113.0, 415.0, 297.0, 763.0),
+            Line(592.0, 763.0, 392.0, 661.0),
+            Line(7.0, 277.0, 762.0, 208.0),
+            Line(361.0, 504.0, 27.0, 726.0),
+            Line(214.0, 339.0, 119.0, 309.0),
+            Line(696.0, 229.0, 134.0, 217.0),
+            Line(415.0, 569.0, 169.0, 435.0),
+            Circle((229.0, 151.0), 31.0),
+            Circle((216.0, 413.0), 46.0),
+            Circle((410.0, 339.0), 15.0),
+            Circle((258.0, 452.0), 46.0),
+            Circle((564.0, 566.0), 45.0),
+            Circle((265.0, 531.0), 26.0),
+            Circle((709.0, 157.0), 49.0),
+            Circle((658.0, 66.0), 45.0),
+            Circle((38.0, 432.0), 32.0),
+            Circle((309.0, 52.0), 6.0),
+            Circle((121.0, 158.0), 32.0),
+            Circle((362.0, 414.0), 34.0),
+            Circle((643.0, 35.0), 30.0),
+            Circle((144.0, 466.0), 43.0),
+            Circle((178.0, 312.0), 28.0),
+            Rect(663, 526, 36, 27),
+            Rect(739, 446, 27, 39),
+            Rect(14, 385, 30, 30),
+            Rect(208, 33, 18, 22),
+            Rect(207, 425, 21, 22),
+            Rect(536, 225, 11, 48),
+            Rect(751, 464, 11, 47),
+            Rect(675, 444, 17, 5),
+            Rect(683, 61, 34, 16),
+            Rect(719, 37, 27, 33),
+            Rect(232, 468, 12, 45),
+            Rect(630, 42, 32, 11),
+            Rect(321, 761, 29, 33),
+            Rect(315, 740, 9, 13),
+            Rect(578, 308, 48, 30),
+        ]
+        origin_pos = (230, 380)
+        results = [
+            (raycast(origin_pos, 0.0, 150, colliders), (185.06446776611693, 380.0)),
+            (raycast(origin_pos, 1.0, 150, colliders), (185.45845091955988, 379.2225243687975)),
+            (raycast(origin_pos, 2.5, 150, colliders), (186.05527403483222, 378.0813318285046)),
+            (raycast(origin_pos, 3.5, 150, colliders), (186.91186717496282, 377.36461689902865)),
+            (raycast(origin_pos, 10.5, 150, colliders), (193.02673177905652, 373.1474097799329)),
+            (raycast(origin_pos, 12.999999999999998, 150, colliders), (195.20737770890491, 371.96749022713993)),
+            (raycast(origin_pos, 14.0, 150, colliders), (196.07184286282046, 371.54076034083744)),
+            (raycast(origin_pos, 17.0, 150, colliders), (198.6249120866818, 370.40767299143585)),
+            (raycast(origin_pos, 18.0, 150, colliders), (199.4593375625366, 370.07673723806766)),
+            (raycast(origin_pos, 18.5, 150, colliders), (199.87295023216626, 369.9196301572768)),
+            (raycast(origin_pos, 20.5, 150, colliders), (201.50115681155856, 369.34471914880186)),
+            (raycast(origin_pos, 21.5, 150, colliders), (202.2982908553389, 369.08800657547977)),
+            (raycast(origin_pos, 27.0, 150, colliders), (206.45218140496422, 368.0017871457511)),
+            (raycast(origin_pos, 27.500000000000004, 150, colliders), (206.80903177552315, 367.9275460719448)),
+            (raycast(origin_pos, 30.0, 150, colliders), (208.53848457402273, 367.6091882915947)),
+            (raycast(origin_pos, 30.5, 150, colliders), (208.87329208254047, 367.5554179878479)),
+            (raycast(origin_pos, 33.5, 150, colliders), (210.8039463315033, 367.2944092448845)),
+            (raycast(origin_pos, 34.0, 150, colliders), (211.11271118525806, 367.26036283439385)),
+            (raycast(origin_pos, 39.5, 150, colliders), (214.2692510057655, 367.0325712278905)),
+            (raycast(origin_pos, 40.5, 150, colliders), (214.79736567878564, 367.0157236580868)),
+            (raycast(origin_pos, 41.0, 150, colliders), (215.05634646853596, 367.00968017057767)),
+            (raycast(origin_pos, 43.0, 150, colliders), (216.0592476862544, 367.0000381553237)),
+            (raycast(origin_pos, 46.50000000000001, 150, colliders), (217.69303681566683, 367.0311667937852)),
+            (raycast(origin_pos, 48.0, 150, colliders), (218.34877503974727, 367.06000374605304)),
+            (raycast(origin_pos, 49.50000000000001, 150, colliders), (218.9794482445426, 367.09659175880194)),
+            (raycast(origin_pos, 50.0, 150, colliders), (219.18429691534735, 367.11034699243294)),
+            (raycast(origin_pos, 53.0, 150, colliders), (220.35984115783012, 367.20707712890027)),
+            (raycast(origin_pos, 53.5, 150, colliders), (220.54722242197616, 367.22530428014755)),
+            (raycast(origin_pos, 55.5, 150, colliders), (221.2738109267788, 367.3033161125603)),
+            (raycast(origin_pos, 57.0, 150, colliders), (221.795760099513, 367.3665784225104)),
+            (raycast(origin_pos, 58.00000000000001, 150, colliders), (222.1333475258213, 367.4107244176056)),
+            (raycast(origin_pos, 59.5, 150, colliders), (222.62489523945854, 367.47955664686253)),
+            (raycast(origin_pos, 62.5, 150, colliders), (223.55806897517894, 367.62516563813773)),
+            (raycast(origin_pos, 62.99999999999999, 150, colliders), (223.7075200469088, 367.65031273838264)),
+            (raycast(origin_pos, 64.0, 150, colliders), (224.00150315647085, 367.7012588780109)),
+            (raycast(origin_pos, 67.0, 150, colliders), (224.84629526001112, 367.8586324955401)),
+            (raycast(origin_pos, 67.5, 150, colliders), (224.98198283222922, 367.8854348973467)),
+            (raycast(origin_pos, 73.0, 150, colliders), (226.38885833693826, 368.1884878356574)),
+            (raycast(origin_pos, 76.0, 150, colliders), (227.09749829497713, 368.35870150193904)),
+            (raycast(origin_pos, 80.0, 150, colliders), (227.98803173680565, 368.589560967298)),
+            (raycast(origin_pos, 81.5, 150, colliders), (228.30778291703604, 368.6771111087385)),
+            (raycast(origin_pos, 82.0, 150, colliders), (228.4127885372404, 368.70640361485925)),
+            (raycast(origin_pos, 85.0, 150, colliders), (229.02741147082233, 368.8832622424336)),
+            (raycast(origin_pos, 88.0, 150, colliders), (229.6180361273469, 369.0619857977824)),
+            (raycast(origin_pos, 88.5, 150, colliders), (229.71436283799272, 369.0919568649674)),
+            (raycast(origin_pos, 90.0, 150, colliders), (230.0, 369.1821953995867)),
+            (raycast(origin_pos, 92.49999999999999, 150, colliders), (230.46569960510342, 369.33372542871433)),
+            (raycast(origin_pos, 93.00000000000001, 150, colliders), (230.55739812928488, 369.3642101056313)),
+            (raycast(origin_pos, 96.0, 150, colliders), (231.0984998770613, 369.54847181671994)),
+            (raycast(origin_pos, 101.0, 150, colliders), (231.9707368875113, 369.861437630933)),
+            (raycast(origin_pos, 102.5, 150, colliders), (232.22648309548075, 369.95698376795514)),
+            (raycast(origin_pos, 107.0, 150, colliders), (232.98115286524623, 370.2490883446079)),
+            (raycast(origin_pos, 108.0, 150, colliders), (233.14676781985838, 370.315244485509)),
+            (raycast(origin_pos, 111.0, 150, colliders), (233.64025538572346, 370.51681050195907)),
+            (raycast(origin_pos, 117.0, 150, colliders), (234.61822683154577, 370.9362195036025)),
+            (raycast(origin_pos, 120.0, 150, colliders), (235.1062886042344, 371.15564869935605)),
+            (raycast(origin_pos, 122.0, 150, colliders), (235.43252054564022, 371.306149791087)),
+            (raycast(origin_pos, 124.5, 150, colliders), (235.8421964969304, 371.49955134968775)),
+            (raycast(origin_pos, 125.99999999999999, 150, colliders), (236.08940455532962, 371.6186536636095)),
+            (raycast(origin_pos, 134.5, 150, colliders), (237.52215737836985, 372.345397040671)),
+            (raycast(origin_pos, 135.0, 150, colliders), (237.60868046060455, 372.39131953939545)),
+            (raycast(origin_pos, 136.0, 150, colliders), (237.78265720642796, 372.48437529758115)),
+            (raycast(origin_pos, 141.5, 150, colliders), (238.7649480022927, 373.02804555125044)),
+            (raycast(origin_pos, 142.5, 150, colliders), (238.94882183309045, 373.13332749685435)),
+            (raycast(origin_pos, 144.0, 150, colliders), (239.22809563334525, 373.29539606987413)),
+            (raycast(origin_pos, 144.5, 150, colliders), (239.3221540568338, 373.3505721333925)),
+            (raycast(origin_pos, 147.0, 150, colliders), (239.8002045860582, 373.6356727269248)),
+            (raycast(origin_pos, 150.0, 150, colliders), (240.3924696784264, 373.9999048336155)),
+            (raycast(origin_pos, 156.0, 150, colliders), (241.64809012941623, 374.81393614532465)),
+            (raycast(origin_pos, 158.5, 150, colliders), (242.20350972051358, 375.19290968182094)),
+            (raycast(origin_pos, 159.5, 150, colliders), (242.43159707873608, 375.3520163107325)),
+            (raycast(origin_pos, 169.0, 150, colliders), (244.79179707937735, 377.12476591100824)),
+            (raycast(origin_pos, 169.5, 150, colliders), (244.92674896306795, 377.2334906032522)),
+            (raycast(origin_pos, 170.0, 150, colliders), (245.06286910637564, 377.34400976966594)),
+            (raycast(origin_pos, 175.0, 150, colliders), (246.49091242019054, 378.55723211203446)),
+            (raycast(origin_pos, 176.0, 150, colliders), (246.79163890644796, 378.8258142239655)),
+            (raycast(origin_pos, 176.5, 150, colliders), (246.94394643280287, 378.9636638404803)),
+            (raycast(origin_pos, 180.5, 150, colliders), (248.20967294896045, 380.15891340833855)),
+            (raycast(origin_pos, 181.0, 150, colliders), (248.37382299188704, 380.32071627330293)),
+            (raycast(origin_pos, 192.0, 150, colliders), (252.29476798440172, 384.7388992259953)),
+            (raycast(origin_pos, 192.5, 150, colliders), (252.48489422501868, 384.9847810397777)),
+            (raycast(origin_pos, 197.00000000000003, 150, colliders), (254.22192771208228, 387.40538646565733)),
+            (raycast(origin_pos, 198.00000000000003, 150, colliders), (254.61133784186575, 387.99670841546447)),
+            (raycast(origin_pos, 199.5, 150, colliders), (255.19504451782035, 388.92203319949795)),
+            (raycast(origin_pos, 203.0, 150, colliders), (256.5419573160738, 391.2663924535836)),
+            (raycast(origin_pos, 209.50000000000003, 150, colliders), (258.8760230875824, 396.3372678052757)),
+            (raycast(origin_pos, 210.5, 150, colliders), (259.20182356961084, 397.20118864407146)),
+            (raycast(origin_pos, 212.5, 150, colliders), (259.81621423438907, 398.99502337859434)),
+            (raycast(origin_pos, 213.0, 150, colliders), (259.9612125020481, 399.45703890023424)),
+            (raycast(origin_pos, 218.99999999999997, 150, colliders), (261.368056339842, 405.40135117636544)),
+            (raycast(origin_pos, 226.0, 150, colliders), (255.19081952152942, 406.08585724377093)),
+            (raycast(origin_pos, 229.49999999999997, 150, colliders), (252.48906049389996, 406.33130672156136)),
+            (raycast(origin_pos, 230.49999999999997, 150, colliders), (251.78089904375534, 406.4223433764302)),
+            (raycast(origin_pos, 231.00000000000003, 150, colliders), (251.4356231475129, 406.47079007342063)),
+            (raycast(origin_pos, 243.5, 150, colliders), (244.04410983381075, 408.16812655533346)),
+            (raycast(origin_pos, 246.0, 150, colliders), (242.73631142361893, 408.60622382134443)),
+            (raycast(origin_pos, 248.0, 150, colliders), (241.70919932469442, 408.98128531258214)),
+            (raycast(origin_pos, 255.0, 150, colliders), (238.17068104515434, 410.493396792956)),
+            (raycast(origin_pos, 256.0, 150, colliders), (237.6641451815018, 410.73920736581806)),
+            (raycast(origin_pos, 258.5, 150, colliders), (236.38709369383866, 411.3935684773817)),
+            (raycast(origin_pos, 267.5, 150, colliders), (231.50188426299098, 414.39880504042355)),
+            (raycast(origin_pos, 268.5, 150, colliders), (230.91183640269043, 414.821627349689)),
+            (raycast(origin_pos, 269.5, 150, colliders), (230.30779084726527, 415.2693377102836)),
+            (raycast(origin_pos, 271.5, 150, colliders), (229.05071507604666, 416.2517286796722)),
+            (raycast(origin_pos, 272.0, 150, colliders), (228.7247573579461, 416.5181712950295)),
+            (raycast(origin_pos, 274.5, 150, colliders), (227.0088097891271, 418.006675224193)),
+            (raycast(origin_pos, 276.0, 150, colliders), (225.89498675611406, 419.0565920917415)),
+            (raycast(origin_pos, 278.5, 150, colliders), (223.8444600453145, 421.1876795680059)),
+            (raycast(origin_pos, 279.5, 150, colliders), (222.9333356428515, 422.2287210408573)),
+            (raycast(origin_pos, 280.0, 150, colliders), (222.45238002897682, 422.8046799230474)),
+            (raycast(origin_pos, 281.5, 150, colliders), (220.8784025603764, 424.83408378996705)),
+            (raycast(origin_pos, 295.5, 150, colliders), (208.5361010285828, 425.0)),
+            (raycast(origin_pos, 296.5, 150, colliders), (207.56382763759564, 425.0)),
+            (raycast(origin_pos, 297.0, 150, colliders), (207.0713547727507, 425.0)),
+            (raycast(origin_pos, 297.5, 150, colliders), (194.21797904079577, 448.73662272953914)),
+            (raycast(origin_pos, 299.0, 150, colliders), (192.43655291206127, 447.7662523992529)),
+            (raycast(origin_pos, 304.0, 150, colliders), (186.47971751923853, 444.5214721446259)),
+            (raycast(origin_pos, 308.0, 150, colliders), (181.64700081180695, 441.8890167023664)),
+            (raycast(origin_pos, 311.5, 150, colliders), (177.943201798039, 438.8395067796431)),
+            (raycast(origin_pos, 312.0, 150, colliders), (177.55035443588338, 438.25123276186343)),
+            (raycast(origin_pos, 313.0, 150, colliders), (176.79264012186346, 437.0579078763364)),
+            (raycast(origin_pos, 313.5, 150, colliders), (176.42793388767086, 436.45317853941026)),
+            (raycast(origin_pos, 314.0, 150, colliders), (176.0727637149346, 435.84328791213204)),
+            (raycast(origin_pos, 315.0, 150, colliders), (175.39131953939545, 434.60868046060455)),
+            (raycast(origin_pos, 317.0, 150, colliders), (174.14585749829885, 432.08483050611903)),
+            (raycast(origin_pos, 320.5, 150, colliders), (172.3521558360356, 427.52121550829264)),
+            (raycast(origin_pos, 324.0, 150, colliders), (171.06080140766542, 422.8218343438848)),
+            (raycast(origin_pos, 327.0, 150, colliders), (170.35848230867478, 418.73165445857023)),
+            (raycast(origin_pos, 328.5, 150, colliders), (170.1472602523408, 416.6778060896998)),
+            (raycast(origin_pos, 332.0, 150, colliders), (170.01326156375347, 411.8955146011624)),
+            (raycast(origin_pos, 339.5, 150, colliders), (174.56066529947435, 400.7279178853569)),
+            (raycast(origin_pos, 343.0, 150, colliders), (176.82638664858283, 396.25680504554805)),
+            (raycast(origin_pos, 346.5, 150, colliders), (178.84044190525304, 392.28232322247396)),
+            (raycast(origin_pos, 354.5, 150, colliders), (182.75940297156964, 384.54875212415106)),
+            (raycast(origin_pos, 355.0, 150, colliders), (182.9798488738923, 384.11373018081014)),
+            (raycast(origin_pos, 357.5, 150, colliders), (184.04777311325034, 382.0063175546213)),
+        ]
+        for r in results:
+            self.assertAlmostEqual(r[0][0], r[1][0])
+            self.assertAlmostEqual(r[0][1], r[1][1])
