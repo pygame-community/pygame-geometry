@@ -20,7 +20,7 @@ subject to change when this project migrates to the
 becomes a third-party library.
 
 ## Installation (Python 3.7+)
-Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/BUILD.md)
+Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md)
 to install pygame_geometry.
 
 ## Help
