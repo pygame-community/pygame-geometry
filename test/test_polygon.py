@@ -217,11 +217,9 @@ class PolygonTypeTest(unittest.TestCase):
             ang = radang + i * fac
             radi_cos_a = radius * math.cos(ang)
             radi_sin_a = radius * math.sin(ang)
-            vertices[i] = (center[0] + radi_cos_a,
-                           center[1] + radi_sin_a)
+            vertices[i] = (center[0] + radi_cos_a, center[1] + radi_sin_a)
 
-            vertices[sides // 2 + i] = (center[0] - radi_cos_a,
-                                        center[1] - radi_sin_a)
+            vertices[sides // 2 + i] = (center[0] - radi_cos_a, center[1] - radi_sin_a)
 
         self.assertEqual(vertices_pg, vertices)
 
