@@ -20,7 +20,7 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     double max_dist;
 
     if (nargs == 3) {
-        if (!PySequence_Check(args[0]) || !PySequence_Check(args[1]) || !PySequence_FAST_CHECK(args[2])) {
+        if (!PySequence_FAST_CHECK(args[2])) {
             return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
         }
         
@@ -34,7 +34,7 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         col_length = PySequence_Fast_GET_SIZE(args[2]);
     }
     else if (nargs == 4) {
-        if (!PySequence_Check(args[0]) || !PySequence_FAST_CHECK(args[3])) {
+        if (!PySequence_FAST_CHECK(args[3])) {
             return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
         }
 
@@ -74,21 +74,21 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
     for (loop = 0; loop < col_length; loop++) {
         if (pgCircle_Check(farr[loop])) {
-            if (pgIntersection_LineCircle(&(line),
+            if (pgIntersection_LineCircle(&line,
                                           &pgCircle_AsCircle(farr[loop]), NULL,
                                           NULL, &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgLine_Check(farr[loop])) {
-            if (pgIntersection_LineLine(&(line),
+            if (pgIntersection_LineLine(&line,
                                         &pgLine_AsLine(farr[loop]), NULL, NULL,
                                         &temp_t)) {
                 record = MIN(record, temp_t);
             }
         }
         else if (pgRect_Check(farr[loop])) {
-            if (pgIntersection_LineRect(&(line),
+            if (pgIntersection_LineRect(&line,
                                         &pgRect_AsRect(farr[loop]), NULL, NULL,
                                         &temp_t)) {
                 record = MIN(record, temp_t);
