@@ -10,6 +10,8 @@ request
 7. Please be patient when waiting for pull request reviews,
 we are all unpaid-volunteers
 
+# Build From Source
+
 See below to see how to build pygame_geometry from source. If you need help, talk to us on [Discord](https://discord.gg/QzmpNXchW5).
 
 ## Windows 10 / Windows 11
