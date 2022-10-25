@@ -27,8 +27,6 @@ to install pygame_geometry.
 The documentation is a work in progress, but you can check
 out the `examples` folder to learn how to use this library.
 
-Talk to us on [Discord](https://discord.gg/QzmpNXchW5)!
-
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and
 [itzpr3d4t0r](https://github.com/itzpr3d4t0r) for the
