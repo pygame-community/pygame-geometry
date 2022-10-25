@@ -508,20 +508,25 @@ class PolygonTypeTest(unittest.TestCase):
 
         # check that the center of the polygon collides with the polygon
         self.assertTrue(poly.collidepoint(poly.center))
+        self.assertTrue(poly.collidepoint(*poly.center))
 
         # check that each vertex collides with the polygon
         for vertex in poly.vertices:
             self.assertTrue(poly.collidepoint(vertex))
+            self.assertTrue(poly.collidepoint(*vertex))
 
         # check that a point outside the polygon does not collide with the polygon
         self.assertFalse(poly.collidepoint((100.0, 100.0)))
+        self.assertFalse(poly.collidepoint(100.0, 100.0))
 
         # check that a point on the edge of the polygon collides with the polygon
         self.assertTrue(poly.collidepoint((15.0, 15.0)))
+        self.assertTrue(poly.collidepoint(15.0, 15.0))
 
         # check that a point sligtly outside the polygon does not collide with the polygon
         e = 0.000000000000001
         self.assertFalse(poly.collidepoint((15.0 - e, 15.0)))
+        self.assertFalse(poly.collidepoint(15.0 - e, 15.0))
 
     def test_collidepoint_invalid_args(self):
         """Tests whether the collidepoint method correctly handles invalid parameters."""
@@ -560,16 +565,18 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(_some_vertices.copy())
 
         self.assertIsInstance(poly.collidepoint(poly.center), bool)
+        self.assertIsInstance(poly.collidepoint(*poly.center), bool)
 
         for vertex in poly.vertices:
             self.assertIsInstance(poly.collidepoint(vertex), bool)
-
-        self.assertIsInstance(poly.collidepoint(poly.center), bool)
+            self.assertIsInstance(poly.collidepoint(*vertex), bool)
 
         self.assertIsInstance(poly.collidepoint((100.0, 100.0)), bool)
+        self.assertIsInstance(poly.collidepoint(100.0, 100.0), bool)
 
         e = 0.000000000000001
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
+        self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
 
 
 if __name__ == "__main__":
