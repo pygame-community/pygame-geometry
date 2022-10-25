@@ -12,7 +12,7 @@ static PyObject *
 geometry_regular_polygon(PyObject *_null, PyObject *const *args,
                          Py_ssize_t nargs)
 {
-    int sides;
+    Py_ssize_t sides;
     double radius;
     double angle = 0;
     double Cx, Cy;
@@ -21,7 +21,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
         return RAISE(PyExc_TypeError,
                      "invalid number of arguments, expected 3 or 4 arguments");
     }
-    sides = PyLong_AsLong(args[0]);
+    sides = PyLong_AsSsize_t(args[0]);
     if (PyErr_Occurred()) {
         return NULL;
     }
@@ -56,20 +56,46 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
                      "cannot allocate memory for the polygon vertices");
     }
 
-    int loop;
+    Py_ssize_t loop;
     double fac = TAU / sides;
-    for (loop = 0; loop < sides; loop++) {
-        double ang = angle + fac * loop;
-        vertices[loop * 2] = Cx + radius * cos(ang);
-        vertices[loop * 2 + 1] = Cy + radius * sin(ang);
+
+    /*If the number of sides is even, mirror the vertices*/
+    if (sides % 2 == 0) {
+        for (loop = 0; loop < sides / 2; loop++) {
+            double ang = angle + fac * loop;
+            double radi_cos_a = radius * cos(ang);
+            double radi_sin_a = radius * sin(ang);
+
+            vertices[loop * 2] = Cx + radi_cos_a;
+            vertices[loop * 2 + 1] = Cy + radi_sin_a;
+
+            vertices[sides + loop * 2] = Cx - radi_cos_a;
+            vertices[sides + loop * 2 + 1] = Cy - radi_sin_a;
+        }
+    }
+    else {
+        for (loop = 0; loop < sides; loop++) {
+            double ang = angle + fac * loop;
+            vertices[loop * 2] = Cx + radius * cos(ang);
+            vertices[loop * 2 + 1] = Cy + radius * sin(ang);
+        }
     }
 
-    PyObject *ret = pgPolygon_New2(vertices, sides);
-    PyMem_Free(vertices);
+    pgPolygonObject *ret =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(&pgPolygon_Type, NULL, NULL);
 
-    return ret;
+    if (!ret) {
+        PyMem_Free(vertices);
+        return NULL;
+    }
+
+    ret->polygon.vertices = vertices;
+    ret->polygon.verts_num = sides;
+    ret->polygon.c_x = Cx;
+    ret->polygon.c_y = Cy;
+
+    return (PyObject *)ret;
 }
-
 
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,

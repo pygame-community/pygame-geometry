@@ -209,17 +209,17 @@ class PolygonTypeTest(unittest.TestCase):
         polygon_pg = geometry.regular_polygon(sides, center, radius, angle)
         vertices_pg = polygon_pg.vertices
 
-        vertices = []
+        vertices = list(range(sides))
 
-        for i in range(sides):
-            vertices.append(
-                (
-                    center[0]
-                    + radius * math.cos(math.radians(angle) + math.pi * 2 * i / sides),
-                    center[1]
-                    + radius * math.sin(math.radians(angle) + math.pi * 2 * i / sides),
-                )
-            )
+        fac = math.tau / sides
+        radang = math.radians(angle)
+        for i in range(sides // 2):
+            ang = radang + i * fac
+            radi_cos_a = radius * math.cos(ang)
+            radi_sin_a = radius * math.sin(ang)
+            vertices[i] = (center[0] + radi_cos_a, center[1] + radi_sin_a)
+
+            vertices[sides // 2 + i] = (center[0] - radi_cos_a, center[1] - radi_sin_a)
 
         self.assertEqual(vertices_pg, vertices)
 
