@@ -28,10 +28,6 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         }
     }
     else if (nargs == 4) {
-        if (!PySequence_FAST_CHECK(args[3])) {
-            return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
-        }
-
         if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
             return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
         }
