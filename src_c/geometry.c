@@ -20,18 +20,12 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     double max_dist;
 
     if (nargs == 3) {
-        if (!PySequence_FAST_CHECK(args[2])) {
-            return RAISE(PyExc_TypeError, "argument of raycast() must be a sequence");
-        }
-        
         if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
             return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
         }
         if (!pg_TwoDoublesFromObj(args[1], &end_x, &end_y)) {
             return RAISE(PyExc_TypeError, "the end position requires a pair of floats");
         }
-        farr = PySequence_Fast_ITEMS(args[2]);
-        col_length = PySequence_Fast_GET_SIZE(args[2]);
     }
     else if (nargs == 4) {
         if (!PySequence_FAST_CHECK(args[3])) {
@@ -49,18 +43,17 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         }
         end_x = start_x - cos(angle * PI / 180) * max_dist;
         end_y = start_y - sin(angle * PI / 180) * max_dist;
-
-        if (!PySequence_FAST_CHECK(args[3])) {
-            return RAISE(PyExc_TypeError, "an internal error has occured");
-        }
-        farr = PySequence_Fast_ITEMS(args[3]);
-        col_length = PySequence_Fast_GET_SIZE(args[3]);
     }
     else {
         return RAISE(PyExc_TypeError,
                     "invalid number of arguments");
     }
 
+    if (!PySequence_FAST_CHECK(args[nargs-1])) {
+        return RAISE(PyExc_TypeError, "colliders parameter must be a sequence");
+    }
+    farr = PySequence_Fast_ITEMS(args[nargs-1]);
+    col_length = PySequence_Fast_GET_SIZE(args[nargs-1]);
 
     pgLineBase line;
     line.x1 = start_x;
