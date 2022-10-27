@@ -347,28 +347,14 @@ static PyObject *
 pg_line_collidepoint(pgLineObject *self, PyObject *const *args,
                      Py_ssize_t nargs)
 {
-    double Cx = 0, Cy = 0;
+    double px, py;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Cx, &Cy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Cx) ||
-            !pg_DoubleFromObj(args[1], &Cy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &px, &py)) {
+        return RAISE(PyExc_TypeError,
+                     "Line.collidepoint requires a point or PointLike object");
     }
 
-    return PyBool_FromLong(pgCollision_LinePoint(&self->line, Cx, Cy));
-
-error:
-    return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
+    return PyBool_FromLong(pgCollision_LinePoint(&self->line, px, py));
 }
 
 static PyObject *
@@ -480,49 +466,24 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
 static PyObject *
 pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
     return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
                                  self->line.y1 + Dy, self->line.x2 + Dx,
                                  self->line.y2 + Dy);
-
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
 static PyObject *
 pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
     self->line.x1 += Dx;
@@ -531,9 +492,6 @@ pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     self->line.y2 += Dy;
 
     Py_RETURN_NONE;
-
-error:
-    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
 }
 
 static struct PyMethodDef pg_line_methods[] = {

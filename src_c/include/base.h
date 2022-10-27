@@ -251,6 +251,20 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     return result;
 }
 
+static PG_FORCE_INLINE int
+pg_TwoDoublesFromFastcallArgs(PyObject *const *args, Py_ssize_t nargs,
+                              double *val1, double *val2)
+{
+    if (nargs == 1) {
+        return pg_TwoDoublesFromObj(args[0], val1, val2);
+    }
+    else if (nargs == 2) {
+        return pg_DoubleFromObj(args[0], val1) &&
+               pg_DoubleFromObj(args[1], val2);
+    }
+    return 0;
+}
+
 // these return PyObject * on success and NULL on failure.
 
 static PG_FORCE_INLINE PyObject *

@@ -269,29 +269,15 @@ static PyObject *
 pg_circle_collidepoint(pgCircleObject *self, PyObject *const *args,
                        Py_ssize_t nargs)
 {
-    double px = 0, py = 0;
+    double px, py;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &px, &py)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &px) ||
-            !pg_DoubleFromObj(args[1], &py)) {
-            goto error;
-        }
-    }
-    else {
-        return RAISE(PyExc_TypeError,
-                     "Invalid arguments number, can be at most 2");
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &px, &py)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Circle.collidepoint requires a point or PointLike object");
     }
 
     return PyBool_FromLong(pgCollision_CirclePoint(&(self->circle), px, py));
-
-error:
-    return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
 }
 static PyObject *
 pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
@@ -392,57 +378,30 @@ pg_circle_update(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
 static PyObject *
 pg_circle_move(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
     return _pg_circle_subtype_new3(Py_TYPE(self), self->circle.x + Dx,
                                    self->circle.y + Dy, self->circle.r);
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
 static PyObject *
 pg_circle_move_ip(pgCircleObject *self, PyObject *const *args,
                   Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
     self->circle.x += Dx;
     self->circle.y += Dy;
 
     Py_RETURN_NONE;
-
-error:
-    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
 }
 
 static struct PyMethodDef pg_circle_methods[] = {
