@@ -115,7 +115,6 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double y2 = line->y2;
     double xc = circle->x;
     double yc = circle->y;
-    double r = circle->r;
     double rsq = circle->r_sqr;
 
     double dx = x2 - x1;
@@ -123,13 +122,13 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double A = dx * dx + dy * dy;
     double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
     double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - rsq;
-    double descriminant = B * B - 4 * A * C;
-    if (descriminant < 0) {
+    double discriminant = B * B - 4 * A * C;
+    if (discriminant < 0) {
         return 0;
     }
-    double t = (-B - sqrt(descriminant)) / (2 * A);
+    double t = (-B - sqrt(discriminant)) / (2 * A);
     if (t < 0 || t > 1) {
-        t = (-B + sqrt(descriminant)) / (2 * A);
+        t = (-B + sqrt(discriminant)) / (2 * A);
         if (t < 0 || t > 1) {
             return 0;
         }
