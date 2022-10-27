@@ -195,12 +195,12 @@ def regular_polygon(
 def raycast(
     originpos: Coordinate,
     endpos: Coordinate,
-    colliders: List[Rect, Circle, Line],
+    colliders: Sequence[Rect, Circle, Line],
 ) -> Coordinate: ...
 @overload
 def raycast(
     originpos: Coordinate,
     angle: float,
     max_dist: float,
-    colliders: List[Rect, Circle, Line],
+    colliders: Sequence[Rect, Circle, Line],
 ) -> Coordinate: ...
