@@ -83,15 +83,18 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
 static int
 pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
 {
-    double Ax = line->x1;
-    double Ay = line->y1;
-    double Bx = line->x2;
-    double By = line->y2;
+    double dx = line->x1 - Cx;
+    double dy = line->y1 - Cy;
+    double dx2 = line->x2 - Cx;
+    double dy2 = line->y2 - Cy;
+    double dx3 = line->x1 - line->x2;
+    double dy3 = line->y1 - line->y2;
 
-    /* https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection */
-    return (Bx - Ax) * (Cy - Ay) == (Cx - Ax) * (By - Ay) &&
-           ((Ax != Bx) ? (Ax <= Cx && Cx <= Bx) || (Bx <= Cx && Cx <= Ax)
-                       : (Ay <= Cy && Cy <= By) || (By <= Cy && Cy <= Ay));
+    double d = sqrt(dx * dx + dy * dy) + sqrt(dx2 * dx2 + dy2 * dy2);
+    double d3 = sqrt(dx3 * dx3 + dy3 * dy3);
+
+    double width = 0.000001;   
+    return d >= d3-width && d <= d3+width;
 }
 
 static int
@@ -112,7 +115,6 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double y2 = line->y2;
     double xc = circle->x;
     double yc = circle->y;
-    double r = circle->r;
     double rsq = circle->r_sqr;
 
     double dx = x2 - x1;
@@ -120,13 +122,13 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double A = dx * dx + dy * dy;
     double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
     double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - rsq;
-    double descriminant = B * B - 4 * A * C;
-    if (descriminant < 0) {
+    double discriminant = B * B - 4 * A * C;
+    if (discriminant < 0) {
         return 0;
     }
-    double t = (-B - sqrt(descriminant)) / (2 * A);
+    double t = (-B - sqrt(discriminant)) / (2 * A);
     if (t < 0 || t > 1) {
-        t = (-B + sqrt(descriminant)) / (2 * A);
+        t = (-B + sqrt(discriminant)) / (2 * A);
         if (t < 0 || t > 1) {
             return 0;
         }
@@ -285,5 +287,30 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
     double dy = cy - test_y;
 
     return dx * dx + dy * dy <= circle->r_sqr;
-    return 0;
+}
+
+static int
+pgCollision_PolygonPoint(pgPolygonBase *poly, double x, double y)
+{
+    int collision = 0;
+    Py_ssize_t i, j;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        double xi = poly->vertices[i * 2];
+        double yi = poly->vertices[i * 2 + 1];
+
+        if (x == xi && y == yi) {
+            return 1;
+        }
+
+        double xj = poly->vertices[j * 2];
+        double yj = poly->vertices[j * 2 + 1];
+
+        if (((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            collision = !collision;
+        }
+    }
+
+    return collision;
 }

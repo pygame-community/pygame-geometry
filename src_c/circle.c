@@ -55,11 +55,12 @@ pg_circle_dealloc(pgCircleObject *self)
 static int
 _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
 {
-    double tmp = 0;
-    if (!pg_DoubleFromObj(value, &tmp) || tmp < 0)
+    double radius = 0;
+    if (!pg_DoubleFromObj(value, &radius) || radius <= 0) {
         return 0;
-    circle->r = tmp;
-    circle->r_sqr = tmp * tmp;
+    }
+    circle->r = radius;
+    circle->r_sqr = radius * radius;
     return 1;
 }
 
@@ -473,11 +474,31 @@ static PyNumberMethods pg_circle_as_number = {
 static PyObject *
 pg_circle_repr(pgCircleObject *self)
 {
-    // dont comments on it (-_-)
-    return PyUnicode_FromFormat("pygame.Circle(%S, %S, %S)",
-                                PyFloat_FromDouble(self->circle.x),
-                                PyFloat_FromDouble(self->circle.y),
-                                PyFloat_FromDouble(self->circle.r));
+    PyObject *x, *y, *r;
+
+    x = PyFloat_FromDouble(self->circle.x);
+    if (!x) {
+        return NULL;
+    }
+    y = PyFloat_FromDouble(self->circle.y);
+    if (!y) {
+        Py_DECREF(x);
+        return NULL;
+    }
+    r = PyFloat_FromDouble(self->circle.r);
+    if (!r) {
+        Py_DECREF(x);
+        Py_DECREF(y);
+        return NULL;
+    }
+
+    PyObject *result = PyUnicode_FromFormat("<Circle((%R, %R), %R)>", x, y, r);
+
+    Py_DECREF(x);
+    Py_DECREF(y);
+    Py_DECREF(r);
+
+    return result;
 }
 
 static PyObject *
@@ -554,16 +575,24 @@ pg_circle_getr(pgCircleObject *self, void *closure)
 static int
 pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    double radius;
+
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
-    if (!pg_DoubleFromObj(value, &val) || val < 0) {
-        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+    if (!pg_DoubleFromObj(value, &radius)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid type for radius, must be numeric");
         return -1;
     }
 
-    self->circle.r = val;
-    self->circle.r_sqr = val * val;
+    if (radius <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Invalid radius value, must be > 0");
+        return -1;
+    }
+
+    self->circle.r = radius;
+    self->circle.r_sqr = radius * radius;
+
     return 0;
 }
 
@@ -576,16 +605,25 @@ pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 static int
 pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    double radius_squared;
+
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
 
-    if (!pg_DoubleFromObj(value, &val) || val < 0) {
-        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+    if (!pg_DoubleFromObj(value, &radius_squared)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid type for radius squared, must be numeric");
         return -1;
     }
 
-    self->circle.r_sqr = val;
-    self->circle.r = sqrt(val);
+    if (radius_squared <= 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Invalid radius squared value, must be > 0");
+        return -1;
+    }
+
+    self->circle.r_sqr = radius_squared;
+    self->circle.r = sqrt(radius_squared);
+
     return 0;
 }
 
@@ -615,14 +653,24 @@ pg_circle_getarea(pgCircleObject *self, void *closure)
 static int
 pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    double area;
+
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
-        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+
+    if (!pg_DoubleFromObj(value, &area)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid type for area, must be numeric");
         return -1;
     }
-    self->circle.r_sqr = val / PI;
+
+    if (area <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Invalid area value, must be > 0");
+        return -1;
+    }
+
+    self->circle.r_sqr = area / PI;
     self->circle.r = sqrt(self->circle.r_sqr);
+
     return 0;
 }
 
@@ -636,13 +684,23 @@ static int
 pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
                            void *closure)
 {
-    double val;
+    double circumference;
+
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
-        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+
+    if (!pg_DoubleFromObj(value, &circumference)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid type for circumference, must be numeric");
         return -1;
     }
-    self->circle.r = val / TAU;
+
+    if (circumference <= 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Invalid circumference value, must be > 0");
+        return -1;
+    }
+
+    self->circle.r = circumference / TAU;
     self->circle.r_sqr = self->circle.r * self->circle.r;
 
     return 0;
@@ -657,14 +715,25 @@ pg_circle_getdiameter(pgCircleObject *self, void *closure)
 static int
 pg_circle_setdiameter(pgCircleObject *self, PyObject *value, void *closure)
 {
-    double val;
+    double diameter;
+
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_DoubleFromObj(value, &val) || val <= 0) {
-        PyErr_SetString(PyExc_TypeError, "Expected a positive number");
+
+    if (!pg_DoubleFromObj(value, &diameter)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid type for diameter, must be numeric");
         return -1;
     }
-    self->circle.r = val / 2;
+
+    if (diameter <= 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Invalid diameter value, must be > 0");
+        return -1;
+    }
+
+    self->circle.r = diameter / 2;
     self->circle.r_sqr = self->circle.r * self->circle.r;
+
     return 0;
 }
 

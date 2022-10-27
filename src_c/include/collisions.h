@@ -34,4 +34,7 @@ pgCollision_RectLine(SDL_Rect *, pgLineBase *);
 static int
 pgCollision_RectCircle(SDL_Rect *, pgCircleBase *);
 
+static int
+pgCollision_PolygonPoint(pgPolygonBase *, double, double);
+
 #endif /* ~_PG_COLLISIONS_H */

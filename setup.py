@@ -58,7 +58,7 @@ def update_times_file() -> None:
         f.write(json.dumps(data, indent=4))
 
 
-def needs_to_be_rebuild() -> bool:
+def needs_to_be_rebuilt() -> bool:
     files = list(Path("./src_c/").glob("**/*.[c|h]"))
 
     with open(get_times_json_file(), "r+") as f:
@@ -93,7 +93,7 @@ def needs_to_be_rebuild() -> bool:
 
 
 def build() -> None:
-    if not needs_to_be_rebuild():
+    if not needs_to_be_rebuilt():
         print("latest version of geometry already built")
         return
     print("building latest version of geometry...")
