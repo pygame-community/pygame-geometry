@@ -390,21 +390,10 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
 static PyObject *
 pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0.0, Dy = 0.0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
     double *verts = PyMem_New(double, self->polygon.verts_num * 2);
@@ -428,63 +417,36 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
     }
 
     return tmp;
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
 static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
                    Py_ssize_t nargs)
 {
-    double Dx = 0.0, Dy = 0.0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
     _pg_move_polygon_helper(&(self->polygon), Dx, Dy);
-    Py_RETURN_NONE;
 
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 pg_polygon_collidepoint(pgPolygonObject *self, PyObject *const *args,
                         Py_ssize_t nargs)
 {
-    double x, y;
+    double px, py;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &x, &y)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &x) || !pg_DoubleFromObj(args[1], &y)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &px, &py)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Polygon.collidepoint requires a point or PointLike object");
     }
 
-    return PyBool_FromLong(pgCollision_PolygonPoint(&self->polygon, x, y));
-
-error:
-    return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
+    return PyBool_FromLong(pgCollision_PolygonPoint(&self->polygon, px, py));
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
