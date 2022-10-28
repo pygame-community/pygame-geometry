@@ -51,6 +51,8 @@ running = True
 
 ray_count = 360
 
+directions = [(math.cos(angle), math.sin(angle)) for x in range(ray_count)]
+
 while running:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
@@ -61,11 +63,16 @@ while running:
     screen.fill((0, 0, 0))
 
     for x in range(ray_count):
-        origin_pos = pygame.Vector2(pygame.mouse.get_pos())
-        angle = x / ray_count * 360
-        direction = origin_pos + (math.cos(angle), math.sin(angle))
+        origin_pos = pygame.mouse.get_pos()
 
-        point = geometry.raycast(origin_pos, direction, float("inf"), colliders)
+        direction = directions[x]
+
+        point = geometry.raycast(
+            origin_pos,
+            (origin_pos[0] + direction[0], origin_pos[1] + direction[1]),
+            float("inf"),
+            colliders,
+        )
         if point:
             pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
