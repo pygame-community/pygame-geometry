@@ -175,7 +175,6 @@ class Circle:
     @overload
     def move_ip(self, move_by: Coordinate) -> None: ...
     def contains(self, shape: Shape) -> bool: ...
-    
 
 class Polygon:
     vertices: List[Coordinate]
