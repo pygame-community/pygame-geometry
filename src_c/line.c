@@ -7,6 +7,14 @@
 #include <stddef.h>
 #include <math.h>
 
+#ifndef PI
+#define PI 3.14159265358979323846264
+#endif
+
+#ifndef RAD_TO_DEG
+#define RAD_TO_DEG(x) (x * 180 / PI)
+#endif
+
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
 static inline double
@@ -339,28 +347,14 @@ static PyObject *
 pg_line_collidepoint(pgLineObject *self, PyObject *const *args,
                      Py_ssize_t nargs)
 {
-    double Cx = 0, Cy = 0;
+    double px, py;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Cx, &Cy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Cx) ||
-            !pg_DoubleFromObj(args[1], &Cy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &px, &py)) {
+        return RAISE(PyExc_TypeError,
+                     "Line.collidepoint requires a point or PointLike object");
     }
 
-    return PyBool_FromLong(pgCollision_LinePoint(&self->line, Cx, Cy));
-
-error:
-    return RAISE(PyExc_TypeError,
-                 "collidepoint requires a point or PointLike object");
+    return PyBool_FromLong(pgCollision_LinePoint(&self->line, px, py));
 }
 
 static PyObject *
@@ -443,8 +437,7 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
 {
     int result = 0;
     if (pgLine_Check(arg)) {
-        result =
-            pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
+        result = pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
     }
     else if (pgRect_Check(arg)) {
         result = pgCollision_RectLine(&pgRect_AsRect(arg), &self->line);
@@ -473,49 +466,24 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
 static PyObject *
 pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
     return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
                                  self->line.y1 + Dy, self->line.x2 + Dx,
                                  self->line.y2 + Dy);
-
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
 static PyObject *
 pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0, Dy = 0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
     self->line.x1 += Dx;
@@ -524,9 +492,6 @@ pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     self->line.y2 += Dy;
 
     Py_RETURN_NONE;
-
-error:
-    return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
 }
 
 static struct PyMethodDef pg_line_methods[] = {
@@ -813,11 +778,40 @@ static PyNumberMethods pg_line_as_number = {
 static PyObject *
 pg_line_repr(pgLineObject *self)
 {
-    // dont comments on it (-_-)
-    return PyUnicode_FromFormat(
-        "pygame.Line(%S, %S, %S, %S)", PyFloat_FromDouble(self->line.x1),
-        PyFloat_FromDouble(self->line.y1), PyFloat_FromDouble(self->line.x2),
-        PyFloat_FromDouble(self->line.y2));
+    PyObject *result, *x1, *y1, *x2, *y2;
+
+    x1 = PyFloat_FromDouble(self->line.x1);
+    if (!x1) {
+        return NULL;
+    }
+    y1 = PyFloat_FromDouble(self->line.y1);
+    if (!y1) {
+        Py_DECREF(x1);
+        return NULL;
+    }
+    x2 = PyFloat_FromDouble(self->line.x2);
+    if (!x2) {
+        Py_DECREF(x1);
+        Py_DECREF(y1);
+        return NULL;
+    }
+    y2 = PyFloat_FromDouble(self->line.y2);
+    if (!y2) {
+        Py_DECREF(x1);
+        Py_DECREF(y1);
+        Py_DECREF(x2);
+        return NULL;
+    }
+
+    result =
+        PyUnicode_FromFormat("<Line((%R, %R), (%R, %R))>", x1, y1, x2, y2);
+
+    Py_DECREF(x1);
+    Py_DECREF(y1);
+    Py_DECREF(x2);
+    Py_DECREF(y2);
+
+    return result;
 }
 
 static PyObject *
@@ -950,10 +944,26 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
+pg_line_getangle(pgLineObject *self, void *closure)
+{
+    double dx = self->line.x2 - self->line.x1;
+
+    if (dx == 0.0)
+        return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0)
+                                               : PyFloat_FromDouble(90.0);
+
+    double dy = self->line.y2 - self->line.y1;
+    
+    double gradient = (dy / dx);
+    return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
+}
+
+static PyObject *
 pg_line_getlength(pgLineObject *self, void *closure)
 {
     return PyFloat_FromDouble(pgLine_Length(&self->line));
 }
+
 static PyObject *
 pg_line_getslope(pgLineObject *self, void *closure)
 {
@@ -981,6 +991,7 @@ static PyGetSetDef pg_line_getsets[] = {
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"length", (getter)pg_line_getlength, NULL, NULL, NULL},
     {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
+    {"angle", (getter)pg_line_getangle, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */

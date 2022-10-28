@@ -10,7 +10,9 @@ request
 7. Please be patient when waiting for pull request reviews,
 we are all unpaid-volunteers
 
-See below to see how to build pygame_geometry from source...
+# Build From Source
+
+See below to see how to build pygame_geometry from source. If you need help, talk to us on [Discord](https://discord.gg/QzmpNXchW5).
 
 ## Windows 10 / Windows 11
 1. Install Python 3.7+
@@ -21,3 +23,14 @@ See below to see how to build pygame_geometry from source...
 6. Run `cd pygame_geometry; python -m pip install .`
 
 **If you are having trouble re-compiling, try deleting the `build` folder from the root directory if it exists**
+
+## MacOS
+1. Install Python 3.7+
+2. Install [HomeBrew](https://brew.sh/)
+3. Install dependencies
+```
+brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
+```
+4. Run `python3 -m pip install setuptools -U`
+5. Run `git clone https://github.com/novialriptide/pygame_geometry.git`
+6. Run `cd pygame_geometry; python3 -m pip install .`

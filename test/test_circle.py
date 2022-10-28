@@ -178,8 +178,12 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures the r attribute handles invalid values correctly."""
         c = Circle(0, 0, 1)
 
-        for value in (None, [], "1", (1,), [1, 2, 3], -1):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
+                c.r = value
+
+        for value in (-10.3234, -1, 0, 0.0):
+            with self.assertRaises(ValueError):
                 c.r = value
 
     def test_r__del(self):
@@ -301,8 +305,12 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures the area handles invalid values correctly."""
         c = Circle(0, 0, 1)
 
-        for value in (None, [], "1", (1,), [1, 2, 3], -1):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
+                c.area = value
+
+        for value in (-10.3234, -1, 0, 0.0):
+            with self.assertRaises(ValueError):
                 c.area = value
 
     def test_area_del(self):
@@ -332,8 +340,12 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures the circumference handles invalid values correctly."""
         c = Circle(0, 0, 1)
 
-        for value in (None, [], "1", (1,), [1, 2, 3], -1, 0):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
+                c.circumference = value
+
+        for value in (-10.3234, -1, 0, 0.0):
+            with self.assertRaises(ValueError):
                 c.circumference = value
 
     def test_circumference_del(self):
@@ -366,8 +378,12 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures the diameter handles invalid values correctly."""
         c = Circle(0, 0, 1)
 
-        for value in (None, [], "1", (1,), [1, 2, 3], -1, 0):
+        for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
+                c.diameter = value
+
+        for value in (-10.3234, -1, 0, 0.0):
+            with self.assertRaises(ValueError):
                 c.diameter = value
 
     def test_diameter_del(self):
@@ -376,6 +392,20 @@ class CircleTypeTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             del c.diameter
+
+    def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        c_str = "<Circle((10.3, 3.2), 4.3)>"
+        circle = Circle((10.3, 3.2), 4.3)
+        self.assertEqual(str(circle), c_str)
+        self.assertEqual(circle.__str__(), c_str)
+
+    def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        c_repr = "<Circle((10.3, 3.2), 4.3)>"
+        circle = Circle((10.3, 3.2), 4.3)
+        self.assertEqual(repr(circle), c_repr)
+        self.assertEqual(circle.__repr__(), c_repr)
 
     def test_copy(self):
         c = Circle(10, 10, 4)
@@ -395,10 +425,8 @@ class CircleTypeTest(unittest.TestCase):
 
     def test_bool(self):
         c = Circle(10, 10, 4)
-        c2 = Circle(10, 10, 0)
 
         self.assertTrue(c, "Expected c to be True as radius is > 0")
-        self.assertFalse(c2, "Expected c to be False as radius is != 0")
 
     def test_collidecircle_argtype(self):
         """tests if the function correctly handles incorrect types as parameters"""

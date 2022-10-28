@@ -91,6 +91,79 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
 
+    def test_subscript(self):
+        """Checks whether reassigning a vertex works correctly"""
+        po = Polygon([p1, p2, p3, p4])
+
+        po[0] = (70.0, 80.0)
+        self.assertEqual(po[0], (70.0, 80.0))
+
+        po[1] = [45.0, 38.0]
+        self.assertEqual(po[1], (45.0, 38.0))
+
+        po = Polygon([p1, p2, p3, p4])
+
+        self.assertEqual(po[0], p1)
+        self.assertEqual(po[1], p2)
+        self.assertEqual(po[2], p3)
+        self.assertEqual(po[3], p4)
+
+        self.assertEqual(po[-3], p2)
+        self.assertEqual(po[-2], p3)
+        self.assertEqual(po[-1], p4)
+
+        invalid_indexes = [4, 7, 100, -5, -7, -100]
+        for invalid_index in invalid_indexes:
+            with self.assertRaises(IndexError):
+                po[invalid_index]
+
+        po[0] = po[0]
+        self.assertEqual(po[0], po[0])
+
+        po2 = Polygon([p1, p2, p3, p4])
+
+        valid_indexes = [0, 1, 2, 3, -1, -2, -3, -4]
+        for valid_index in valid_indexes:
+            self.assertEqual(po[valid_index], po2[valid_index])
+
+    def test_length(self):
+        po = Polygon((p1, p2, p3, p4))
+        self.assertEqual(len(po), 4)
+
+        po = Polygon([p1, p2, p3, p4, (54.0, 39.0)])
+        self.assertEqual(len(po), 5)
+
+        po = Polygon([p1, p2, p3, p4, (75.0, 83.0), [23.0, 12.0], [90.0, 134.0]])
+        self.assertEqual(len(po), 7)
+
+    def test_contains(self):
+        po = Polygon([p1, p2, p3, p4])
+        self.assertTrue(p1 in po)
+        self.assertTrue(p2 in po)
+        self.assertTrue(p3 in po)
+        self.assertTrue(p4 in po)
+
+        self.assertFalse([90.0, 47.0] in po)
+        self.assertFalse((35.0, 9.0) in po)
+
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1, (1, 2, 3))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                value in po
+
+        invalid_values = (
+            [17.0, None],
+            ["1", 47.0],
+            (None, None),
+            ("123", "456"),
+            (17.0, "12"),
+        )
+
+        for value in invalid_values:
+            with self.assertRaises(TypeError):
+                value in po
+
     def test_construction_objwithpolygonattr(self):
         """Checks whether the constructor works correctly with an object with a polygon
         attribute"""
@@ -136,17 +209,17 @@ class PolygonTypeTest(unittest.TestCase):
         polygon_pg = geometry.regular_polygon(sides, center, radius, angle)
         vertices_pg = polygon_pg.vertices
 
-        vertices = []
+        vertices = list(range(sides))
 
-        for i in range(sides):
-            vertices.append(
-                (
-                    center[0]
-                    + radius * math.cos(math.radians(angle) + math.pi * 2 * i / sides),
-                    center[1]
-                    + radius * math.sin(math.radians(angle) + math.pi * 2 * i / sides),
-                )
-            )
+        fac = math.tau / sides
+        radang = math.radians(angle)
+        for i in range(sides // 2):
+            ang = radang + i * fac
+            radi_cos_a = radius * math.cos(ang)
+            radi_sin_a = radius * math.sin(ang)
+            vertices[i] = (center[0] + radi_cos_a, center[1] + radi_sin_a)
+
+            vertices[sides // 2 + i] = (center[0] - radi_cos_a, center[1] - radi_sin_a)
 
         self.assertEqual(vertices_pg, vertices)
 
@@ -296,6 +369,20 @@ class PolygonTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del poly.center
 
+    def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        p_str = "<Polygon(3, [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])>"
+        polygon = Polygon([(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+        self.assertEqual(str(polygon), p_str)
+        self.assertEqual(polygon.__str__(), p_str)
+
+    def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        p_repr = "<Polygon(3, [(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])>"
+        polygon = Polygon([(1.0, 1.0), (2.0, 2.0), (3.0, 3.0)])
+        self.assertEqual(repr(polygon), p_repr)
+        self.assertEqual(polygon.__repr__(), p_repr)
+
     def test_move(self):
         """Checks whether polygon moved correctly."""
         poly = Polygon(_some_vertices.copy())
@@ -414,6 +501,82 @@ class PolygonTypeTest(unittest.TestCase):
         for arg in invalid_args:
             with self.assertRaises(TypeError):
                 poly.move_ip(*arg)
+
+    def test_collidepoint(self):
+        """Tests whether the collidepoint method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        # check that the center of the polygon collides with the polygon
+        self.assertTrue(poly.collidepoint(poly.center))
+        self.assertTrue(poly.collidepoint(*poly.center))
+
+        # check that each vertex collides with the polygon
+        for vertex in poly.vertices:
+            self.assertTrue(poly.collidepoint(vertex))
+            self.assertTrue(poly.collidepoint(*vertex))
+
+        # check that a point outside the polygon does not collide with the polygon
+        self.assertFalse(poly.collidepoint((100.0, 100.0)))
+        self.assertFalse(poly.collidepoint(100.0, 100.0))
+
+        # check that a point on the edge of the polygon collides with the polygon
+        self.assertTrue(poly.collidepoint((15.0, 15.0)))
+        self.assertTrue(poly.collidepoint(15.0, 15.0))
+
+        # check that a point sligtly outside the polygon does not collide with the polygon
+        e = 0.000000000000001
+        self.assertFalse(poly.collidepoint((15.0 - e, 15.0)))
+        self.assertFalse(poly.collidepoint(15.0 - e, 15.0))
+
+    def test_collidepoint_invalid_args(self):
+        """Tests whether the collidepoint method correctly handles invalid parameters."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collidepoint(value)
+
+    def test_collidepoint_argnum(self):
+        """Tests whether the collidepoint method correctly handles invalid parameter
+        numbers."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [((1, 1), (1, 1)), ((1, 1), (1, 1), (1, 1))]
+
+        with self.assertRaises(TypeError):
+            poly.collidepoint()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.collidepoint(*arg)
+
+    def test_collidepoint_return_type(self):
+        """Tests whether the collidepoint method returns a boolean."""
+
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertIsInstance(poly.collidepoint(poly.center), bool)
+        self.assertIsInstance(poly.collidepoint(*poly.center), bool)
+
+        for vertex in poly.vertices:
+            self.assertIsInstance(poly.collidepoint(vertex), bool)
+            self.assertIsInstance(poly.collidepoint(*vertex), bool)
+
+        self.assertIsInstance(poly.collidepoint((100.0, 100.0)), bool)
+        self.assertIsInstance(poly.collidepoint(100.0, 100.0), bool)
+
+        e = 0.000000000000001
+        self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
+        self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
 
 
 if __name__ == "__main__":

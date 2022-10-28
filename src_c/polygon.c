@@ -130,7 +130,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
         if (length >= 3) {
             Py_ssize_t i;
             Py_ssize_t i2;
-            
+
             out->verts_num = length;
             out->vertices = PyMem_New(double, length * 2);
             if (!out->vertices) {
@@ -221,7 +221,7 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             }
         }
         double x_coord_sum = 0.0;
-        double y_coord_sum = 0.0;   
+        double y_coord_sum = 0.0;
         for (i = 0; i < nargs; i++) {
             i2 = i * 2;
             if (!pg_TwoDoublesFromObj(args[i], &(out->vertices[i2]),
@@ -229,10 +229,10 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                 return 0;
             }
             x_coord_sum += out->vertices[i2];
-            y_coord_sum += out->vertices[i2 + 1];         
+            y_coord_sum += out->vertices[i2 + 1];
         }
         out->c_x = x_coord_sum / out->verts_num;
-        out->c_y = y_coord_sum / out->verts_num;   
+        out->c_y = y_coord_sum / out->verts_num;
         return 1;
     }
 
@@ -281,6 +281,31 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
 }
 
 static PyObject *
+_pg_polygon_subtype_new2_transfer(PyTypeObject *type, double *vertices,
+                                  Py_ssize_t verts_num)
+{
+    pgPolygonObject *polygon_obj =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(type, NULL, NULL);
+
+    if (!polygon_obj) {
+        return NULL;
+    }
+
+    if (verts_num < 3 || !vertices) {
+        /*A polygon requires 3 or more vertices*/
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    polygon_obj->polygon.vertices = vertices;
+    polygon_obj->polygon.verts_num = verts_num;
+
+    _set_polygon_center_coords(&(polygon_obj->polygon));
+
+    return (PyObject *)polygon_obj;
+}
+
+static PyObject *
 pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     pgPolygonObject *self = (pgPolygonObject *)type->tp_alloc(type, 0);
@@ -324,9 +349,24 @@ pg_polygon_dealloc(pgPolygonObject *self)
 static PyObject *
 pg_polygon_repr(pgPolygonObject *self)
 {
-    return PyUnicode_FromFormat("<Polygon(%S, %S)>",
-                                PyLong_FromLong((int)self->polygon.verts_num),
-                                _pg_polygon_vertices_aslist(&self->polygon));
+    PyObject *result, *verts, *verts_num;
+
+    verts = _pg_polygon_vertices_aslist(&self->polygon);
+    if (!verts) {
+        return NULL;
+    }
+    verts_num = PyLong_FromLong((long)self->polygon.verts_num);
+    if (!verts_num) {
+        Py_DECREF(verts);
+        return NULL;
+    }
+
+    result = PyUnicode_FromFormat("<Polygon(%R, %R)>", verts_num, verts);
+
+    Py_DECREF(verts);
+    Py_DECREF(verts_num);
+
+    return result;
 }
 
 static PyObject *
@@ -350,77 +390,70 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
 static PyObject *
 pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Dx = 0.0, Dy = 0.0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
-    double *verts = PyMem_New(double, self->polygon.verts_num*2);
+    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
     if (!verts) {
         return NULL;
     }
-    memcpy(verts, self->polygon.vertices, self->polygon.verts_num * 2 * sizeof(double));
-    
+    memcpy(verts, self->polygon.vertices,
+           self->polygon.verts_num * 2 * sizeof(double));
+
     Py_ssize_t i2;
     for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
         verts[i2] += Dx;
         verts[i2 + 1] += Dy;
     }
-    
-    PyObject *tmp = _pg_polygon_subtype_new2(Py_TYPE(self), verts, self->polygon.verts_num);
+
+    PyObject *tmp = _pg_polygon_subtype_new2_transfer(Py_TYPE(self), verts,
+                                                      self->polygon.verts_num);
     if (!tmp) {
         PyMem_Free(verts);
         return NULL;
     }
-    PyMem_Free(verts);
+
     return tmp;
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
 }
 
 static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
-                  Py_ssize_t nargs)
+                   Py_ssize_t nargs)
 {
-    double Dx = 0.0, Dy = 0.0;
+    double Dx, Dy;
 
-    if (nargs == 1) {
-        if (!pg_TwoDoublesFromObj(args[0], &Dx, &Dy)) {
-            goto error;
-        }
-    }
-    else if (nargs == 2) {
-        if (!pg_DoubleFromObj(args[0], &Dx) ||
-            !pg_DoubleFromObj(args[1], &Dy)) {
-            goto error;
-        }
-    }
-    else {
-        goto error;
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
+        return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
     _pg_move_polygon_helper(&(self->polygon), Dx, Dy);
-    Py_RETURN_NONE;
 
-error:
-    return RAISE(PyExc_TypeError, "move requires a pair of numbers");
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_polygon_collidepoint(pgPolygonObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
+{
+    double px, py;
+
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &px, &py)) {
+        return RAISE(
+            PyExc_TypeError,
+            "Polygon.collidepoint requires a point or PointLike object");
+    }
+
+    return PyBool_FromLong(pgCollision_PolygonPoint(&self->polygon, px, py));
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
+    {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
+     NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
@@ -436,6 +469,116 @@ pg_polygon_get_vertices(pgPolygonObject *self, void *closure)
 {
     return _pg_polygon_vertices_aslist(&self->polygon);
 }
+
+static int
+pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
+{
+    pgPolygonBase *poly = &self->polygon;
+
+    if (i < 0) {
+        i += poly->verts_num;
+    }
+
+    if (i < 0 || i > poly->verts_num) {
+        PyErr_SetString(PyExc_IndexError, "Invalid vertex Index");
+        return -1;
+    }
+
+    double Vx, Vy;
+    if (!pg_TwoDoublesFromObj(v, &Vx, &Vy)) {
+        PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
+        return -1;
+    }
+    poly->vertices[i * 2] = Vx;
+    poly->vertices[i * 2 + 1] = Vy;
+    return 0;
+}
+
+static Py_ssize_t
+pg_polygon_seq_length(pgPolygonObject *self)
+{
+    return pgPolygon_GETVERTSNUM(self);
+}
+
+static int
+pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
+{
+    if (PyIndex_Check(op)) {
+        PyObject *index;
+        Py_ssize_t i;
+
+        index = PyNumber_Index(op);
+        if (index == NULL) {
+            return -1;
+        }
+        i = PyNumber_AsSsize_t(index, NULL);
+        Py_DECREF(index);
+        return pg_polygon_ass_vertex(self, i, value);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
+        return -1;
+    }
+}
+
+static PyObject *
+pg_polygon_subscript(pgPolygonObject *self, PyObject *op)
+{
+    PyObject *index = PyNumber_Index(op);
+    Py_ssize_t i;
+
+    if (!index) {
+        return NULL;
+    }
+    i = PyNumber_AsSsize_t(index, NULL);
+    Py_DECREF(index);
+
+    pgPolygonBase *poly = &self->polygon;
+
+    if (i < 0) {
+        i += poly->verts_num;
+    }
+
+    if (i < 0 || i > poly->verts_num - 1) {
+        return RAISE(PyExc_IndexError, "Invalid vertex Index");
+    }
+
+    return pg_TupleFromDoublePair(poly->vertices[i * 2],
+                                  poly->vertices[i * 2 + 1]);
+}
+
+static int
+pg_polygon_contains_seq(pgPolygonObject *self, PyObject *arg)
+{
+    double x, y;
+
+    if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
+        PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+        return -1;
+    }
+
+    pgPolygonBase *poly = &self->polygon;
+    Py_ssize_t i;
+    for (i = 0; i < poly->verts_num; i++) {
+        if (poly->vertices[i * 2] == x && poly->vertices[i * 2 + 1] == y) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static PyMappingMethods pg_polygon_as_mapping = {
+    .mp_subscript = (binaryfunc)pg_polygon_subscript,
+    .mp_ass_subscript = (objobjargproc)pg_polygon_ass_subscript,
+    .mp_length = (lenfunc)pg_polygon_seq_length};
+
+static PySequenceMethods pg_polygon_as_sequence = {
+    .sq_length = (lenfunc)pg_polygon_seq_length,
+    .sq_item = (ssizeargfunc)pg_polygon_subscript,
+    .sq_ass_item = (ssizeobjargproc)pg_polygon_ass_subscript,
+    .sq_contains = (objobjproc)pg_polygon_contains_seq,
+};
 
 static PyObject *
 pg_polygon_get_center_x(pgPolygonObject *self, void *closure)
@@ -491,17 +634,17 @@ pg_polygon_set_center(pgPolygonObject *self, PyObject *value, void *closure)
         return -1;
     }
     _pg_move_polygon_helper(&(self->polygon), (new_c_x - self->polygon.c_x),
-                 (new_c_y - self->polygon.c_y));
+                            (new_c_y - self->polygon.c_y));
     return 0;
 }
 
 static PyGetSetDef pg_polygon_getsets[] = {
     {"c_x", (getter)pg_polygon_get_center_x, (setter)pg_polygon_set_center_x,
-    NULL, NULL},
+     NULL, NULL},
     {"c_y", (getter)pg_polygon_get_center_y, (setter)pg_polygon_set_center_y,
-    NULL, NULL},
+     NULL, NULL},
     {"center", (getter)pg_polygon_get_center, (setter)pg_polygon_set_center,
-    NULL, NULL},
+     NULL, NULL},
     {"verts_num", (getter)pg_polygon_get_verts_num, NULL,
      "Number of vertices of the polygon", NULL},
     {"vertices", (getter)pg_polygon_get_vertices, NULL,
@@ -517,6 +660,8 @@ static PyTypeObject pgPolygon_Type = {
     .tp_dealloc = (destructor)pg_polygon_dealloc,
     .tp_repr = (reprfunc)pg_polygon_repr,
     .tp_str = (reprfunc)pg_polygon_str,
+    .tp_as_mapping = &pg_polygon_as_mapping,
+    .tp_as_sequence = &pg_polygon_as_sequence,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_doc = NULL,
     .tp_weaklistoffset = offsetof(pgPolygonObject, weakreflist),
