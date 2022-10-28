@@ -930,7 +930,7 @@ pg_line_getangle(pgLineObject *self, void *closure)
                                                : PyFloat_FromDouble(90.0);
 
     double dy = self->line.y2 - self->line.y1;
-    
+
     double gradient = (dy / dx);
     return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
 }

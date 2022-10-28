@@ -191,11 +191,10 @@ class Polygon:
 def regular_polygon(
     sides: int, center: Coordinate, radius: float, angle: float = 0
 ) -> Polygon: ...
-
 @overload
 def raycast(
     origin: Coordinate,
     direction: Coordinate,
     max_dist: float,
-    colliders: Sequence[Rect, Circle, Line],
+    colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Optional[Tuple[float, float]]: ...

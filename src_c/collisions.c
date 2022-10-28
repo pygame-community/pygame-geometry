@@ -93,8 +93,8 @@ pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
     double d = sqrt(dx * dx + dy * dy) + sqrt(dx2 * dx2 + dy2 * dy2);
     double d3 = sqrt(dx3 * dx3 + dy3 * dy3);
 
-    double width = 0.000001;   
-    return d >= d3-width && d <= d3+width;
+    double width = 0.000001;
+    return d >= d3 - width && d <= d3 + width;
 }
 
 static int
@@ -330,9 +330,9 @@ pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
 }
 
 static int
-pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T) 
+pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T)
 {
-    #if AVX2_IS_SUPPORTED
+#if AVX2_IS_SUPPORTED
     return pgRaycast_LineRect_avx2(line, rect, max_t, T);
 #else
     double x = (double)rect->x;
@@ -368,7 +368,8 @@ pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T)
 }
 
 static int
-pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t, double *T)
+pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t,
+                     double *T)
 {
     double x1 = line->x1;
     double y1 = line->y1;

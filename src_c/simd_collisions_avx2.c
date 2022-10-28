@@ -69,20 +69,21 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
     __m256d t_one_256d = _mm256_cmp_pd(t_256d, ones_256d, _CMP_LE_OQ);
     __m256d u_zero_256d = _mm256_cmp_pd(u_256d, zeros_256d, _CMP_GE_OQ);
     __m256d u_one_256d = _mm256_cmp_pd(u_256d, ones_256d, _CMP_LE_OQ);
-    __m256d condition_256d = _mm256_and_pd(_mm256_and_pd(t_zero_256d, t_one_256d),
-                                     _mm256_and_pd(u_zero_256d, u_one_256d));
+    __m256d condition_256d =
+        _mm256_and_pd(_mm256_and_pd(t_zero_256d, t_one_256d),
+                      _mm256_and_pd(u_zero_256d, u_one_256d));
 
     // if no lines touch the rectangle then this will be true
     if (_mm256_movemask_pd(condition_256d) == 0x0) {
         return 0;
     }
 
+    __m256d blended_256d =
+        _mm256_blendv_pd(_mm256_set1_pd(DBL_MAX), t_256d, condition_256d);
 
-
-    __m256d blended_256d = _mm256_blendv_pd(_mm256_set1_pd(DBL_MAX), t_256d, condition_256d);
-
-    __m128d min_256d = _mm_min_pd(_mm256_extractf128_pd(blended_256d, 0), _mm256_extractf128_pd(blended_256d, 1));
-    double* min_ptr = (double*)&min_256d;
+    __m128d min_256d = _mm_min_pd(_mm256_extractf128_pd(blended_256d, 0),
+                                  _mm256_extractf128_pd(blended_256d, 1));
+    double *min_ptr = (double *)&min_256d;
 
     double t = min_ptr[0] < min_ptr[1] ? min_ptr[0] : min_ptr[1];
 
@@ -171,7 +172,8 @@ pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line)
 
 #if AVX2_IS_SUPPORTED
 PG_FORCEINLINE static int
-pgRaycast_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double max_t, double *T)
+pgRaycast_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double max_t,
+                        double *T)
 {
     double Rx = (double)rect->x;
     double Ry = (double)rect->y;
@@ -229,21 +231,25 @@ pgRaycast_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double max_t, double *
     __m256d ones_256d = _mm256_set1_pd(1.0);
     __m256d zeros_256d = _mm256_set1_pd(0.0);
     __m256d t_zero_256d = _mm256_cmp_pd(t_256d, zeros_256d, _CMP_GE_OQ);
-    __m256d t_one_256d = _mm256_cmp_pd(t_256d, _mm256_set1_pd(max_t), _CMP_LE_OQ);
+    __m256d t_one_256d =
+        _mm256_cmp_pd(t_256d, _mm256_set1_pd(max_t), _CMP_LE_OQ);
     __m256d u_zero_256d = _mm256_cmp_pd(u_256d, zeros_256d, _CMP_GE_OQ);
     __m256d u_one_256d = _mm256_cmp_pd(u_256d, ones_256d, _CMP_LE_OQ);
-    __m256d condition_256d = _mm256_and_pd(_mm256_and_pd(t_zero_256d, t_one_256d),
-                                     _mm256_and_pd(u_zero_256d, u_one_256d));
+    __m256d condition_256d =
+        _mm256_and_pd(_mm256_and_pd(t_zero_256d, t_one_256d),
+                      _mm256_and_pd(u_zero_256d, u_one_256d));
 
     // if no lines touch the rectangle then this will be false
     if (_mm256_movemask_pd(condition_256d) == 0x0) {
         return 0;
     }
 
-    __m256d blended_256d = _mm256_blendv_pd(_mm256_set1_pd(DBL_MAX), t_256d, condition_256d);
+    __m256d blended_256d =
+        _mm256_blendv_pd(_mm256_set1_pd(DBL_MAX), t_256d, condition_256d);
 
-    __m128d min_256d = _mm_min_pd(_mm256_extractf128_pd(blended_256d, 0), _mm256_extractf128_pd(blended_256d, 1));
-    double* min_ptr = (double*)&min_256d;
+    __m128d min_256d = _mm_min_pd(_mm256_extractf128_pd(blended_256d, 0),
+                                  _mm256_extractf128_pd(blended_256d, 1));
+    double *min_ptr = (double *)&min_256d;
 
     *T = min_ptr[0] < min_ptr[1] ? min_ptr[0] : min_ptr[1];
 

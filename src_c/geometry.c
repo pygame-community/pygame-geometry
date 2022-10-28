@@ -11,35 +11,40 @@
 static PyObject *
 pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Ox, Oy; // origin
-    double Dx, Dy; // direction
+    double Ox, Oy;  // origin
+    double Dx, Dy;  // direction
     PyObject **farr;
     Py_ssize_t farr_length;
     Py_ssize_t loop;
-    double max_dist = DBL_MAX;
+    double max_dist;
 
     if (nargs == 4) {
         if (!pg_TwoDoublesFromObj(args[0], &Ox, &Oy)) {
-            return RAISE(PyExc_TypeError, "the origin requires a pair of floats");
+            return RAISE(PyExc_TypeError,
+                         "the origin requires a pair of floats");
         }
         if (!pg_TwoDoublesFromObj(args[1], &Dx, &Dy)) {
-            return RAISE(PyExc_TypeError, "the direction requires a pair of floats");
+            return RAISE(PyExc_TypeError,
+                         "the direction requires a pair of floats");
         }
         if (!pg_DoubleFromObj(args[2], &max_dist)) {
             return RAISE(PyExc_TypeError, "invalid max distance");
         }
+        if (max_dist < 0) {
+            max_dist = DBL_MAX;
+        }
         if (!PySequence_FAST_CHECK(args[3])) {
-            return RAISE(PyExc_TypeError, "colliders parameter must be a sequence");
+            return RAISE(PyExc_TypeError,
+                         "colliders parameter must be a sequence");
         }
         farr = PySequence_Fast_ITEMS(args[3]);
         farr_length = PySequence_Fast_GET_SIZE(args[3]);
     }
     else {
-        return RAISE(PyExc_TypeError,
-                    "invalid number of arguments");
+        return RAISE(PyExc_TypeError, "invalid number of arguments");
     }
 
-    pgLineBase line = { Ox, Oy, Dx, Dy };
+    pgLineBase line = {Ox, Oy, Dx, Dy};
 
     // find the best t
     double max_t = max_dist / pgLine_Length(&line);
@@ -48,17 +53,20 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
     for (loop = 0; loop < farr_length; loop++) {
         if (pgCircle_Check(farr[loop])) {
-            if (pgRaycast_LineCircle(&line, &pgCircle_AsCircle(farr[loop]), max_t, &temp_t)) {
+            if (pgRaycast_LineCircle(&line, &pgCircle_AsCircle(farr[loop]),
+                                     max_t, &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
         }
         else if (pgLine_Check(farr[loop])) {
-            if (pgRaycast_LineLine(&line, &pgLine_AsLine(farr[loop]), max_t, &temp_t)) {
+            if (pgRaycast_LineLine(&line, &pgLine_AsLine(farr[loop]), max_t,
+                                   &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
         }
         else if (pgRect_Check(farr[loop])) {
-            if (pgRaycast_LineRect(&line, &pgRect_AsRect(farr[loop]), max_t, &temp_t)) {
+            if (pgRaycast_LineRect(&line, &pgRect_AsRect(farr[loop]), max_t,
+                                   &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
         }
@@ -74,12 +82,9 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     }
 
     // construct the return with this formula: A+tB
-    return pg_TupleFromDoublePair(
-        Ox + record_t * (Dx - Ox),
-        Oy + record_t * (Dy - Oy));
+    return pg_TupleFromDoublePair(Ox + record_t * (Dx - Ox),
+                                  Oy + record_t * (Dy - Oy));
 }
-
-
 
 static PyObject *
 geometry_regular_polygon(PyObject *_null, PyObject *const *args,
@@ -142,7 +147,6 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
 
     return ret;
 }
-
 
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
@@ -261,4 +265,3 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-                         
