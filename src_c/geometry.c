@@ -11,76 +11,55 @@
 static PyObject *
 pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
-    double start_x, start_y;
-    double end_x, end_y;
+    double Ox, Oy; // origin
+    double Dx, Dy; // direction
     PyObject **farr;
-    Py_ssize_t col_length;
+    Py_ssize_t farr_length;
     Py_ssize_t loop;
-    double angle;
-    double max_dist;
+    double max_dist = DBL_MAX;
 
-    if (nargs == 3) {
-        if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
-            return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
+    if (nargs == 4) {
+        if (!pg_TwoDoublesFromObj(args[0], &Ox, &Oy)) {
+            return RAISE(PyExc_TypeError, "the origin requires a pair of floats");
         }
-        if (!pg_TwoDoublesFromObj(args[1], &end_x, &end_y)) {
-            return RAISE(PyExc_TypeError, "the end position requires a pair of floats");
-        }
-    }
-    else if (nargs == 4) {
-        if (!pg_TwoDoublesFromObj(args[0], &start_x, &start_y)) {
-            return RAISE(PyExc_TypeError, "the starting position requires a pair of floats");
-        }
-        if (!pg_DoubleFromObj(args[1], &angle)) {
-            return RAISE(PyExc_TypeError, "invalid angle");
+        if (!pg_TwoDoublesFromObj(args[1], &Dx, &Dy)) {
+            return RAISE(PyExc_TypeError, "the direction requires a pair of floats");
         }
         if (!pg_DoubleFromObj(args[2], &max_dist)) {
             return RAISE(PyExc_TypeError, "invalid max distance");
         }
-        end_x = start_x - cos(angle * PI / 180) * max_dist;
-        end_y = start_y - sin(angle * PI / 180) * max_dist;
+        if (!PySequence_FAST_CHECK(args[3])) {
+            return RAISE(PyExc_TypeError, "colliders parameter must be a sequence");
+        }
+        farr = PySequence_Fast_ITEMS(args[3]);
+        farr_length = PySequence_Fast_GET_SIZE(args[3]);
     }
     else {
         return RAISE(PyExc_TypeError,
                     "invalid number of arguments");
     }
 
-    if (!PySequence_FAST_CHECK(args[nargs-1])) {
-        return RAISE(PyExc_TypeError, "colliders parameter must be a sequence");
-    }
-    farr = PySequence_Fast_ITEMS(args[nargs-1]);
-    col_length = PySequence_Fast_GET_SIZE(args[nargs-1]);
-
-    pgLineBase line;
-    line.x1 = start_x;
-    line.y1 = start_y;
-    line.x2 = end_x;
-    line.y2 = end_y;
+    pgLineBase line = { Ox, Oy, Dx, Dy };
 
     // find the best t
-    double record = DBL_MAX;
+    double max_t = max_dist / pgLine_Length(&line);
+    double record_t = max_t;
     double temp_t = 0;
 
-    for (loop = 0; loop < col_length; loop++) {
+    for (loop = 0; loop < farr_length; loop++) {
         if (pgCircle_Check(farr[loop])) {
-            if (pgIntersection_LineCircle(&line,
-                                          &pgCircle_AsCircle(farr[loop]), NULL,
-                                          NULL, &temp_t)) {
-                record = MIN(record, temp_t);
+            if (pgRaycast_LineCircle(&line, &pgCircle_AsCircle(farr[loop]), max_t, &temp_t)) {
+                record_t = MIN(record_t, temp_t);
             }
         }
         else if (pgLine_Check(farr[loop])) {
-            if (pgIntersection_LineLine(&line,
-                                        &pgLine_AsLine(farr[loop]), NULL, NULL,
-                                        &temp_t)) {
-                record = MIN(record, temp_t);
+            if (pgRaycast_LineLine(&line, &pgLine_AsLine(farr[loop]), max_t, &temp_t)) {
+                record_t = MIN(record_t, temp_t);
             }
         }
         else if (pgRect_Check(farr[loop])) {
-            if (pgIntersection_LineRect(&line,
-                                        &pgRect_AsRect(farr[loop]), NULL, NULL,
-                                        &temp_t)) {
-                record = MIN(record, temp_t);
+            if (pgRaycast_LineRect(&line, &pgRect_AsRect(farr[loop]), max_t, &temp_t)) {
+                record_t = MIN(record_t, temp_t);
             }
         }
         else {
@@ -90,16 +69,14 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         }
     }
 
-    if (record == DBL_MAX) {
-        return pg_TupleFromDoublePair(
-            line.x2,
-            line.y2);
+    if (record_t == max_t) {
+        Py_RETURN_NONE;
     }
 
     // construct the return with this formula: A+tB
     return pg_TupleFromDoublePair(
-        line.x1 + record * (line.x2 - line.x1),
-        line.y1 + record * (line.y2 - line.y1));
+        Ox + record_t * (Dx - Ox),
+        Oy + record_t * (Dy - Oy));
 }
 
 

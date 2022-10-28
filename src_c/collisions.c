@@ -290,3 +290,113 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
     return dx * dx + dy * dy <= circle->r_sqr;
     return 0;
 }
+
+static int
+pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
+{
+    double x1 = A->x1;
+    double y1 = A->y1;
+    double x2 = A->x2;
+    double y2 = A->y2;
+    double x3 = B->x1;
+    double y3 = B->y1;
+    double x4 = B->x2;
+    double y4 = B->y2;
+
+    double x1_m_x2 = x1 - x2;
+    double y3_m_y4 = y3 - y4;
+    double y1_m_y2 = y1 - y2;
+    double x3_m_x4 = x3 - x4;
+
+    double den = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
+
+    if (!den)
+        return 0;
+
+    double x1_m_x3 = x1 - x3;
+    double y1_m_y3 = y1 - y3;
+
+    double t = x1_m_x3 * y3_m_y4 - y1_m_y3 * x3_m_x4;
+    t /= den;
+
+    double u = x1_m_x2 * y1_m_y3 - y1_m_y2 * x1_m_x3;
+    u /= -den;
+
+    if (t >= 0 && u >= 0 && u <= 1 && t <= max_t) {
+        *T = t;
+        return 1;
+    }
+    return 0;
+}
+
+static int
+pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T) 
+{
+    #if AVX2_IS_SUPPORTED
+    return pgRaycast_LineRect_avx2(line, rect, max_t, T);
+#else
+    double x = (double)rect->x;
+    double y = (double)rect->y;
+    double w = (double)rect->w;
+    double h = (double)rect->h;
+
+    pgLineBase a = {x, y, x + w, y};
+    pgLineBase b = {x, y, x, y + h};
+    pgLineBase c = {x, y + h, x + w, y + h};
+    pgLineBase d = {x + w, y, x + w, y + h};
+
+    int ret = 0;
+
+    double temp_t = DBL_MAX;
+    double final_t = DBL_MAX;
+
+    ret |= pgRaycast_LineLine(line, &a, max_t, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgRaycast_LineLine(line, &b, max_t, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgRaycast_LineLine(line, &c, max_t, &temp_t);
+    final_t = MIN(temp_t, final_t);
+    ret |= pgRaycast_LineLine(line, &d, max_t, &temp_t);
+    final_t = MIN(temp_t, final_t);
+
+    if (ret && final_t <= max_t) {
+        *T = final_t;
+    }
+
+    return ret;
+#endif /* ~__AVX2__ */
+}
+
+static int
+pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t, double *T)
+{
+    double x1 = line->x1;
+    double y1 = line->y1;
+    double x2 = line->x2;
+    double y2 = line->y2;
+    double xc = circle->x;
+    double yc = circle->y;
+
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    double A = dx * dx + dy * dy;
+    double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
+    double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - circle->r_sqr;
+
+    double descriminant = B * B - 4 * A * C;
+    if (descriminant < 0) {
+        return 0;
+    }
+    double t = (-B - sqrt(descriminant)) / (2 * A);
+    if (t < 0) {
+        t = (-B + sqrt(descriminant)) / (2 * A);
+        if (t < 0) {
+            return 0;
+        }
+    }
+
+    if (t <= max_t)
+        *T = t;
+
+    return 1;
+}

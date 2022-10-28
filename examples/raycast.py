@@ -50,22 +50,24 @@ colliders = collisions_lines + collisions_circles + collisions_rects
 running = True
 
 ray_count = 360
-angle = 0
 
 while running:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             running = False
             pygame.quit()
+            raise SystemExit
 
     screen.fill((0, 0, 0))
 
     for x in range(ray_count):
-        origin_pos = pygame.mouse.get_pos()
-        angle = (x / ray_count) * 360
+        origin_pos = pygame.Vector2(pygame.mouse.get_pos())
+        angle = x / ray_count * 360
+        direction = origin_pos + (math.cos(angle), math.sin(angle))
 
-        point = geometry.raycast(origin_pos, angle, 150, colliders)
-        pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
+        point = geometry.raycast(origin_pos, direction, float("inf"), colliders)
+        if point:
+            pygame.draw.line(screen, (255, 0, 0), origin_pos, point, 1)
 
     line_width = 3
 
