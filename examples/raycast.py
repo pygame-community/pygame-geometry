@@ -51,11 +51,6 @@ running = True
 
 ray_count = 360
 
-directions = [
-    (math.cos(x / ray_count * 360), math.sin(x / ray_count * 360))
-    for x in range(ray_count)
-]
-
 while running:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
@@ -68,11 +63,9 @@ while running:
     for x in range(ray_count):
         origin_pos = pygame.mouse.get_pos()
 
-        direction = directions[x]
-
         point = geometry.raycast(
             origin_pos,
-            (origin_pos[0] + direction[0], origin_pos[1] + direction[1]),
+            x / ray_count * 360,
             -1,
             colliders,
         )

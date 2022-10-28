@@ -23,15 +23,27 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
             return RAISE(PyExc_TypeError,
                          "the origin requires a pair of floats");
         }
-        if (!pg_TwoDoublesFromObj(args[1], &Dx, &Dy)) {
-            return RAISE(PyExc_TypeError,
-                         "the direction requires a pair of floats");
-        }
         if (!pg_DoubleFromObj(args[2], &max_dist)) {
             return RAISE(PyExc_TypeError, "invalid max distance");
         }
         if (max_dist < 0) {
             max_dist = DBL_MAX;
+        }
+        if (!pg_TwoDoublesFromObj(args[1], &Dx, &Dy)) {
+            double angle;
+            if (!pg_DoubleFromObj(args[1], &angle)) {
+                return RAISE(PyExc_TypeError,
+                             "expected a pair of floats or a single float");
+            }
+
+            if (max_dist != DBL_MAX) {
+                Dx = Ox - cos(angle * PI / 180) * max_dist;
+                Dy = Oy - sin(angle * PI / 180) * max_dist;
+            }
+            else {
+                Dx = Ox - cos(angle * PI / 180);
+                Dy = Oy - sin(angle * PI / 180);
+            }
         }
         if (!PySequence_FAST_CHECK(args[3])) {
             return RAISE(PyExc_TypeError,
