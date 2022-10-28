@@ -51,7 +51,10 @@ running = True
 
 ray_count = 360
 
-directions = [(math.cos(angle), math.sin(angle)) for x in range(ray_count)]
+directions = [
+    (math.cos(x / ray_count * 360), math.sin(x / ray_count * 360))
+    for x in range(ray_count)
+]
 
 while running:
     for e in pygame.event.get():
@@ -70,7 +73,7 @@ while running:
         point = geometry.raycast(
             origin_pos,
             (origin_pos[0] + direction[0], origin_pos[1] + direction[1]),
-            float("inf"),
+            -1,
             colliders,
         )
         if point:
