@@ -16,20 +16,22 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     PyObject **farr;
     Py_ssize_t farr_length;
     Py_ssize_t loop;
-    double max_dist;
+    double max_t;
+    pgLineBase line;
 
     if (nargs == 4) {
-        if (!pg_TwoDoublesFromObj(args[0], &Ox, &Oy)) {
+        if (!pg_TwoDoublesFromObj(args[0], &line.x1, &line.y1)) {
             return RAISE(PyExc_TypeError,
                          "the origin requires a pair of floats");
         }
+        double max_dist;
         if (!pg_DoubleFromObj(args[2], &max_dist)) {
             return RAISE(PyExc_TypeError, "invalid max distance");
         }
         if (max_dist < 0) {
             max_dist = DBL_MAX;
         }
-        if (!pg_TwoDoublesFromObj(args[1], &Dx, &Dy)) {
+        if (!pg_TwoDoublesFromObj(args[1], &line.x2, &line.y2)) {
             double angle;
             if (!pg_DoubleFromObj(args[1], &angle)) {
                 return RAISE(PyExc_TypeError,
@@ -37,12 +39,12 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
             }
 
             if (max_dist != DBL_MAX) {
-                Dx = Ox - cos(angle * PI / 180) * max_dist;
-                Dy = Oy - sin(angle * PI / 180) * max_dist;
+                line.x2 = line.x1 - cos(angle * PI / 180) * max_dist;
+                line.y2 = line.y1 - sin(angle * PI / 180) * max_dist;
             }
             else {
-                Dx = Ox - cos(angle * PI / 180);
-                Dy = Oy - sin(angle * PI / 180);
+                line.x2 = line.x1 - cos(angle * PI / 180);
+                line.y2 = line.y1 - sin(angle * PI / 180);
             }
         }
         if (!PySequence_FAST_CHECK(args[3])) {
@@ -51,15 +53,24 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         }
         farr = PySequence_Fast_ITEMS(args[3]);
         farr_length = PySequence_Fast_GET_SIZE(args[3]);
+
+        max_t = max_dist / pgLine_Length(&line);
+    } else if (nargs == 2) {
+        if (!pgLine_FromObject(args[0], &line)) {
+            return RAISE(PyExc_TypeError,
+                         "line parameter must be a Line or a LineLike object");
+        }
+
+        max_t = 1;
+
+        farr = PySequence_Fast_ITEMS(args[1]);
+        farr_length = PySequence_Fast_GET_SIZE(args[1]);
     }
     else {
         return RAISE(PyExc_TypeError, "invalid number of arguments");
     }
 
-    pgLineBase line = {Ox, Oy, Dx, Dy};
-
     // find the best t
-    double max_t = max_dist / pgLine_Length(&line);
     double record_t = max_t;
     double temp_t = 0;
 
@@ -94,8 +105,8 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     }
 
     // construct the return with this formula: A+tB
-    return pg_TupleFromDoublePair(Ox + record_t * (Dx - Ox),
-                                  Oy + record_t * (Dy - Oy));
+    return pg_TupleFromDoublePair(line.x1 + record_t * (line.x2 - line.x1),
+                                  line.y1 + record_t * (line.y2 - line.y1));
 }
 
 static PyObject *
