@@ -11,8 +11,6 @@
 static PyObject *
 pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
-    double Ox, Oy;  // origin
-    double Dx, Dy;  // direction
     PyObject **farr;
     Py_ssize_t farr_length;
     Py_ssize_t loop;
@@ -55,7 +53,8 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         farr_length = PySequence_Fast_GET_SIZE(args[3]);
 
         max_t = max_dist / pgLine_Length(&line);
-    } else if (nargs == 2) {
+    }
+    else if (nargs == 2) {
         if (!pgLine_FromObject(args[0], &line)) {
             return RAISE(PyExc_TypeError,
                          "line parameter must be a Line or a LineLike object");
