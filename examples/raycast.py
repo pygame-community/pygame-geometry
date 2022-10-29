@@ -55,8 +55,6 @@ while running:
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             running = False
-            pygame.quit()
-            raise SystemExit
 
     screen.fill((0, 0, 0))
 
@@ -86,3 +84,7 @@ while running:
         pygame.draw.rect(screen, (0, 0, 255), rect, line_width)
 
     pygame.display.flip()
+
+
+pygame.quit()
+raise SystemExit
