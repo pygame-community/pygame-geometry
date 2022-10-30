@@ -667,10 +667,6 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(new_poly.vertices, vertices)
         self.assertEqual(new_poly.c_x, center_x)
         self.assertEqual(new_poly.c_y, center_y)
-        
-        for value in invalid_types:
-            with self.assertRaises(TypeError):
-                poly.collidepoint(value)
 
     def test_collidepoint_argnum(self):
         """Tests whether the collidepoint method correctly handles invalid parameter
