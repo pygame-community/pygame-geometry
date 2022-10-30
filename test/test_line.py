@@ -343,6 +343,24 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del line.b
 
+    def test_attrib_angle(self):
+        """a full test for the angle attribute"""
+        expected_angle = -83.93394864782331
+        line = Line(300.0, 400.0, 400.0, 1341.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = 16.17215901578255
+        line = Line(300.0, 400.0, 400.0, 371.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = -35.53767779197438
+        line = Line(45.0, 32.0, 94.0, 67.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = -53.88065915052026
+        line = Line(544.0, 235.0, 382.0, 13.0)
+        self.assertEqual(line.angle, expected_angle)
+
     def test_attrib_length(self):
         """a full test for the length attribute"""
         expected_length = 3.0
@@ -672,12 +690,18 @@ class LineTypeTest(unittest.TestCase):
         self.assertTrue(bool(line))
 
     def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        l_str = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(str(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(str(line), l_str)
+        self.assertEqual(line.__str__(), l_str)
 
     def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        l_repr = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(repr(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(repr(line), l_repr)
+        self.assertEqual(line.__repr__(), l_repr)
 
     def test_seq_length(self):
         self.assertEqual(len(Line(1, 2, 3, 4)), 4)

@@ -1,4 +1,5 @@
 # pygame_geometry
+[![PRS Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/novialriptide/pygame_geometry/issues)
 [![Python Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml)
 [![C++ Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml)
 [![Ubuntu latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml)
@@ -18,18 +19,13 @@ subject to change when this project migrates to the
 [official pygame repository](https://github.com/pygame/pygame) or
 becomes a third-party library.
 
-## Installation
-### Download an experimental build
-**Python 3.7+ required**
-```
-pip install git+https://github.com/novialriptide/pygame_geometry
-```
+## Installation (Python 3.7+)
+Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md)
+to install pygame_geometry.
 
 ## Help
 The documentation is a work in progress, but you can check
 out the `examples` folder to learn how to use this library.
-
-Talk to us on [Discord](https://discord.gg/QzmpNXchW5)!
 
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and

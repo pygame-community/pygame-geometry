@@ -1,24 +1,33 @@
 import geometry
-
+from random import randint
 import pygame
 
 screen = pygame.display.set_mode((800, 800))
 clock = pygame.time.Clock()
 
-polygon = geometry.Polygon([[100, 10], [600, 600], [10, 600]])
-
+polygon = geometry.regular_polygon(10, (400, 400), 300, 23)
+index = 0
 running = True
+color = (255, 0, 0)
 while running:
     screen.fill((0, 0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
             running = False
+            pygame.quit()
 
-    pygame.draw.polygon(screen, (255, 0, 0), polygon.vertices, 4)
+        elif event.type == pygame.MOUSEWHEEL:
+            color = (randint(30, 255), randint(30, 255), randint(30, 255))
+            if event.y > 0:
+                index = (index + 1) % polygon.verts_num
 
-    polygon[0] = pygame.mouse.get_pos()
+            else:
+                index = (index - 1) % polygon.verts_num
+
+    pygame.draw.polygon(screen, color, polygon.vertices, 4)
+
+    polygon[index] = pygame.mouse.get_pos()
 
     pygame.display.update()
     clock.tick(60)
