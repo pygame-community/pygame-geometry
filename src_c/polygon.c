@@ -476,7 +476,8 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
     double angle = 0.0;
 
     if (!pg_DoubleFromObj(arg, &angle)) {
-        return RAISE(PyExc_TypeError, "angle parameter must be numeric");
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle parameter, must be numeric");
     }
 
     if (angle == 0.0) {
@@ -485,29 +486,31 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
                                         self->polygon.verts_num);
     }
 
-    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
-    if (!verts) {
+    double *vertices = PyMem_New(double, self->polygon.verts_num * 2);
+    if (!vertices) {
         return NULL;
     }
 
-    memcpy(verts, self->polygon.vertices,
+    memcpy(vertices, self->polygon.vertices,
            self->polygon.verts_num * 2 * sizeof(double));
 
-    _pg_rotate_polygon_helper(verts, self->polygon.verts_num, angle,
+    _pg_rotate_polygon_helper(vertices, self->polygon.verts_num, angle,
                               self->polygon.c_x, self->polygon.c_y);
 
-    /*This could use more optimization as it calculates the center of the
-     * rotated polygon. It's not needed because we rotate around the center of
-     * the polygon anyway so the center should always stay the same. We need a
-     * suite of functions that account for this*/
-    PyObject *tmp = _pg_polygon_subtype_new2_transfer(Py_TYPE(self), verts,
-                                                      self->polygon.verts_num);
-    if (!tmp) {
-        PyMem_Free(verts);
+    pgPolygonObject *ret =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(Py_TYPE(self), NULL, NULL);
+
+    if (!ret) {
+        PyMem_Free(vertices);
         return NULL;
     }
 
-    return tmp;
+    ret->polygon.vertices = vertices;
+    ret->polygon.verts_num = self->polygon.verts_num;
+    ret->polygon.c_x = self->polygon.c_x;
+    ret->polygon.c_y = self->polygon.c_y;
+
+    return (PyObject *)ret;
 }
 
 static PyObject *
@@ -516,7 +519,8 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     double angle = 0.0;
 
     if (!pg_DoubleFromObj(arg, &angle)) {
-        return RAISE(PyExc_TypeError, "angle parameter must be numeric");
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle parameter, must be numeric");
     }
 
     if (angle == 0.0) {
