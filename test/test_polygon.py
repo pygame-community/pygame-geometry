@@ -611,8 +611,6 @@ class PolygonTypeTest(unittest.TestCase):
             Polygon(_some_vertices.copy()),
         )
 
-        poly = Polygon(_some_vertices.copy())
-
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 poly.collidepoint(value)
