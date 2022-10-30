@@ -571,7 +571,7 @@ class PolygonTypeTest(unittest.TestCase):
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 poly.rotate_ip(value)
-                
+
     def test_collidepoint(self):
         """Tests whether the collidepoint method works correctly."""
         poly = Polygon(_some_vertices.copy())
