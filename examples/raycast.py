@@ -58,9 +58,10 @@ while running:
 
     screen.fill((0, 0, 0))
 
-    for x in range(ray_count):
-        origin_pos = pygame.mouse.get_pos()
 
+    origin_pos = pygame.mouse.get_pos()
+
+    for x in range(ray_count):
         point = geometry.raycast(
             origin_pos,
             x / ray_count * 360,
