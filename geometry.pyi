@@ -104,9 +104,6 @@ class Line(Sequence[float]):
     def collidecircle(self, circle: CircleValue) -> bool: ...
     @overload
     def collidecircle(self, x: float, y: float, r: float) -> bool: ...
-    def raycast(
-        self, sequence: Sequence[Union[Line, Circle, Rect]]
-    ) -> Optional[Tuple[float, float]]: ...
     def as_rect(self) -> Rect: ...
     @overload
     def move(self, x: float, y: float) -> Line: ...
@@ -209,3 +206,22 @@ class Polygon:
 def regular_polygon(
     sides: int, center: Coordinate, radius: float, angle: float = 0
 ) -> Polygon: ...
+@overload
+def raycast(
+    origin: Coordinate,
+    direction: Coordinate,
+    max_dist: float,
+    colliders: Sequence[Union[Rect, Circle, Line]],
+) -> Optional[Tuple[float, float]]: ...
+@overload
+def raycast(
+    origin: Coordinate,
+    angle: float,
+    max_dist: float,
+    colliders: Sequence[Union[Rect, Circle, Line]],
+) -> Optional[Tuple[float, float]]: ...
+@overload
+def raycast(
+    line: Line,
+    colliders: Sequence[Union[Rect, Circle, Line]],
+) -> Optional[Tuple[float, float]]: ...

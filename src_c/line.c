@@ -266,70 +266,6 @@ pg_line_is_parallel(pgLineObject *self, PyObject *const *args,
 }
 
 static PyObject *
-pg_line_raycast(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
-{
-    PyObject **farr;
-    Py_ssize_t loop;
-
-    if (nargs != 1) {
-        return RAISE(PyExc_TypeError, "raycast() takes exactly 1 argument");
-    }
-    if (!PySequence_FAST_CHECK(args[0])) {
-        return RAISE(PyExc_TypeError,
-                     "first argument of raycast() must be a sequence");
-    }
-
-    Py_ssize_t length = PySequence_Fast_GET_SIZE(args[0]);
-
-    if (length == 0) {
-        Py_RETURN_NONE;
-    }
-
-    farr = PySequence_Fast_ITEMS(args[0]);
-
-    // find the best t
-    double record = DBL_MAX;
-    double temp_t = 0;
-
-    for (loop = 0; loop < length; loop++) {
-        if (pgCircle_Check(farr[loop])) {
-            if (pgIntersection_LineCircle(&(self->line),
-                                          &pgCircle_AsCircle(farr[loop]), NULL,
-                                          NULL, &temp_t)) {
-                record = MIN(record, temp_t);
-            }
-        }
-        else if (pgLine_Check(farr[loop])) {
-            if (pgIntersection_LineLine(&(self->line),
-                                        &pgLine_AsLine(farr[loop]), NULL, NULL,
-                                        &temp_t)) {
-                record = MIN(record, temp_t);
-            }
-        }
-        else if (pgRect_Check(farr[loop])) {
-            if (pgIntersection_LineRect(&(self->line),
-                                        &pgRect_AsRect(farr[loop]), NULL, NULL,
-                                        &temp_t)) {
-                record = MIN(record, temp_t);
-            }
-        }
-        else {
-            return RAISE(PyExc_TypeError,
-                         "first argument of raycast() must be a sequence of "
-                         "Line, Circle or Rect objects");
-        }
-    }
-
-    if (record == DBL_MAX) {
-        Py_RETURN_NONE;
-    }
-    // construct the return with this formula: A+tB
-    return pg_TupleFromDoublePair(
-        self->line.x1 + record * (self->line.x2 - self->line.x1),
-        self->line.y1 + record * (self->line.y2 - self->line.y1));
-}
-
-static PyObject *
 pg_line_collideline(pgLineObject *self, PyObject *const *args,
                     Py_ssize_t nargs)
 {
@@ -500,7 +436,6 @@ static struct PyMethodDef pg_line_methods[] = {
     {"is_parallel", (PyCFunction)pg_line_is_parallel, METH_FASTCALL, NULL},
     {"is_perpendicular", (PyCFunction)pg_line_is_perpendicular, METH_FASTCALL,
      NULL},
-    {"raycast", (PyCFunction)pg_line_raycast, METH_FASTCALL, NULL},
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
@@ -953,7 +888,7 @@ pg_line_getangle(pgLineObject *self, void *closure)
                                                : PyFloat_FromDouble(90.0);
 
     double dy = self->line.y2 - self->line.y1;
-    
+
     double gradient = (dy / dx);
     return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
 }
