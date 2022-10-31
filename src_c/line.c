@@ -930,7 +930,9 @@ pg_line_set_midpoint(pgLineObject *self, PyObject *value, void *closure)
     double m_x, m_y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_TwoDoublesFromObj(value, &m_x, &m_y)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Invalid midpoint value, expected a sequence of 2 numbers");
         return -1;
     }
 
@@ -957,7 +959,8 @@ pg_line_set_midpoint_x(pgLineObject *self, PyObject *value, void *closure)
     double m_x;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_DoubleFromObj(value, &m_x)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a number");
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid midpoint_x value, expected a numeric value");
         return -1;
     }
 
@@ -979,7 +982,8 @@ pg_line_set_midpoint_y(pgLineObject *self, PyObject *value, void *closure)
     double m_y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_DoubleFromObj(value, &m_y)) {
-        PyErr_SetString(PyExc_TypeError, "Expected a number");
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid midpoint_y value, expected a numeric value");
         return -1;
     }
 
