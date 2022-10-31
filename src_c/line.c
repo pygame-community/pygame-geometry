@@ -17,7 +17,7 @@
 
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
-static inline double
+static double
 pgLine_Length(pgLineBase *line)
 {
     double dx = line->x2 - line->x1;
@@ -25,12 +25,19 @@ pgLine_Length(pgLineBase *line)
     return sqrt(dx * dx + dy * dy);
 }
 
-static inline double
+static double
 pgLine_LengthSquared(pgLineBase *line)
 {
     double dx = line->x2 - line->x1;
     double dy = line->y2 - line->y1;
     return dx * dx + dy * dy;
+}
+
+static void
+pgLine_At(pgLineBase *line, double t, double *X, double *Y)
+{
+    *X = line->x1 + t * (line->x2 - line->x1);
+    *Y = line->y1 + t * (line->y2 - line->y1);
 }
 
 static PyObject *
@@ -430,6 +437,22 @@ pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_at(pgLineObject *self, PyObject *obj)
+{
+    double weight;
+    double x, y;
+
+    if (!pg_DoubleFromObj(obj, &weight)) {
+        return RAISE(PyExc_TypeError,
+                     "Expected a numeric value for the weight parameter");
+    }
+
+    pgLine_At(&self->line, weight, &x, &y);
+
+    return pg_TupleFromDoublePair(x, y);
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -445,6 +468,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
+    {"at", (PyCFunction)pg_line_at, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */

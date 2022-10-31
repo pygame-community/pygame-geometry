@@ -905,6 +905,28 @@ class LineTypeTest(unittest.TestCase):
             else:
                 self.assertEqual(l[0].slope, l[1])
 
+    def test_meth_at(self):
+        invalid_types = (None, [], "1", (1,), [1, 2, 3], Vector2(1, 1))
+
+        line = Line(0, 0, 1, 1)
+
+        # Test x1
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                line.at(value)
+
+        self.assertEqual(line.at(0.5), (0.5, 0.5))
+        self.assertEqual(line.at(1), (1, 1))
+        self.assertEqual(line.at(0), (0, 0))
+        self.assertEqual(line.at(-1), (-1, -1))
+        self.assertEqual(line.at(2), (2, 2))
+
+        self.assertIsInstance(line.at(0.5), tuple)
+        self.assertIsInstance(line.at(1), tuple)
+        self.assertIsInstance(line.at(0), tuple)
+        self.assertIsInstance(line.at(-1), tuple)
+        self.assertIsInstance(line.at(2), tuple)
+
     def test_meth_perpendicular(self):
         # prepare the lines
         l = Line(0, 0, 1, 1)
