@@ -244,9 +244,171 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
     return (PyObject *)ret;
 }
 
+static PyObject *
+geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (nargs < 2) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid number of arguments, expected "
+                     "at least 2 arguments");
+    }
+
+    if (!PySequence_FAST_CHECK(args[0]) || !PySequence_FAST_CHECK(args[1])) {
+        return RAISE(PyExc_TypeError,
+                     "rays and colliders parameters must be sequences");
+    }
+
+    int include_misses = 1;
+    PyObject **rays = PySequence_Fast_ITEMS(args[0]);
+    Py_ssize_t rays_length = PySequence_Fast_GET_SIZE(args[0]);
+
+    /*If there are no rays, return an empty list*/
+    if (rays_length == 0) {
+        return PyList_New(0);
+    }
+
+    /* load the include_misses parameter if available*/
+    if (nargs == 3) {
+        include_misses = PyObject_IsTrue(args[2]);
+        if (include_misses == -1) {
+            PyErr_SetString(PyExc_TypeError,
+                            "include_misses parameter must be a boolean");
+            return NULL;
+        }
+    }
+
+    PyObject **colliders = PySequence_Fast_ITEMS(args[1]);
+    Py_ssize_t colliders_length = PySequence_Fast_GET_SIZE(args[1]);
+
+    /*If there are no colliders and include_misses == 0, rays don't collide
+     * hence return a list of all None objects*/
+    if (colliders_length == 0) {
+        if (!include_misses) {
+            return PyList_New(0);
+        }
+
+        PyObject *ret = PyList_New(rays_length);
+        if (!ret) {
+            return NULL;
+        }
+        for (Py_ssize_t i = 0; i < rays_length; i++) {
+            Py_INCREF(Py_None);
+            PyList_SET_ITEM(ret, i, Py_None);
+        }
+
+        return ret;
+    }
+
+    PyObject *ret = NULL;
+
+    if (include_misses) {
+        ret = PyList_New(rays_length);
+        if (!ret) {
+            return NULL;
+        }
+    }
+    else {
+        ret = PyList_New(0);
+        if (!ret) {
+            return NULL;
+        }
+    }
+
+    pgLineBase ray;
+    Py_ssize_t i, j;
+    for (i = 0; i < rays_length; i++) {
+        PyObject *ray_obj = rays[i];
+        double max_t = 0;
+
+        /*Convert the PyObject into a ray*/
+        if (pgLine_Check(ray_obj)) {
+            memcpy(&ray, &((pgLineObject *)ray_obj)->line, sizeof(pgLineBase));
+            max_t = 1.0;
+        }
+        else if (PyTuple_Check(ray_obj)) {
+            PyObject *const *ray_items =
+                (PyObject *const *)PySequence_Fast_ITEMS(ray_obj);
+            Py_ssize_t ray_obj_length = PyTuple_GET_SIZE(ray_obj);
+
+            if (!_pg_extract_ray_from_object_fastcall(
+                    ray_items, ray_obj_length, &ray, &max_t)) {
+                Py_DECREF(ret);
+                return NULL;
+            }
+        }
+        else {
+            Py_DECREF(ret);
+            return RAISE(PyExc_TypeError,
+                         "rays must be a sequence of lines or tuples");
+        }
+
+        double record_t = max_t;
+        double temp_t = 0;
+        for (j = 0; j < colliders_length; j++) {
+            PyObject *obj = colliders[j];
+
+            if (pgCircle_Check(obj)) {
+                if (pgRaycast_LineCircle(&ray, &pgCircle_AsCircle(obj), max_t,
+                                         &temp_t)) {
+                    record_t = MIN(record_t, temp_t);
+                }
+            }
+            else if (pgLine_Check(obj)) {
+                if (pgRaycast_LineLine(&ray, &pgLine_AsLine(obj), max_t,
+                                       &temp_t)) {
+                    record_t = MIN(record_t, temp_t);
+                }
+            }
+            else if (pgRect_Check(obj)) {
+                if (pgRaycast_LineRect(&ray, &pgRect_AsRect(obj), max_t,
+                                       &temp_t)) {
+                    record_t = MIN(record_t, temp_t);
+                }
+            }
+            else {
+                Py_DECREF(ret);
+                return RAISE(PyExc_TypeError,
+                             "collisions must be a sequence of "
+                             "Line, Circle or Rect objects");
+            }
+        }
+
+        if (record_t == max_t) {
+            if (include_misses) {
+                Py_INCREF(Py_None);
+                PyList_SET_ITEM(ret, i, Py_None);
+            }
+        }
+        else {
+            double x, y;
+            pgLine_At(&ray, record_t, &x, &y);
+            PyObject *point = pg_TupleFromDoublePair(x, y);
+            if (!point) {
+                Py_DECREF(ret);
+                return NULL;
+            }
+
+            if (include_misses) {
+                PyList_SET_ITEM(ret, i, point);
+            }
+            else {
+                if (PyList_Append(ret, point) == -1) {
+                    Py_DECREF(point);
+                    Py_DECREF(ret);
+                    return NULL;
+                }
+                Py_DECREF(point);
+            }
+        }
+    }
+
+    return ret;
+}
+
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
      NULL},
+    {"multiraycast", (PyCFunction)geometry_multiraycast, METH_FASTCALL, NULL},
     {"raycast", (PyCFunction)pg_raycast, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
@@ -362,4 +524,3 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
- 

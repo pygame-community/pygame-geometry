@@ -80,7 +80,9 @@ class Line(Sequence[float]):
     @overload
     def __setitem__(self, key: slice, value: Union[float, Line]) -> None: ...
     def __copy__(self) -> Line: ...
+
     copy = __copy__
+
     @overload
     def update(self, x1: float, y1: float, x2: float, y2: float) -> None: ...
     @overload
@@ -161,7 +163,9 @@ class Circle:
     def colliderect(self, x: int, y: int, w: int, h: int) -> bool: ...
     def collideswith(self, other: _CanBeCollided) -> bool: ...
     def __copy__(self) -> Circle: ...
+
     copy = __copy__
+
     def as_rect(self) -> Rect: ...
     @overload
     def update(self, circle: CircleValue) -> None: ...
@@ -197,7 +201,9 @@ class Polygon:
     @overload
     def __init__(self, polygon: Polygon) -> None: ...
     def __copy__(self) -> Polygon: ...
+
     copy = __copy__
+
     @overload
     def move(self, x: float, y: float) -> Polygon: ...
     @overload
@@ -209,6 +215,12 @@ class Polygon:
     def collidepoint(self, x: float, y: float) -> bool: ...
     @overload
     def collidepoint(self, point: Coordinate) -> bool: ...
+
+RayCompatible = Union[
+    Line,
+    Tuple[Coordinate, Coordinate, float],
+    Tuple[Coordinate, float, float],
+]
 
 def regular_polygon(
     sides: int, center: Coordinate, radius: float, angle: float = 0
@@ -232,3 +244,9 @@ def raycast(
     line: Line,
     colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Optional[Tuple[float, float]]: ...
+@overload
+def multiraycast(
+    rays: Sequence[RayCompatible],
+    colliders: Sequence[Union[Rect, Circle, Line]],
+    include_misses: bool = True,
+) -> List[Optional[Tuple[float, float]]]: ...
