@@ -25,20 +25,34 @@ _set_polygon_center_coords(pgPolygonBase *polygon)
     return 1;
 }
 
-static int
+static void
 _pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
 {
-    if (!polygon) {
-        return 0;
-    }
-    Py_ssize_t i2;
-    for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
-        polygon->vertices[i2] += dx;
-        polygon->vertices[i2 + 1] += dy;
-    }
     polygon->c_x += dx;
     polygon->c_y += dy;
-    return 1;
+
+    Py_ssize_t i2;
+    if (dx != 0.0) {
+        if (dy != 0.0) {
+            for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
+                polygon->vertices[i2] += dx;
+                polygon->vertices[i2 + 1] += dy;
+            }
+            return;
+        }
+        else {
+            for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
+                polygon->vertices[i2] += dx;
+            }
+            return;
+        }
+    }
+    else if (dy != 0.0) {
+        for (i2 = 1; i2 < polygon->verts_num * 2; i2 += 2) {
+            polygon->vertices[i2] += dy;
+        }
+        return;
+    }
 }
 
 static PyObject *
@@ -306,6 +320,27 @@ _pg_polygon_subtype_new2_transfer(PyTypeObject *type, double *vertices,
 }
 
 static PyObject *
+pg_polygon_subtype_new_fulltransfer(PyTypeObject *type, double *vertices,
+                                    Py_ssize_t verts_num, double c_x,
+                                    double c_y)
+{
+    pgPolygonObject *polygon_obj =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(type, NULL, NULL);
+
+    if (!polygon_obj) {
+        PyMem_Free(vertices);
+        return NULL;
+    }
+
+    polygon_obj->polygon.vertices = vertices;
+    polygon_obj->polygon.verts_num = verts_num;
+    polygon_obj->polygon.c_x = c_x;
+    polygon_obj->polygon.c_y = c_y;
+
+    return (PyObject *)polygon_obj;
+}
+
+static PyObject *
 pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     pgPolygonObject *self = (pgPolygonObject *)type->tp_alloc(type, 0);
@@ -391,32 +426,51 @@ static PyObject *
 pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double Dx, Dy;
+    pgPolygonBase *polygon = &self->polygon;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
         return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
-    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
+    double *verts = PyMem_New(double, polygon->verts_num * 2);
     if (!verts) {
         return NULL;
     }
-    memcpy(verts, self->polygon.vertices,
-           self->polygon.verts_num * 2 * sizeof(double));
 
-    Py_ssize_t i2;
-    for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
-        verts[i2] += Dx;
-        verts[i2 + 1] += Dy;
+    memcpy(verts, polygon->vertices, polygon->verts_num * 2 * sizeof(double));
+
+    if (Dx == 0.0 && Dy == 0.0) {
+        /* No need to move the vertices, just return a copy */
+        return pg_polygon_subtype_new_fulltransfer(Py_TYPE(self), verts,
+                                                   polygon->verts_num,
+                                                   polygon->c_x, polygon->c_y);
     }
 
-    PyObject *tmp = _pg_polygon_subtype_new2_transfer(Py_TYPE(self), verts,
-                                                      self->polygon.verts_num);
-    if (!tmp) {
-        PyMem_Free(verts);
-        return NULL;
+    if (Dx != 0.0) {
+        if (Dy != 0.0) {
+            Py_ssize_t i;
+            for (i = 0; i < polygon->verts_num * 2; i += 2) {
+                verts[i] += Dx;
+                verts[i + 1] += Dy;
+            }
+        }
+        else {
+            Py_ssize_t i;
+            for (i = 0; i < polygon->verts_num * 2; i += 2) {
+                verts[i] += Dx;
+            }
+        }
+    }
+    else if (Dy != 0.0) {
+        Py_ssize_t i;
+        for (i = 1; i < polygon->verts_num * 2; i += 2) {
+            verts[i] += Dy;
+        }
     }
 
-    return tmp;
+    return pg_polygon_subtype_new_fulltransfer(
+        Py_TYPE(self), verts, polygon->verts_num, polygon->c_x + Dx,
+        polygon->c_y + Dy);
 }
 
 static PyObject *
@@ -429,7 +483,11 @@ pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
-    _pg_move_polygon_helper(&(self->polygon), Dx, Dy);
+    if (Dx == 0.0 && Dy == 0.0) {
+        Py_RETURN_NONE;
+    }
+
+    _pg_move_polygon_helper(&self->polygon, Dx, Dy);
 
     Py_RETURN_NONE;
 }
