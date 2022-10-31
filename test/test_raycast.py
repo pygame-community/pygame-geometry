@@ -51,7 +51,8 @@ class RaycastTest(unittest.TestCase):
 
         for x in startendpos:
             result = raycast(x[0], x[1], math.dist(x[0], x[1]), collisions)
-            self.assertEqual(result, x[2])
+            self.assertAlmostEqual(result[0], x[2][0])
+            self.assertAlmostEqual(result[1], x[2][1])
 
         colliders = [
             Line(172.0, 565.0, 78.0, 170.0),

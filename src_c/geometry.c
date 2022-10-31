@@ -73,10 +73,12 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
             PyErr_SetString(PyExc_ValueError, "max distance can not be 0");
             return 0;
         }
-        line->x2 *= max_dist;
-        line->y2 *= max_dist;
+        line->x2 = (line->x2 - line->x1) * max_dist + line->x1;
+        line->y2 = (line->y2 - line->y1) * max_dist + line->y1;
 
         *max_t = max_dist / pgLine_Length(line);
+
+        return 1;
     }
     else {
         PyErr_SetString(PyExc_TypeError, "Invalid number of arguments");
@@ -356,3 +358,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
+ 
