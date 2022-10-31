@@ -70,7 +70,9 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
             return 1;
         }
         else if (max_dist == 0) {
-            PyErr_SetString(PyExc_ValueError, "max distance can not be 0");
+            PyErr_SetString(
+                PyExc_ValueError,
+                "Invalid max distance value, must be nonzero numeric value");
             return 0;
         }
         line->x2 = (line->x2 - line->x1) * max_dist + line->x1;

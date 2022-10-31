@@ -58,7 +58,6 @@ while running:
 
     screen.fill((0, 0, 0))
 
-
     origin_pos = pygame.mouse.get_pos()
 
     for x in range(ray_count):
