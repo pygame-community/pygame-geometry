@@ -921,6 +921,12 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.at(-1), (-1, -1))
         self.assertEqual(line.at(2), (2, 2))
 
+        self.assertIsInstance(line.at(0.5), tuple)
+        self.assertIsInstance(line.at(1), tuple)
+        self.assertIsInstance(line.at(0), tuple)
+        self.assertIsInstance(line.at(-1), tuple)
+        self.assertIsInstance(line.at(2), tuple)
+
     def test_meth_perpendicular(self):
         # prepare the lines
         l = Line(0, 0, 1, 1)

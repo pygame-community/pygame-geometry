@@ -440,14 +440,15 @@ pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 static PyObject *
 pg_line_at(pgLineObject *self, PyObject *obj)
 {
-    double t;
+    double weight;
     double x, y;
 
-    if (!pg_DoubleFromObj(obj, &t)) {
-        return RAISE(PyExc_TypeError, "excpected a numeric value");
+    if (!pg_DoubleFromObj(obj, &weight)) {
+        return RAISE(PyExc_TypeError,
+                     "Expected a numeric value for the weight parameter");
     }
 
-    pgLine_At(&self->line, t, &x, &y);
+    pgLine_At(&self->line, weight, &x, &y);
 
     return pg_TupleFromDoublePair(x, y);
 }
