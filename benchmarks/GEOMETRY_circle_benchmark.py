@@ -1,6 +1,7 @@
 from pygame import Rect
 from benchmark_utils import TestSuite
-from geometry import Circle, Line
+from geometry import Circle, Line, Polygon
+
 
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
@@ -20,12 +21,17 @@ GLOB = {
     "c2": Circle(20, 5, 15),
     "c3": Circle(50, 50, 15),
     "c4": Circle(10, 10, 15),
+    "c5": Circle(0, 0, 15),
     "l1": Line(0, 0, 10, 10),
     "l2": Line(0, 0, 10, -10),
+    "l3": Line(10, 10, 100, 43),
     "p1": (10, 10),
     "p2": (1000, 1000),
     "p3": (10.0, 10.0),
     "p4": (1000.0, 1000.0),
+    "poly1": Polygon([(-5, 0), (5, 0), (0, 5)]),
+    "poly2": Polygon([(100, 150), (200, 225), (150, 200)]),
+    "poly3": Polygon([(0, 0), (50, 50), (50, -50), (0, -50)]),
 }
 
 creation_tests = [
@@ -200,6 +206,22 @@ collideswith_tests = [
     ("NC line", "c1.collideswith(l2)"),
 ]
 
+contains_tests = [
+    ("circle self", "c1.contains(c1)"),
+    ("circle contained", "c4.contains(c1)"),
+    ("circle not contained", "c4.contains(c3)"),
+    ("circle intersecting", "c1.contains(c2)"),
+    ("line contained", "c1.contains(l1)"),
+    ("line not contained", "c1.contains(l2)"),
+    ("line intersecting", "c1.contains(l3)"),
+    ("poly contained", "c5.contains(poly1)"),
+    ("poly not contained", "c5.contains(poly2)"),
+    ("poly intersecting", "c5.contains(poly3)"),
+    ("rect contained", "c1.contains(r1)"),
+    ("rect not contained", "c1.contains(r2)"),
+    ("rect intersecting", "c1.contains(r3)"),
+]
+
 # === Test Suites ===
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
@@ -218,6 +240,7 @@ GROUPS = [
     ("Collision: Point", collidepoint_tests),
     ("Collision: Line", collideline_tests),
     ("Collision: Shape-General", collideswith_tests),
+    ("Contains", contains_tests),
 ]
 
 TestSuite("Geometry Module - Circle", GROUPS, GLOB).run_suite()

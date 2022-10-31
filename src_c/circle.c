@@ -404,6 +404,70 @@ pg_circle_move_ip(pgCircleObject *self, PyObject *const *args,
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_circle_contains(pgCircleObject *self, PyObject *arg)
+{
+    int result = 0;
+    pgCircleBase *scirc = &self->circle;
+    double x, y;
+
+    if (pgCircle_Check(arg)) {
+        pgCircleBase *temp = &pgCircle_AsCircle(arg);
+        if (temp == scirc) {
+            /*a circle is always contained within itself*/
+            Py_RETURN_TRUE;
+        }
+        double dx, dy, dr;
+
+        dx = temp->x - scirc->x;
+        dy = temp->y - scirc->y;
+        dr = temp->r - scirc->r;
+
+        result = (dx * dx + dy * dy) <= (dr * dr);
+    }
+    else if (pgLine_Check(arg)) {
+        pgLineBase *temp = &pgLine_AsLine(arg);
+
+        if (pgCollision_CirclePoint(scirc, temp->x1, temp->y1) &&
+            pgCollision_CirclePoint(scirc, temp->x2, temp->y2)) {
+            result = 1;
+        }
+    }
+    else if (pgRect_Check(arg)) {
+        SDL_Rect *temp = &pgRect_AsRect(arg);
+
+        if (pgCollision_CirclePoint(scirc, temp->x, temp->y) &&
+            pgCollision_CirclePoint(scirc, temp->x + temp->w, temp->y) &&
+            pgCollision_CirclePoint(scirc, temp->x, temp->y + temp->h) &&
+            pgCollision_CirclePoint(scirc, temp->x + temp->w,
+                                    temp->y + temp->h)) {
+            result = 1;
+        }
+    }
+    else if (pgPolygon_Check(arg)) {
+        pgPolygonBase *poly = &pgPolygon_AsPolygon(arg);
+        Py_ssize_t i;
+        for (i = 0; i < poly->verts_num; i++) {
+            if (!pgCollision_CirclePoint(scirc, poly->vertices[i * 2],
+                                         poly->vertices[i * 2 + 1])) {
+                Py_RETURN_FALSE;
+            }
+        }
+        result = 1;
+    }
+    else if (pg_TwoDoublesFromObj(arg, &x, &y)) {
+        result = pgCollision_CirclePoint(scirc, x, y);
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid shape argument, must be a CircleType, RectType, "
+                     "LineType, PolygonType or a sequence of 2 numbers");
+    }
+
+    return PyBool_FromLong(result);
+}
+
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -415,6 +479,7 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_circle_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_circle_move_ip, METH_FASTCALL, NULL},
+    {"contains", (PyCFunction)pg_circle_contains, METH_O, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
