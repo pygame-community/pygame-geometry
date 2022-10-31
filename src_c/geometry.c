@@ -93,7 +93,7 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     double max_t;
     pgLineBase line;
 
-    if (nargs != 2 || nargs != 4) {
+    if (nargs != 2 && nargs != 4) {
         return RAISE(PyExc_TypeError, "Invalid number of arguments");
     }
 
