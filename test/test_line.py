@@ -2,7 +2,7 @@ import unittest
 
 from pygame import Vector2, Vector3, Rect
 
-from geometry import Circle, Line, raycast
+from geometry import Circle, Line
 
 E_T = "Expected True, "
 E_F = "Expected False, "

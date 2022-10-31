@@ -117,18 +117,22 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double yc = circle->y;
     double rsq = circle->r_sqr;
 
+    double x1_m_xc = x1 - xc;
+    double y1_m_yc = y1 - yc;
+
     double dx = x2 - x1;
     double dy = y2 - y1;
     double A = dx * dx + dy * dy;
-    double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
-    double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - rsq;
+    double B = 2 * (dx * x1_m_xc + dy * y1_m_yc);
+    double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - rsq;
     double discriminant = B * B - 4 * A * C;
     if (discriminant < 0) {
         return 0;
     }
-    double t = (-B - sqrt(discriminant)) / (2 * A);
+    double sqrt_d = sqrt(discriminant);
+    double t = (-B - sqrt_d) / (2 * A);
     if (t < 0 || t > 1) {
-        t = (-B + sqrt(discriminant)) / (2 * A);
+        t = (-B + sqrt_d) / (2 * A);
         if (t < 0 || t > 1) {
             return 0;
         }
@@ -402,19 +406,23 @@ pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t,
     double xc = circle->x;
     double yc = circle->y;
 
+    double x1_m_xc = x1 - xc;
+    double y1_m_yc = y1 - yc;
+
     double dx = x2 - x1;
     double dy = y2 - y1;
     double A = dx * dx + dy * dy;
-    double B = 2 * (dx * (x1 - xc) + dy * (y1 - yc));
-    double C = (x1 - xc) * (x1 - xc) + (y1 - yc) * (y1 - yc) - circle->r_sqr;
+    double B = 2 * (dx * x1_m_xc + dy * y1_m_yc);
+    double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - circle->r_sqr;
 
     double discriminant = B * B - 4 * A * C;
     if (discriminant < 0) {
         return 0;
     }
-    double t = (-B - sqrt(discriminant)) / (2 * A);
+    double sqrt_d = sqrt(discriminant);
+    double t = (-B - sqrt_d) / (2 * A);
     if (t < 0) {
-        t = (-B + sqrt(discriminant)) / (2 * A);
+        t = (-B + sqrt_d) / (2 * A);
         if (t < 0) {
             return 0;
         }

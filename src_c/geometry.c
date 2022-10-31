@@ -8,86 +8,128 @@
 
 #define PYGAMEAPI_GEOMETRY_NUMSLOTS 21
 
+/*
+ * origin, direction, max_dist
+ * origin, angle, max_dist
+ * line
+ *
+ * sets the error messages
+ * 1 if success
+ * o if it fails
+ */
+static int
+_pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
+                                     pgLineBase *line, double *max_t)
+{
+    if (nargs == 1) {
+        if (!pgLine_FromObject(args[0], line)) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "line parameter must be a Line or a LineLike object");
+            return 0;
+        }
+
+        *max_t = 1.0;
+
+        return 1;
+    }
+    else if (nargs == 3) {
+        if (!pg_TwoDoublesFromObj(args[0], &line->x1, &line->y1)) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Invalid ray origin value, must be a pair of numeric values");
+            return 0;
+        }
+
+        if (PyNumber_Check(args[1])) {
+            double angle;
+            if (!pg_DoubleFromObj(args[1], &angle)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "Invalid ray angle value, must be numeric");
+                return 0;
+            }
+
+            line->x2 = line->x1 - cos(angle * PI / 180);
+            line->y2 = line->y1 - sin(angle * PI / 180);
+        }
+        else if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
+            PyErr_SetString(PyExc_TypeError,
+                            "expected a pair of floats or a single float");
+            return 0;
+        }
+
+        double max_dist;
+        if (!pg_DoubleFromObj(args[2], &max_dist)) {
+            PyErr_SetString(
+                PyExc_ValueError,
+                "Invalid ray max distance threshold value, must be numeric");
+            return 0;
+        }
+        if (max_dist < 0 || max_dist == DBL_MAX) {
+            *max_t = DBL_MAX;
+            return 1;
+        }
+        else if (max_dist == 0) {
+            PyErr_SetString(PyExc_ValueError, "max distance can not be 0");
+            return 0;
+        }
+        line->x2 *= max_dist;
+        line->y2 *= max_dist;
+
+        *max_t = max_dist / pgLine_Length(line);
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Invalid number of arguments");
+        return 0;
+    }
+}
+
 static PyObject *
 pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
-    PyObject **farr;
-    Py_ssize_t farr_length;
+    PyObject **colliders;
+    Py_ssize_t colliders_length;
     Py_ssize_t loop;
     double max_t;
     pgLineBase line;
 
-    if (nargs == 4) {
-        if (!pg_TwoDoublesFromObj(args[0], &line.x1, &line.y1)) {
-            return RAISE(PyExc_TypeError,
-                         "the origin requires a pair of floats");
-        }
-        double max_dist;
-        if (!pg_DoubleFromObj(args[2], &max_dist)) {
-            return RAISE(PyExc_TypeError, "invalid max distance");
-        }
-        if (max_dist < 0) {
-            max_dist = DBL_MAX;
-        }
-        if (!pg_TwoDoublesFromObj(args[1], &line.x2, &line.y2)) {
-            double angle;
-            if (!pg_DoubleFromObj(args[1], &angle)) {
-                return RAISE(PyExc_TypeError,
-                             "expected a pair of floats or a single float");
-            }
-
-            if (max_dist != DBL_MAX) {
-                line.x2 = line.x1 - cos(angle * PI / 180) * max_dist;
-                line.y2 = line.y1 - sin(angle * PI / 180) * max_dist;
-            }
-            else {
-                line.x2 = line.x1 - cos(angle * PI / 180);
-                line.y2 = line.y1 - sin(angle * PI / 180);
-            }
-        }
-        if (!PySequence_FAST_CHECK(args[3])) {
-            return RAISE(PyExc_TypeError,
-                         "colliders parameter must be a sequence");
-        }
-        farr = PySequence_Fast_ITEMS(args[3]);
-        farr_length = PySequence_Fast_GET_SIZE(args[3]);
-
-        max_t = max_dist / pgLine_Length(&line);
+    if (nargs != 2 || nargs == 4) {
+        return RAISE(PyExc_TypeError, "Invalid number of arguments");
     }
-    else if (nargs == 2) {
-        if (!pgLine_FromObject(args[0], &line)) {
-            return RAISE(PyExc_TypeError,
-                         "line parameter must be a Line or a LineLike object");
-        }
 
-        max_t = 1;
+    if (!_pg_extract_ray_from_object_fastcall(args, nargs - 1, &line,
+                                              &max_t)) {
+        return NULL;
+    }
 
-        farr = PySequence_Fast_ITEMS(args[1]);
-        farr_length = PySequence_Fast_GET_SIZE(args[1]);
+    if (!PySequence_FAST_CHECK(args[nargs - 1])) {
+        return RAISE(PyExc_TypeError,
+                     "colliders parameter must be a sequence");
     }
-    else {
-        return RAISE(PyExc_TypeError, "invalid number of arguments");
-    }
+    colliders = PySequence_Fast_ITEMS(args[nargs - 1]);
+    colliders_length = PySequence_Fast_GET_SIZE(args[nargs - 1]);
 
     // find the best t
     double record_t = max_t;
     double temp_t = 0;
 
-    for (loop = 0; loop < farr_length; loop++) {
-        if (pgCircle_Check(farr[loop])) {
-            if (pgRaycast_LineCircle(&line, &pgCircle_AsCircle(farr[loop]),
-                                     max_t, &temp_t)) {
+    for (loop = 0; loop < colliders_length; loop++) {
+        PyObject *obj = colliders[loop];
+
+        if (pgCircle_Check(obj)) {
+            if (pgRaycast_LineCircle(&line, &pgCircle_AsCircle(obj), max_t,
+                                     &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
         }
-        else if (pgLine_Check(farr[loop])) {
-            if (pgRaycast_LineLine(&line, &pgLine_AsLine(farr[loop]), max_t,
+        else if (pgLine_Check(obj)) {
+            if (pgRaycast_LineLine(&line, &pgLine_AsLine(obj), max_t,
                                    &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
         }
-        else if (pgRect_Check(farr[loop])) {
-            if (pgRaycast_LineRect(&line, &pgRect_AsRect(farr[loop]), max_t,
+        else if (pgRect_Check(obj)) {
+            if (pgRaycast_LineRect(&line, &pgRect_AsRect(obj), max_t,
                                    &temp_t)) {
                 record_t = MIN(record_t, temp_t);
             }
