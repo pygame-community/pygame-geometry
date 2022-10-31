@@ -1,5 +1,4 @@
 import unittest
-from math import sqrt
 
 from pygame import Vector2, Vector3, Rect
 
@@ -343,6 +342,24 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             del line.b
 
+    def test_attrib_angle(self):
+        """a full test for the angle attribute"""
+        expected_angle = -83.93394864782331
+        line = Line(300.0, 400.0, 400.0, 1341.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = 16.17215901578255
+        line = Line(300.0, 400.0, 400.0, 371.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = -35.53767779197438
+        line = Line(45.0, 32.0, 94.0, 67.0)
+        self.assertEqual(line.angle, expected_angle)
+
+        expected_angle = -53.88065915052026
+        line = Line(544.0, 235.0, 382.0, 13.0)
+        self.assertEqual(line.angle, expected_angle)
+
     def test_attrib_length(self):
         """a full test for the length attribute"""
         expected_length = 3.0
@@ -556,38 +573,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(line1.is_parallel(line4))
         self.assertTrue(line1.is_parallel(line1))
 
-    def test_meth_raycast(self):
-        lineA = Line(0, 0, 10, 10)
-        lineB = Line(0, 0, -1, -1)
-
-        A = Line(0, 10, 10, 0)
-        B = Line(0, 1, 1, 0)
-        C = Line(-1, -2, -3, -4)
-        D = Circle(5, 5, 1)
-        E = Circle(0, 0, 1)
-
-        with self.assertRaises(TypeError):
-            lineA.raycast(A, B, C)
-
-        with self.assertRaises(TypeError):
-            lineA.raycast()
-
-        with self.assertRaises(TypeError):
-            lineA.raycast(lineA, "5")
-
-        self.assertEqual(lineA.raycast([lineA, A, B, C]), (0.5, 0.5))
-        self.assertEqual(
-            lineA.raycast([D, E]), (0.7071067811865475, 0.7071067811865475)
-        )
-        self.assertEqual(lineA.raycast([lineA, lineB, A, B, C, D, E]), (0.5, 0.5))
-        self.assertEqual(
-            lineB.raycast([D, E]), (-0.7071067811865476, -0.7071067811865476)
-        )
-        self.assertEqual(
-            lineB.raycast([lineA, lineB, A, B, C, D, E]),
-            (-0.7071067811865476, -0.7071067811865476),
-        )
-
     def test_meth_collideline(self):
         A = Line(0, 0, 1, 1)
         B = Line(0, 1, 1, 0)
@@ -758,12 +743,18 @@ class LineTypeTest(unittest.TestCase):
         self.assertTrue(bool(line))
 
     def test__str__(self):
+        """Checks whether the __str__ method works correctly."""
+        l_str = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(str(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(str(line), l_str)
+        self.assertEqual(line.__str__(), l_str)
 
     def test__repr__(self):
+        """Checks whether the __repr__ method works correctly."""
+        l_repr = "<Line((10.1, 10.2), (4.3, 56.4))>"
         line = Line(10.1, 10.2, 4.3, 56.4)
-        self.assertEqual(repr(line), "pygame.Line(10.1, 10.2, 4.3, 56.4)")
+        self.assertEqual(repr(line), l_repr)
+        self.assertEqual(line.__repr__(), l_repr)
 
     def test_seq_length(self):
         self.assertEqual(len(Line(1, 2, 3, 4)), 4)
