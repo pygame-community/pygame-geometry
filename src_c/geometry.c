@@ -95,6 +95,7 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     Py_ssize_t colliders_length;
     Py_ssize_t loop;
     double max_t;
+    double x, y;
     pgLineBase line;
 
     if (nargs != 2 && nargs != 4) {
@@ -149,9 +150,9 @@ pg_raycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         Py_RETURN_NONE;
     }
 
-    // construct the return with this formula: A+tB
-    return pg_TupleFromDoublePair(line.x1 + record_t * (line.x2 - line.x1),
-                                  line.y1 + record_t * (line.y2 - line.y1));
+    pgLine_At(&line, record_t, &x, &y);
+
+    return pg_TupleFromDoublePair(x, y);
 }
 
 static PyObject *
