@@ -410,6 +410,92 @@ class LineTypeTest(unittest.TestCase):
         expected_length = 5.414794548272353
         self.assertEqual(line.length, expected_length)
 
+    def test_attrib_midpoint(self):
+        """a full test for the midpoint attribute"""
+        expected_x1 = 10.0
+        expected_y1 = 2.0
+        expected_x2 = 5.0
+        expected_y2 = 6.0
+        expected_a = expected_x1, expected_y1
+        expected_b = expected_x2, expected_y2
+        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+            expected_y1 + expected_y2
+        ) / 2
+        line = Line(expected_a, expected_b)
+
+        self.assertEqual(line.midpoint, expected_midpoint)
+
+        line.midpoint = expected_midpoint[0] - 1, expected_midpoint[1] + 1.321
+
+        self.assertEqual(
+            line.midpoint, (expected_midpoint[0] - 1, expected_midpoint[1] + 1.321)
+        )
+
+        line = Line(0, 0, 1, 0)
+
+        for value in (None, [], "1", (1,), [1, 2, 3], 1, 1.2):
+            with self.assertRaises(TypeError):
+                line.midpoint = value
+
+        with self.assertRaises(AttributeError):
+            del line.midpoint
+
+    def test_attrib_midpoint_x(self):
+        """a full test for the midpoint_x attribute"""
+        expected_x1 = 10.0
+        expected_y1 = 2.0
+        expected_x2 = 5.0
+        expected_y2 = 6.0
+        expected_a = expected_x1, expected_y1
+        expected_b = expected_x2, expected_y2
+        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+            expected_y1 + expected_y2
+        ) / 2
+        line = Line(expected_a, expected_b)
+
+        self.assertEqual(line.midpoint_x, expected_midpoint[0])
+
+        line.midpoint_x = expected_midpoint[0] - 1
+
+        self.assertEqual(line.midpoint_x, expected_midpoint[0] - 1)
+
+        line = Line(0, 0, 1, 0)
+
+        for value in (None, [], "1", (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                line.midpoint_x = value
+
+        with self.assertRaises(AttributeError):
+            del line.midpoint_x
+
+    def test_attrib_midpoint_y(self):
+        """a full test for the midpoint_y attribute"""
+        expected_x1 = 10.0
+        expected_y1 = 2.0
+        expected_x2 = 5.0
+        expected_y2 = 6.0
+        expected_a = expected_x1, expected_y1
+        expected_b = expected_x2, expected_y2
+        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+            expected_y1 + expected_y2
+        ) / 2
+        line = Line(expected_a, expected_b)
+
+        self.assertEqual(line.midpoint_y, expected_midpoint[1])
+
+        line.midpoint_y = expected_midpoint[1] - 1.321
+
+        self.assertEqual(line.midpoint_y, expected_midpoint[1] - 1.321)
+
+        line = Line(0, 0, 1, 0)
+
+        for value in (None, [], "1", (1,), [1, 2, 3]):
+            with self.assertRaises(TypeError):
+                line.midpoint_y = value
+
+        with self.assertRaises(AttributeError):
+            del line.midpoint_y
+
     def test_collideswith_argtype(self):
         """tests if the function correctly handles incorrect types as parameters"""
         invalid_types = (None, [], "1", (1,), Vector3(1, 1, 1), 1)

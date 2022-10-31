@@ -917,6 +917,82 @@ pg_line_getsafepickle(pgLineObject *self, void *closure)
     Py_RETURN_TRUE;
 }
 
+static PyObject *
+pg_line_get_midpoint(pgLineObject *self, void *closure)
+{
+    return pg_TupleFromDoublePair((self->line.x1 + self->line.x2) / 2,
+                                  (self->line.y1 + self->line.y2) / 2);
+}
+
+static int
+pg_line_set_midpoint(pgLineObject *self, PyObject *value, void *closure)
+{
+    double m_x, m_y;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_TwoDoublesFromObj(value, &m_x, &m_y)) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Invalid midpoint value, expected a sequence of 2 numbers");
+        return -1;
+    }
+
+    double dx = m_x - (self->line.x1 + self->line.x2) / 2;
+    double dy = m_y - (self->line.y1 + self->line.y2) / 2;
+
+    self->line.x1 += dx;
+    self->line.y1 += dy;
+    self->line.x2 += dx;
+    self->line.y2 += dy;
+
+    return 0;
+}
+
+static PyObject *
+pg_line_get_midpoint_x(pgLineObject *self, void *closure)
+{
+    return PyFloat_FromDouble((self->line.x1 + self->line.x2) / 2);
+}
+
+static int
+pg_line_set_midpoint_x(pgLineObject *self, PyObject *value, void *closure)
+{
+    double m_x;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_DoubleFromObj(value, &m_x)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid midpoint_x value, expected a numeric value");
+        return -1;
+    }
+
+    double dx = m_x - (self->line.x1 + self->line.x2) / 2;
+    self->line.x1 += dx;
+    self->line.x2 += dx;
+    return 0;
+}
+
+static PyObject *
+pg_line_get_midpoint_y(pgLineObject *self, void *closure)
+{
+    return PyFloat_FromDouble((self->line.y1 + self->line.y2) / 2);
+}
+
+static int
+pg_line_set_midpoint_y(pgLineObject *self, PyObject *value, void *closure)
+{
+    double m_y;
+    DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+    if (!pg_DoubleFromObj(value, &m_y)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Invalid midpoint_y value, expected a numeric value");
+        return -1;
+    }
+
+    double dy = m_y - (self->line.y1 + self->line.y2) / 2;
+    self->line.y1 += dy;
+    self->line.y2 += dy;
+    return 0;
+}
+
 static PyGetSetDef pg_line_getsets[] = {
     {"x1", (getter)pg_line_getx1, (setter)pg_line_setx1, NULL, NULL},
     {"y1", (getter)pg_line_gety1, (setter)pg_line_sety1, NULL, NULL},
@@ -926,6 +1002,12 @@ static PyGetSetDef pg_line_getsets[] = {
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"length", (getter)pg_line_getlength, NULL, NULL, NULL},
     {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
+    {"midpoint", (getter)pg_line_get_midpoint, (setter)pg_line_set_midpoint,
+     NULL, NULL},
+    {"midpoint_x", (getter)pg_line_get_midpoint_x,
+     (setter)pg_line_set_midpoint_x, NULL, NULL},
+    {"midpoint_y", (getter)pg_line_get_midpoint_y,
+     (setter)pg_line_set_midpoint_y, NULL, NULL},
     {"angle", (getter)pg_line_getangle, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},
