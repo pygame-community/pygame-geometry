@@ -216,12 +216,6 @@ class Polygon:
     @overload
     def collidepoint(self, point: Coordinate) -> bool: ...
 
-RayCompatible = Union[
-    Line,
-    Tuple[Coordinate, Coordinate, float],
-    Tuple[Coordinate, float, float],
-]
-
 def regular_polygon(
     sides: int, center: Coordinate, radius: float, angle: float = 0
 ) -> Polygon: ...
@@ -244,9 +238,24 @@ def raycast(
     line: Line,
     colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Optional[Tuple[float, float]]: ...
+
+Ray = Union[Line, Tuple[Coordinate, Coordinate, float], Tuple[Coordinate, float, float]]
+
 @overload
 def multiraycast(
-    rays: Sequence[RayCompatible],
+    rays: Sequence[Ray],
     colliders: Sequence[Union[Rect, Circle, Line]],
-    include_misses: bool = True,
-) -> List[Optional[Tuple[float, float]]]: ...
+    include_miss: Literal[True],
+) -> Sequence[Optional[Tuple[float, float]]]: ...
+@overload
+def multiraycast(
+    rays: Sequence[Ray],
+    colliders: Sequence[Union[Rect, Circle, Line]],
+    include_miss: Literal[False],
+) -> Sequence[Tuple[float, float]]: ...
+@overload
+def multiraycast(
+    rays: Sequence[Ray],
+    colliders: Sequence[Union[Rect, Circle, Line]],
+    include_miss: bool,
+) -> Sequence[Optional[Tuple[float, float]]]: ...
