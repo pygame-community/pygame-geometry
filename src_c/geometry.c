@@ -258,7 +258,6 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
                      "rays and colliders parameters must be sequences");
     }
 
-    int include_misses = 1;
     PyObject **rays = PySequence_Fast_ITEMS(args[0]);
     Py_ssize_t rays_length = PySequence_Fast_GET_SIZE(args[0]);
 
@@ -267,26 +266,10 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         return PyList_New(0);
     }
 
-    /* load the include_misses parameter if available*/
-    if (nargs == 3) {
-        include_misses = PyObject_IsTrue(args[2]);
-        if (include_misses == -1) {
-            PyErr_SetString(PyExc_TypeError,
-                            "include_misses parameter must be a boolean");
-            return NULL;
-        }
-    }
-
     PyObject **colliders = PySequence_Fast_ITEMS(args[1]);
     Py_ssize_t colliders_length = PySequence_Fast_GET_SIZE(args[1]);
 
-    /*If there are no colliders and include_misses == 0, rays don't collide
-     * hence return a list of all None objects*/
     if (colliders_length == 0) {
-        if (!include_misses) {
-            return PyList_New(0);
-        }
-
         PyObject *ret = PyList_New(rays_length);
         if (!ret) {
             return NULL;
@@ -299,19 +282,9 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         return ret;
     }
 
-    PyObject *ret = NULL;
-
-    if (include_misses) {
-        ret = PyList_New(rays_length);
-        if (!ret) {
-            return NULL;
-        }
-    }
-    else {
-        ret = PyList_New(0);
-        if (!ret) {
-            return NULL;
-        }
+    PyObject *ret = PyList_New(rays_length);
+    if (!ret) {
+        return NULL;
     }
 
     pgLineBase ray;
@@ -328,10 +301,9 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         else if (PyTuple_Check(ray_obj)) {
             PyObject *const *ray_items =
                 (PyObject *const *)PySequence_Fast_ITEMS(ray_obj);
-            Py_ssize_t ray_obj_length = PyTuple_GET_SIZE(ray_obj);
 
-            if (!_pg_extract_ray_from_object_fastcall(
-                    ray_items, ray_obj_length, &ray, &max_t)) {
+            if (!_pg_extract_ray_from_object_fastcall(ray_items, 3, &ray,
+                                                      &max_t)) {
                 Py_DECREF(ret);
                 return NULL;
             }
@@ -374,10 +346,8 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
         }
 
         if (record_t == max_t) {
-            if (include_misses) {
-                Py_INCREF(Py_None);
-                PyList_SET_ITEM(ret, i, Py_None);
-            }
+            Py_INCREF(Py_None);
+            PyList_SET_ITEM(ret, i, Py_None);
         }
         else {
             double x, y;
@@ -387,18 +357,7 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
                 Py_DECREF(ret);
                 return NULL;
             }
-
-            if (include_misses) {
-                PyList_SET_ITEM(ret, i, point);
-            }
-            else {
-                if (PyList_Append(ret, point) == -1) {
-                    Py_DECREF(point);
-                    Py_DECREF(ret);
-                    return NULL;
-                }
-                Py_DECREF(point);
-            }
+            PyList_SET_ITEM(ret, i, point);
         }
     }
 

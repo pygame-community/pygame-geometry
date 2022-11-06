@@ -245,17 +245,4 @@ Ray = Union[Line, Tuple[Coordinate, Coordinate, float], Tuple[Coordinate, float,
 def multiraycast(
     rays: Sequence[Ray],
     colliders: Sequence[Union[Rect, Circle, Line]],
-    include_miss: Literal[True],
-) -> Sequence[Optional[Tuple[float, float]]]: ...
-@overload
-def multiraycast(
-    rays: Sequence[Ray],
-    colliders: Sequence[Union[Rect, Circle, Line]],
-    include_miss: Literal[False],
-) -> Sequence[Tuple[float, float]]: ...
-@overload
-def multiraycast(
-    rays: Sequence[Ray],
-    colliders: Sequence[Union[Rect, Circle, Line]],
-    include_miss: bool,
 ) -> Sequence[Optional[Tuple[float, float]]]: ...
