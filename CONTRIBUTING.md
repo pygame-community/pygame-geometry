@@ -34,3 +34,14 @@ brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
 4. Run `python3 -m pip install setuptools -U`
 5. Run `git clone https://github.com/novialriptide/pygame_geometry.git`
 6. Run `cd pygame_geometry; python3 -m pip install .`
+
+## Linux (Debian-based Distributions)
+1. Install Python 3.7+ (Should be provided in distributions based out of Debian 10 Buster or above)
+2. Install dependencies
+```
+sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+```
+3. Install git by `sudo apt install git -y`
+4. Run `python3 -m pip install setuptools -U`
+5. Run `git clone https://github.com/novialriptide/pygame_geometry.git`
+6. Run `cd pygame_geometry; python3 -m pip install .`
