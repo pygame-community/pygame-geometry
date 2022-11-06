@@ -453,6 +453,28 @@ pg_line_at(pgLineObject *self, PyObject *obj)
     return pg_TupleFromDoublePair(x, y);
 }
 
+static PyObject *
+pg_line_flip(pgLineObject *self, PyObject *_null)
+{
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x2, self->line.y2,
+                                 self->line.x1, self->line.y1);
+}
+
+static PyObject *
+pg_line_flip_ip(pgLineObject *self, PyObject *_null)
+{
+    double tx = self->line.x2;
+    double ty = self->line.y2;
+
+    self->line.x2 = self->line.x1;
+    self->line.y2 = self->line.y1;
+
+    self->line.x1 = tx;
+    self->line.y1 = ty;
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -469,6 +491,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
+    {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
+    {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
