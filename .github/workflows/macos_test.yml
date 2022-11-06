@@ -10,7 +10,7 @@ jobs:
       - name: Install package
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install pygame
+          python3 -m pip install pygame==2.1.3.dev8
           python3 -m pip install .
       - name: Run Tests    
         run: python3 -m unittest
