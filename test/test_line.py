@@ -644,6 +644,32 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             line.move_ip("1", "2")
 
+    def test_meth_flip(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        ret = line.flip()
+
+        self.assertEqual(ret.x1, 3.3)
+        self.assertEqual(ret.y1, 4.4)
+        self.assertEqual(ret.x2, 1.1)
+        self.assertEqual(ret.y2, 2.2)
+
+        with self.assertRaises(TypeError):
+            line.flip(1)
+
+    def test_meth_flip_ip(self):
+        line = Line(1.1, 2.2, 3.3, 4.4)
+
+        line.flip_ip()
+
+        self.assertEqual(line.x1, 3.3)
+        self.assertEqual(line.y1, 4.4)
+        self.assertEqual(line.x2, 1.1)
+        self.assertEqual(line.y2, 2.2)
+
+        with self.assertRaises(TypeError):
+            line.flip_ip(1)
+
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
 
