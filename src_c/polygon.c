@@ -624,21 +624,27 @@ pg_polygon_get_center(pgPolygonObject *self, void *closure)
     return pg_TupleFromDoublePair(self->polygon.c_x, self->polygon.c_y);
 }
 
+static PG_FORCEINLINE double
+_pg_distance(double x1, double y1, double x2, double y2)
+{
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    return sqrt(dx * dx + dy * dy);
+}
+
 static PyObject *
 pg_polygon_get_perimeter(pgPolygonObject *self, void *closure) 
 {
-    pgPolygonBase *poly = &self->polygon;
-
     double perimeter = 0;
-    for (int i = 0; i < poly->verts_num - 1; i++) {
-        double Vx = poly->vertices[i * 2];
-        double Vy = poly->vertices[i * 2 + 1];
-
-        double Vx2 = poly->vertices[(i + 1) * 2];
-        double Vy2 = poly->vertices[(i + 1) * 2 + 1];
-
-        perimeter += sqrt((Vx2 - Vx) * (Vx2 - Vx) + (Vy2 - Vy) * (Vy2 - Vy));
+    double *vertices = self->polygon.vertices;
+    Py_ssize_t i;
+    for (i = 0; i < self->polygon.verts_num - 1; i++) {
+        perimeter +=
+            _pg_distance(vertices[i * 2], vertices[i * 2 + 1],
+                         vertices[(i + 1) * 2], vertices[(i + 1) * 2 + 1]);
     }
+    perimeter += _pg_distance(vertices[i * 2], vertices[i * 2 + 1],
+                              vertices[0], vertices[1]);
 
     return PyFloat_FromDouble(perimeter);
 }
