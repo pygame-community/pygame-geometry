@@ -182,6 +182,7 @@ class Circle:
 class Polygon:
     vertices: List[Coordinate]
     verts_num: int
+    perimeter: float
     c_x: float
     c_y: float
     center: Tuple[float, float]
