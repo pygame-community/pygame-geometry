@@ -24,8 +24,8 @@ Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob
 to install pygame_geometry.
 
 ## Help
-The documentation is a work in progress, but you can check
-out the `examples` folder to learn how to use this library.
+If you're getting started with this library, you can check the `docs` directory to see
+the documentation or the `examples` directory to see the use-case of this library.
 
 ## Credits
 Thanks to [Emc2356](https://github.com/Emc2356) and
