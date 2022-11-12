@@ -25,11 +25,11 @@
         ((x1, y1), (x2, y2))
         (x1, y1, x2, y2)
 
-    The Line functions which modify the position, orientation or size return a new copy of
-    the `Line` with the affected changes. The original `Line` is not modified.
-    Some methods have an alternate "in-place" version that returns `None` but affects the
-    original `Line`. These "in-place" methods are denoted with the "ip" suffix.
+    **You cannot create degenerate Lines(lines with the same start and end point). If you
+    try, the `Line` will not be created and an error will be raised.**
 
+Line Attributes
+------
     The `Line` class has both virtual and non-virtual attributes. Non-virtual attributes
     are attributes that are stored in the `Line` object itself. Virtual attributes are the
     result of calculations that utilize the Line's non-virtual attributes.
@@ -138,3 +138,201 @@
         If reassigned the `y1` and `y2` attributes will be changed in order to
         produce a `Line` with matching midpoint. The `x1` and `x2` attributes will not
         be affected.
+
+Line Methods
+------
+    The Line functions which modify the position, orientation or size return a new copy of
+    the `Line` with the affected changes. The original `Line` is not modified.
+    Some methods have an alternate "in-place" version that returns `None` but affects the
+    original `Line`. These "in-place" methods are denoted with the "ip" suffix.
+
+    Here is the list of all the methods of the `Line` class:
+
+    .. method:: move
+
+        | :sl:`moves the line by a given amount`
+        | :sg:`move((x, y)) -> Line`
+        | :sg:`move(x, y) -> Line`
+
+        Returns a new Line that is moved by the given offset. The original Line is
+        not modified.
+
+        .. note::
+            This method is equivalent(behaviour wise) to the following code:
+            ::
+                Line(line.x1 + x, line.y1 + y, line.x2 + x, line.y2 + y)
+
+      .. ## Line.move ##
+
+    .. method:: move_ip
+
+        | :sl:`moves the line by a given amount`
+        | :sg:`move_ip((x, y)) -> None`
+        | :sg:`move_ip(x, y) -> None`
+
+        Moves the Line by the given offset. The original Line is modified. Always returns
+        None.
+
+        .. note::
+            This method is equivalent(behaviour wise) to the following code:
+            ::
+                line.x1 += x
+                line.y1 += y
+                line.x2 += x
+                line.y2 += y
+
+      .. ## Line.move_ip ##
+
+
+    .. method:: update
+
+        | :sl:`updates the line's attributes`
+        | :sg:`update((x1, y1), (x2, y2)) -> None`
+        | :sg:`update(x1, y1, x2, y2) -> None`
+        | :sg:`update(Line) -> None`
+
+        Updates the `Line`'s attributes. The original Line is modified. Always returns None.
+
+        .. note::
+            This method is equivalent(behaviour wise) to the following code:
+            ::
+                line.x1 = x1
+                line.y1 = y1
+                line.x2 = x2
+                line.y2 = y2
+
+      .. ## Line.update ##
+
+    .. method:: as_rect
+
+        | :sl:`returns the line as a Rect`
+        | :sg:`as_rect() -> Rect`
+
+        Returns a `pygame.Rect` object that contains the Line. The Rect object will be
+        the smallest rectangle that contains the Line.
+
+      .. ## Line.as_rect ##
+
+    .. method:: flip
+
+        | :sl:`flips the line a and b points`
+        | :sg:`flip(axis) -> Line`
+
+        Returns a new `Line` that has the `a` and `b` points flipped.
+        The original `Line` is not modified.
+
+      .. ## Line.flip ##
+
+    .. method:: flip_ip
+
+        | :sl:`flips the line a and b points, in place`
+        | :sg:`flip_ip(axis) -> None`
+
+        Flips the `Line`'s `b` and `b` points. The original `Line` is modified.
+        Always returns None.
+
+      .. ## Line.flip_ip ##
+
+    .. method:: is_parallel
+
+        | :sl:`test if the line is parallel to another line`
+        | :sg:`is_parallel(Line) -> bool`
+
+        Returns True if the `Line` is parallel to the given `Line`, False otherwise.
+
+      .. ## Line.is_parallel ##
+
+    .. method:: is_perpendicular
+
+        | :sl:`test if the line is perpendicular to another line`
+        | :sg:`is_perpendicular(Line) -> bool`
+
+        Returns True if the `Line` is perpendicular to the given `Line`, False otherwise.
+
+      .. ## Line.is_perpendicular ##
+
+
+    .. method:: collidepoint
+
+        | :sl:`test if a point is on the line`
+        | :sg:`collidepoint((x, y)) -> bool`
+        | :sg:`collidepoint(x, y) -> bool`
+        | :sg:`collidepoint(Vector2) -> bool`
+
+        Returns True if the given point is on the `Line`, False otherwise.
+
+      .. ## Line.collidepoint ##
+
+    .. method:: collideline
+
+        | :sl:`test if a line intersects with another line`
+        | :sg:`collideline(Line) -> bool`
+        | :sg:`collideline((x1, y1), (x2, y2)) -> bool`
+        | :sg:`collideline(x1, y1, x2, y2) -> bool`
+
+        Returns True if the `Line` intersects with the given `Line`, False otherwise.
+
+      .. ## Line.collideline ##
+
+    .. method:: colliderect
+
+        | :sl:`test if a line intersects with a rectangle`
+        | :sg:`colliderect(Rect) -> bool`
+        | :sg:`colliderect((x, y, w, h)) -> bool`
+        | :sg:`colliderect(x, y, w, h) -> bool`
+
+        Returns True if the `Line` intersects with the given `Rect`, False otherwise.
+
+      .. ## Line.colliderect ##
+
+    .. method:: collidecircle
+
+        | :sl:`test if a line intersects with a circle`
+        | :sg:`collidecircle(Circle) -> bool`
+        | :sg:`collidecircle((x, y, r)) -> bool`
+        | :sg:`collidecircle(x, y, r) -> bool`
+
+        Returns True if the `Line` intersects with the given `Circle`, False otherwise.
+
+      .. ## Line.collidecircle ##
+
+
+    .. method:: collideswith
+
+        | :sl:`test if a shape or point and the line collide`
+        | :sg:`collideswith(Line) -> bool`
+        | :sg:`collideswith(Circle) -> bool`
+        | :sg:`collideswith(Rect) -> bool`
+        | :sg:`collideswith((x, y)) -> bool`
+        | :sg:`contains(Vector2) -> bool`
+
+        Returns `True` if any portion of the shape or point overlaps with the Line,
+        `False` otherwise. This is a general alternative to the collision problem as it can
+        be used to test for collisions with any shape or point. The shape can be a
+        Line, Circle, or Rect. The point can be a tuple or list containing the x and y
+        coordinates of the point or a Vector2.
+
+        .. note::
+            If a shape is passed it must be an actual single shape object. It cannot be a
+            tuple or list of coordinates that represent the shape. This is because there
+            is no way to determine what type of shape the coordinates represent.
+
+    .. method:: at
+
+        | :sl:`returns the point at a given distance from the line's a point`
+        | :sg:`at(fac) -> (x, y)`
+
+        Returns the point at the given distance from the line's a point.
+        The distance can be negative, in which case the point will be on the continuation of
+        the line, but in the opposite direction.
+
+      .. ## Line.at ##
+
+    .. method:: copy
+
+        | :sl:`returns a copy of the line`
+        | :sg:`copy() -> Line`
+
+        Returns a new `Line` having the same position and radius as the original.
+
+      .. ## Line.copy ##
