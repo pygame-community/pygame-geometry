@@ -614,6 +614,282 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
 
+    def test_insert_vertex(self):
+        """Checks whether a vertex is added correctly."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        vertices.append((4.21, -34.0))
+        poly.insert_vertex(3, (4.21, -34.0))
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.verts_num, 4)
+
+    def test_insert_vertex_invalid_args(self):
+        """Checks whether the function can handle invalid types correctly."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.insert_vertex(1, value)
+
+    def test_insert_vertex_argnum(self):
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.insert_vertex(*arg)
+
+    def test_insert_vertex_return_type(self):
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertEqual(type(poly.insert_vertex(1, (1, 1))), type(None))
+
+    def test_insert_vertex_invalid_index_type(self):
+        """Checks whether the function can handle invalid indices correctly."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.insert_vertex(value, (1, 1))
+
+    def test_remove_vertex(self):
+        """Checks whether a vertex is removed correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+
+        poly = Polygon(vertices)
+        vertices.pop(1)
+        poly.remove_vertex(1)
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.verts_num, 3)
+
+        poly2 = Polygon(_some_vertices.copy())
+        for i in range(poly2.verts_num):
+            with self.assertRaises(IndexError):
+                poly2.remove_vertex(i)
+
+    def test_remove_vertex_invalid_args(self):
+        """Checks whether the function can handle invalid types correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+        poly = Polygon(vertices)
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.remove_vertex(value)
+
+    def test_remove_vertex_argnum(self):
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.remove_vertex(*arg)
+
+    def test_remove_vertex_return_type(self):
+        verts = _some_vertices.copy()
+        verts.append((1, 1))
+        poly = Polygon(verts)
+
+        self.assertEqual(type(poly.remove_vertex(1)), type(None))
+
+    def test_remove_vertex_invalid_index(self):
+        """Checks whether the function can handle invalid indices correctly."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+        poly = Polygon(vertices)
+        invalid_indices = (4, 5, 6)
+
+        for index in invalid_indices:
+            with self.assertRaises(IndexError):
+                poly.remove_vertex(index)
+
+    def test_pop_vertex(self):
+        """Checks whether a vertex is removed correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+
+        poly = Polygon(vertices)
+        real_vert = vertices.pop(1)
+        vert = poly.pop_vertex(1)
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.verts_num, 3)
+        self.assertEqual(vert, real_vert)
+
+        poly2 = Polygon(_some_vertices.copy())
+        for i in range(poly2.verts_num):
+            with self.assertRaises(IndexError):
+                poly2.pop_vertex(i)
+
+    def test_pop_vertex_invalid_args(self):
+        """Checks whether the function can handle invalid types correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+        poly = Polygon(vertices)
+        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.pop_vertex(value)
+
+    def test_pop_vertex_argnum(self):
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.pop_vertex(*arg)
+
+    def test_pop_vertex_return_type(self):
+        verts = _some_vertices.copy()
+        verts.append((1, 1))
+        poly = Polygon(verts)
+
+        self.assertEqual(type(poly.pop_vertex(1)), tuple)
+
+    def test_pop_vertex_invalid_index(self):
+        """Checks whether the function can handle invalid indices correctly."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+        poly = Polygon(vertices)
+        invalid_indices = (4, 5, 6)
+
+        for index in invalid_indices:
+            with self.assertRaises(IndexError):
+                poly.pop_vertex(index)
+
+    def test_pop_vertex_center(self):
+        """Checks whether the center is updated correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+
+        poly = Polygon(vertices)
+        poly.pop_vertex(1)
+
+        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+
+    def test_remove_vertex_center(self):
+        """Checks whether the center is updated correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+
+        poly = Polygon(vertices)
+        poly.remove_vertex(1)
+
+        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+
+        vertices = _some_vertices.copy()
+        vertices.append(Vector2(4.21, -34.0))
+
+        poly = Polygon(vertices)
+        poly.remove_vertex(1)
+
+        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+
+    def test_insert_vertex_center(self):
+        """Checks whether the center is updated correctly."""
+        vertices = _some_vertices.copy()
+        vertices.append((4.21, -34.0))
+
+        poly = Polygon(vertices)
+        poly.insert_vertex(1, (1, 1))
+
+        self.assertEqual(poly.center, (13.041999999999998, 1.4))
+
+    def test_insert_vertex_allindex(self):
+        """Checks whether the function can handle negative indices correctly."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+
+        for i in range(-len(vertices), len(vertices) + 1):
+            poly = Polygon(vertices)
+            poly.insert_vertex(i, (5, 5))
+            self.assertEqual(poly.vertices[i], (5, 5))
+
+    def test_remove_vertex_allindex(self):
+        """Checks whether the function can handle negative indices correctly."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+
+        for i in range(-len(vertices), len(vertices)):
+            poly = Polygon(vertices)
+            poly.remove_vertex(i)
+            vertices_comp = vertices.copy()
+            vertices_comp.pop(i)
+            self.assertEqual(poly.vertices, vertices_comp)
+
+    def test_pop_vertex_allindex(self):
+        """Checks whether the function can handle negative indices correctly."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+
+        for i in range(-len(vertices), len(vertices)):
+            poly = Polygon(vertices)
+            poly.pop_vertex(i)
+            vertices_comp = vertices.copy()
+            vertices_comp.pop(i)
+            self.assertEqual(poly.vertices, vertices_comp)
+
+    def test_assign_vertices(self):
+        """Checks whether the vertices are assigned correctly."""
+        poly = Polygon(_some_vertices.copy())
+        new_vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+
+        poly.vertices = new_vertices
+
+        self.assertEqual(poly.vertices, new_vertices)
+        self.assertEqual(poly.verts_num, 4)
+
+        poly.vertices = poly.vertices
+        self.assertEqual(poly.vertices, new_vertices)
+
+        new_vertices.pop(0)
+        poly.vertices = new_vertices
+        self.assertEqual(poly.vertices, new_vertices)
+        self.assertEqual(poly.verts_num, 3)
+
+    def test_assign_vertices_Vector2(self):
+        """Checks whether the vertices are assigned correctly."""
+        poly = Polygon(_some_vertices.copy())
+        new_vertices = [Vector2(1, 1), Vector2(2, 2), Vector2(3, 3), Vector2(4, 4)]
+
+        poly.vertices = new_vertices
+
+        self.assertEqual(poly.vertices, new_vertices)
+        self.assertEqual(poly.verts_num, 4)
+
+        poly.vertices = poly.vertices
+        self.assertEqual(poly.vertices, new_vertices)
+
+        new_vertices.pop(0)
+        poly.vertices = new_vertices
+        self.assertEqual(poly.vertices, new_vertices)
+        self.assertEqual(poly.verts_num, 3)
+
+    def test_assign_vertices_center(self):
+        """Checks whether the center is updated correctly."""
+        poly = Polygon(_some_vertices.copy())
+        new_vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+
+        poly.vertices = new_vertices
+
+        self.assertEqual(poly.center, (2.5, 2.5))
+
+    def test_assign_vertices_center_Vector2(self):
+        """Checks whether the center is updated correctly."""
+        poly = Polygon(_some_vertices.copy())
+        new_vertices = [Vector2(1, 1), Vector2(2, 2), Vector2(3, 3), Vector2(4, 4)]
+
+        poly.vertices = new_vertices
+
+        self.assertEqual(poly.center, (2.5, 2.5))
+
 
 if __name__ == "__main__":
     unittest.main()
