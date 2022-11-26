@@ -199,7 +199,7 @@ Polygon Methods
         Inserts a vertex at the given index to the `Polygon`'s vertices. Always returns None.
 
         .. note::
-            The given index must be any interger, both negative and positive. If the index
+            The given index can be any positive or negative integer. If the index
             is negative, it will be counted from the end of the list of vertices.
             For example, if the index is -1, the vertex will be inserted at the end of the
             list of vertices. If the index is positive and it is greater than the number of
@@ -207,9 +207,9 @@ Polygon Methods
 
         .. note::
             You can add as many vertices as you want, but keep in mind that the more
-            vertices you have, the more CPU time it will take to calculate the collisions,
-            move the `Polygon`, copying, etc. It is recommended to keep the number of vertices
-            as low as possible and as close as the strict minimum as possible.
+            vertices you have, the more CPU time it will take to calculate collisions,
+            moving the `Polygon`, copying, etc. It is recommended to keep the number of vertices
+            as low as possible or as close as the strict minimum as possible.
 
       .. ## Polygon.add_vertex ##
 

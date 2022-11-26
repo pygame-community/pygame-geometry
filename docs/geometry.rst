@@ -154,7 +154,7 @@ other objects.
 
     collidepoint: Checks if the polygon collides with the given point.
 
-    add_vertex: Adds a vertex to the polygon.
+    insert_vertex: Adds a vertex to the polygon.
 
     remove_vertex: Removes a vertex from the polygon.
 
