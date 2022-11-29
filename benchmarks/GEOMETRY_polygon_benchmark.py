@@ -91,15 +91,33 @@ move_ip_tests = [
 ]
 
 rotate_tests = [
-    ("rotate 100 0", "po100.rotate(0.0)"),
-    ("rotate 100 32", "po100.rotate(32.0)"),
-    ("rotate 100 64", "po100.rotate(64.0)"),
+    ("0", "po100.rotate(0.0)"),
+    ("-0", "po100.rotate(-0.0)"),
+    ("90", "po100.rotate(90.0)"),
+    ("-90", "po100.rotate(-90.0)"),
+    ("180", "po100.rotate(180.0)"),
+    ("-180", "po100.rotate(-180.0)"),
+    ("270", "po100.rotate(270.0)"),
+    ("-270", "po100.rotate(-270.0)"),
+    ("360", "po100.rotate(360.0)"),
+    ("-360", "po100.rotate(-360.0)"),
+    ("12", "po100.rotate(12.0)"),
+    ("-12", "po100.rotate(-12.0)"),
 ]
 
 rotate_ip_tests = [
-    ("rotate_ip 100 0", "po100.rotate_ip(0.0)"),
-    ("rotate_ip 100 32", "po100.rotate_ip(32.0)"),
-    ("rotate_ip 100 64", "po100.rotate_ip(64.0)"),
+    ("0", "po100.rotate_ip(0.0)"),
+    ("-0", "po100.rotate_ip(-0.0)"),
+    ("90", "po100.rotate_ip(90.0)"),
+    ("-90", "po100.rotate_ip(-90.0)"),
+    ("180", "po100.rotate_ip(180.0)"),
+    ("-180", "po100.rotate_ip(-180.0)"),
+    ("270", "po100.rotate_ip(270.0)"),
+    ("-270", "po100.rotate_ip(-270.0)"),
+    ("360", "po100.rotate_ip(360.0)"),
+    ("-360", "po100.rotate_ip(-360.0)"),
+    ("12", "po100.rotate_ip(12.0)"),
+    ("-12", "po100.rotate_ip(-12.0)"),
 ]
 
 GROUPS = [

@@ -11,6 +11,39 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
+
+#ifndef M_TWOPI
+#define M_TWOPI 6.28318530717958647692
+#endif
+
+static PG_FORCE_INLINE double *
+_pg_new_vertices_from_polygon(pgPolygonBase *polygon)
+{
+    double *vertices = PyMem_New(double, polygon->verts_num * 2);
+    if (!vertices) {
+        return NULL;
+    }
+    memcpy(vertices, polygon->vertices,
+           polygon->verts_num * 2 * sizeof(double));
+
+    return vertices;
+}
+
+static PG_FORCE_INLINE double *
+_pg_new_vertices_from_vertices(double *vertices_to_copy, Py_ssize_t verts_num)
+{
+    double *vertices = PyMem_New(double, verts_num * 2);
+    if (!vertices) {
+        return NULL;
+    }
+    memcpy(vertices, vertices_to_copy, verts_num * 2 * sizeof(double));
+
+    return vertices;
+}
+
 static int
 _set_polygon_center_coords(pgPolygonBase *polygon)
 {
@@ -267,19 +300,50 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
         return NULL;
     }
 
-    if (polygon_obj) {
-        polygon_obj->polygon.vertices = PyMem_New(double, verts_num * 2);
-        if (!polygon_obj->polygon.vertices) {
-            Py_DECREF(polygon_obj);
-            return NULL;
-        }
-
-        memcpy(polygon_obj->polygon.vertices, vertices,
-               verts_num * 2 * sizeof(double));
-
-        polygon_obj->polygon.verts_num = verts_num;
-        _set_polygon_center_coords(&(polygon_obj->polygon));
+    if (!polygon_obj) {
+        return NULL;
     }
+
+    if (!(polygon_obj->polygon.vertices =
+              _pg_new_vertices_from_vertices(vertices, verts_num))) {
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    polygon_obj->polygon.verts_num = verts_num;
+    _set_polygon_center_coords(&(polygon_obj->polygon));
+
+    return (PyObject *)polygon_obj;
+}
+
+static PyObject *
+_pg_polygon_subtype_new2_copy(PyTypeObject *type, pgPolygonBase *polygon)
+{
+    /* Copies an existing polygon type. Specifically it allocates new memory
+     * for the vertices, but it doesn't recalculate the center of the polygon,
+     * therefore saving performance */
+    pgPolygonObject *polygon_obj =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(type, NULL, NULL);
+
+    if (polygon->verts_num < 3) {
+        /*A polygon requires 3 or more vertices*/
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    if (!polygon_obj) {
+        return NULL;
+    }
+
+    if (!(polygon_obj->polygon.vertices =
+              _pg_new_vertices_from_polygon(polygon))) {
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    polygon_obj->polygon.verts_num = polygon->verts_num;
+    polygon_obj->polygon.c_x = polygon->c_x;
+    polygon_obj->polygon.c_y = polygon->c_y;
 
     return (PyObject *)polygon_obj;
 }
@@ -457,42 +521,86 @@ static void
 _pg_rotate_polygon_helper(double *vertices, Py_ssize_t verts_num, double angle,
                           double c_x, double c_y)
 {
-    double angle_rad = angle * M_PI / 180.0;
-    double cos_a = cos(angle_rad) - 1;
-    double sin_a = sin(angle_rad);
-
     Py_ssize_t i2;
-    for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
-        double dx = vertices[i2] - c_x;
-        double dy = vertices[i2 + 1] - c_y;
-        vertices[i2] += dx * cos_a - dy * sin_a;
-        vertices[i2 + 1] += dx * sin_a + dy * cos_a;
+    /*convert the angle to radians*/
+    double angle_rad = angle * M_PI / 180.0;
+
+    if (fmod(angle_rad, M_PI_2) != 0.0) {
+        /* handle the general angle case that's not 90, 180 or 270 degrees */
+        double cos_a = cos(angle_rad) - 1;
+        double sin_a = sin(angle_rad);
+
+        for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+            double dx = vertices[i2] - c_x;
+            double dy = vertices[i2 + 1] - c_y;
+            vertices[i2] += dx * cos_a - dy * sin_a;
+            vertices[i2 + 1] += dx * sin_a + dy * cos_a;
+        }
+        return;
+    }
+
+    /*Ensure angle is between 0 and two pi*/
+    angle_rad = fmod(angle_rad, M_TWOPI);
+    if (angle_rad < 0) {
+        angle_rad += M_TWOPI;
+    }
+
+    /*special-cases rotation by 90, 180 and 270 degrees*/
+    switch ((int)(angle_rad / M_PI_2)) {
+        case 1:
+            /*90 degrees*/
+            double cx_plus_cy = c_x + c_y;
+            double cy_minus_cx = c_y - c_x;
+            for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+                double tmp = vertices[i2];
+                vertices[i2] = cx_plus_cy - vertices[i2 + 1];
+                vertices[i2 + 1] = cy_minus_cx + tmp;
+            }
+            return;
+        case 2:
+            /*180 degrees*/
+            double two_cx = c_x * 2;
+            double two_cy = c_y * 2;
+            for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+                vertices[i2] = two_cx - vertices[i2];
+                vertices[i2 + 1] = two_cy - vertices[i2 + 1];
+            }
+            return;
+        case 3:
+            /*270 degrees*/
+            cx_plus_cy = c_x + c_y;
+            double cx_minus_cy = c_x - c_y;
+            for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+                double tmp = vertices[i2];
+                vertices[i2] = cx_minus_cy + vertices[i2 + 1];
+                vertices[i2 + 1] = cx_plus_cy - tmp;
+            }
+            return;
+        default:
+            /*should never happen*/
+            break;
     }
 }
 
 static PyObject *
 pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
 {
-    double angle = 0.0;
+    double angle;
+    double *vertices;
 
     if (!pg_DoubleFromObj(arg, &angle)) {
         return RAISE(PyExc_TypeError,
                      "Invalid angle parameter, must be numeric");
     }
 
-    if (angle == 0.0) {
+    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
         /* No rotation, return a copy */
-        return _pg_polygon_subtype_new2(Py_TYPE(self), self->polygon.vertices,
-                                        self->polygon.verts_num);
+        return _pg_polygon_subtype_new2_copy(Py_TYPE(self), &self->polygon);
     }
 
-    double *vertices = PyMem_New(double, self->polygon.verts_num * 2);
-    if (!vertices) {
+    if (!(vertices = _pg_new_vertices_from_polygon(&self->polygon))) {
         return NULL;
     }
-
-    memcpy(vertices, self->polygon.vertices,
-           self->polygon.verts_num * 2 * sizeof(double));
 
     _pg_rotate_polygon_helper(vertices, self->polygon.verts_num, angle,
                               self->polygon.c_x, self->polygon.c_y);
@@ -516,14 +624,14 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
 static PyObject *
 pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
 {
-    double angle = 0.0;
+    double angle;
 
     if (!pg_DoubleFromObj(arg, &angle)) {
         return RAISE(PyExc_TypeError,
                      "Invalid angle parameter, must be numeric");
     }
 
-    if (angle == 0.0) {
+    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
         /* No rotation, return None immediately */
         Py_RETURN_NONE;
     }

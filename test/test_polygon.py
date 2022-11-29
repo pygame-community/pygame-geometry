@@ -14,6 +14,26 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
+def _rotate_vertices(poly, angle):
+    """Rotates the vertices of a polygon by the given angle."""
+    angle = math.radians(angle)
+    rotated_vertices = []
+
+    cos_a = math.cos(angle) - 1
+    sin_a = math.sin(angle)
+    for vertex in poly.vertices:
+        dx = vertex[0] - poly.c_x
+        dy = vertex[1] - poly.c_y
+        rotated_vertices.append(
+            (
+                vertex[0] + dx * cos_a - dy * sin_a,
+                vertex[1] + dx * sin_a + dy * cos_a,
+            )
+        )
+
+    return rotated_vertices
+
+
 class PolygonTypeTest(unittest.TestCase):
     def test_Construction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
@@ -505,7 +525,32 @@ class PolygonTypeTest(unittest.TestCase):
     def test_rotate(self):
         """Tests whether the polygon rotates correctly."""
         vertices = _some_vertices.copy()
-        poly = Polygon(vertices)
+        gen_poly = Polygon(vertices)
+
+        angles = [
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            90.0,
+            -90.0,
+            180.0,
+            -180.0,
+            360.0,
+            -360.0,
+            720.0,
+            -720.0,
+            23.31545,
+            -23.31545,
+        ]
+
+        for angle in angles:
+            poly = gen_poly.copy()
+            rotated_vertices = _rotate_vertices(poly, angle)
+            p2 = poly.rotate(angle)
+            for v1, v2 in zip(p2.vertices, rotated_vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_invalid_args(self):
         """Tests whether the function can handle invalid parameter types correctly."""
@@ -548,9 +593,71 @@ class PolygonTypeTest(unittest.TestCase):
     def test_rotate_ip(self):
         """Tests whether the polygon rotates correctly."""
         vertices = _some_vertices.copy()
-        poly = Polygon(vertices)
+        gen_poly = Polygon(vertices)
 
-        poly.rotate_ip(90)
+        angles = [
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            90.0,
+            -90.0,
+            180.0,
+            -180.0,
+            360.0,
+            -360.0,
+            720.0,
+            -720.0,
+            23.31545,
+            -23.31545,
+        ]
+
+        for angle in angles:
+            poly = gen_poly.copy()
+            rotated_vertices = _rotate_vertices(poly, angle)
+            poly.rotate_ip(angle)
+            for v1, v2 in zip(poly.vertices, rotated_vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_ip_conjugate(self):
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [-90, -180, -270]
+
+        for angle in angles:
+
+            poly1 = gen_poly.copy()
+            poly1.rotate_ip(angle)
+
+            conjugate_angle = angle + 360
+            poly2 = gen_poly.copy()
+            poly2.rotate_ip(conjugate_angle)
+
+            for v1, v2 in zip(poly1.vertices, poly2.vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_conjugate(self):
+
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [-90, -180, -270]
+
+        for angle in angles:
+
+            poly1 = gen_poly.copy()
+            po1 = poly1.rotate(angle)
+
+            conjugate_angle = angle + 360
+            poly2 = gen_poly.copy()
+            po2 = poly2.rotate(conjugate_angle)
+
+            for v1, v2 in zip(po1.vertices, po2.vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_ip_invalid_args(self):
         """Tests whether the function can handle invalid parameter types correctly."""
