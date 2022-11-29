@@ -545,36 +545,36 @@ _pg_rotate_polygon_helper(double *vertices, Py_ssize_t verts_num, double angle,
         angle_rad += M_TWOPI;
     }
 
-    double vals[2];
+    double v1, v2;
     /*special-cases rotation by 90, 180 and 270 degrees*/
     switch ((int)(angle_rad / M_PI_2)) {
         case 1:
             /*90 degrees*/
-            vals[0] = c_x + c_y;
-            vals[1] = c_y - c_x;
+            v1 = c_x + c_y;
+            v2 = c_y - c_x;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
                 double tmp = vertices[i2];
-                vertices[i2] = vals[0] - vertices[i2 + 1];
-                vertices[i2 + 1] = vals[1] + tmp;
+                vertices[i2] = v1 - vertices[i2 + 1];
+                vertices[i2 + 1] = v2 + tmp;
             }
             return;
         case 2:
             /*180 degrees*/
-            vals[0] = c_x * 2;
-            vals[1] = c_y * 2;
+            v1 = c_x * 2;
+            v2 = c_y * 2;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
-                vertices[i2] = vals[0] - vertices[i2];
-                vertices[i2 + 1] = vals[1] - vertices[i2 + 1];
+                vertices[i2] = v1 - vertices[i2];
+                vertices[i2 + 1] = v2 - vertices[i2 + 1];
             }
             return;
         case 3:
             /*270 degrees*/
-            vals[0] = c_x + c_y;
-            vals[1] = c_x - c_y;
+            v1 = c_x + c_y;
+            v2 = c_x - c_y;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
                 double tmp = vertices[i2];
-                vertices[i2] = vals[1] + vertices[i2 + 1];
-                vertices[i2 + 1] = vals[0] - tmp;
+                vertices[i2] = v2 + vertices[i2 + 1];
+                vertices[i2 + 1] = v1 - tmp;
             }
             return;
         default:
