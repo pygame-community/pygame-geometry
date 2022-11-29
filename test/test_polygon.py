@@ -91,6 +91,42 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
 
+    def test_perimeter(self):
+        def get_perimeter(poly: geometry.Polygon) -> float:
+            """Return the perimeter of the polygon."""
+
+            def distance(p1, p2):
+                return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+            perimeter = 0
+            vertices = poly.vertices
+            for i in range(len(vertices) - 1):
+                perimeter += distance(vertices[i], vertices[i + 1])
+            perimeter += distance(vertices[-1], vertices[0])
+            return perimeter
+
+        po = Polygon([p1, p2, p3, p4])
+        expected_perimeter = get_perimeter(po)
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon([10.0, 10.0], [20.0, 20.0], [40.0, 50.0], [70.0, 900.0])
+        expected_perimeter = get_perimeter(po)
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon((10.0, 45.0), (20.0, 4.5), (40.0, 77.45), (70.0, 900.0))
+        expected_perimeter = get_perimeter(po)
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon([[6.0, 12.0], [95.0, 634.3], [21.0, 21.0]])
+        expected_perimeter = get_perimeter(po)
+        self.assertEqual(po.perimeter, expected_perimeter)
+
+        po = Polygon(
+            [[6.0, 12.0], [95.0, 634.3], [21.0, 21.0], [42.0, 1.0], [9.0, 72.0]]
+        )
+        expected_perimeter = get_perimeter(po)
+        self.assertEqual(po.perimeter, expected_perimeter)
+
     def test_subscript(self):
         """Checks whether reassigning a vertex works correctly"""
         po = Polygon([p1, p2, p3, p4])
