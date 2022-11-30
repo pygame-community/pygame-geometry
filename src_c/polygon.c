@@ -11,8 +11,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
+#ifndef M_PI_QUO_2
+#define M_PI_QUO_2 1.57079632679489661923
 #endif
 
 #ifndef M_TWOPI
@@ -518,14 +518,16 @@ pg_polygon_collidepoint(pgPolygonObject *self, PyObject *const *args,
 }
 
 static void
-_pg_rotate_polygon_helper(double *vertices, Py_ssize_t verts_num, double angle,
-                          double c_x, double c_y)
+_pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
 {
-    Py_ssize_t i2;
+    double c_x = poly->c_x, c_y = poly->c_y;
+    Py_ssize_t i2, verts_num = poly->verts_num;
+    double *vertices = poly->vertices;
+
     /*convert the angle to radians*/
     double angle_rad = angle * M_PI / 180.0;
 
-    if (fmod(angle_rad, M_PI_2) != 0.0) {
+    if (fmod(angle_rad, M_PI_QUO_2) != 0.0) {
         /* handle the general angle case that's not 90, 180 or 270 degrees */
         double cos_a = cos(angle_rad) - 1;
         double sin_a = sin(angle_rad);
@@ -547,7 +549,7 @@ _pg_rotate_polygon_helper(double *vertices, Py_ssize_t verts_num, double angle,
 
     double v1, v2;
     /*special-cases rotation by 90, 180 and 270 degrees*/
-    switch ((int)(angle_rad / M_PI_2)) {
+    switch ((int)(angle_rad / M_PI_QUO_2)) {
         case 1:
             /*90 degrees*/
             v1 = c_x + c_y;
@@ -587,37 +589,24 @@ static PyObject *
 pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
 {
     double angle;
-    double *vertices;
+    pgPolygonObject *ret;
 
     if (!pg_DoubleFromObj(arg, &angle)) {
         return RAISE(PyExc_TypeError,
                      "Invalid angle parameter, must be numeric");
     }
 
+    if (!(ret = (pgPolygonObject *)_pg_polygon_subtype_new2_copy(
+              Py_TYPE(self), &self->polygon))) {
+        return NULL;
+    }
+
     if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
         /* No rotation, return a copy */
-        return _pg_polygon_subtype_new2_copy(Py_TYPE(self), &self->polygon);
+        return (PyObject *)ret;
     }
 
-    if (!(vertices = _pg_new_vertices_from_polygon(&self->polygon))) {
-        return NULL;
-    }
-
-    _pg_rotate_polygon_helper(vertices, self->polygon.verts_num, angle,
-                              self->polygon.c_x, self->polygon.c_y);
-
-    pgPolygonObject *ret =
-        (pgPolygonObject *)pgPolygon_Type.tp_new(Py_TYPE(self), NULL, NULL);
-
-    if (!ret) {
-        PyMem_Free(vertices);
-        return NULL;
-    }
-
-    ret->polygon.vertices = vertices;
-    ret->polygon.verts_num = self->polygon.verts_num;
-    ret->polygon.c_x = self->polygon.c_x;
-    ret->polygon.c_y = self->polygon.c_y;
+    _pg_rotate_polygon_helper(&ret->polygon, angle);
 
     return (PyObject *)ret;
 }
@@ -637,8 +626,7 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    _pg_rotate_polygon_helper(self->polygon.vertices, self->polygon.verts_num,
-                              angle, self->polygon.c_x, self->polygon.c_y);
+    _pg_rotate_polygon_helper(&self->polygon, angle);
 
     Py_RETURN_NONE;
 }
