@@ -90,6 +90,36 @@ move_ip_tests = [
     ("move_ip 100 2 float", "po100.move_ip(10.0, 10.0)"),
 ]
 
+rotate_tests = [
+    ("0", "po100.rotate(0.0)"),
+    ("-0", "po100.rotate(-0.0)"),
+    ("90", "po100.rotate(90.0)"),
+    ("-90", "po100.rotate(-90.0)"),
+    ("180", "po100.rotate(180.0)"),
+    ("-180", "po100.rotate(-180.0)"),
+    ("270", "po100.rotate(270.0)"),
+    ("-270", "po100.rotate(-270.0)"),
+    ("360", "po100.rotate(360.0)"),
+    ("-360", "po100.rotate(-360.0)"),
+    ("12", "po100.rotate(12.0)"),
+    ("-12", "po100.rotate(-12.0)"),
+]
+
+rotate_ip_tests = [
+    ("0", "po100.rotate_ip(0.0)"),
+    ("-0", "po100.rotate_ip(-0.0)"),
+    ("90", "po100.rotate_ip(90.0)"),
+    ("-90", "po100.rotate_ip(-90.0)"),
+    ("180", "po100.rotate_ip(180.0)"),
+    ("-180", "po100.rotate_ip(-180.0)"),
+    ("270", "po100.rotate_ip(270.0)"),
+    ("-270", "po100.rotate_ip(-270.0)"),
+    ("360", "po100.rotate_ip(360.0)"),
+    ("-360", "po100.rotate_ip(-360.0)"),
+    ("12", "po100.rotate_ip(12.0)"),
+    ("-12", "po100.rotate_ip(-12.0)"),
+]
+
 GROUPS = [
     ("Creation", creation_tests),
     ("Attribute Getters", getters_tests),
@@ -97,6 +127,8 @@ GROUPS = [
     ("Copy", copy_tests),
     ("Move", move_tests),
     ("Move_ip", move_ip_tests),
+    ("Rotate", rotate_tests),
+    ("Rotate_ip", rotate_ip_tests),
 ]
 
 if __name__ == "__main__":
