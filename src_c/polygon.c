@@ -631,6 +631,77 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static int
+_pg_polygon_scale_helper(pgPolygonBase *poly, double factor)
+{
+    /* Takes in a factor and scales the polygon by that factor,
+     * if the factor is less than 1, the polygon will be shrunk, if the
+     * factor is greater than 1, the polygon will be enlarged.
+     */
+    if (factor == 1.0) {
+        return 1;
+    }
+    else if (factor == 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Cannot scale by 0");
+        return 0;
+    }
+    else if (factor < 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Cannot scale by a negative number");
+        return 0;
+    }
+
+    double one_m_fac = 1.0 - factor;
+    double omf_cx = one_m_fac * poly->c_x;
+    double omf_cy = one_m_fac * poly->c_y;
+
+    Py_ssize_t i2;
+    for (i2 = 0; i2 < poly->verts_num * 2; i2 += 2) {
+        poly->vertices[i2] = poly->vertices[i2] * factor + omf_cx;
+        poly->vertices[i2 + 1] = poly->vertices[i2 + 1] * factor + omf_cy;
+    }
+
+    return 1;
+}
+
+static PyObject *
+pg_polygon_scale(pgPolygonObject *self, PyObject *arg)
+{
+    double factor;
+    pgPolygonObject *new_poly;
+
+    if (!pg_DoubleFromObj(arg, &factor)) {
+        return RAISE(PyExc_TypeError, "Expected a number");
+    }
+
+    if (!(new_poly = (pgPolygonObject *)_pg_polygon_subtype_new2_copy(
+              Py_TYPE(self), &self->polygon))) {
+        return NULL;
+    }
+
+    if (!_pg_polygon_scale_helper(&new_poly->polygon, factor)) {
+        Py_DECREF(new_poly);
+        return NULL;
+    }
+
+    return (PyObject *)new_poly;
+}
+
+static PyObject *
+pg_polygon_scale_ip(pgPolygonObject *self, PyObject *arg)
+{
+    double factor;
+
+    if (!pg_DoubleFromObj(arg, &factor)) {
+        return RAISE(PyExc_TypeError, "Expected a number");
+    }
+
+    if (!_pg_polygon_scale_helper(&self->polygon, factor)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
@@ -638,6 +709,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
      NULL},
+    {"scale", (PyCFunction)pg_polygon_scale, METH_O, NULL},
+    {"scale_ip", (PyCFunction)pg_polygon_scale_ip, METH_O, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};

@@ -258,3 +258,40 @@ Polygon Methods
             the vertex will not be removed and an error will be raised.
 
       .. ## Polygon.pop_vertex ##
+
+    .. method:: scale
+
+        | :sl:`scales the polygon by a given factor`
+        | :sg:`scale(factor) -> Polygon`
+
+        Returns a new Polygon that is scaled by the given factor. The original Polygon is
+        not modified. The scaling is done relative to the center of the `Polygon`.
+
+        .. note::
+            Scaling the polygon by a factor greater than 1 will make it bigger, while
+            scaling it by a factor less than 1 but greater than 0 will make it smaller.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to scale it.
+
+      .. ## Polygon.scale ##
+
+    .. method:: scale_ip
+
+        | :sl:`scales the polygon by a given factor`
+        | :sg:`scale_ip(factor) -> None`
+
+        Scales the Polygon by the given factor. The original Polygon is modified.
+        Always returns None. The scaling is done relative to the center of the
+        `Polygon`.
+
+        .. note::
+            Scaling the polygon by a factor greater than 1 will make it bigger, while
+            scaling it by a factor less than 1 but greater than 0 will make it smaller.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to scale it.
+
+      .. ## Polygon.scale_ip ##

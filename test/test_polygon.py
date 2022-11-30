@@ -34,6 +34,20 @@ def _rotate_vertices(poly, angle):
     return rotated_vertices
 
 
+def _scale_polygon(vertices, num_verts, cx, cy, fac):
+    one_m_fac = 1 - fac
+    omf_cx = one_m_fac * cx
+    omf_cy = one_m_fac * cy
+
+    new_vertices = []
+
+    for i in range(num_verts):
+        x, y = vertices[i]
+        new_vertices.append((x * fac + omf_cx, y * fac + omf_cy))
+
+    return new_vertices
+
+
 class PolygonTypeTest(unittest.TestCase):
     def test_Construction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
@@ -847,6 +861,127 @@ class PolygonTypeTest(unittest.TestCase):
         e = 0.000000000000001
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
+
+    def test_scale_ip(self):
+        """Tests whether the scale_ip method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10]
+
+        for scale in scales:
+            new_vertices = _some_vertices.copy()
+            new_poly = poly.copy()
+            new_vertices = _scale_polygon(
+                new_vertices, len(new_vertices), new_poly.c_x, new_poly.c_y, scale
+            )
+            new_poly.scale_ip(scale)
+            self.assertEqual(new_poly.vertices, new_vertices)
+
+    def test_scale_ip_inplace(self):
+        """Ensures that scaling the polygon by 1.0 will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.scale_ip(1.0)
+
+        vertices = [tuple(vertex) for vertex in vertices]
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_scale_ip_return_type(self):
+        """Tests whether the scale_ip method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertEqual(type(poly.scale_ip(1.32)), type(None))
+
+    def test_scale_ip_invalid_args(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.scale_ip(value)
+
+    def test_scale_ip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.scale_ip(*arg)
+
+    def test_scale(self):
+        """Tests whether the scale method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10]
+
+        for scale in scales:
+            new_vertices = _some_vertices.copy()
+            new_poly = poly.copy()
+            new_vertices = _scale_polygon(
+                new_vertices, len(new_vertices), new_poly.c_x, new_poly.c_y, scale
+            )
+            new_poly = poly.scale(scale)
+            self.assertEqual(new_poly.vertices, new_vertices)
+
+    def test_scale_return_type(self):
+        """Tests whether the scale method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10]
+
+        for scale_val in scales:
+            self.assertIsInstance(poly.scale(scale_val), Polygon)
+
+        class TestPolygon(Polygon):
+            pass
+
+        poly2 = TestPolygon(_some_vertices.copy())
+
+        for scale_val in scales:
+            self.assertIsInstance(poly2.scale(scale_val), TestPolygon)
+
+    def test_scale_invalid_args(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.scale(value)
+
+    def test_scale_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.scale(*arg)
 
 
 if __name__ == "__main__":

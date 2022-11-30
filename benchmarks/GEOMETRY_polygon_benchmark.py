@@ -120,6 +120,20 @@ rotate_ip_tests = [
     ("-12", "po100.rotate_ip(-12.0)"),
 ]
 
+scale_tests = [
+    ("2.0", "po100.scale(2)"),
+    ("1.0", "po100.scale(1)"),
+    ("0.5", "po100.scale(0.5)"),
+    ("0.1", "po100.scale(0.1)"),
+]
+
+scale_ip_tests = [
+    ("2.0", "po100.scale_ip(2)"),
+    ("1.0", "po100.scale_ip(1)"),
+    ("0.5", "po100.scale_ip(0.5)"),
+    ("0.1", "po100.scale_ip(0.1)"),
+]
+
 GROUPS = [
     ("Creation", creation_tests),
     ("Attribute Getters", getters_tests),
@@ -129,6 +143,8 @@ GROUPS = [
     ("Move_ip", move_ip_tests),
     ("Rotate", rotate_tests),
     ("Rotate_ip", rotate_ip_tests),
+    ("Scale", scale_tests),
+    ("Scale_ip", scale_ip_tests),
 ]
 
 if __name__ == "__main__":
