@@ -584,11 +584,17 @@ class PolygonTypeTest(unittest.TestCase):
         """Tests whether the function returns the correct type."""
         poly = Polygon(_some_vertices.copy())
 
-        self.assertIsInstance(poly.rotate(1), Polygon)
-        self.assertIsInstance(poly.rotate(1.0), Polygon)
-        self.assertIsInstance(poly.rotate(0), Polygon)
-        self.assertIsInstance(poly.rotate(0.0), Polygon)
-        self.assertIsInstance(poly.rotate(-23.13), Polygon)
+        angles = [-0.0, 0.0, 1.0, 90.0, 180.0, 360.0, 720.0, 23.31545, -23.31545]
+
+        for angle in angles:
+            self.assertIsInstance(poly.rotate(angle), Polygon)
+
+        class TestPolygon(Polygon):
+            pass
+
+        poly2 = TestPolygon(_some_vertices.copy())
+        for angle in angles:
+            self.assertIsInstance(poly2.rotate(angle), TestPolygon)
 
     def test_rotate_ip(self):
         """Tests whether the polygon rotates correctly."""
