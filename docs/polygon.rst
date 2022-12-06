@@ -258,3 +258,13 @@ Polygon Methods
             the vertex will not be removed and an error will be raised.
 
       .. ## Polygon.pop_vertex ##
+
+    .. method:: get_bounding_box
+
+        | :sl:`returns the bounding box of the polygon`
+        | :sg:`get_bounding_box() -> Rect`
+
+        Returns a `pygame.Rect` object that contains the `Polygon`. The Rect object will
+        be the smallest rectangle that contains the `Polygon`.
+
+      .. ## Polygon.get_bounding_box ##

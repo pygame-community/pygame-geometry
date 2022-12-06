@@ -1,6 +1,7 @@
 import unittest
+import random
 
-from pygame import Vector2, Vector3
+from pygame import Vector2, Vector3, Rect
 
 import geometry
 from geometry import Polygon
@@ -32,6 +33,21 @@ def _rotate_vertices(poly, angle):
         )
 
     return rotated_vertices
+
+
+def _calculate_bounding_box(vertices) -> Rect:
+    """Calculates the bounding box of a polygon."""
+    min_x = min(vertices, key=lambda x: x[0])[0]
+    min_y = min(vertices, key=lambda x: x[1])[1]
+    max_x = max(vertices, key=lambda x: x[0])[0]
+    max_y = max(vertices, key=lambda x: x[1])[1]
+
+    return Rect(
+        math.floor(min_x),
+        math.floor(min_y),
+        math.ceil(abs(max_x - min_x + 1)),
+        math.ceil(abs(max_y - min_y + 1)),
+    )
 
 
 class PolygonTypeTest(unittest.TestCase):
@@ -847,6 +863,105 @@ class PolygonTypeTest(unittest.TestCase):
         e = 0.000000000000001
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
+
+    def test_get_bounding_box_horizontal_line(self):
+        vertices = [(0, 0), (1, 0), (2, 0), (3, 0)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_vertical_line(self):
+        vertices = [(0, 0), (0, 1), (0, 2), (0, 3)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_square(self):
+        vertices = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_diagonal_line(self):
+        vertices = [(0, 0), (1, 1), (2, 2), (3, 3)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_negative_positions(self):
+        vertices = [(0.5, 0.5), (-0.5, -0.5), (1.5, 1.5), (-1.5, -1.5)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_nonsimple_random_positions(self):
+        vertices = []
+        for i in range(1000):
+            vertices.append((random.uniform(-100, 100), random.uniform(-100, 100)))
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_return_type(self):
+        """Tests whether the get_bounding_box method returns a Rect."""
+        poly = Polygon(_some_vertices.copy())
+        self.assertIsInstance(poly.get_bounding_box(), Rect)
+
+    def test_get_bounding_box_argnum(self):
+        """Tests whether the get_bounding_box method correctly handles invalid parameter
+        numbers."""
+        poly = Polygon(_some_vertices.copy())
+
+        with self.assertRaises(TypeError):
+            poly.get_bounding_box(1)
 
 
 if __name__ == "__main__":
