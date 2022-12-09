@@ -78,7 +78,11 @@ typedef struct {
 
 // return 1 if success and 0 if failure
 static int
-pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out);
+pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence);
+
+static int
+pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
+                             pgPolygonBase *out, int *was_sequence);
 
 #define pgCircle_Check(o) ((o)->ob_type == &pgCircle_Type)
 #define pgLine_Check(o) ((o)->ob_type == &pgLine_Type)

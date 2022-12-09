@@ -6,7 +6,7 @@
 #include "simd_collisions_avx2.c"
 #endif /* ~__AVX2__ */
 
-#define PYGAMEAPI_GEOMETRY_NUMSLOTS 22
+#define PYGAMEAPI_GEOMETRY_NUMSLOTS 23
 
 /*
  * origin, direction, max_dist
@@ -353,6 +353,7 @@ MODINIT_DEFINE(geometry)
     c_api[19] = pgPolygon_New;
     c_api[20] = pgPolygon_New2;
     c_api[21] = pgPolygon_FromObject;
+    c_api[22] = pgPolygon_FromObjectFastcall;
 
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

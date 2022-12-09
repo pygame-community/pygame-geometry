@@ -103,6 +103,57 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, [p1, p2, p3])
 
+    def test_construction_polygon_attribute(self):
+        """Ensures that you can construct a polygon from another object that has a
+        polygon attribute"""
+
+        # polygon attribute is a list of vertices
+        class PolygonObject:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, po.polygon)
+
+        # polygon attribute is a callable that returns a list of vertices
+        class PolygonObject1:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return self._poly
+
+        po = PolygonObject1([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+
+        # polygon attribute is a callable that returns a Polygon object
+        class PolygonObject2:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return Polygon(self._poly)
+
+        po = PolygonObject2(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon().vertices)
+
+        # polygon attribute is a polygon object
+        class PolygonObject3:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject3(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon.vertices)
+
     def test_construction_frompolygon(self):
         """Checks whether the constructor works correctly with another polygon"""
         po = Polygon([p1, p2, p3, p4])
