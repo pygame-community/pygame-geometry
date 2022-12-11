@@ -19,12 +19,6 @@
 #define M_TWOPI 6.28318530717958647692
 #endif
 
-static PG_FORCE_INLINE void
-PgFreePolygon(pgPolygonBase *poly)
-{
-    PyMem_Free(poly->vertices);
-}
-
 static PG_FORCE_INLINE double *
 _pg_new_vertices_from_polygon(pgPolygonBase *polygon)
 {
@@ -112,6 +106,8 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
     if (pgPolygon_Check(obj)) {
         pgPolygonBase *poly = &pgPolygon_AsPolygon(obj);
 
+        /* Copy the vertices from the old polygon to the new polygon, while
+         * also allocating new memory. */
         if (!(init_poly->vertices = _pg_new_vertices_from_polygon(poly))) {
             PyErr_Clear();
             return 0;
@@ -247,6 +243,70 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
         return 0;
     }
 
+    /* If the Python object is an iterable sequence (generator) */
+    else if (PyIter_Check(obj)) {
+        PyObject *item = NULL;
+        PyObject *iter = PyObject_GetIter(obj);
+        Py_ssize_t i = 0, currently_allocated = 3;
+
+        /* Allocate memory for the vertices of the polygon */
+        init_poly->vertices = PyMem_New(double, 2 * currently_allocated);
+        if (!init_poly->vertices) {
+            return 0;
+        }
+
+        /* Extract the x and y coordinates of each vertex and store
+           them in the init_poly object */
+        while ((item = PyIter_Next(iter))) {
+            double x, y;
+            if (!pg_TwoDoublesFromObj(item, &x, &y)) {
+                Py_DECREF(item);
+                Py_DECREF(iter);
+                /* Note: not using PyMem_Free on polygon vertices on
+                   failure because the pgPolygonBase is part of a Python
+                   object, which will handle freeing the memory on
+                   destruction. If we free the memory here, we will get a
+                   double free error. */
+                return 0;
+            }
+            Py_DECREF(item);
+
+            init_poly->vertices[i * 2] = x;
+            init_poly->vertices[i * 2 + 1] = y;
+            init_poly->c_x += x;
+            init_poly->c_y += y;
+
+            i++;
+            if (i + 1 > currently_allocated) {
+                currently_allocated *= 1.5;
+                init_poly->vertices = PyMem_Resize(init_poly->vertices, double,
+                                                   2 * currently_allocated);
+                if (!init_poly->vertices) {
+                    Py_DECREF(iter);
+                    return 0;
+                }
+            }
+        }
+
+        if (i < currently_allocated) {
+            init_poly->vertices =
+                PyMem_Resize(init_poly->vertices, double, 2 * i);
+            if (!init_poly->vertices) {
+                Py_DECREF(iter);
+                return 0;
+            }
+        }
+
+        Py_DECREF(iter);
+
+        init_poly->verts_num = i;
+        /* Calculate the centroid of the polygon */
+        init_poly->c_x /= i;
+        init_poly->c_y /= i;
+
+        return 1;
+    }
+
     /*If the Python object has an attribute called "polygon", attempt
     to extract the vertices of the polygon from that attribute*/
     PyObject *polyattr;
@@ -279,27 +339,27 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 static int
 pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
 {
-    /* This function must only be utilized to try and convert a Polygon
-     * compatible object to a pgPolygonBase object for use in the C
-     * code. Once the object has been finalized, if its vertices came
-     * from a sequence, the pgPolygonBase object's vertices must be
-     * freed using the PyMem_Free function. The out_code variable is
-     * used to store the type of object that was used to initialize the
-     * pgPolygonBase object. The was_sequence variable should therefore
-     * be used to determine whether the pgPolygonBase object's vertices
-     * should be freed or not. The was_sequence variable can be one of
-     * the following values:
+    /* This function converts a Polygon compatible object to a pgPolygonBase
+     * object for use in C code. The "was_sequence" parameter indicates whether
+     * the object being converted was a sequence (1) or a pgPolygonBase struct
+     * (0). The "was_sequence" parameter should be used to determine whether to
+     * free the vertices of the pgPolygonBase object after use.
      *
-     * 0 - The object was already a pgPolygonBase object, so no
-     * vertices will be allocated, you MUST NOT free the vertices after
-     * use. 1 - The object was a sequence (i.e. a list, tuple, etc.) so
-     * vertices were allocated, you MUST free the vertices after use.
+     * 1. If "was_sequence" is 0, the object being converted was a
+     * pgPolygonBase struct. In this case, the vertices of the pgPolygonBase
+     * object do not need to be freed because they are part of the object
+     * and were not newly allocated.
      *
-     * All of this is because you can't free memory from an actual
-     * pgPolygonObject because it is using allocated memory already
-     * whereas with sequences, you need to recreate the pgPolygonBase
-     * object from the sequence, therefore you need to free the
-     * vertices after use.
+     * 2. If "was_sequence" is 1, the object being converted was a
+     * sequence (such as a list or tuple). In this case, the vertices of the
+     * pgPolygonBase's vertices must be freed using PyMem_Free after the object
+     * has been utilized, as they were allocated when the object was created
+     * from the sequence.
+     *
+     *  If the object being converted is a pgPolygonBase struct, the conversion
+     *  is more performant as it avoids a whole memory allocation and memcpy
+     *  (just doing a shallow copy), as well as making the other functions
+     *  that utilize this one simpler.
      */
 
     Py_ssize_t length;
@@ -327,7 +387,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
             for (i = 0; i < out->verts_num; i++) {
                 double x, y;
                 if (!pg_TwoDoublesFromObj(f_arr[i], &x, &y)) {
-                    PgFreePolygon(out);
+                    PyMem_Free(out->vertices);
                     return 0;
                 }
                 out->vertices[i * 2] = x;
@@ -373,7 +433,7 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
                 tmp = PySequence_ITEM(obj, i);
                 if (!pg_TwoDoublesFromObj(tmp, &x, &y)) {
                     Py_DECREF(tmp);
-                    PgFreePolygon(out);
+                    PyMem_Free(out->vertices);
                     return 0;
                 }
                 Py_DECREF(tmp);
@@ -437,27 +497,28 @@ static int
 pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
                              pgPolygonBase *out, int *was_sequence)
 {
-    /* This function must only be utilized to try and convert a Polygon
-     * compatible object to a pgPolygonBase object for use in the C
-     * code ( in the case of a FASTCALL method). Once the object has
-     * been finalized, if its vertices came from a sequence, the
-     * pgPolygonBase object's vertices must be freed using the
-     * PyMem_Free function. The out_code variable is used to store the
-     * type of object that was used to initialize the pgPolygonBase
-     * object. The was_sequence variable should therefore be used to
-     * determine whether the pgPolygonBase object's vertices should be
-     * freed or not. The was_sequence variable can be one of the
-     * following values:
+    /* This function converts a Polygon compatible object to a pgPolygonBase
+     * object for use in C code (in the case of a FASTCALL method).
+     * The "was_sequence" parameter indicates whether the object being
+     * converted was a sequence (1) or a pgPolygonBase struct (0). The
+     * "was_sequence" parameter should be used to determine whether to free the
+     * vertices of the pgPolygonBase object after use.
      *
-     * 0 - The object was already a pgPolygonBase object, so no
-     * vertices will be allocated, you MUST NOT free the vertices after
-     * use. 1 - The object was a sequence (i.e. a list, tuple, etc.) so
-     * vertices were allocated, you MUST free the vertices after use.
-     * All of this is because you can't free memory from an actual
-     * pgPolygonObject because it is using allocated memory already
-     * whereas with sequences, you need to recreate the pgPolygonBase
-     * object from the sequence, therefore you need to free the
-     * vertices after use.
+     * 1. If "was_sequence" is 0, the object being converted was a
+     * pgPolygonBase struct. In this case, the vertices of the pgPolygonBase
+     * object do not need to be freed because they are part of the object
+     * and were not newly allocated.
+     *
+     * 2. If "was_sequence" is 1, the object being converted was a
+     * sequence (such as a list or tuple). In this case, the vertices of the
+     * pgPolygonBase's vertices must be freed using PyMem_Free after the object
+     * has been utilized, as they were allocated when the object was created
+     * from the sequence.
+     *
+     *  If the object being converted is a pgPolygonBase struct, the conversion
+     *  is more performant as it avoids a whole memory allocation and memcpy
+     *  (just doing a shallow copy), as well as making the other functions
+     *  that utilize this one simpler.
      */
 
     if (nargs == 1) {
@@ -476,7 +537,7 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
         for (i = 0; i < nargs; i++) {
             double x, y;
             if (!pg_TwoDoublesFromObj(args[i], &x, &y)) {
-                PgFreePolygon(out);
+                PyMem_Free(out->vertices);
                 return 0;
             }
             out->vertices[i * 2] = x;
