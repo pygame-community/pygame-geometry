@@ -342,15 +342,44 @@ pg_line_update(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
-pg_line_colliderect(pgLineObject *self, PyObject *args)
+pg_line_colliderect(pgLineObject *self, PyObject *const *args,
+                    Py_ssize_t nargs)
 {
-    SDL_Rect *rect, temp;
+    SDL_Rect temp;
 
-    if (!(rect = pgRect_FromObject(args, &temp))) {
-        return RAISE(PyExc_TypeError,
-                     "Line.colliderect requires a Rect or a RectLike object");
+    if (nargs == 1) {
+        SDL_Rect *tmp;
+        if (!(tmp = pgRect_FromObject(args[0], &temp))) {
+            if (PyErr_Occurred())
+                return NULL;
+            else
+                return RAISE(PyExc_TypeError,
+                             "Invalid rect, all 4 fields must be numeric");
+        }
+        return PyBool_FromLong(pgCollision_RectLine(tmp, &self->line));
     }
-    return PyBool_FromLong(pgCollision_RectLine(rect, &self->line));
+    else if (nargs == 2) {
+        if (!pg_TwoIntsFromObj(args[0], &temp.x, &temp.y) ||
+            !pg_TwoIntsFromObj(args[1], &temp.w, &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else if (nargs == 4) {
+        if (!pg_IntFromObj(args[0], &temp.x) ||
+            !pg_IntFromObj(args[1], &temp.y) ||
+            !pg_IntFromObj(args[2], &temp.w) ||
+            !pg_IntFromObj(args[3], &temp.h)) {
+            return RAISE(PyExc_TypeError,
+                         "Invalid rect, all 4 fields must be numeric");
+        }
+    }
+    else {
+        return RAISE(PyExc_TypeError,
+                     "Invalid arguments number, must be 1, 2 or 4");
+    }
+
+    return PyBool_FromLong(pgCollision_RectLine(&temp, &self->line));
 }
 
 static PyObject *
@@ -484,7 +513,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collideline", (PyCFunction)pg_line_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
-    {"colliderect", (PyCFunction)pg_line_colliderect, METH_VARARGS, NULL},
+    {"colliderect", (PyCFunction)pg_line_colliderect, METH_FASTCALL, NULL},
     {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
