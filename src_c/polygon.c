@@ -62,22 +62,6 @@ _set_polygon_center_coords(pgPolygonBase *polygon)
     return 1;
 }
 
-static int
-_pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
-{
-    if (!polygon) {
-        return 0;
-    }
-    Py_ssize_t i2;
-    for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
-        polygon->vertices[i2] += dx;
-        polygon->vertices[i2 + 1] += dy;
-    }
-    polygon->c_x += dx;
-    polygon->c_y += dy;
-    return 1;
-}
-
 static PyObject *
 _pg_polygon_vertices_aslist(pgPolygonBase *poly)
 {
@@ -316,7 +300,7 @@ _pg_polygon_subtype_new2(PyTypeObject *type, double *vertices,
     return (PyObject *)polygon_obj;
 }
 
-static PyObject *
+static pgPolygonObject *
 _pg_polygon_subtype_new2_copy(PyTypeObject *type, pgPolygonBase *polygon)
 {
     /* Copies an existing polygon type. Specifically it allocates new memory
@@ -345,7 +329,7 @@ _pg_polygon_subtype_new2_copy(PyTypeObject *type, pgPolygonBase *polygon)
     polygon_obj->polygon.c_x = polygon->c_x;
     polygon_obj->polygon.c_y = polygon->c_y;
 
-    return (PyObject *)polygon_obj;
+    return polygon_obj;
 }
 
 static PyObject *
@@ -455,36 +439,56 @@ pg_polygon_copy(pgPolygonObject *self, PyObject *_null)
     return pgPolygon_New(&self->polygon);
 }
 
+static void
+_pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
+{
+    if (!dx && !dy) {
+        return;
+    }
+
+    polygon->c_x += dx;
+    polygon->c_y += dy;
+
+    Py_ssize_t i2;
+    if (dx) {
+        if (dy) {
+            for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
+                polygon->vertices[i2] += dx;
+                polygon->vertices[i2 + 1] += dy;
+            }
+            return;
+        }
+        for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
+            polygon->vertices[i2] += dx;
+        }
+        return;
+    }
+
+    if (dy) {
+        for (i2 = 1; i2 < polygon->verts_num * 2; i2 += 2) {
+            polygon->vertices[i2] += dy;
+        }
+    }
+}
+
 static PyObject *
 pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
     double Dx, Dy;
+    pgPolygonObject *ret;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &Dx, &Dy)) {
         return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
-    double *verts = PyMem_New(double, self->polygon.verts_num * 2);
-    if (!verts) {
-        return NULL;
-    }
-    memcpy(verts, self->polygon.vertices,
-           self->polygon.verts_num * 2 * sizeof(double));
-
-    Py_ssize_t i2;
-    for (i2 = 0; i2 < self->polygon.verts_num * 2; i2 += 2) {
-        verts[i2] += Dx;
-        verts[i2 + 1] += Dy;
-    }
-
-    PyObject *tmp = _pg_polygon_subtype_new2_transfer(Py_TYPE(self), verts,
-                                                      self->polygon.verts_num);
-    if (!tmp) {
-        PyMem_Free(verts);
+    ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), &self->polygon);
+    if (!ret) {
         return NULL;
     }
 
-    return tmp;
+    _pg_move_polygon_helper(&ret->polygon, Dx, Dy);
+
+    return (PyObject *)ret;
 }
 
 static PyObject *
@@ -497,7 +501,7 @@ pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
-    _pg_move_polygon_helper(&(self->polygon), Dx, Dy);
+    _pg_move_polygon_helper(&self->polygon, Dx, Dy);
 
     Py_RETURN_NONE;
 }
@@ -520,6 +524,9 @@ pg_polygon_collidepoint(pgPolygonObject *self, PyObject *const *args,
 static void
 _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
 {
+    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
+        return;
+    }
     double c_x = poly->c_x, c_y = poly->c_y;
     Py_ssize_t i2, verts_num = poly->verts_num;
     double *vertices = poly->vertices;
@@ -596,14 +603,9 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
                      "Invalid angle parameter, must be numeric");
     }
 
-    if (!(ret = (pgPolygonObject *)_pg_polygon_subtype_new2_copy(
-              Py_TYPE(self), &self->polygon))) {
+    ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), &self->polygon);
+    if (!ret) {
         return NULL;
-    }
-
-    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
-        /* No rotation, return a copy */
-        return (PyObject *)ret;
     }
 
     _pg_rotate_polygon_helper(&ret->polygon, angle);
@@ -619,11 +621,6 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     if (!pg_DoubleFromObj(arg, &angle)) {
         return RAISE(PyExc_TypeError,
                      "Invalid angle parameter, must be numeric");
-    }
-
-    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
-        /* No rotation, return None immediately */
-        Py_RETURN_NONE;
     }
 
     _pg_rotate_polygon_helper(&self->polygon, angle);

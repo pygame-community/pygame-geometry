@@ -73,21 +73,41 @@ copy_tests = [
 ]
 
 move_tests = [
-    ("move 100 tuple int", "po100.move((10, 10))"),
-    ("move 100 tuple float", "po100.move((10.0, 10.0))"),
-    ("move 100 2 int", "po100.move(10, 10)"),
-    ("move 100 2 float", "po100.move(10.0, 10.0)"),
-    ("move 100 2 int", "po100.move(10, 10)"),
-    ("move 100 2 float", "po100.move(10.0, 10.0)"),
+    ("int (x-x)", "po100.move((10, 10))"),
+    ("int (0-x)", "po100.move((0, 10))"),
+    ("int (x-0)", "po100.move((10, 0))"),
+    ("int (0-0)", "po100.move((0, 0))"),
+    ("float (x-x)", "po100.move((10.0, 10.0))"),
+    ("float (0-x)", "po100.move((0.0, 10.0))"),
+    ("float (x-0)", "po100.move((10.0, 0.0))"),
+    ("float (0-0)", "po100.move((0.0, 0.0))"),
+    ("int x-x", "po100.move(10, 10)"),
+    ("int 0-x", "po100.move(0, 10)"),
+    ("int x-0", "po100.move(10, 0)"),
+    ("int 0-0", "po100.move(0, 0)"),
+    ("float x-x", "po100.move(10.0, 10.0)"),
+    ("float 0-x", "po100.move(0.0, 10.0)"),
+    ("float x-0", "po100.move(10.0, 0.0)"),
+    ("float 0-0", "po100.move(0.0, 0.0)"),
 ]
 
 move_ip_tests = [
-    ("move_ip 100 tuple int", "po100.move_ip((10, 10))"),
-    ("move_ip 100 tuple float", "po100.move_ip((10.0, 10.0))"),
-    ("move_ip 100 2 int", "po100.move_ip(10, 10)"),
-    ("move_ip 100 2 float", "po100.move_ip(10.0, 10.0)"),
-    ("move_ip 100 2 int", "po100.move_ip(10, 10)"),
-    ("move_ip 100 2 float", "po100.move_ip(10.0, 10.0)"),
+    ("int (x-x)", "po100.move_ip((10, 10))"),
+    ("int (0-x)", "po100.move_ip((0, 10))"),
+    ("int (x-0)", "po100.move_ip((10, 0))"),
+    ("int (0-0)", "po100.move_ip((0, 0))"),
+    ("float (x-x)", "po100.move_ip((10.0, 10.0))"),
+    ("float (0-x)", "po100.move_ip((0.0, 10.0))"),
+    ("float (x-0)", "po100.move_ip((10.0, 0.0))"),
+    ("float (0-0)", "po100.move_ip((0.0, 0.0))"),
+    ("int x-x", "po100.move_ip(10, 10)"),
+    ("int 0-x", "po100.move_ip(0, 10)"),
+    ("int x-0", "po100.move_ip(10, 0)"),
+    ("int 0-0", "po100.move_ip(0, 0)"),
+    ("float x-x", "po100.move_ip(10.0, 10.0)"),
+    ("float 0-x", "po100.move_ip(0.0, 10.0)"),
+    ("float x-0", "po100.move_ip(10.0, 0.0)"),
+    ("float 0-0", "po100.move_ip(0.0, 0.0)"),
 ]
 
 rotate_tests = [

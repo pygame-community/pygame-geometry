@@ -439,8 +439,8 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(repr(polygon), p_repr)
         self.assertEqual(polygon.__repr__(), p_repr)
 
-    def test_move(self):
-        """Checks whether polygon moved correctly."""
+    def test_move_xy(self):
+        """Checks whether polygon move function works correctly with an x-y pair."""
         poly = Polygon(_some_vertices.copy())
         center_x = poly.c_x
         center_y = poly.c_y
@@ -458,6 +458,46 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertNotEqual(poly.vertices, new_poly.vertices)
         self.assertEqual(poly.vertices, _some_vertices)
         self.assertAlmostEqual(new_poly.c_x, center_x + 10.0)
+        self.assertAlmostEqual(new_poly.c_y, center_y + 10.0)
+
+    def test_move_x(self):
+        """Checks whether polygon move function works correctly with an x component."""
+        poly = Polygon(_some_vertices.copy())
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.move(10.0, 0.0)
+        vertices = _some_vertices.copy()
+
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[0] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(vertices, new_poly.vertices)
+        self.assertNotEqual(poly.vertices, new_poly.vertices)
+        self.assertEqual(poly.vertices, _some_vertices)
+        self.assertAlmostEqual(new_poly.c_x, center_x + 10.0)
+        self.assertAlmostEqual(new_poly.c_y, center_y)
+
+    def test_move_y(self):
+        """Checks whether polygon move function works correctly with a y component."""
+        poly = Polygon(_some_vertices.copy())
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.move(0.0, 10.0)
+        vertices = _some_vertices.copy()
+
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[1] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(vertices, new_poly.vertices)
+        self.assertNotEqual(poly.vertices, new_poly.vertices)
+        self.assertEqual(poly.vertices, _some_vertices)
+        self.assertAlmostEqual(new_poly.c_x, center_x)
         self.assertAlmostEqual(new_poly.c_y, center_y + 10.0)
 
     def test_move_inplace(self):
@@ -491,12 +531,41 @@ class PolygonTypeTest(unittest.TestCase):
                 poly.move(*arg)
 
     def test_move_return_type(self):
+        """Tests whether the move function returns a Polygon type/subtype object"""
+        move_amounts = [
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, 0),
+            (1.0, 1.0),
+            (0.0, 1.0),
+            (1.0, 0.0),
+            (0.0, 0.0),
+            (-1, -1),
+            (0, -1),
+            (-1, 0),
+            (-1.0, -1.0),
+            (0.0, -1.0),
+            (-1.0, 0.0),
+        ]
+
         poly = Polygon(_some_vertices.copy())
 
-        self.assertIsInstance(poly.move(1, 1), Polygon)
+        for move_amount in move_amounts:
+            self.assertIsInstance(poly.move(*move_amount), Polygon)
+            self.assertIsInstance(poly.move(move_amount), Polygon)
 
-    def test_move_ip(self):
-        """Ensures that the vertices are moved correctly"""
+        class TestPolygon(Polygon):
+            pass
+
+        polysub = TestPolygon(_some_vertices.copy())
+
+        for move_amount in move_amounts:
+            self.assertIsInstance(polysub.move(*move_amount), TestPolygon)
+            self.assertIsInstance(polysub.move(move_amount), TestPolygon)
+
+    def test_move_ip_xy(self):
+        """Checks whether polygon move_ip function works correctly with an x-y pair."""
         vertices = _some_vertices.copy()
         poly = Polygon(vertices)
         center_x = poly.c_x
@@ -511,6 +580,40 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(poly.vertices, vertices)
         self.assertEqual(poly.c_x, center_x + 10.0)
+        self.assertEqual(poly.c_y, center_y + 10.0)
+
+    def test_move_ip_x(self):
+        """Checks whether polygon move_ip function works correctly with an x component."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.move_ip(10.0, 0.0)
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[0] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x + 10.0)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_move_ip_y(self):
+        """Checks whether polygon move_ip function works correctly with a y component."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.move_ip(0.0, 10.0)
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[1] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
         self.assertEqual(poly.c_y, center_y + 10.0)
 
     def test_move_ip_inplace(self):
@@ -528,9 +631,38 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.c_y, center_y)
 
     def test_move_ip_return_type(self):
+        """Tests whether the move_ip function returns a Polygon type/subtype object"""
+        move_amounts = [
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, 0),
+            (1.0, 1.0),
+            (0.0, 1.0),
+            (1.0, 0.0),
+            (0.0, 0.0),
+            (-1, -1),
+            (0, -1),
+            (-1, 0),
+            (-1.0, -1.0),
+            (0.0, -1.0),
+            (-1.0, 0.0),
+        ]
+
         poly = Polygon(_some_vertices.copy())
 
-        self.assertEqual(type(poly.move_ip(0, 0)), type(None))
+        for move_amount in move_amounts:
+            self.assertEqual(type(poly.move_ip(*move_amount)), type(None))
+            self.assertEqual(type(poly.move_ip(move_amount)), type(None))
+
+        class TestPolygon(Polygon):
+            pass
+
+        polysub = TestPolygon(_some_vertices.copy())
+
+        for move_amount in move_amounts:
+            self.assertEqual(type(polysub.move_ip(*move_amount)), type(None))
+            self.assertEqual(type(polysub.move_ip(move_amount)), type(None))
 
     def test_move_ip_invalid_args(self):
         """tests if the function correctly handles incorrect types as parameters"""
