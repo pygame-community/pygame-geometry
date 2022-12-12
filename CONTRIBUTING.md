@@ -16,7 +16,7 @@ See below to see how to build pygame_geometry from source. If you need help, tal
 
 ## Windows 10 / Windows 11
 1. Install Python 3.7+
-2. Install [Visual Studio Build Tools 2017](https://aka.ms/vs/15/release/vs_buildtools.exe) and make sure you mark `MSVC v140 - VS 2015 C++ build tools (v14.00)` with the installation
+2. Install [Visual Studio Community 2022](https://visualstudio.microsoft.com/vs/community/) or [Visual Studio Build Tools 2017](https://aka.ms/vs/15/release/vs_buildtools.exe) and make sure you mark `MSVC v140 - VS 2015 C++ build tools (v14.00)` with the installation
 3. Run `python -m pip install setuptools -U`
 4. Install the latest version of [git](https://gitforwindows.org/)
 5. Run `git clone https://github.com/novialriptide/pygame_geometry.git`

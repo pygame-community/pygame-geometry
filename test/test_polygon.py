@@ -14,6 +14,26 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
+def _rotate_vertices(poly, angle):
+    """Rotates the vertices of a polygon by the given angle."""
+    angle = math.radians(angle)
+    rotated_vertices = []
+
+    cos_a = math.cos(angle) - 1
+    sin_a = math.sin(angle)
+    for vertex in poly.vertices:
+        dx = vertex[0] - poly.c_x
+        dy = vertex[1] - poly.c_y
+        rotated_vertices.append(
+            (
+                vertex[0] + dx * cos_a - dy * sin_a,
+                vertex[1] + dx * sin_a + dy * cos_a,
+            )
+        )
+
+    return rotated_vertices
+
+
 class PolygonTypeTest(unittest.TestCase):
     def test_Construction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
@@ -538,6 +558,169 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.move_ip(*arg)
 
+    def test_rotate(self):
+        """Tests whether the polygon rotates correctly."""
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            90.0,
+            -90.0,
+            180.0,
+            -180.0,
+            360.0,
+            -360.0,
+            720.0,
+            -720.0,
+            23.31545,
+            -23.31545,
+        ]
+
+        for angle in angles:
+            poly = gen_poly.copy()
+            rotated_vertices = _rotate_vertices(poly, angle)
+            p2 = poly.rotate(angle)
+            for v1, v2 in zip(p2.vertices, rotated_vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_invalid_args(self):
+        """Tests whether the function can handle invalid parameter types correctly."""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector2(1, 1),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.rotate(value)
+
+    def test_rotate_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.rotate(*arg)
+
+    def test_rotate_return_type(self):
+        """Tests whether the function returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        angles = [-0.0, 0.0, 1.0, 90.0, 180.0, 360.0, 720.0, 23.31545, -23.31545]
+
+        for angle in angles:
+            self.assertIsInstance(poly.rotate(angle), Polygon)
+
+        class TestPolygon(Polygon):
+            pass
+
+        poly2 = TestPolygon(_some_vertices.copy())
+        for angle in angles:
+            self.assertIsInstance(poly2.rotate(angle), TestPolygon)
+
+    def test_rotate_ip(self):
+        """Tests whether the polygon rotates correctly."""
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [
+            0.0,
+            -0.0,
+            1.0,
+            -1.0,
+            90.0,
+            -90.0,
+            180.0,
+            -180.0,
+            360.0,
+            -360.0,
+            720.0,
+            -720.0,
+            23.31545,
+            -23.31545,
+        ]
+
+        for angle in angles:
+            poly = gen_poly.copy()
+            rotated_vertices = _rotate_vertices(poly, angle)
+            poly.rotate_ip(angle)
+            for v1, v2 in zip(poly.vertices, rotated_vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_ip_conjugate(self):
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [-90, -180, -270]
+
+        for angle in angles:
+
+            poly1 = gen_poly.copy()
+            poly1.rotate_ip(angle)
+
+            conjugate_angle = angle + 360
+            poly2 = gen_poly.copy()
+            poly2.rotate_ip(conjugate_angle)
+
+            for v1, v2 in zip(poly1.vertices, poly2.vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_conjugate(self):
+
+        vertices = _some_vertices.copy()
+        gen_poly = Polygon(vertices)
+
+        angles = [-90, -180, -270]
+
+        for angle in angles:
+
+            poly1 = gen_poly.copy()
+            po1 = poly1.rotate(angle)
+
+            conjugate_angle = angle + 360
+            poly2 = gen_poly.copy()
+            po2 = poly2.rotate(conjugate_angle)
+
+            for v1, v2 in zip(po1.vertices, po2.vertices):
+                self.assertAlmostEqual(v1[0], v2[0])
+                self.assertAlmostEqual(v1[1], v2[1])
+
+    def test_rotate_ip_invalid_args(self):
+        """Tests whether the function can handle invalid parameter types correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector2(1, 1),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(value)
+
     def test_collidepoint(self):
         """Tests whether the collidepoint method works correctly."""
         poly = Polygon(_some_vertices.copy())
@@ -580,6 +763,57 @@ class PolygonTypeTest(unittest.TestCase):
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 poly.collidepoint(value)
+
+    def test_rotate_ip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        with self.assertRaises(TypeError):
+            poly.rotate_ip()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(*arg)
+
+    def test_rotate_ip_return_type(self):
+        """Tests whether the function returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertEqual(type(poly.rotate_ip(0.0)), type(None))
+        self.assertEqual(type(poly.rotate_ip(1.0)), type(None))
+        self.assertEqual(type(poly.rotate_ip(-1.0)), type(None))
+
+    def test_rotate_ip_inplace(self):
+        """Ensures that rotating the polygon by 0 degrees will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.rotate_ip(0)
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_rotate_inplace(self):
+        """Ensures that rotating the polygon by 0 degrees will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.rotate(0)
+
+        self.assertEqual(new_poly.vertices, poly.vertices)
+        self.assertEqual(new_poly.c_x, poly.c_x)
+        self.assertEqual(new_poly.c_y, poly.c_y)
+
+        self.assertEqual(new_poly.vertices, vertices)
+        self.assertEqual(new_poly.c_x, center_x)
+        self.assertEqual(new_poly.c_y, center_y)
 
     def test_collidepoint_argnum(self):
         """Tests whether the collidepoint method correctly handles invalid parameter

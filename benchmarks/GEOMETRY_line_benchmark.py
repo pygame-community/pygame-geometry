@@ -78,9 +78,30 @@ GLOB = {
     ],
 }
 
-creation_tests = [
-    ("Line int", "Line(0, 0, 10, 10)"),
-    ("Line float", "Line(0.0, 0.0, 10.0, 10.0)"),
+instatiation_tests = [
+    ("Line", "Line(l1)"),
+    ("4 int", "Line(0, 0, 10, 10)"),
+    ("4 float", "Line(0.0, 0.0, 10.0, 10.0)"),
+    ("2 tuple int", "Line((0, 0), (10, 10))"),
+    ("2 tuple float", "Line((0.0, 0.0), (10.0, 10.0))"),
+    ("1 tuple int", "Line((0, 0, 10, 10))"),
+    ("1 tuple float", "Line((0.0, 0.0, 10.0, 10.0))"),
+    ("1 tuple 2 sub tuple int", "Line(((0, 0), (10, 10)))"),
+    ("1 tuple 2 sub tuple float", "Line(((0.0, 0.0), (10.0, 10.0)))"),
+    ("2 list int", "Line([0, 0], [10, 10])"),
+    ("2 list float", "Line([0.0, 0.0], [10.0, 10.0])"),
+    ("1 list int", "Line([0, 0, 10, 10])"),
+    ("1 list float", "Line([0.0, 0.0, 10.0, 10.0])"),
+    ("1 list 2 sub list int", "Line([[0, 0], [10, 10]])"),
+    ("1 list 2 sub list float", "Line([[0.0, 0.0], [10.0, 10.0]])"),
+    ("1 list 2 sub tuple int", "Line([(0, 0), (10, 10)])"),
+    ("1 list 2 sub tuple float", "Line([(0.0, 0.0), (10.0, 10.0)])"),
+    ("1 tuple 2 sub list int", "Line(([0, 0], [10, 10]))"),
+    ("1 tuple 2 sub list float", "Line(([0.0, 0.0], [10.0, 10.0]))"),
+    ("4 int tuple inside tuple", "Line(((0, 0, 10, 10),))"),
+    ("4 float tuple inside tuple", "Line(((0.0, 0.0, 10.0, 10.0),))"),
+    ("4 int list inside list", "Line([[0, 0, 10, 10]])"),
+    ("4 float list inside list", "Line([[0.0, 0.0, 10.0, 10.0]])"),
 ]
 
 copy_tests = [
@@ -246,7 +267,7 @@ is_perpendicular_tests = [
 # If you want to add more tests to a suite, just add them to the list
 # If you want to remove or skip tests from a suite, just remove or comment them out
 GROUPS = [
-    ("Creation", creation_tests),
+    ("Instatiation", instatiation_tests),
     ("Attribute Getters", getters_tests),
     ("Attribute Setters", setters_tests),
     ("Copy", copy_tests),
