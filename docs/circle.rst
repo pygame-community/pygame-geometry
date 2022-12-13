@@ -23,8 +23,10 @@
         ((x, y), radius)
         (x, y, radius)
 
-    **You cannot create degenerate circles(circles with a radius of 0 or less).
-    If you try, the `Circle` will not be created and an error will be raised.**
+    It is important to note that you cannot create degenerate circles, which are circles with
+    a radius of 0 or less. If you try to create such a circle, the `Circle` object will not be
+    created and an error will be raised. This is because a circle with a radius of 0 or
+    less is not a valid geometric object.
 Circle Attributes
 ------
     The `Circle` class has both virtual and non-virtual attributes. Non-virtual attributes
@@ -112,8 +114,11 @@ Circle Methods
         | :sg:`move(x, y) -> Circle`
         | :sg:`move(Vector2) -> Circle`
 
-        Returns a new Circle that is moved by the given offset. The original Circle is
-        not modified.
+        The `move` method allows you to create a new `Circle` object that is moved by a given
+        offset from the original `Circle`. This is useful if you want to move a `Circle` without
+        modifying the original. The move method takes either a tuple of (x, y) coordinates,
+        two separate x and y coordinates, or a `Vector2` object as its argument, and returns
+        a new `Circle` object with the updated position.
 
         .. note::
             This method is equivalent(behaviour wise) to the following code:
@@ -129,8 +134,9 @@ Circle Methods
         | :sg:`move_ip(x, y) -> None`
         | :sg:`move_ip(Vector2) -> None`
 
-        Moves the circle by the given offset. The original Circle is modified.
-        Always returns None.
+        The `move_ip` method is similar to the move method, but it moves the `Circle` in place,
+        modifying the original `Circle` object. This method takes the same types of arguments
+        as move, and it always returns None.
 
         .. note::
             This method is equivalent(behaviour wise) to the following code:
@@ -146,8 +152,9 @@ Circle Methods
         | :sg:`update((x, y), radius) -> None`
         | :sg:`update(x, y, radius) -> None`
 
-        Sets the position and radius of the circle, in place. The original Circle is
-        modified. Always returns None.
+        The `update` method allows you to set the position and radius of a `Circle` object in
+        place. This method takes either a tuple of (x, y) coordinates, two separate x and
+        y coordinates, and a radius as its arguments, and it always returns `None`.
 
         .. note::
             This method is equivalent(behaviour wise) to the following code:
@@ -163,8 +170,15 @@ Circle Methods
         | :sl:`returns the smallest pygame.Rect object that contains the circle`
         | :sg:`as_rect() -> Rect`
 
-        Returns a `pygame.Rect` object that contains the circle. The Rect object
-        will be the smallest rectangle that contains the circle.
+        The `as_rect` method returns a `pygame.Rect` object that represents the smallest
+        rectangle that completely contains the `Circle` object. This means that the `Rect`
+        object returned by as_rect will have dimensions such that it completely encloses
+        the `Circle`, with no part of the `Circle` extending outside of the `Rect`.
+
+        .. note::
+            This method is equivalent(behaviour wise) to the following code:
+            ::
+                Rect(circle.x - circle.r, circle.y - circle.r, circle.r * 2, circle.r * 2)
 
       .. ## Circle.as_rect ##
 
@@ -175,7 +189,10 @@ Circle Methods
         | :sg:`collidepoint(x, y) -> bool`
         | :sg:`collidepoint(Vector2) -> bool`
 
-        Returns True if the point is inside the circle(edge included), False otherwise.
+        The `collidepoint` method tests whether a given point is inside the `Circle`
+        (including the edge of the `Circle`). It takes a tuple of (x, y) coordinates, two
+        separate x and y coordinates, or a `Vector2` object as its argument, and returns
+        `True` if the point is inside the `Circle`, `False` otherwise.
 
       .. ## Circle.collidepoint ##
 
@@ -186,11 +203,14 @@ Circle Methods
         | :sg:`collidecircle(x, y, radius) -> bool`
         | :sg:`collidecircle((x, y), radius) -> bool`
 
-        Returns `True` if any portion of the two circles overlap, `False` otherwise.
+        The `collidecircle` method tests whether two `Circle` objects overlap. It takes either
+        a `Circle` object, a tuple of (x, y) coordinates and a radius, or separate x and y
+        coordinates and a radius as its argument, and returns `True` if any portion of the two
+        `Circle` objects overlap, `False` otherwise.
 
         .. note::
-            If collidecircle is called with a circle that is the same as the circle
-            it is called on, it will always return True.
+            If this method is called with a `Circle` object that is the same as the `Circle`
+            it is called on, it will always return `True`.
 
       .. ## Circle.collidecircle ##
 
@@ -201,7 +221,10 @@ Circle Methods
         | :sg:`collideline((x1, y1), (x2, y2)) -> bool`
         | :sg:`collideline(x1, y1, x2, y2) -> bool`
 
-        Returns True if any portion of the line overlaps with the circle, False otherwise.
+        The `collideline` method tests whether a given line intersects the `Circle`. It takes
+        either a `Line` object, a tuple of two (x, y) coordinate pairs representing the
+        endpoints of the line, or four separate x and y coordinates as its argument.
+        Returns `True` if any portion of the line overlaps with the `Circle`, `False` otherwise.
 
       .. ## Circle.collideline ##
 
@@ -213,7 +236,10 @@ Circle Methods
         | :sg:`colliderect(x, y, width, height) -> bool`
         | :sg:`colliderect((x, y), (width, height)) -> bool`
 
-        Returns True if any portion of the rectangle overlaps with the circle, False otherwise.
+        The `colliderect` method tests whether a given rectangle intersects the `Circle`. It
+        takes either a `Rect` object, a tuple of (x, y, width, height) coordinates, or separate
+        x, y coordinates and width, height as its argument. Returns `True` if any portion
+        of the rectangle overlaps with the `Circle`, `False` otherwise.
 
       .. ## Circle.colliderect ##
 
@@ -226,16 +252,21 @@ Circle Methods
         | :sg:`collideswith((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
-        Returns `True` if any portion of the shape or point overlaps with the circle,
-        `False` otherwise. This is a general alternative to the collision problem as it can
-        be used to test for collisions with any shape or point. The shape can be a
-        Line, Circle, or Rect. The point can be a tuple or list containing the x and y
-        coordinates of the point or a Vector2.
+        The `collideswith` method tests whether a given shape or point collides (overlaps)
+        with a `Circle` object. The function takes in a single argument, which can be a
+        `Line`, `Circle`, `Rect`, `Polygon`, tuple or list containing the x and y coordinates
+        of a point, or a `Vector2` object. The function returns a boolean value of `True`
+        if there is any overlap between the shape or point and the `Circle` object, or
+        `False` if there is no overlap.
 
         .. note::
-            If a shape is passed it must be an actual single shape object. It cannot be a
-            tuple or list of coordinates that represent the shape. This is because there
-            is no way to determine what type of shape the coordinates represent.
+            It is important to note that the shape must be an actual shape object, such as
+            a `Line`, `Circle`, or `Rect` instance. It is not possible to pass a tuple
+            or list of coordinates representing the shape as an argument(except for a point),
+            because the type of shape represented by the coordinates cannot be determined.
+            For example, a tuple with the format (a, b, c, d) could represent either a `Line`
+            or a Rect object, and there is no way to determine which is which without explicitly
+            passing a `Line` or `Rect` object as an argument.
 
       .. ## Circle.collideswith ##
 
@@ -249,16 +280,21 @@ Circle Methods
         | :sg:`contains((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
-        Returns `True` if the shape or point is completely inside the circle, `False`
-        otherwise. This is a general alternative to the containment problem as it can
-        be used to test for containment of any shape or point. The shape can be a
-        `Line`, `Circle`, `Rect` or `Polygon`. The point can be a tuple or list
-        containing the `x` and `y` coordinates of the point or a Vector2.
+        The `contains` method tests whether a given shape or point is completely contained
+        within a `Circle` object. The function takes in a single argument, which can be a
+        `Line`, `Circle`, `Rect`, `Polygon`, tuple or list containing the x and y coordinates
+        of a point, or a `Vector2` object. The function returns a boolean value of `True`
+        if the shape or point is completely contained within the `Circle` object, `False`
+        otherwise.
 
         .. note::
-            If a shape is passed it must be an actual single shape object. It cannot be a
-            tuple or list of coordinates that represent the shape. This is because there
-            is no way to determine what type of shape the coordinates represent.
+            It is important to note that the shape must be an actual shape object, such as
+            a `Line`, `Circle`, `Rect`, or `Polygon` instance. It is not possible to pass a tuple
+            or list of coordinates representing the shape as an argument(except for a point),
+            because the type of shape represented by the coordinates cannot be determined.
+            For example, a tuple with the format (a, b, c, d) could represent either a `Line`
+            or a `Rect` object, and there is no way to determine which is which without
+            explicitly passing a `Line` or `Rect` object as an argument.
 
       .. ## Circle.contains ##
 
@@ -267,6 +303,8 @@ Circle Methods
         | :sl:`returns a copy of the circle`
         | :sg:`copy() -> Circle`
 
-        Returns a new `Circle` having the same position and radius as the original.
+        The `copy` method returns a new `Circle` object having the same position and radius
+        as the original `Circle` object. The function takes no arguments and returns the
+        new `Circle` object.
 
       .. ## Circle.copy ##
