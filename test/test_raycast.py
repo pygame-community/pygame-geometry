@@ -1,6 +1,6 @@
 import unittest
 
-from geometry import raycast, Circle, Line
+from geometry import raycast, Circle, Line, multiraycast
 from pygame import Rect
 import math
 
@@ -765,6 +765,138 @@ class RaycastTest(unittest.TestCase):
             else:
                 self.assertAlmostEqual(output[0], expected[0])
                 self.assertAlmostEqual(output[1], expected[1])
+
+    def test_multiraycast_with_no_rays(self):
+        """Test that multiraycast returns an empty list when no rays are given."""
+        rays = []
+        colliders = [Line((0, 0), (1, 0))]
+
+        self.assertEqual([], multiraycast(rays, colliders))
+
+    def test_multiraycast_with_no_colliders(self):
+        """Test that multiraycast returns None for all rays when there are no colliders."""
+        rays = [Line((0, 0), (1, 0))]
+        colliders = []
+
+        self.assertEqual(multiraycast(rays, colliders), [None])
+
+    def test_multiraycast_with_no_colliders_and_no_rays(self):
+        """Test that multiraycast returns an empty list when there are no rays."""
+        rays = []
+        colliders = []
+
+        self.assertEqual(multiraycast(rays, colliders), [])
+
+    def test_multiraycast_with_one_ray_and_one_collider(self):
+        """Test that a single ray and collider returns the correct result."""
+        rays = [Line((0, 0), (1, 0))]
+        colliders = [Line((0, 0), (1, 0))]
+
+        self.assertEqual(multiraycast(rays, colliders), [raycast(rays[0], colliders)])
+
+    def test_multiraycast_with_lines(self):
+        """Test that multiraycast returns the correct results for a list of lines."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multiraycast_with_rects(self):
+        """Test that multiraycast returns the correct results for a list of rects."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Rect(0, 1, 33, 310),
+            Rect(0, 32, 331, 12),
+            Rect(0, 213, 31, 1),
+            Rect(33, 0, 22, 1),
+            Rect(31, 9, 8, 76),
+            Rect(0, 99, 33, 1),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multiraycast_with_circles(self):
+        """Test that multiraycast returns the correct results for a list of circles."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Circle(0, 1, 33),
+            Circle(0, 32, 331),
+            Circle(0, 213, 31),
+            Circle(33, 0, 22),
+            Circle(31, 9, 8),
+            Circle(0, 99, 33),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multicast_with_rays_as_tuples(self):
+        """Test that multiraycast returns the correct results for a list of tuples."""
+        rays = [
+            ((0, 0), (1, 0)),
+            ((0, 0), (1, 1)),
+            ((0, 0), (0, 1)),
+            ((0, 0), (-1, 1)),
+            ((0, 0), (-1, 0)),
+            ((0, 0), (-1, -1)),
+            ((0, 0), (0, -1)),
+            ((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
 
 
 if __name__ == "__main__":
