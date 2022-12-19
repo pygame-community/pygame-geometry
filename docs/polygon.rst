@@ -162,13 +162,17 @@ Polygon Methods
 
       .. ## Polygon.copy ##
 
-    .. method:: rotate <<NOT YET IMPLEMENTED>>
+    .. method:: rotate
 
         | :sl:`rotates the polygon by a given angle`
         | :sg:`rotate(angle) -> Polygon`
 
         Returns a new Polygon that is rotated by the given angle (in degrees). The original
-        Polygon is not modified.
+        Polygon is not modified. The rotation is done around the center of the `Polygon`.
+
+        .. note::
+            Rotating the polygon by positive angles will rotate it clockwise, while
+            rotating it by negative angles will rotate it counter-clockwise.
 
         .. note::
             Keep in mind that the more vertices the polygon has, the more CPU time it will
@@ -176,13 +180,18 @@ Polygon Methods
 
       .. ## Polygon.rotate ##
 
-    .. method:: rotate_ip <<NOT YET IMPLEMENTED>>
+    .. method:: rotate_ip
 
         | :sl:`rotates the polygon by a given angle`
         | :sg:`rotate_ip(angle) -> None`
 
         Rotates the Polygon by the given angle (in degrees). The original Polygon
-        is modified. Always returns None.
+        is modified. Always returns None. The rotation is done around the center of the
+        `Polygon`.
+
+        .. note::
+            Rotating the polygon by positive angles will rotate it clockwise, while
+            rotating it by negative angles will rotate it counter-clockwise.
 
         .. note::
             Keep in mind that the more vertices the polygon has, the more CPU time it will
