@@ -5,6 +5,10 @@ from pygame import Rect
 import math
 
 
+def dist(p1, p2):
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+
 class RaycastTest(unittest.TestCase):
     def test_raycast_errors(self):
         with self.assertRaises(TypeError):
@@ -50,7 +54,7 @@ class RaycastTest(unittest.TestCase):
         ]
 
         for x in startendpos:
-            result = raycast(x[0], x[1], math.dist(x[0], x[1]), collisions)
+            result = raycast(x[0], x[1], dist(x[0], x[1]), collisions)
             self.assertAlmostEqual(result[0], x[2][0])
             self.assertAlmostEqual(result[1], x[2][1])
 
