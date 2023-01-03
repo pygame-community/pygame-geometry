@@ -1113,7 +1113,7 @@ class PolygonTypeTest(unittest.TestCase):
 
         poly.vertices = new_vertices
 
-        self.assertEqual(poly.center, (2.5, 2.5))
+        self.assertEqual((2.5, 2.5), poly.center)
 
     def test_assign_vertices_center_Vector2(self):
         """Checks whether the center is updated correctly."""
@@ -1122,7 +1122,7 @@ class PolygonTypeTest(unittest.TestCase):
 
         poly.vertices = new_vertices
 
-        self.assertEqual(poly.center, (2.5, 2.5))
+        self.assertEqual((2.5, 2.5), poly.center)
 
 
 if __name__ == "__main__":

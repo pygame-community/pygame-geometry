@@ -812,10 +812,10 @@ pg_polygon_set_vertices(pgPolygonObject *self, PyObject *value, void *closure)
 {
     PyObject **new_vertices = NULL;
     Py_ssize_t i, len;
-    double accum_x = 0.0;
-    double accum_y = 0.0;
 
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
+
+    pgPolygonBase *s_poly = &self->polygon;
 
     if (!PySequence_FAST_CHECK(value)) {
         PyErr_SetString(PyExc_TypeError, "vertices must be a sequence");
@@ -832,14 +832,17 @@ pg_polygon_set_vertices(pgPolygonObject *self, PyObject *value, void *closure)
 
     new_vertices = PySequence_Fast_ITEMS(value);
 
-    if (self->polygon.verts_num != len) {
-        PyMem_Resize(self->polygon.vertices, double, len * 2);
-        if (!self->polygon.vertices) {
+    if (s_poly->verts_num != len) {
+        PyMem_Resize(s_poly->vertices, double, len * 2);
+        if (!s_poly->vertices) {
             PyErr_NoMemory();
             return -1;
         }
-        self->polygon.verts_num = len;
+        s_poly->verts_num = len;
     }
+
+    s_poly->c_x = 0.0;
+    s_poly->c_y = 0.0;
 
     for (i = 0; i < len; i++) {
         double x, y;
@@ -849,15 +852,16 @@ pg_polygon_set_vertices(pgPolygonObject *self, PyObject *value, void *closure)
                 "Invalid coordinate, must be a sequence of 2 numbers");
             return -1;
         }
-        self->polygon.vertices[i * 2] = x;
-        self->polygon.vertices[i * 2 + 1] = y;
-        accum_x += x;
-        accum_y += y;
+        s_poly->vertices[i * 2] = x;
+        s_poly->vertices[i * 2 + 1] = y;
+        s_poly->c_x += x;
+        s_poly->c_y += y;
     }
 
-    self->polygon.c_x = accum_x / len;
-    self->polygon.c_y = accum_y / len;
-    self->polygon.verts_num = len;
+    s_poly->verts_num = len;
+
+    s_poly->c_x /= len;
+    s_poly->c_y /= len;
 
     return 0;
 }
