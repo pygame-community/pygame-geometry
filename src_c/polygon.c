@@ -100,9 +100,9 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
      * initialized. */
     Py_ssize_t length;
 
-    /*If the Python object is already a pgPolygonBase object, copy the
-     relevant information from that object to the init_poly object into
-        the new memory. */
+    /* If the Python object is already a pgPolygonBase object, copy the
+     * relevant information from that object to the init_poly object into
+     * the new memory. */
     if (pgPolygon_Check(obj)) {
         pgPolygonBase *poly = &pgPolygon_AsPolygon(obj);
 
@@ -286,6 +286,11 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
                     return 0;
                 }
             }
+        }
+
+        if (i < 3) {
+            Py_DECREF(iter);
+            return 0;
         }
 
         if (i < currently_allocated) {

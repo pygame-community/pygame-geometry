@@ -73,8 +73,14 @@ class PolygonTypeTest(unittest.TestCase):
     def test_construction_invalid_polygon(self):
         """Checks whether the constructor works correctly with invalid polygons"""
         invalid_polygons = (
+            [],
             [p1],  # 1
             [p1, p2],  # 2
+            (p1,),  # 1
+            (p1, p2),  # 2
+            (p for p in []),
+            (p for p in [p1]),  # generator
+            (p for p in [p1, p2]),  # generator
         )
 
         for polygon in invalid_polygons:
@@ -161,6 +167,68 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
+
+    def test_construction_generator(self):
+        """Checks whether the constructor works correctly with a generator object"""
+
+        def generator():
+            yield p1
+            yield p2
+            yield p3
+            yield p4
+
+        po = Polygon(generator())
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterator(self):
+        """Checks whether the constructor works correctly with an iterator object"""
+
+        class Iterator:
+            def __init__(self, points):
+                self.points = points
+                self.index = 0
+
+            def __next__(self):
+                if self.index >= len(self.points):
+                    raise StopIteration
+                result = self.points[self.index]
+                self.index += 1
+                return result
+
+            def __iter__(self):
+                return self
+
+        it = Iterator([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterable(self):
+        """Checks whether the constructor works correctly with an object that implements the __iter__ method"""
+
+        it = iter([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon(p for p in [p1, p2, p3, p4])
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression2(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon((p for p in [p1, p2, p3, p4]))
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_list_comprehension(self):
+        """Checks whether the constructor works correctly with a list comprehension"""
+        po = Polygon([p for p in [p1, p2, p3, p4]])
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
 
     def test_perimeter(self):
         def get_perimeter(poly: geometry.Polygon) -> float:
