@@ -224,12 +224,6 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(po.vertices, [p1, p2, p3, p4])
 
-    def test_construction_list_comprehension(self):
-        """Checks whether the constructor works correctly with a list comprehension"""
-        po = Polygon([p for p in [p1, p2, p3, p4]])
-
-        self.assertEqual(po.vertices, [p1, p2, p3, p4])
-
     def test_perimeter(self):
         def get_perimeter(poly: geometry.Polygon) -> float:
             """Return the perimeter of the polygon."""
