@@ -523,6 +523,8 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
 {
     double x, y;
     int vertex_index;
+    pgPolygonBase *polygon = &self->polygon;
+    Py_ssize_t verts_num = polygon->verts_num;
 
     if (nargs != 2) {
         return RAISE(PyExc_TypeError,
@@ -537,35 +539,35 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "Invalid vertex coordinates");
     }
 
-    PyMem_Resize(self->polygon.vertices, double,
-                 self->polygon.verts_num * 2 + 2);
+    PyMem_Resize(polygon->vertices, double, verts_num * 2 + 2);
 
-    if (!self->polygon.vertices) {
+    if (!polygon->vertices) {
         return PyErr_NoMemory();
     }
 
     if (vertex_index < 0) {
-        vertex_index += self->polygon.verts_num + 1;
+        vertex_index += verts_num + 1;
         if (vertex_index < 0) {
             vertex_index = 0;
         }
     }
-    else if (vertex_index > self->polygon.verts_num) {
-        vertex_index = self->polygon.verts_num;
+    else if (vertex_index > verts_num) {
+        vertex_index = verts_num;
     }
 
-    if (vertex_index < self->polygon.verts_num) {
-        memmove(self->polygon.vertices + vertex_index * 2 + 2,
-                self->polygon.vertices + vertex_index * 2,
-                (self->polygon.verts_num - vertex_index) * 2 * sizeof(double));
+    if (vertex_index < verts_num) {
+        memmove(polygon->vertices + vertex_index * 2 + 2,
+                polygon->vertices + vertex_index * 2,
+                (verts_num - vertex_index) * 2 * sizeof(double));
     }
 
-    self->polygon.vertices[vertex_index * 2] = x;
-    self->polygon.vertices[vertex_index * 2 + 1] = y;
+    polygon->vertices[vertex_index * 2] = x;
+    polygon->vertices[vertex_index * 2 + 1] = y;
 
-    self->polygon.verts_num++;
+    polygon->c_x = (polygon->c_x * verts_num + x) / (verts_num + 1);
+    polygon->c_y = (polygon->c_y * verts_num + y) / (verts_num + 1);
 
-    _set_polygon_center_coords(&self->polygon);
+    polygon->verts_num++;
 
     Py_RETURN_NONE;
 }
@@ -574,8 +576,10 @@ static PyObject *
 pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
 {
     int vertex_index;
+    pgPolygonBase *polygon = &self->polygon;
+    Py_ssize_t verts_num = polygon->verts_num;
 
-    if (self->polygon.verts_num == 3) {
+    if (verts_num == 3) {
         return RAISE(PyExc_IndexError,
                      "cannot remove a vertex from a triangle");
     }
@@ -585,32 +589,35 @@ pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
     }
 
     if (vertex_index < 0) {
-        vertex_index += self->polygon.verts_num;
+        vertex_index += verts_num;
         if (vertex_index < 0) {
             vertex_index = 0;
         }
     }
-    else if (vertex_index >= self->polygon.verts_num) {
+    else if (vertex_index >= verts_num) {
         return RAISE(PyExc_IndexError, "vertex index out of range");
     }
 
-    if (vertex_index < self->polygon.verts_num) {
-        memmove(
-            self->polygon.vertices + vertex_index * 2,
-            self->polygon.vertices + vertex_index * 2 + 2,
-            (self->polygon.verts_num - vertex_index - 1) * 2 * sizeof(double));
+    polygon->c_x =
+        (polygon->c_x * verts_num - polygon->vertices[vertex_index * 2]) /
+        (verts_num - 1);
+    polygon->c_y =
+        (polygon->c_y * verts_num - polygon->vertices[vertex_index * 2 + 1]) /
+        (verts_num - 1);
+
+    if (vertex_index < verts_num) {
+        memmove(polygon->vertices + vertex_index * 2,
+                polygon->vertices + vertex_index * 2 + 2,
+                (verts_num - vertex_index - 1) * 2 * sizeof(double));
     }
 
-    PyMem_Resize(self->polygon.vertices, double,
-                 self->polygon.verts_num * 2 - 2);
+    PyMem_Resize(polygon->vertices, double, verts_num * 2 - 2);
 
-    if (!self->polygon.vertices) {
+    if (!polygon->vertices) {
         return PyErr_NoMemory();
     }
 
-    self->polygon.verts_num--;
-
-    _set_polygon_center_coords(&self->polygon);
+    polygon->verts_num--;
 
     Py_RETURN_NONE;
 }
@@ -619,8 +626,10 @@ static PyObject *
 pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
 {
     int vertex_index = -1;
+    pgPolygonBase *polygon = &self->polygon;
+    Py_ssize_t verts_num = polygon->verts_num;
 
-    if (self->polygon.verts_num == 3) {
+    if (verts_num == 3) {
         return RAISE(PyExc_IndexError, "cannot pop a vertex from a triangle");
     }
 
@@ -629,39 +638,42 @@ pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
     }
 
     if (vertex_index < 0) {
-        vertex_index += self->polygon.verts_num;
+        vertex_index += verts_num;
         if (vertex_index < 0) {
             vertex_index = 0;
         }
     }
-    else if (vertex_index >= self->polygon.verts_num) {
+    else if (vertex_index >= verts_num) {
         return RAISE(PyExc_IndexError, "vertex index out of range");
     }
 
+    polygon->c_x =
+        (polygon->c_x * verts_num - polygon->vertices[vertex_index * 2]) /
+        (verts_num - 1);
+    polygon->c_y =
+        (polygon->c_y * verts_num - polygon->vertices[vertex_index * 2 + 1]) /
+        (verts_num - 1);
+
     PyObject *vertex =
-        pg_TupleFromDoublePair(self->polygon.vertices[vertex_index * 2],
-                               self->polygon.vertices[vertex_index * 2 + 1]);
+        pg_TupleFromDoublePair(polygon->vertices[vertex_index * 2],
+                               polygon->vertices[vertex_index * 2 + 1]);
     if (!vertex) {
         return NULL;
     }
 
-    if (vertex_index < self->polygon.verts_num) {
-        memmove(
-            self->polygon.vertices + vertex_index * 2,
-            self->polygon.vertices + vertex_index * 2 + 2,
-            (self->polygon.verts_num - vertex_index - 1) * 2 * sizeof(double));
+    if (vertex_index < verts_num) {
+        memmove(polygon->vertices + vertex_index * 2,
+                polygon->vertices + vertex_index * 2 + 2,
+                (verts_num - vertex_index - 1) * 2 * sizeof(double));
     }
 
-    PyMem_Resize(self->polygon.vertices, double,
-                 self->polygon.verts_num * 2 - 2);
+    PyMem_Resize(polygon->vertices, double, verts_num * 2 - 2);
 
-    if (!self->polygon.vertices) {
+    if (!polygon->vertices) {
         return PyErr_NoMemory();
     }
 
-    self->polygon.verts_num--;
-
-    _set_polygon_center_coords(&self->polygon);
+    polygon->verts_num--;
 
     return vertex;
 }

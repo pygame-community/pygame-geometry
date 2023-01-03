@@ -1009,7 +1009,7 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(vertices)
         poly.pop_vertex(1)
 
-        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+        self.assertEqual((14.736666666666665, -4.666666666666667), poly.center)
 
     def test_remove_vertex_center(self):
         """Checks whether the center is updated correctly."""
@@ -1019,7 +1019,7 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(vertices)
         poly.remove_vertex(1)
 
-        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+        self.assertEqual((14.736666666666665, -4.666666666666667), poly.center)
 
         vertices = _some_vertices.copy()
         vertices.append(Vector2(4.21, -34.0))
@@ -1027,7 +1027,7 @@ class PolygonTypeTest(unittest.TestCase):
         poly = Polygon(vertices)
         poly.remove_vertex(1)
 
-        self.assertEqual(poly.center, (14.736666666666666, -4.666666666666667))
+        self.assertEqual((14.736666666666665, -4.666666666666667), poly.center)
 
     def test_insert_vertex_center(self):
         """Checks whether the center is updated correctly."""
