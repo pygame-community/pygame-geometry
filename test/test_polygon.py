@@ -49,6 +49,10 @@ class PolygonTypeTest(unittest.TestCase):
             Vector2(1, 1),
             [p1, p2, p3, 32],
             [p1, p2, "(1, 1)"],
+            (p1, p2, "(1, 1)"),
+            (p1, p2, 32),
+            (p for p in [p1, p2, 32]),
+            (p for p in [p1, p2, "(1, 1)"]),
         )
 
         for value in invalid_types:
