@@ -14,7 +14,7 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
-def _rotate_vertices(poly, angle):
+def _rotate_vertices(poly: Polygon, angle: float):
     """Rotates the vertices of a polygon by the given angle."""
     angle = math.radians(angle)
     rotated_vertices = []
@@ -34,7 +34,7 @@ def _rotate_vertices(poly, angle):
     return rotated_vertices
 
 
-def _calculate_center(poly):
+def _calculate_center(poly: Polygon):
     """Calculates the center of a polygon."""
     x = 0
     y = 0
