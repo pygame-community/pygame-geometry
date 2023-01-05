@@ -123,6 +123,21 @@ rotate_ip_tests = [
     ("-12", "po100.rotate_ip(-12.0)"),
 ]
 
+collidepoint_tests = [
+    ("C int 2", "po100.collidepoint((0, 0))"),
+    ("NC int 2", "po100.collidepoint((0, 1000))"),
+    ("C float 2", "po100.collidepoint((0.0, 0.0))"),
+    ("NC float 2", "po100.collidepoint((0.0, 1000.0))"),
+    ("C int tuple", "po100.collidepoint((0, 0))"),
+    ("NC int tuple", "po100.collidepoint((0, 1000))"),
+    ("C float tuple", "po100.collidepoint((0.0, 0.0))"),
+    ("NC float tuple", "po100.collidepoint((0.0, 1000.0))"),
+    ("C int list", "po100.collidepoint([0, 0])"),
+    ("NC int list", "po100.collidepoint([0, 1000])"),
+    ("C float list", "po100.collidepoint([0.0, 0.0])"),
+    ("NC float list", "po100.collidepoint([0.0, 1000.0])"),
+]
+
 subscript_assignment_tests = [
     ("[0] = 10, int", "po100[0] = (10, 10)"),
     ("[0] = 10.0, float", "po100[0] = (10.0, 10.0)"),
@@ -148,7 +163,7 @@ GROUPS = [
     ("Move_ip", move_ip_tests),
     ("Rotate", rotate_tests),
     ("Rotate_ip", rotate_ip_tests),
-    ("Subscript", subscript_tests),
+    ("Collidepoint", collidepoint_tests),
     ("Subscript", subscript_tests),
     ("Subscript Assignment", subscript_assignment_tests),
 ]
