@@ -657,6 +657,7 @@ static int
 pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
 {
     pgPolygonBase *poly = &self->polygon;
+    double new_x, new_y;
 
     if (i < 0) {
         i += poly->verts_num;
@@ -667,13 +668,18 @@ pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
         return -1;
     }
 
-    double Vx, Vy;
-    if (!pg_TwoDoublesFromObj(v, &Vx, &Vy)) {
+    if (!pg_TwoDoublesFromObj(v, &new_x, &new_y)) {
         PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
         return -1;
     }
-    poly->vertices[i * 2] = Vx;
-    poly->vertices[i * 2 + 1] = Vy;
+
+    poly->c_x += (new_x - poly->vertices[i * 2]) / poly->verts_num;
+    poly->c_y += (new_y - poly->vertices[i * 2 + 1]) / poly->verts_num;
+
+    /* Change the vertex */
+    poly->vertices[i * 2] = new_x;
+    poly->vertices[i * 2 + 1] = new_y;
+
     return 0;
 }
 
@@ -686,22 +692,17 @@ pg_polygon_seq_length(pgPolygonObject *self)
 static int
 pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
 {
-    if (PyIndex_Check(op)) {
-        PyObject *index;
-        Py_ssize_t i;
-
-        index = PyNumber_Index(op);
-        if (index == NULL) {
-            return -1;
-        }
-        i = PyNumber_AsSsize_t(index, NULL);
-        Py_DECREF(index);
-        return pg_polygon_ass_vertex(self, i, value);
-    }
-    else {
+    if (!PyIndex_Check(op)) {
         PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
         return -1;
     }
+
+    Py_ssize_t i = PyNumber_AsSsize_t(op, NULL);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+
+    return pg_polygon_ass_vertex(self, i, value);
 }
 
 static PyObject *
@@ -816,7 +817,7 @@ _pg_distance(double x1, double y1, double x2, double y2)
 }
 
 static PyObject *
-pg_polygon_get_perimeter(pgPolygonObject *self, void *closure) 
+pg_polygon_get_perimeter(pgPolygonObject *self, void *closure)
 {
     double perimeter = 0;
     double *vertices = self->polygon.vertices;
