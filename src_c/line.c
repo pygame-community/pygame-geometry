@@ -602,12 +602,11 @@ static PyObject *
 pg_line_subscript(pgLineObject *self, PyObject *op)
 {
     double *data = (double *)&self->line;
-
+    Py_ssize_t i;
     if (PyIndex_Check(op)) {
         PyObject *index = PyNumber_Index(op);
-        Py_ssize_t i;
 
-        if (index == NULL) {
+        if (!index) {
             return NULL;
         }
         i = PyNumber_AsSsize_t(index, NULL);
@@ -616,15 +615,19 @@ pg_line_subscript(pgLineObject *self, PyObject *op)
     }
     else if (op == Py_Ellipsis) {
         PyObject *lst = PyList_New(4);
-
-        if (lst == NULL) {
+        if (!lst) {
             return NULL;
         }
 
-        PyList_SET_ITEM(lst, 0, PyFloat_FromDouble(data[0]));
-        PyList_SET_ITEM(lst, 1, PyFloat_FromDouble(data[1]));
-        PyList_SET_ITEM(lst, 2, PyFloat_FromDouble(data[2]));
-        PyList_SET_ITEM(lst, 3, PyFloat_FromDouble(data[3]));
+        for (i = 0; i < 4; i++) {
+            PyObject *val = PyFloat_FromDouble(data[i]);
+            if (!val) {
+                Py_DECREF(lst);
+                return NULL;
+            }
+
+            PyList_SET_ITEM(lst, i, val);
+        }
 
         return lst;
     }
@@ -634,7 +637,6 @@ pg_line_subscript(pgLineObject *self, PyObject *op)
         Py_ssize_t stop;
         Py_ssize_t step;
         Py_ssize_t slicelen;
-        Py_ssize_t i;
         PyObject *n;
 
         if (PySlice_GetIndicesEx(op, 4, &start, &stop, &step, &slicelen)) {
@@ -642,12 +644,12 @@ pg_line_subscript(pgLineObject *self, PyObject *op)
         }
 
         slice = PyList_New(slicelen);
-        if (slice == NULL) {
+        if (!slice) {
             return NULL;
         }
         for (i = 0; i < slicelen; ++i) {
             n = PyFloat_FromDouble(data[start + (step * i)]);
-            if (n == NULL) {
+            if (!n) {
                 Py_DECREF(slice);
                 return NULL;
             }
