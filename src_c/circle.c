@@ -171,7 +171,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
     if (PyObject_HasAttrString(obj, "circle")) {
         PyObject *circleattr;
         circleattr = PyObject_GetAttrString(obj, "circle");
-        if (circleattr == NULL) {
+        if (!circleattr) {
             PyErr_Clear();
             return 0;
         }
@@ -179,7 +179,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         {
             PyObject *circleresult = PyObject_CallObject(circleattr, NULL);
             Py_DECREF(circleattr);
-            if (circleresult == NULL) {
+            if (!circleresult) {
                 PyErr_Clear();
                 return 0;
             }

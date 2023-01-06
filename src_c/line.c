@@ -187,7 +187,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     if (PyObject_HasAttrString(obj, "line")) {
         PyObject *lineattr;
         lineattr = PyObject_GetAttrString(obj, "line");
-        if (lineattr == NULL) {
+        if (!lineattr) {
             PyErr_Clear();
             return 0;
         }
@@ -195,7 +195,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         {
             PyObject *lineresult = PyObject_CallObject(lineattr, NULL);
             Py_DECREF(lineattr);
-            if (lineresult == NULL) {
+            if (!lineresult) {
                 PyErr_Clear();
                 return 0;
             }
@@ -669,7 +669,7 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
         Py_ssize_t i;
 
         index = PyNumber_Index(op);
-        if (index == NULL) {
+        if (!index) {
             return -1;
         }
         i = PyNumber_AsSsize_t(index, NULL);
