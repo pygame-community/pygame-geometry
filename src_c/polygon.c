@@ -7,18 +7,6 @@
 #include <stddef.h>
 #include <math.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-#ifndef M_PI_QUO_2
-#define M_PI_QUO_2 1.57079632679489661923
-#endif
-
-#ifndef M_TWOPI
-#define M_TWOPI 6.28318530717958647692
-#endif
-
 static PG_FORCE_INLINE double *
 _pg_new_vertices_from_polygon(pgPolygonBase *polygon)
 {
@@ -524,7 +512,7 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
     double *vertices = poly->vertices;
 
     /*convert the angle to radians*/
-    double angle_rad = angle * M_PI / 180.0;
+    double angle_rad = DEG_TO_RAD(angle);
 
     if (fmod(angle_rad, M_PI_QUO_2) != 0.0) {
         /* handle the general angle case that's not 90, 180 or 270 degrees */
@@ -816,7 +804,7 @@ _pg_distance(double x1, double y1, double x2, double y2)
 }
 
 static PyObject *
-pg_polygon_get_perimeter(pgPolygonObject *self, void *closure) 
+pg_polygon_get_perimeter(pgPolygonObject *self, void *closure)
 {
     double perimeter = 0;
     double *vertices = self->polygon.vertices;

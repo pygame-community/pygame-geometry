@@ -7,9 +7,6 @@
 #include <stddef.h>
 #include <math.h>
 
-#define PI 3.14159265358979323846264
-#define TAU 6.28318530717958647692528
-
 static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);
 
@@ -467,7 +464,6 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
     return PyBool_FromLong(result);
 }
 
-
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -671,7 +667,7 @@ pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getarea(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(PI * self->circle.r_sqr);
+    return PyFloat_FromDouble(M_PI * self->circle.r_sqr);
 }
 
 static int
@@ -692,7 +688,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    self->circle.r_sqr = area / PI;
+    self->circle.r_sqr = area / M_PI;
     self->circle.r = sqrt(self->circle.r_sqr);
 
     return 0;
@@ -701,7 +697,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getcircumference(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(TAU * self->circle.r);
+    return PyFloat_FromDouble(M_TWOPI * self->circle.r);
 }
 
 static int
@@ -724,7 +720,7 @@ pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
         return -1;
     }
 
-    self->circle.r = circumference / TAU;
+    self->circle.r = circumference / M_TWOPI;
     self->circle.r_sqr = self->circle.r * self->circle.r;
 
     return 0;
