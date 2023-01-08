@@ -392,8 +392,7 @@ pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 pgPolygon_New(pgPolygonBase *p)
 {
-    return _pg_polygon_subtype_new2(&pgPolygon_Type, p->vertices,
-                                    p->verts_num);
+    return _pg_polygon_subtype_new2_copy(&pgPolygon_Type, p);
 }
 
 static PyObject *

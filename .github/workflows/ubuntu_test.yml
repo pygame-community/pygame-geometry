@@ -1,16 +1,97 @@
 name: Ubuntu latest
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
-  on_build_actions:
+  Python_37:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install package
+      - uses: actions/checkout@v3.0.2
+      - name: Update package list
+        run: sudo apt-get update
+      - name: Add Deadsnakes PPA
+        run: sudo add-apt-repository ppa:deadsnakes/ppa
+      - name: Install Python 3.7
+        run: sudo apt-get install -y python3.7
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install pygame
-          pip install .
-      - name: Run Tests    
-        run: python -m unittest
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests
+        run: python3 -m unittest
+      - name: Remove Deadsnakes PPA
+        run: |
+          sudo add-apt-repository --remove ppa:deadsnakes/ppa
+
+  Python_38:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Update package list
+        run: sudo apt-get update
+      - name: Add Deadsnakes PPA
+        run: sudo add-apt-repository ppa:deadsnakes/ppa
+      - name: Install Python 3.8
+        run: sudo apt-get install -y python3.8
+      - name: Install dependencies
+        run: |
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests
+        run: python3 -m unittest
+      - name: Remove Deadsnakes PPA
+        run: |
+          sudo add-apt-repository --remove ppa:deadsnakes/ppa
+
+  Python_39:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Install Python 3.9
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3.9
+      - name: Install dependencies
+        run: |
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+          python3 -m pip install setuptools -U
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests
+        run: python3 -m unittest
+  Python_310:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Install Python 3.10
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3.10
+      - name: Install dependencies
+        run: |
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+          python3 -m pip install setuptools -U
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests
+        run: python3 -m unittest
+  Python_311:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - name: Install Python 3.11
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3.11
+      - name: Install dependencies
+        run: |
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
+          python3 -m pip install setuptools -U
+          python3 -m pip install pygame
+          python3 -m pip install .
+      - name: Run Tests
+        run: python3 -m unittest

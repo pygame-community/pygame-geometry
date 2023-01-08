@@ -34,9 +34,34 @@ GLOB = {
     "poly3": Polygon([(0, 0), (50, 50), (50, -50), (0, -50)]),
 }
 
-creation_tests = [
-    ("Circle int", "Circle(0, 0, 5)"),
-    ("Circle float", "Circle(0.0, 0.0, 5.0)"),
+instatiation_tests = [
+    ("Circle", "Circle(c1)"),
+    ("3 int", "Circle(0, 0, 5)"),
+    ("3 float", "Circle(0.0, 0.0, 5.0)"),
+    ("2 args tup+int", "Circle((0, 0), 5)"),
+    ("2 args tup+float", "Circle((0.0, 0.0), 5.0)"),
+    ("2 args lst+int", "Circle([0, 0], 5)"),
+    ("2 args lst+float", "Circle([0.0, 0.0], 5.0)"),
+    ("1 tuple int", "Circle((0, 0, 5))"),
+    ("1 tuple float", "Circle((0.0, 0.0, 5.0))"),
+    ("1 list int", "Circle([0, 0, 5])"),
+    ("1 list float", "Circle([0.0, 0.0, 5.0])"),
+    ("1 list 2 args tup+int", "Circle([(0, 0), 5])"),
+    ("1 list 2 args tup+float", "Circle([(0.0, 0.0), 5.0])"),
+    ("1 tuple 2 args lst+int", "Circle(([0, 0], 5))"),
+    ("1 tuple 2 args lst+float", "Circle(([0.0, 0.0], 5.0))"),
+    ("1 list 2 args lst+int", "Circle([[0, 0], 5])"),
+    ("1 list 2 args lst+float", "Circle([[0.0, 0.0], 5.0])"),
+    ("1 tuple 2 args tup+int", "Circle(((0, 0), 5))"),
+    ("1 tuple 2 args tup+float", "Circle(((0.0, 0.0), 5.0))"),
+    ("3 int list inside list", "Circle([[0, 0, 5]])"),
+    ("3 float list inside list", "Circle([[0.0, 0.0, 5.0]])"),
+    ("3 int tuple inside tuple", "Circle(((0, 0, 5)))"),
+    ("3 float tuple inside tuple", "Circle(((0.0, 0.0, 5.0)))"),
+    ("3 int tuple inside list", "Circle([(0, 0, 5)])"),
+    ("3 float tuple inside list", "Circle([(0.0, 0.0, 5.0)])"),
+    ("3 int list inside tuple", "Circle(([0, 0, 5]))"),
+    ("3 float list inside tuple", "Circle(([0.0, 0.0, 5.0]))"),
 ]
 
 copy_tests = [
@@ -90,17 +115,57 @@ update_tests = [
 ]
 
 move_tests = [
-    ("2 int", "c1.move(1, 1)"),
-    ("2 float", "c1.move(1.0, 1.0)"),
-    ("tup int", "c1.move((1, 1))"),
-    ("tup float", "c1.move((1.0, 1.0))"),
+    ("x-x int", "c1.move(1, 1)"),
+    ("x-x float", "c1.move(1.0, 1.0)"),
+    ("x-x tup int", "c1.move((1, 1))"),
+    ("x-x tup float", "c1.move((1.0, 1.0))"),
+    ("x-x lst int", "c1.move([1, 1])"),
+    ("x-x lst float", "c1.move([1.0, 1.0])"),
+    ("0-x int", "c1.move(0, 1)"),
+    ("0-x float", "c1.move(0.0, 1.0)"),
+    ("0-x tup int", "c1.move((0, 1))"),
+    ("0-x tup float", "c1.move((0.0, 1.0))"),
+    ("0-x lst int", "c1.move([0, 1])"),
+    ("0-x lst float", "c1.move([0.0, 1.0])"),
+    ("x-0 int", "c1.move(1, 0)"),
+    ("x-0 float", "c1.move(1.0, 0.0)"),
+    ("x-0 tup int", "c1.move((1, 0))"),
+    ("x-0 tup float", "c1.move((1.0, 0.0))"),
+    ("x-0 lst int", "c1.move([1, 0])"),
+    ("x-0 lst float", "c1.move([1.0, 0.0])"),
+    ("0-0 int", "c1.move(0, 0)"),
+    ("0-0 float", "c1.move(0.0, 0.0)"),
+    ("0-0 tup int", "c1.move((0, 0))"),
+    ("0-0 tup float", "c1.move((0.0, 0.0))"),
+    ("0-0 lst int", "c1.move([0, 0])"),
+    ("0-0 lst float", "c1.move([0.0, 0.0])"),
 ]
 
 move_ip_tests = [
-    ("int", "c1.move_ip(1, 1)"),
-    ("float", "c1.move_ip(1.0, 1.0)"),
-    ("tup int", "c1.move_ip((1, 1))"),
-    ("tup float", "c1.move_ip((1.0, 1.0))"),
+    ("x-x int", "c1.move_ip(1, 1)"),
+    ("x-x float", "c1.move_ip(1.0, 1.0)"),
+    ("x-x tup int", "c1.move_ip((1, 1))"),
+    ("x-x tup float", "c1.move_ip((1.0, 1.0))"),
+    ("x-x lst int", "c1.move_ip([1, 1])"),
+    ("x-x lst float", "c1.move_ip([1.0, 1.0])"),
+    ("0-x int", "c1.move_ip(0, 1)"),
+    ("0-x float", "c1.move_ip(0.0, 1.0)"),
+    ("0-x tup int", "c1.move_ip((0, 1))"),
+    ("0-x tup float", "c1.move_ip((0.0, 1.0))"),
+    ("0-x lst int", "c1.move_ip([0, 1])"),
+    ("0-x lst float", "c1.move_ip([0.0, 1.0])"),
+    ("x-0 int", "c1.move_ip(1, 0)"),
+    ("x-0 float", "c1.move_ip(1.0, 0.0)"),
+    ("x-0 tup int", "c1.move_ip((1, 0))"),
+    ("x-0 tup float", "c1.move_ip((1.0, 0.0))"),
+    ("x-0 lst int", "c1.move_ip([1, 0])"),
+    ("x-0 lst float", "c1.move_ip([1.0, 0.0])"),
+    ("0-0 int", "c1.move_ip(0, 0)"),
+    ("0-0 float", "c1.move_ip(0.0, 0.0)"),
+    ("0-0 tup int", "c1.move_ip((0, 0))"),
+    ("0-0 tup float", "c1.move_ip((0.0, 0.0))"),
+    ("0-0 lst int", "c1.move_ip([0, 0])"),
+    ("0-0 lst float", "c1.move_ip([0.0, 0.0])"),
 ]
 
 collidecircle_tests = [
@@ -170,6 +235,10 @@ collidepoint_tests = [
     ("NC tup int", "c1.collidepoint((1000, 1000))"),
     ("C tup float", "c1.collidepoint((10.0, 10.0))"),
     ("NC tup float", "c1.collidepoint((1000.0, 1000.0))"),
+    ("C lst int", "c1.collidepoint([10, 10])"),
+    ("NC lst int", "c1.collidepoint([1000, 1000])"),
+    ("C lst float", "c1.collidepoint([10.0, 10.0])"),
+    ("NC lst float", "c1.collidepoint([1000.0, 1000.0])"),
 ]
 
 collideline_tests = [
@@ -227,7 +296,7 @@ contains_tests = [
 # If you want to remove or skip tests from a suite, just remove or comment them out
 
 GROUPS = [
-    ("Creation", creation_tests),
+    ("Instatiation", instatiation_tests),
     ("Attribute Getters", getters_tests),
     ("Attribute Setters", setters_tests),
     ("Copy", copy_tests),
