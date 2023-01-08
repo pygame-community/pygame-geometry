@@ -120,6 +120,12 @@ rotate_ip_tests = [
     ("-12", "po100.rotate_ip(-12.0)"),
 ]
 
+get_bounding_box_tests = [
+    ("3", "po3.get_bounding_box()"),
+    ("4", "po4.get_bounding_box()"),
+    ("100", "po100.get_bounding_box()"),
+]
+
 GROUPS = [
     ("Creation", creation_tests),
     ("Attribute Getters", getters_tests),
@@ -129,6 +135,7 @@ GROUPS = [
     ("Move_ip", move_ip_tests),
     ("Rotate", rotate_tests),
     ("Rotate_ip", rotate_ip_tests),
+    ("Get Bounding Box", get_bounding_box_tests),
 ]
 
 if __name__ == "__main__":
