@@ -45,8 +45,8 @@ def _calculate_bounding_box(vertices) -> Rect:
     return Rect(
         math.floor(min_x),
         math.floor(min_y),
-        math.ceil(abs(max_x - min_x + 1)),
-        math.ceil(abs(max_y - min_y + 1)),
+        math.ceil(max_x - min_x + 1),
+        math.ceil(max_y - min_y + 1),
     )
 
 

@@ -650,8 +650,8 @@ pg_polygon_get_bounding_box(pgPolygonObject *self, PyObject *_null)
     }
 
     return pgRect_New4((int)floor(min_x), (int)floor(min_y),
-                       (int)ceil(ABS(max_x - min_x + 1)),
-                       (int)ceil(ABS(max_y - min_y + 1)));
+                       (int)ceil(max_x - min_x + 1),
+                       (int)ceil(max_y - min_y + 1));
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
