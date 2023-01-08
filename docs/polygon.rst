@@ -267,4 +267,13 @@ Polygon Methods
         Returns a `pygame.Rect` object that contains the `Polygon`. The Rect object will
         be the smallest rectangle that contains the `Polygon`.
 
+        .. note::
+            In the case of a polygon with all vertices on a same line or all in the same
+            point, the returned Rect will have a width and height of 1. This is because
+            the Rect object cannot have a width or height of 0.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the bounding box.
+
       .. ## Polygon.get_bounding_box ##
