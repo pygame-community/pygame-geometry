@@ -42,15 +42,15 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
         }
 
         if (PyNumber_Check(args[1])) {
-            double angle, rad_angle;
+            double angle;
             if (!pg_DoubleFromObj(args[1], &angle)) {
                 PyErr_SetString(PyExc_TypeError,
                                 "Invalid ray angle value, must be numeric");
                 return 0;
             }
-            rad_angle = DEG_TO_RAD(angle);
-            line->x2 = line->x1 - cos(rad_angle);
-            line->y2 = line->y1 - sin(rad_angle);
+            angle = DEG_TO_RAD(angle);
+            line->x2 = line->x1 - cos(angle);
+            line->y2 = line->y1 - sin(angle);
         }
         else if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
             PyErr_SetString(PyExc_TypeError,
