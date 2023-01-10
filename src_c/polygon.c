@@ -694,17 +694,19 @@ pg_polygon_seq_length(pgPolygonObject *self)
 static int
 pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
 {
-    if (!PyIndex_Check(op)) {
+    if (PyIndex_Check(op)) {
+        Py_ssize_t i = PyNumber_AsSsize_t(op, NULL);
+        if (PyErr_Occurred()) {
+            return -1;
+        }
+
+        return pg_polygon_ass_vertex(&self->polygon, i, value);
+    }
+    /* If we want to support slicing add here */
+    else {
         PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
         return -1;
     }
-
-    Py_ssize_t i = PyNumber_AsSsize_t(op, NULL);
-    if (PyErr_Occurred()) {
-        return -1;
-    }
-
-    return pg_polygon_ass_vertex(&self->polygon, i, value);
 }
 
 static PyObject *
