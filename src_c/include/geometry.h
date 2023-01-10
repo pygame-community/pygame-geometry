@@ -5,7 +5,7 @@
 #include "pygame.h"
 
 typedef struct {
-    double x, y, r, r_sqr;
+    double x, y, r;
 } pgCircleBase;
 
 typedef struct {
@@ -18,7 +18,6 @@ typedef struct {
 #define pgCircle_GETX(self) (pgCircle_CAST(self)->circle.x)
 #define pgCircle_GETY(self) (pgCircle_CAST(self)->circle.y)
 #define pgCircle_GETR(self) (pgCircle_CAST(self)->circle.r)
-#define pgCircle_GETRSQR(self) (pgCircle_CAST(self)->circle.r_sqr)
 
 typedef struct {
     double x1, y1;

@@ -20,7 +20,6 @@ _pg_circle_subtype_new3(PyTypeObject *type, double x, double y, double r)
         circle_obj->circle.x = x;
         circle_obj->circle.y = y;
         circle_obj->circle.r = r;
-        circle_obj->circle.r_sqr = r * r;
     }
     return (PyObject *)circle_obj;
 }
@@ -33,7 +32,6 @@ pg_circle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self != NULL) {
         self->circle.x = self->circle.y = 0;
         self->circle.r = 0;
-        self->circle.r_sqr = 0;
         self->weakreflist = NULL;
     }
     return (PyObject *)self;
@@ -57,7 +55,7 @@ _pg_circle_set_radius(PyObject *value, pgCircleBase *circle)
         return 0;
     }
     circle->r = radius;
-    circle->r_sqr = radius * radius;
+
     return 1;
 }
 
@@ -168,7 +166,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
     if (PyObject_HasAttrString(obj, "circle")) {
         PyObject *circleattr;
         circleattr = PyObject_GetAttrString(obj, "circle");
-        if (circleattr == NULL) {
+        if (!circleattr) {
             PyErr_Clear();
             return 0;
         }
@@ -176,7 +174,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         {
             PyObject *circleresult = PyObject_CallObject(circleattr, NULL);
             Py_DECREF(circleattr);
-            if (circleresult == NULL) {
+            if (!circleresult) {
                 PyErr_Clear();
                 return 0;
             }
@@ -611,7 +609,6 @@ pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
     }
 
     self->circle.r = radius;
-    self->circle.r_sqr = radius * radius;
 
     return 0;
 }
@@ -619,7 +616,7 @@ pg_circle_setr(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getr_sqr(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(self->circle.r_sqr);
+    return PyFloat_FromDouble(self->circle.r * self->circle.r);
 }
 
 static int
@@ -641,7 +638,6 @@ pg_circle_setr_sqr(pgCircleObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    self->circle.r_sqr = radius_squared;
     self->circle.r = sqrt(radius_squared);
 
     return 0;
@@ -667,7 +663,7 @@ pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getarea(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(M_PI * self->circle.r_sqr);
+    return PyFloat_FromDouble(M_PI * self->circle.r * self->circle.r);
 }
 
 static int
@@ -688,8 +684,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    self->circle.r_sqr = area / M_PI;
-    self->circle.r = sqrt(self->circle.r_sqr);
+    self->circle.r = sqrt(area / M_PI);
 
     return 0;
 }
@@ -721,7 +716,6 @@ pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
     }
 
     self->circle.r = circumference / M_TWOPI;
-    self->circle.r_sqr = self->circle.r * self->circle.r;
 
     return 0;
 }
@@ -752,7 +746,6 @@ pg_circle_setdiameter(pgCircleObject *self, PyObject *value, void *closure)
     }
 
     self->circle.r = diameter / 2;
-    self->circle.r_sqr = self->circle.r * self->circle.r;
 
     return 0;
 }

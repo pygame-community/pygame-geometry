@@ -102,7 +102,7 @@ pgCollision_CirclePoint(pgCircleBase *circle, double Cx, double Cy)
 {
     double dx = circle->x - Cx;
     double dy = circle->y - Cy;
-    return dx * dx + dy * dy <= circle->r_sqr;
+    return dx * dx + dy * dy <= circle->r * circle->r;
 }
 
 static int
@@ -115,7 +115,7 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     double y2 = line->y2;
     double xc = circle->x;
     double yc = circle->y;
-    double rsq = circle->r_sqr;
+    double rsq = circle->r * circle->r;
 
     double x1_m_xc = x1 - xc;
     double y1_m_yc = y1 - yc;
@@ -290,7 +290,7 @@ pgCollision_RectCircle(SDL_Rect *rect, pgCircleBase *circle)
     double dx = cx - test_x;
     double dy = cy - test_y;
 
-    return dx * dx + dy * dy <= circle->r_sqr;
+    return dx * dx + dy * dy <= circle->r * circle->r;
 }
 
 static int
@@ -413,7 +413,7 @@ pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t,
     double dy = y2 - y1;
     double A = dx * dx + dy * dy;
     double B = 2 * (dx * x1_m_xc + dy * y1_m_yc);
-    double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - circle->r_sqr;
+    double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - circle->r * circle->r;
 
     double discriminant = B * B - 4 * A * C;
     if (discriminant < 0) {
