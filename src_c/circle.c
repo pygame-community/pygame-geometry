@@ -1,11 +1,5 @@
-#include "include/pygame.h"
 #include "include/geometry.h"
 #include "include/collisions.h"
-
-#include <limits.h>
-#include <float.h>
-#include <stddef.h>
-#include <math.h>
 
 static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);

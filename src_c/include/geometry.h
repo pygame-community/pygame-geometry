@@ -3,6 +3,9 @@
 #define _GEOMETRY_H
 
 #include "pygame.h"
+#include <float.h>
+#include <stddef.h>
+#include <math.h>
 
 typedef struct {
     double x, y, r;

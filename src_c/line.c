@@ -1,11 +1,5 @@
-#include "include/pygame.h"
 #include "include/geometry.h"
 #include "include/collisions.h"
-
-#include <limits.h>
-#include <float.h>
-#include <stddef.h>
-#include <math.h>
 
 #define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
 
