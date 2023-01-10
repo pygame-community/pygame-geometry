@@ -7,9 +7,6 @@
 #include <stddef.h>
 #include <math.h>
 
-#define PI 3.14159265358979323846264
-#define TAU 6.28318530717958647692528
-
 static int
 pg_circle_init(pgCircleObject *, PyObject *, PyObject *);
 
@@ -666,7 +663,7 @@ pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getarea(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(PI * self->circle.r * self->circle.r);
+    return PyFloat_FromDouble(M_PI * self->circle.r * self->circle.r);
 }
 
 static int
@@ -687,7 +684,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    self->circle.r = sqrt(area / PI);
+    self->circle.r = sqrt(area / M_PI);
 
     return 0;
 }
@@ -695,7 +692,7 @@ pg_circle_setarea(pgCircleObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_circle_getcircumference(pgCircleObject *self, void *closure)
 {
-    return PyFloat_FromDouble(TAU * self->circle.r);
+    return PyFloat_FromDouble(M_TWOPI * self->circle.r);
 }
 
 static int
@@ -718,7 +715,7 @@ pg_circle_setcircumference(pgCircleObject *self, PyObject *value,
         return -1;
     }
 
-    self->circle.r = circumference / TAU;
+    self->circle.r = circumference / M_TWOPI;
 
     return 0;
 }
