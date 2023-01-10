@@ -118,12 +118,14 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out);
 
 /* Functions */
 
+/* Converts degrees to radians */
 static PG_FORCE_INLINE double
 DEG_TO_RAD(double deg)
 {
     return deg * M_PI_QUO_180;
 }
 
+/* Converts radians to degrees */
 static PG_FORCE_INLINE double
 RAD_TO_DEG(double rad)
 {
