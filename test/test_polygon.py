@@ -578,6 +578,16 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
 
+    def test_is_convex_meth(self):
+        p1 = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+        p2 = Polygon((0, 10), (5, 5), (10, 10), (10, 0), (0, 0))
+
+        with self.assertRaises(TypeError):
+            p1.is_convex(1)
+
+        self.assertTrue(p1.is_convex())
+        self.assertFalse(p2.is_convex())
+
 
 if __name__ == "__main__":
     unittest.main()
