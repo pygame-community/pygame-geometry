@@ -469,25 +469,28 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
-pg_polygon_as_segments(pgPolygonObject *self) {
-    PyObject *list = PyList_New(0);
-    for (Py_ssize_t i = 0; i < self->polygon.verts_num*2; i+=2) {
+pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null) {
+    double *verts = self->polygon.vertices;
+    Py_ssize_t vert_num = self->polygon.verts_num;
+    PyObject *list = PyList_New(vert_num);
+    for (Py_ssize_t i = 0; i < vert_num * 2; i+=2) {
         double next_vertex_x;
         double next_vertex_y;
 
-        if (i >= self->polygon.verts_num * 2 - 2) {
-            next_vertex_x = self->polygon.vertices[0];
-            next_vertex_y = self->polygon.vertices[1];
+        if (i >= vert_num * 2 - 2) {
+            next_vertex_x = verts[0];
+            next_vertex_y = verts[1];
         }
         else {
-            next_vertex_x = self->polygon.vertices[i + 2];
-            next_vertex_y = self->polygon.vertices[i + 3];
+            next_vertex_x = verts[i + 2];
+            next_vertex_y = verts[i + 3];
         }
 
-        PyList_Append(list, pgLine_New4(
-            self->polygon.vertices[i], self->polygon.vertices[i + 1], 
-            next_vertex_x, next_vertex_y)
-        );
+        PyObject *line = pgLine_New4(verts[i], verts[i + 1], next_vertex_x, next_vertex_y);
+        if (!line) {
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i / 2, line);
     }
 
     return list;
