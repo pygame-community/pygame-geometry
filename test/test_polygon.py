@@ -442,11 +442,29 @@ class PolygonTypeTest(unittest.TestCase):
     def test_as_segments(self):
         """Checks whether polygon segments are correct"""
         poly = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
-        self.assertEqual(poly.as_segments(), [Line((0, 0), (1, 0)), Line((1, 0), (1, 1)), Line((1, 1), (0, 1)), Line((0, 1), (0, 0))])
+        self.assertEqual(
+            poly.as_segments(),
+            [
+                Line((0, 0), (1, 0)),
+                Line((1, 0), (1, 1)),
+                Line((1, 1), (0, 1)),
+                Line((0, 1), (0, 0)),
+            ],
+        )
         poly = Polygon([(123.23, 35.6), (56.4, 87.45), (43.1, 12.3)])
-        self.assertEqual(poly.as_segments(), [Line((123.23, 35.6), (56.4, 87.45)), Line((56.4, 87.45), (43.1, 12.3)), Line((43.1, 12.3), (123.23, 35.6))])
+        self.assertEqual(
+            poly.as_segments(),
+            [
+                Line((123.23, 35.6), (56.4, 87.45)),
+                Line((56.4, 87.45), (43.1, 12.3)),
+                Line((43.1, 12.3), (123.23, 35.6)),
+            ],
+        )
         poly = Polygon([[1, 2], [3, 4], [5, 6]])
-        self.assertEqual(poly.as_segments(), [Line((1, 2), (3, 4)), Line((3, 4), (5, 6)), Line((5, 6), (1, 2))])
+        self.assertEqual(
+            poly.as_segments(),
+            [Line((1, 2), (3, 4)), Line((3, 4), (5, 6)), Line((5, 6), (1, 2))],
+        )
 
     def test_move(self):
         """Checks whether polygon moved correctly."""
