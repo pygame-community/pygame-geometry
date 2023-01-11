@@ -636,10 +636,11 @@ pg_polygon_get_vertices(pgPolygonObject *self, void *closure)
 }
 
 static int
-pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
+pg_polygon_ass_vertex(pgPolygonBase *poly, Py_ssize_t i, PyObject *v)
 {
-    pgPolygonBase *poly = &self->polygon;
+    double new_x, new_y;
 
+    /* Adjust the index */
     if (i < 0) {
         i += poly->verts_num;
     }
@@ -649,13 +650,20 @@ pg_polygon_ass_vertex(pgPolygonObject *self, Py_ssize_t i, PyObject *v)
         return -1;
     }
 
-    double Vx, Vy;
-    if (!pg_TwoDoublesFromObj(v, &Vx, &Vy)) {
+    /* Extract the new vertex position */
+    if (!pg_TwoDoublesFromObj(v, &new_x, &new_y)) {
         PyErr_SetString(PyExc_TypeError, "Must assign numeric values");
         return -1;
     }
-    poly->vertices[i * 2] = Vx;
-    poly->vertices[i * 2 + 1] = Vy;
+
+    /* Update the center */
+    poly->c_x += (new_x - poly->vertices[i * 2]) / poly->verts_num;
+    poly->c_y += (new_y - poly->vertices[i * 2 + 1]) / poly->verts_num;
+
+    /* Update the vertex */
+    poly->vertices[i * 2] = new_x;
+    poly->vertices[i * 2 + 1] = new_y;
+
     return 0;
 }
 
@@ -669,17 +677,14 @@ static int
 pg_polygon_ass_subscript(pgPolygonObject *self, PyObject *op, PyObject *value)
 {
     if (PyIndex_Check(op)) {
-        PyObject *index;
-        Py_ssize_t i;
-
-        index = PyNumber_Index(op);
-        if (index == NULL) {
+        Py_ssize_t i = PyNumber_AsSsize_t(op, NULL);
+        if (PyErr_Occurred()) {
             return -1;
         }
-        i = PyNumber_AsSsize_t(index, NULL);
-        Py_DECREF(index);
-        return pg_polygon_ass_vertex(self, i, value);
+
+        return pg_polygon_ass_vertex(&self->polygon, i, value);
     }
+    /* If we want to support slicing add here */
     else {
         PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
         return -1;

@@ -14,7 +14,7 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
-def _rotate_vertices(poly, angle):
+def _rotate_vertices(poly: Polygon, angle: float):
     """Rotates the vertices of a polygon by the given angle."""
     angle = math.radians(angle)
     rotated_vertices = []
@@ -32,6 +32,16 @@ def _rotate_vertices(poly, angle):
         )
 
     return rotated_vertices
+
+
+def _calculate_center(poly: Polygon):
+    """Calculates the center of a polygon."""
+    x = 0
+    y = 0
+    for vertex in poly.vertices:
+        x += vertex[0]
+        y += vertex[1]
+    return x / poly.verts_num, y / poly.verts_num
 
 
 class PolygonTypeTest(unittest.TestCase):
@@ -847,6 +857,60 @@ class PolygonTypeTest(unittest.TestCase):
         e = 0.000000000000001
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
+
+    def test_assign_subscript(self):
+        """Tests whether assigning to a subscript works correctly."""
+        new_vertices = [(1.11, 32), (-2, 2.0), (3.23, 3.0)]
+        poly = Polygon(_some_vertices.copy())
+
+        for i, vertex in enumerate(new_vertices):
+            poly[i] = vertex
+
+            self.assertEqual(poly[i], vertex)
+
+            expected_center = _calculate_center(poly)
+
+            # check that the new center of the polygon is correct
+            self.assertAlmostEqual(expected_center[0], poly.c_x, places=14)
+            self.assertAlmostEqual(expected_center[1], poly.c_y, places=14)
+
+    def test_get_subscript(self):
+        """Tests whether subscripting a polygon works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        for i, vertex in enumerate(poly.vertices):
+            self.assertEqual(poly[i], vertex)
+
+        # test for negative indices
+        poly_vertices = poly.vertices
+        for i in range(poly.verts_num):
+            self.assertEqual(poly[-i], poly_vertices[-i])
+
+    def test_get_subscript_invalid_args(self):
+        """Tests whether getting a subscript with invalid arguments works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = ["1", (1,), Vector3(1, 1, 3), Polygon(_some_vertices.copy())]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly[arg]
+
+    def test_assign_subscript_invalid_assignment(self):
+        """Tests whether assigning invalid types to a subscript with behaves correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = ["1", (1,), Vector3(1, 1, 3), Polygon(_some_vertices.copy())]
+
+        # test for positive indices
+        for i, arg in enumerate(invalid_args):
+            with self.assertRaises(TypeError):
+                poly[i] = arg
+
+        # test for negative indices
+        for i in range(poly.verts_num):
+            with self.assertRaises(TypeError):
+                poly[-i] = invalid_args[i]
 
 
 if __name__ == "__main__":
