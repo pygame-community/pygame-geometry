@@ -1,4 +1,4 @@
-name: Python Code Quality
+name: Python Code Quality (Black)
 
 on: [push, pull_request]
 

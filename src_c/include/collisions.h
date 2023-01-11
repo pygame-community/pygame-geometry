@@ -7,7 +7,6 @@
 #define _PG_COLLISIONS_H
 
 #include "pygame.h"
-
 #include "geometry.h"
 
 static int
