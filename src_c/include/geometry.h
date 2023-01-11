@@ -88,4 +88,12 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
 #define pgLine_Check(o) ((o)->ob_type == &pgLine_Type)
 #define pgPolygon_Check(o) ((o)->ob_type == &pgPolygon_Type)
 
+/* Frees the polygon's vertices if they were allocated from a sequence. */
+static PG_FORCE_INLINE void
+PG_FREEPOLY_COND(pgPolygonBase *poly, int was_sequence) {
+    if (was_sequence) {
+        PyMem_Free(poly->vertices);
+    }
+}
+
 #endif /* ~_GEOMETRY_H */
