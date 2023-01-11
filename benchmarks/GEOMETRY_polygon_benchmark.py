@@ -138,6 +138,22 @@ collidepoint_tests = [
     ("NC float list", "po100.collidepoint([0.0, 1000.0])"),
 ]
 
+subscript_assignment_tests = [
+    ("[0] = 10, int", "po100[0] = (10, 10)"),
+    ("[0] = 10.0, float", "po100[0] = (10.0, 10.0)"),
+    ("[10] = 10, int", "po100[10] = (10, 10)"),
+    ("[10] = 10.0, float", "po100[10] = (10.0, 10.0)"),
+    ("[-1] = 10, int", "po100[-1] = (10, 10)"),
+    ("[-1] = 10.0, float", "po100[-1] = (10.0, 10.0)"),
+]
+
+subscript_tests = [
+    ("[0]", "po100[0]"),
+    ("[10]", "po100[10]"),
+    ("[100]", "po100[99]"),
+    ("[-1]", "po100[-1]"),
+]
+
 GROUPS = [
     ("Instatiation", instatiation_tests),
     ("Attribute Getters", getters_tests),
@@ -148,6 +164,8 @@ GROUPS = [
     ("Rotate", rotate_tests),
     ("Rotate_ip", rotate_ip_tests),
     ("Collidepoint", collidepoint_tests),
+    ("Subscript", subscript_tests),
+    ("Subscript Assignment", subscript_assignment_tests),
 ]
 
 if __name__ == "__main__":
