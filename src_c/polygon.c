@@ -469,6 +469,31 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
+pg_polygon_as_segments(pgPolygonObject *self) {
+    PyObject *list = PyList_New(0);
+    for (Py_ssize_t i = 0; i < self->polygon.verts_num*2; i+=2) {
+        double next_vertex_x;
+        double next_vertex_y;
+
+        if (i >= self->polygon.verts_num * 2 - 2) {
+            next_vertex_x = self->polygon.vertices[0];
+            next_vertex_y = self->polygon.vertices[1];
+        }
+        else {
+            next_vertex_x = self->polygon.vertices[i + 2];
+            next_vertex_y = self->polygon.vertices[i + 3];
+        }
+
+        PyList_Append(list, pgLine_New4(
+            self->polygon.vertices[i], self->polygon.vertices[i + 1], 
+            next_vertex_x, next_vertex_y)
+        );
+    }
+
+    return list;
+}
+
+static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
                    Py_ssize_t nargs)
 {
@@ -613,6 +638,7 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
+    {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
     {"rotate", (PyCFunction)pg_polygon_rotate, METH_O, NULL},
