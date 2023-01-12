@@ -490,6 +490,17 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_scale(pgLineObject *self, PyObject *arg) {
+    double factor;
+    if (!pg_DoubleFromObj(arg, &factor)) {
+        return NULL;
+    }
+    double dx = self->line.x1*factor - self->line.x1;
+    double dy = self->line.y1*factor - self->line.y1;
+    return pgLine_New4(self->line.x1*factor - dx, self->line.y1*factor - dy, self->line.x2*factor - dx, self->line.y2*factor - dy);
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -508,6 +519,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
     {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
+    {"scale", (PyCFunction)pg_line_scale, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
