@@ -48,9 +48,9 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
                                 "Invalid ray angle value, must be numeric");
                 return 0;
             }
-
-            line->x2 = line->x1 - cos(angle * PI / 180);
-            line->y2 = line->y1 - sin(angle * PI / 180);
+            angle = DEG_TO_RAD(angle);
+            line->x2 = line->x1 - cos(angle);
+            line->y2 = line->y1 - sin(angle);
         }
         else if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
             PyErr_SetString(PyExc_TypeError,
@@ -194,7 +194,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
             return RAISE(PyExc_TypeError,
                          "the forth parameter must be a number");
         }
-        angle *= PI / 180.0;
+        angle = DEG_TO_RAD(angle);
     }
 
     double *vertices = PyMem_New(double, sides * 2);
@@ -204,7 +204,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
     }
 
     Py_ssize_t loop;
-    double fac = TAU / sides;
+    double fac = M_TWOPI / sides;
 
     /*If the number of sides is even, mirror the vertices*/
     if (sides % 2 == 0) {
@@ -362,4 +362,3 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
-     

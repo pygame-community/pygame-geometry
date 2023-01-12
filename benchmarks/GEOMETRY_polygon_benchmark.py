@@ -144,6 +144,22 @@ get_bounding_box_tests = [
     ("100", "po100.get_bounding_box()"),
 ]
 
+subscript_assignment_tests = [
+    ("[0] = 10, int", "po100[0] = (10, 10)"),
+    ("[0] = 10.0, float", "po100[0] = (10.0, 10.0)"),
+    ("[10] = 10, int", "po100[10] = (10, 10)"),
+    ("[10] = 10.0, float", "po100[10] = (10.0, 10.0)"),
+    ("[-1] = 10, int", "po100[-1] = (10, 10)"),
+    ("[-1] = 10.0, float", "po100[-1] = (10.0, 10.0)"),
+]
+
+subscript_tests = [
+    ("[0]", "po100[0]"),
+    ("[10]", "po100[10]"),
+    ("[100]", "po100[99]"),
+    ("[-1]", "po100[-1]"),
+]
+
 GROUPS = [
     ("Instatiation", instatiation_tests),
     ("Attribute Getters", getters_tests),
@@ -155,6 +171,8 @@ GROUPS = [
     ("Rotate_ip", rotate_ip_tests),
     ("Collidepoint", collidepoint_tests),
     ("Get Bounding Box", get_bounding_box_tests),
+    ("Subscript", subscript_tests),
+    ("Subscript Assignment", subscript_assignment_tests),
 ]
 
 if __name__ == "__main__":
