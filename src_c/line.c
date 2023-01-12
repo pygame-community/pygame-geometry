@@ -490,15 +490,87 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+double 
+_lerp_helper(float start, float end, float amount) {
+    return (1 - amount) * start + amount * end;
+}
+
+static int
+_line_scale_helper(pgLineObject *line, double factor, double origin) {
+    if (factor == 1.0) {
+        return 1;
+    }
+    else if (factor == 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Cannot scale by 0");
+        return 0;
+    }
+    else if (factor < 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Cannot scale by a negative number");
+        return 0;
+    }
+
+    if (origin < 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Origin cannot be negative");
+        return 0;
+    }
+
+    double x1 = line->line.x1;
+    double y1 = line->line.y1;
+    double x2 = line->line.x2;
+    double y2 = line->line.y2;
+
+    double x1_factor = x1 * factor;
+    double y1_factor = y1 * factor;
+    double x2_factor = x2 * factor;
+    double y2_factor = y2 * factor;
+
+    double dx = _lerp_helper(x1_factor - x1, x2_factor - x2, origin);
+    double dy = _lerp_helper(y1_factor - y1, y2_factor - y2, origin);
+    
+    line->line.x1 = x1_factor - dx;
+    line->line.y1 = y1_factor - dy;
+    line->line.x2 = x2_factor - dx;
+    line->line.y2 = y2_factor - dy;
+
+    return 1;
+}
+
 static PyObject *
-pg_line_scale(pgLineObject *self, PyObject *arg) {
+pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
     double factor;
-    if (!pg_DoubleFromObj(arg, &factor)) {
+    double origin;
+
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
         return NULL;
     }
-    double dx = self->line.x1*factor - self->line.x1;
-    double dy = self->line.y1*factor - self->line.y1;
-    return pgLine_New4(self->line.x1*factor - dx, self->line.y1*factor - dy, self->line.x2*factor - dx, self->line.y2*factor - dy);
+
+    PyObject *line;
+    if (!(line = pgLine_New(&self->line))) {
+        return NULL;
+    }
+
+    if (!_line_scale_helper((pgLineObject*)line, factor, origin)) {
+        Py_DECREF(line);
+        return NULL;
+    }
+
+    return line;
+}
+
+static PyObject *
+pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    double factor;
+    double origin;
+
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
+        return NULL;
+    }
+
+    if (!_line_scale_helper(self, factor, origin)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
 }
 
 static struct PyMethodDef pg_line_methods[] = {
@@ -519,7 +591,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
     {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
-    {"scale", (PyCFunction)pg_line_scale, METH_O, NULL},
+    {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
+    {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
