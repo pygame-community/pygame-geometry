@@ -1,3 +1,4 @@
+
 ==================
 :mod:`pygame_geometry.Polygon`
 ==================
@@ -16,7 +17,7 @@
     `Polygon` or have an attribute named "polygon".
 
     Specifically, to construct a `Polygon` you can pass the vertices' positions as
-    separate arguments or inside a Sequence(list or tuple).
+    separate arguments or inside a Sequence(list or tuple). Generators are also accepted.
 
     Functions that require a `Polygon` argument may also accept these values as Polygons:
     ::
