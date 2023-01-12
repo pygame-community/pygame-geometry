@@ -217,6 +217,7 @@ Line Methods
 
         | :sl:`scales the line by the given factor from the given origin`
         | :sg:`scale(factor, origin) -> Line`
+        | :sg:`scale(factor_and_origin) -> Line`
 
         Returns a new `Line` which is scaled by the given factor from the specified origin with 0.0 being
         the startpoint, 0.5 being the midpoint and 1.0 being the end point.
@@ -228,6 +229,7 @@ Line Methods
 
         | :sl:`scales the line by the given factor from the given origin in place`
         | :sg:`scale_ip(factor, origin) -> None`
+        | :sg:`scale_ip(factor_and_origin) -> None`
 
         Scales the `Line` by the given factor from the specified origin with 0.0 being
         the startpoint, 0.5 being the midpoint and 1.0 being the end point.

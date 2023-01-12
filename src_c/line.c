@@ -496,52 +496,49 @@ _lerp_helper(float start, float end, float amount) {
 }
 
 static int
-_line_scale_helper(pgLineObject *line, double factor, double origin) {
+_line_scale_helper(pgLineBase *line, double factor, double origin) {
     if (factor == 1.0) {
         return 1;
     }
-    else if (factor == 0.0) {
-        PyErr_SetString(PyExc_ValueError, "Cannot scale by 0");
-        return 0;
-    }
-    else if (factor < 0.0) {
-        PyErr_SetString(PyExc_ValueError, "Cannot scale by a negative number");
+    else if (factor <= 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Can only scale by a positive non zero number");
         return 0;
     }
 
-    if (origin < 0.0) {
-        PyErr_SetString(PyExc_ValueError, "Origin cannot be negative");
+    if (origin < 0.0 || origin > 1.0) {
+        PyErr_SetString(PyExc_ValueError, "Origin must be between 0 and 1");
         return 0;
     }
 
-    double x1 = line->line.x1;
-    double y1 = line->line.y1;
-    double x2 = line->line.x2;
-    double y2 = line->line.y2;
+    double x1 = line->x1;
+    double y1 = line->y1;
+    double x2 = line->x2;
+    double y2 = line->y2;
 
     double x1_factor = x1 * factor;
     double y1_factor = y1 * factor;
     double x2_factor = x2 * factor;
     double y2_factor = y2 * factor;
 
-    double dx = _lerp_helper(x1_factor - x1, x2_factor - x2, origin);
-    double dy = _lerp_helper(y1_factor - y1, y2_factor - y2, origin);
+    double fac_m_one = factor - 1;
+    double dx = _lerp_helper(fac_m_one * x1, fac_m_one * x2, origin);
+    double dy = _lerp_helper(fac_m_one * y1, fac_m_one * y2, origin);
     
-    line->line.x1 = x1_factor - dx;
-    line->line.y1 = y1_factor - dy;
-    line->line.x2 = x2_factor - dx;
-    line->line.y2 = y2_factor - dy;
+    line->x1 = x1_factor - dx;
+    line->y1 = y1_factor - dy;
+    line->x2 = x2_factor - dx;
+    line->y2 = y2_factor - dy;
 
     return 1;
 }
 
 static PyObject *
 pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
-    double factor;
-    double origin;
+    double factor, origin;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
-        return NULL;
+        return RAISE(PyExc_TypeError,
+                     "scale requires a sequence of two numbers");
     }
 
     PyObject *line;
@@ -549,8 +546,7 @@ pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
         return NULL;
     }
 
-    if (!_line_scale_helper((pgLineObject*)line, factor, origin)) {
-        Py_DECREF(line);
+    if (!_line_scale_helper(&pgLine_AsLine(line), factor, origin)) {
         return NULL;
     }
 
@@ -559,14 +555,14 @@ pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
 
 static PyObject *
 pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
-    double factor;
-    double origin;
+    double factor, origin;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
-        return NULL;
+        return RAISE(PyExc_TypeError,
+                     "scale_ip requires a sequence of two numbers");
     }
 
-    if (!_line_scale_helper(self, factor, origin)) {
+    if (!_line_scale_helper(&pgLine_AsLine(self), factor, origin)) {
         return NULL;
     }
 
