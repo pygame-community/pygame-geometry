@@ -260,6 +260,8 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 
             i++;
             if (i + 1 > currently_allocated) {
+                /* Reallocate memory for the vertices of the polygon to 50%
+                   more than the current size */
                 currently_allocated *= 1.5;
                 init_poly->vertices = PyMem_Resize(init_poly->vertices, double,
                                                    2 * currently_allocated);
@@ -275,6 +277,7 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
             return 0;
         }
 
+        /* Shrink the allocated memory to the actual size if necessary */
         if (i < currently_allocated) {
             init_poly->vertices =
                 PyMem_Resize(init_poly->vertices, double, 2 * i);
@@ -452,6 +455,8 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
         return 0;
     }
 
+    /* If the object is not a sequence, attempt to extract the vertices of the
+     * polygon from the object's "polygon" attribute */
     PyObject *polyattr;
     if (!(polyattr = PyObject_GetAttrString(obj, "polygon"))) {
         PyErr_Clear();
