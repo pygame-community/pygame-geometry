@@ -34,6 +34,7 @@ def _rotate_vertices(poly: Polygon, angle: float):
 
     return rotated_vertices
 
+
 def _calculate_bounding_box(vertices) -> Rect:
     """Calculates the bounding box of a polygon."""
     min_x = min(vertices, key=lambda x: x[0])[0]
@@ -47,6 +48,7 @@ def _calculate_bounding_box(vertices) -> Rect:
         math.ceil(max_x - min_x + 1),
         math.ceil(max_y - min_y + 1),
     )
+
 
 def _calculate_center(poly: Polygon):
     """Calculates the center of a polygon."""
