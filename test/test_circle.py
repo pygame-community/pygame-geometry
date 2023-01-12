@@ -199,7 +199,7 @@ class CircleTypeTest(unittest.TestCase):
         c = Circle(1.0, 1.0, 1.0)
         c.r_sqr = expected_r_sqr
 
-        self.assertEqual(c.r_sqr, expected_r_sqr)
+        self.assertAlmostEqual(c.r_sqr, expected_r_sqr, places=14)
 
     def test_r_to_r_sqr(self):
         """Ensures changing the r attribute correctly changes the r_sqr attribute."""

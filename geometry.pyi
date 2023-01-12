@@ -16,7 +16,7 @@ from typing_extensions import Protocol
 from pygame.math import Vector2, Vector3
 from pygame.rect import Rect
 
-Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+Coordinate = Union[Tuple[float, float], Sequence[float], Vector2, Tuple[int, int]]
 
 Shape = Union["Line", "Circle", "Rect", "Polygon"]
 
@@ -192,7 +192,7 @@ class Polygon:
     @overload
     def __init__(self, vertices: Sequence[Coordinate]) -> None: ...
     @overload
-    def __setitem__(self, key: int, value: Sequence[Coordinate]) -> None: ...
+    def __setitem__(self, key: int, value: Coordinate) -> None: ...
     @overload
     def __getitem__(self, i: int) -> Sequence[Coordinate]: ...
     @overload
