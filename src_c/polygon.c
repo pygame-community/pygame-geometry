@@ -674,6 +674,35 @@ pgPolygon_New2(double *vertices, Py_ssize_t verts_num)
     return _pg_polygon_subtype_new2(&pgPolygon_Type, vertices, verts_num);
 }
 
+static PyObject *
+pgPolygon_New4(double *vertices, Py_ssize_t verts_num, double c_x, double c_y)
+{
+    pgPolygonObject *polygon_obj =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(&pgPolygon_Type, NULL, NULL);
+
+    if (!polygon_obj) {
+        return NULL;
+    }
+
+    if (verts_num < 3 || !vertices) {
+        /*A polygon requires 3 or more vertices*/
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    if (!(polygon_obj->polygon.vertices =
+              _pg_new_vertices_from_vertices(vertices, verts_num))) {
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    polygon_obj->polygon.verts_num = verts_num;
+    polygon_obj->polygon.c_x = c_x;
+    polygon_obj->polygon.c_y = c_y;
+
+    return (PyObject *)polygon_obj;
+}
+
 static void
 pg_polygon_dealloc(pgPolygonObject *self)
 {
