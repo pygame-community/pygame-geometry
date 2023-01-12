@@ -262,7 +262,7 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
             if (i + 1 > currently_allocated) {
                 /* Reallocate memory for the vertices of the polygon to 50%
                    more than the current size */
-                currently_allocated *= 1.5;
+                currently_allocated = (currently_allocated * 3) / 2;
                 init_poly->vertices = PyMem_Resize(init_poly->vertices, double,
                                                    2 * currently_allocated);
                 if (!init_poly->vertices) {
