@@ -47,6 +47,7 @@ def _scale_polygon(vertices, num_verts, cx, cy, fac):
 
     return new_vertices
 
+
 def _calculate_center(poly: Polygon):
     """Calculates the center of a polygon."""
     x = 0
