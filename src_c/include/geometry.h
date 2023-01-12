@@ -80,7 +80,11 @@ typedef struct {
 
 // return 1 if success and 0 if failure
 static int
-pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out);
+pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence);
+
+static int
+pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
+                             pgPolygonBase *out, int *was_sequence);
 
 #define pgCircle_Check(o) ((o)->ob_type == &pgCircle_Type)
 #define pgLine_Check(o) ((o)->ob_type == &pgLine_Type)
@@ -132,6 +136,14 @@ static PG_FORCE_INLINE double
 RAD_TO_DEG(double rad)
 {
     return rad * M_180_QUO_PI;
+}
+
+/* Frees the polygon's vertices if they were allocated from a sequence. */
+static PG_FORCE_INLINE void
+PG_FREEPOLY_COND(pgPolygonBase *poly, int was_sequence) {
+    if (was_sequence) {
+        PyMem_Free(poly->vertices);
+    }
 }
 
 #endif /* ~_GEOMETRY_H */
