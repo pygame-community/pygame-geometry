@@ -1029,6 +1029,12 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly[-i] = invalid_args[i]
 
+    def test_polygon___new__(self):
+        """Tests whether the __new__ method works correctly."""
+        polygon = Polygon.__new__(Polygon)
+        self.assertIsInstance(polygon, Polygon)
+        self.assertEqual(polygon.verts_num, 3)
+
 
 if __name__ == "__main__":
     unittest.main()
