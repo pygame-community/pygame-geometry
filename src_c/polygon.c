@@ -917,8 +917,7 @@ static int
 _pg_polygon_is_convex_helper(pgPolygonBase *poly)
 {
     /* A polygon is convex if and only if the cross products of all the
-     * adjacent edges are all of the same sign.
-     */
+     * adjacent edges are all of the same sign. */
     Py_ssize_t i, i0, i1, i2;
     Py_ssize_t verts_num = poly->verts_num;
     Py_ssize_t count = 2 * verts_num;
