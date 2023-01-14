@@ -140,7 +140,8 @@ RAD_TO_DEG(double rad)
 
 /* Frees the polygon's vertices if they were allocated from a sequence. */
 static PG_FORCE_INLINE void
-PG_FREEPOLY_COND(pgPolygonBase *poly, int was_sequence) {
+PG_FREEPOLY_COND(pgPolygonBase *poly, int was_sequence)
+{
     if (was_sequence) {
         PyMem_Free(poly->vertices);
     }

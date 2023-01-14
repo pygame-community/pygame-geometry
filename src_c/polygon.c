@@ -908,80 +908,50 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static double
-_pg_is_convex_cross_product(double *A, double *B, double *C)
-{
-    // Stores coefficient of X
-    // direction of vector BA
-    double X1 = (B[0] - A[0]);
-
-    // Stores coefficient of Y
-    // direction of vector BA
-    double Y1 = (B[1] - A[1]);
-
-    // Stores coefficient of X
-    // direction of vector CA
-    double X2 = (C[0] - A[0]);
-
-    // Stores coefficient of Y
-    // direction of vector CA
-    double Y2 = (C[1] - A[1]);
-
-    // Return cross product
-    return X1 * Y2 - Y1 * X2;
-}
-
 /*
  * this function takes in `pgPolygonBase *` and
- * it returns an int representing whether the polygon is convex or not (concave)
- * https://www.geeksforgeeks.org/check-if-given-polygon-is-a-convex-polygon-or-not/
+ * it returns an int representing whether the polygon is convex or not
+ * (concave)
  */
 static int
 _pg_polygon_is_convex_helper(pgPolygonBase *poly)
 {
-    Py_ssize_t count = poly->verts_num;
-    double *verticies = poly->vertices;
+    Py_ssize_t i, i0, i1, i2;
+    Py_ssize_t verts_num = poly->verts_num;
+    Py_ssize_t count = 2 * verts_num;
+    double *vertices = poly->vertices;
 
-    // Stores direction of cross product
-    // of previous traversed edges
-    double prev = 0;
+    /* A polygon is convex if and only if the cross products of all the
+     * adjacent edges are all of the same sign.
+     */
+    int sign = 0;
 
-    // Stores direction of cross product
-    // of current traversed edges
-    double curr = 0;
+    for (i = 0; i < verts_num; i++) {
+        i0 = 2 * i % count;
+        i1 = 2 * (i + 1) % count;
+        i2 = 2 * (i + 2) % count;
+        double dx1 = vertices[i1] - vertices[i0];
+        double dy1 = vertices[i1 + 1] - vertices[i0 + 1];
+        double dx2 = vertices[i2] - vertices[i1];
+        double dy2 = vertices[i2 + 1] - vertices[i1 + 1];
 
-    double A[2];
-    double B[2];
-    double C[2];
+        double cross = dx1 * dy2 - dy1 * dx2;
 
-    // Traverse the array
-    Py_ssize_t i1;
-    for (i1 = 0; i1 < count; i1 += 2) {
-        // Stores three adjacent edges
-        // of the polygon
-        A[0] = verticies[i1];
-        A[1] = verticies[i1 + 1];
-        B[0] = verticies[(i1 + 2) % count];
-        B[1] = verticies[(i1 + 3) % count];
-        C[0] = verticies[(i1 + 4) % count];
-        C[1] = verticies[(i1 + 5) % count];
-
-        // Update curr
-        curr = _pg_is_convex_cross_product(A, B, C);
-
-        // If curr is not equal to 0
-        if (curr != 0) {
-            // If direction of cross product of
-            // all adjacent edges are not same
-            if (curr * prev < 0) {
-                return 0;
-            }
-            else {
-                // Update curr
-                prev = curr;
-            }
+        if (cross == 0) {
+            /* The polygon is not convex if any two edges are colinear. */
+            return 0;
+        }
+        else if (sign == 0) {
+            sign = cross < 0 ? -1 : 1;
+        }
+        else if ((sign == -1 && cross > 0) || (sign == 1 && cross < 0)) {
+            /* The polygon is not convex if the cross products of any
+             * two adjacent edges are of different signs.
+             */
+            return 0;
         }
     }
+
     return 1;
 }
 
