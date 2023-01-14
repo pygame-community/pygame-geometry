@@ -239,12 +239,14 @@ def raycast(
     max_dist: float,
     colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Optional[Tuple[float, float]]: ...
+
 Ray = Union[
     Line,
     Tuple[Coordinate, Coordinate, float],
     Tuple[Coordinate, float, float],
     Tuple[Coordinate, Coordinate],
 ]
+
 @overload
 def raycast(
     line: Line,
