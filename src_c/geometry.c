@@ -11,6 +11,7 @@
 /*
  * origin, direction, max_dist
  * origin, angle, max_dist
+ * origin, end
  * line
  *
  * sets the error messages
@@ -26,6 +27,24 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
             PyErr_SetString(
                 PyExc_TypeError,
                 "line parameter must be a Line or a LineLike object");
+            return 0;
+        }
+
+        *max_t = 1.0;
+
+        return 1;
+    }
+    else if (nargs == 2) {
+        if (!pg_TwoDoublesFromObj(args[0], &line->x1, &line->y1)) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Invalid ray origin value, must be a pair of numeric values");
+            return 0;
+        }
+        if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Invalid ray end value, must be a pair of numeric values");
             return 0;
         }
 
@@ -250,7 +269,7 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     if (nargs < 2) {
         return RAISE(PyExc_TypeError,
                      "Invalid number of arguments, expected "
-                     "at least 2 arguments");
+                     "exactly 2 arguments");
     }
 
     if (!PySequence_FAST_CHECK(args[0]) || !PySequence_FAST_CHECK(args[1])) {
@@ -295,15 +314,16 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
         /*Convert the PyObject into a ray*/
         if (pgLine_Check(ray_obj)) {
-            memcpy(&ray, &((pgLineObject *)ray_obj)->line, sizeof(pgLineBase));
+            memcpy(&ray, &pgLine_AsLine(ray_obj), sizeof(pgLineBase));
             max_t = 1.0;
         }
         else if (PyTuple_Check(ray_obj)) {
             PyObject *const *ray_items =
                 (PyObject *const *)PySequence_Fast_ITEMS(ray_obj);
 
-            if (!_pg_extract_ray_from_object_fastcall(ray_items, 3, &ray,
-                                                      &max_t)) {
+            if (!_pg_extract_ray_from_object_fastcall(
+                    ray_items, PySequence_Fast_GET_SIZE(ray_obj), &ray,
+                    &max_t)) {
                 Py_DECREF(ret);
                 return NULL;
             }
