@@ -1035,6 +1035,24 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertIsInstance(polygon, Polygon)
         self.assertEqual(polygon.verts_num, 3)
 
+    def test_is_convex_meth(self):
+        p1 = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+        p2 = Polygon((0, 10), (5, 5), (10, 10), (10, 0), (0, 0))
+
+        with self.assertRaises(TypeError):
+            p1.is_convex(1)
+        with self.assertRaises(TypeError):
+            p1.is_convex("1")
+        with self.assertRaises(TypeError):
+            p1.is_convex([1])
+        with self.assertRaises(TypeError):
+            p1.is_convex((1,))
+        with self.assertRaises(TypeError):
+            p1.is_convex(object())
+
+        self.assertTrue(p1.is_convex())
+        self.assertFalse(p2.is_convex())
+
 
 if __name__ == "__main__":
     unittest.main()

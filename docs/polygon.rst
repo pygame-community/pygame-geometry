@@ -200,6 +200,19 @@ Polygon Methods
 
       .. ## Polygon.rotate_ip ##
 
+    .. method:: is_convex
+
+        | :sl:`checks whether the polygon is convex or concave`
+        | :sg:`is_convex() -> bool`
+
+        Checks whether the polygon is convex or concave.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to check if it's convex.
+
+      .. ## Polygon.is_convex ##
+
     .. method:: add_vertex <<NOT YET IMPLEMENTED>>
 
         | :sl:`adds a vertex to the polygon`

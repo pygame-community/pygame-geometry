@@ -908,6 +908,58 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+/*
+ * this function takes in `pgPolygonBase *` and
+ * it returns an int representing whether the polygon is convex or not
+ * (concave)
+ */
+static int
+_pg_polygon_is_convex_helper(pgPolygonBase *poly)
+{
+    /* A polygon is convex if and only if the cross products of all the
+     * adjacent edges are all of the same sign.
+     */
+    Py_ssize_t i, i0, i1, i2;
+    Py_ssize_t verts_num = poly->verts_num;
+    Py_ssize_t count = 2 * verts_num;
+    double *vertices = poly->vertices;
+    int sign = 0;
+
+    for (i = 0; i < verts_num; i++) {
+        i0 = 2 * i % count;
+        i1 = 2 * (i + 1) % count;
+        i2 = 2 * (i + 2) % count;
+        double dx1 = vertices[i1] - vertices[i0];
+        double dy1 = vertices[i1 + 1] - vertices[i0 + 1];
+        double dx2 = vertices[i2] - vertices[i1];
+        double dy2 = vertices[i2 + 1] - vertices[i1 + 1];
+
+        double cross = dx1 * dy2 - dy1 * dx2;
+
+        if (cross == 0) {
+            /* The polygon is not convex if any two edges are colinear. */
+            return 0;
+        }
+        else if (sign == 0) {
+            sign = cross < 0 ? -1 : 1;
+        }
+        else if ((sign == -1 && cross > 0) || (sign == 1 && cross < 0)) {
+            /* The polygon is not convex if the cross products of any
+             * two adjacent edges are of different signs.
+             */
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static PyObject *
+pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
+{
+    return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
@@ -915,6 +967,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
      NULL},
+    {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
