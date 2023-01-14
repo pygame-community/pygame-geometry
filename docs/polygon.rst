@@ -202,16 +202,16 @@ Polygon Methods
 
     .. method:: is_convex
 
-        | :sl:`checks if the polygon is convex or concave`
+        | :sl:`checks whether the polygon is convex or concave`
         | :sg:`is_convex() -> bool`
 
         Checks whether the polygon is convex or concave.
 
         .. note::
             Keep in mind that the more vertices the polygon has, the more CPU time it will
-            take to move it.
+            take to check if it's convex.
 
-      .. ## Polygon.move ##
+      .. ## Polygon.is_convex ##
 
     .. method:: add_vertex <<NOT YET IMPLEMENTED>>
 

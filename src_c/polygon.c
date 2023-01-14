@@ -932,11 +932,16 @@ _pg_is_convex_cross_product(double *A, double *B, double *C)
 }
 
 /*
+ * this function takes in `pgPolygonBase *` and
+ * it returns an int representing whether the polygon is convex or not (concave)
  * https://www.geeksforgeeks.org/check-if-given-polygon-is-a-convex-polygon-or-not/
  */
 static int
-_pg_polygon_is_convex_helper(double *verticies, int count)
+_pg_polygon_is_convex_helper(pgPolygonBase *poly)
 {
+    Py_ssize_t count = poly->verts_num;
+    double *verticies = poly->vertices;
+
     // Stores direction of cross product
     // of previous traversed edges
     double prev = 0;
@@ -945,14 +950,13 @@ _pg_polygon_is_convex_helper(double *verticies, int count)
     // of current traversed edges
     double curr = 0;
 
-    double *_memory = PyMem_New(double, 6);
-    double *A = _memory;
-    double *B = _memory + 2;
-    double *C = _memory + 4;
+    double A[2];
+    double B[2];
+    double C[2];
 
     // Traverse the array
     Py_ssize_t i1;
-    for (i1 = 0; i1 < count * 2; i1 += 2) {
+    for (i1 = 0; i1 < count; i1 += 2) {
         // Stores three adjacent edges
         // of the polygon
         A[0] = verticies[i1];
@@ -970,7 +974,6 @@ _pg_polygon_is_convex_helper(double *verticies, int count)
             // If direction of cross product of
             // all adjacent edges are not same
             if (curr * prev < 0) {
-                PyMem_Free(_memory);
                 return 0;
             }
             else {
@@ -979,15 +982,13 @@ _pg_polygon_is_convex_helper(double *verticies, int count)
             }
         }
     }
-    PyMem_Free(_memory);
     return 1;
 }
 
 static PyObject *
 pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
 {
-    int result = _pg_polygon_is_convex_helper((&self->polygon)->vertices,
-                                              (&self->polygon)->verts_num * 2);
+    int result = _pg_polygon_is_convex_helper(&self->polygon);
 
     return PyBool_FromLong(result);
 }

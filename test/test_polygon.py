@@ -1041,6 +1041,14 @@ class PolygonTypeTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             p1.is_convex(1)
+        with self.assertRaises(TypeError):
+            p1.is_convex("1")
+        with self.assertRaises(TypeError):
+            p1.is_convex([1])
+        with self.assertRaises(TypeError):
+            p1.is_convex((1,))
+        with self.assertRaises(TypeError):
+            p1.is_convex(object())
 
         self.assertTrue(p1.is_convex())
         self.assertFalse(p2.is_convex())
