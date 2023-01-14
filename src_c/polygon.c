@@ -916,14 +916,13 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
 static int
 _pg_polygon_is_convex_helper(pgPolygonBase *poly)
 {
+    /* A polygon is convex if and only if the cross products of all the
+     * adjacent edges are all of the same sign.
+     */
     Py_ssize_t i, i0, i1, i2;
     Py_ssize_t verts_num = poly->verts_num;
     Py_ssize_t count = 2 * verts_num;
     double *vertices = poly->vertices;
-
-    /* A polygon is convex if and only if the cross products of all the
-     * adjacent edges are all of the same sign.
-     */
     int sign = 0;
 
     for (i = 0; i < verts_num; i++) {
@@ -958,9 +957,7 @@ _pg_polygon_is_convex_helper(pgPolygonBase *poly)
 static PyObject *
 pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
 {
-    int result = _pg_polygon_is_convex_helper(&self->polygon);
-
-    return PyBool_FromLong(result);
+    return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
