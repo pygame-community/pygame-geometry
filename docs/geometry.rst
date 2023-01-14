@@ -182,12 +182,29 @@ such as raycasting and general utility functions.
 
     .. method:: regular_polygon
 
-            | :sl:`Returns a regular polygon with the given number of sides`
-            | :sg:`regular_polygon(sides, center, radius, angle=0) -> Polygon`
+        | :sl:`Returns a regular polygon with the given number of sides`
+        | :sg:`regular_polygon(sides, center, radius, angle=0) -> Polygon`
 
-            This function returns a regular polygon with the given number of sides.
-            The polygon is centered at the given center point and has the given radius.
-            The polygon can be rotated by the given angle through the optional
-            `angle` parameter, defaulting to 0.
+        This function returns a regular polygon with the given number of sides.
+        The polygon is centered at the given center point and has the given radius.
+        The polygon can be rotated by the given angle through the optional
+        `angle` parameter, defaulting to 0.
 
       .. ## geometry.regular_polygon ##
+
+    .. method:: rect_to_polygon
+
+        | :sl:`Returns a polygon that represents the given rectangle`
+        | :sg:`rect_to_polygon(rect) -> Polygon`
+
+        This function is used to convert a rectangle into a polygon.
+        The resulting polygon will have four vertices, one for each corner of the
+        rectangle. For example, if the input rectangle is specified as Rect(0, 0, 10, 10),
+        the resulting polygon will have the following vertices:
+
+        Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
+
+        which represent the top left, top right, bottom right, and bottom left corners
+        of the rectangle, respectively.
+
+      .. ## geometry.rect_to_polygon ##

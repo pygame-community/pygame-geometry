@@ -6,7 +6,7 @@
 #include "simd_collisions_avx2.c"
 #endif /* ~__AVX2__ */
 
-#define PYGAMEAPI_GEOMETRY_NUMSLOTS 22
+#define PYGAMEAPI_GEOMETRY_NUMSLOTS 24
 
 /*
  * origin, direction, max_dist
@@ -67,9 +67,9 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
                                 "Invalid ray angle value, must be numeric");
                 return 0;
             }
-
-            line->x2 = line->x1 - cos(angle * PI / 180);
-            line->y2 = line->y1 - sin(angle * PI / 180);
+            angle = DEG_TO_RAD(angle);
+            line->x2 = line->x1 - cos(angle);
+            line->y2 = line->y1 - sin(angle);
         }
         else if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
             PyErr_SetString(PyExc_TypeError,
@@ -213,7 +213,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
             return RAISE(PyExc_TypeError,
                          "the forth parameter must be a number");
         }
-        angle *= PI / 180.0;
+        angle = DEG_TO_RAD(angle);
     }
 
     double *vertices = PyMem_New(double, sides * 2);
@@ -223,7 +223,7 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
     }
 
     Py_ssize_t loop;
-    double fac = TAU / sides;
+    double fac = M_TWOPI / sides;
 
     /*If the number of sides is even, mirror the vertices*/
     if (sides % 2 == 0) {
@@ -384,11 +384,47 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     return ret;
 }
 
+static PG_FORCE_INLINE void
+_normalize_rect(SDL_Rect *rect)
+{
+    if (rect->w < 0) {
+        rect->x += rect->w;
+        rect->w = -rect->w;
+    }
+    if (rect->h < 0) {
+        rect->y += rect->h;
+        rect->h = -rect->h;
+    }
+}
+
+static PyObject *
+geometry_rect_to_polygon(PyObject *_null, PyObject *arg)
+{
+    SDL_Rect rect, *tmp;
+
+    if (!(tmp = pgRect_FromObject(arg, &rect))) {
+        if (PyErr_Occurred()) {
+            return NULL;
+        }
+        return RAISE(PyExc_TypeError, "rect must be a valid Rect object");
+    }
+
+    _normalize_rect(tmp);
+
+    double vertices[] = {tmp->x, tmp->y,          tmp->x + tmp->w,
+                         tmp->y, tmp->x + tmp->w, tmp->y + tmp->h,
+                         tmp->x, tmp->y + tmp->h};
+
+    return pgPolygon_New4(vertices, 4, tmp->x + tmp->w / 2,
+                          tmp->y + tmp->h / 2);
+}
+
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
      NULL},
     {"multiraycast", (PyCFunction)geometry_multiraycast, METH_FASTCALL, NULL},
     {"raycast", (PyCFunction)pg_raycast, METH_FASTCALL, NULL},
+    {"rect_to_polygon", (PyCFunction)geometry_rect_to_polygon, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
@@ -493,7 +529,9 @@ MODINIT_DEFINE(geometry)
     c_api[18] = &pgPolygon_Type;
     c_api[19] = pgPolygon_New;
     c_api[20] = pgPolygon_New2;
-    c_api[21] = pgPolygon_FromObject;
+    c_api[21] = pgPolygon_New4;
+    c_api[22] = pgPolygon_FromObject;
+    c_api[23] = pgPolygon_FromObjectFastcall;
 
     apiobj = encapsulate_api(c_api, "geometry");
     if (PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {

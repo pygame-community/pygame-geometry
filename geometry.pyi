@@ -16,7 +16,7 @@ from typing_extensions import Protocol
 from pygame.math import Vector2, Vector3
 from pygame.rect import Rect
 
-Coordinate = Union[Tuple[float, float], Sequence[float], Vector2]
+Coordinate = Union[Tuple[float, float], Sequence[float], Vector2, Tuple[int, int]]
 
 Shape = Union["Line", "Circle", "Rect", "Polygon"]
 
@@ -196,7 +196,7 @@ class Polygon:
     @overload
     def __init__(self, vertices: Sequence[Coordinate]) -> None: ...
     @overload
-    def __setitem__(self, key: int, value: Sequence[Coordinate]) -> None: ...
+    def __setitem__(self, key: int, value: Coordinate) -> None: ...
     @overload
     def __getitem__(self, i: int) -> Sequence[Coordinate]: ...
     @overload
@@ -220,6 +220,7 @@ class Polygon:
     def collidepoint(self, x: float, y: float) -> bool: ...
     @overload
     def collidepoint(self, point: Coordinate) -> bool: ...
+    def is_convex() -> bool: ...
 
 def regular_polygon(
     sides: int, center: Coordinate, radius: float, angle: float = 0
@@ -238,21 +239,20 @@ def raycast(
     max_dist: float,
     colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Optional[Tuple[float, float]]: ...
-@overload
-def raycast(
-    line: Line,
-    colliders: Sequence[Union[Rect, Circle, Line]],
-) -> Optional[Tuple[float, float]]: ...
-
 Ray = Union[
     Line,
     Tuple[Coordinate, Coordinate, float],
     Tuple[Coordinate, float, float],
     Tuple[Coordinate, Coordinate],
 ]
-
+@overload
+def raycast(
+    line: Line,
+    colliders: Sequence[Union[Rect, Circle, Line]],
+) -> Optional[Tuple[float, float]]: ...
 @overload
 def multiraycast(
     rays: Sequence[Ray],
     colliders: Sequence[Union[Rect, Circle, Line]],
 ) -> Sequence[Optional[Tuple[float, float]]]: ...
+def rect_to_polygon(rect: Rect) -> Polygon: ...
