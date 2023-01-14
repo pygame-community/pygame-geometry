@@ -154,6 +154,8 @@ other objects.
 
     collidepoint: Checks if the polygon collides with the given point.
 
+    is_convex: Checks if the polygon is convex.
+
 Functions
 =========
 The geometry module also contains a number of standalone functions for performing operations
