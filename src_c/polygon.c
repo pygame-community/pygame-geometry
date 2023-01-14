@@ -908,6 +908,90 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static double
+_pg_is_convex_cross_product(double *A, double *B, double *C)
+{
+    // Stores coefficient of X
+    // direction of vector BA
+    double X1 = (B[0] - A[0]);
+
+    // Stores coefficient of Y
+    // direction of vector BA
+    double Y1 = (B[1] - A[1]);
+
+    // Stores coefficient of X
+    // direction of vector CA
+    double X2 = (C[0] - A[0]);
+
+    // Stores coefficient of Y
+    // direction of vector CA
+    double Y2 = (C[1] - A[1]);
+
+    // Return cross product
+    return X1 * Y2 - Y1 * X2;
+}
+
+/*
+ * https://www.geeksforgeeks.org/check-if-given-polygon-is-a-convex-polygon-or-not/
+ */
+static int
+_pg_polygon_is_convex_helper(double *verticies, int count)
+{
+    // Stores direction of cross product
+    // of previous traversed edges
+    double prev = 0;
+
+    // Stores direction of cross product
+    // of current traversed edges
+    double curr = 0;
+
+    double *_memory = PyMem_New(double, 6);
+    double *A = _memory;
+    double *B = _memory + 2;
+    double *C = _memory + 4;
+
+    // Traverse the array
+    Py_ssize_t i1;
+    for (i1 = 0; i1 < count * 2; i1 += 2) {
+        // Stores three adjacent edges
+        // of the polygon
+        A[0] = verticies[i1];
+        A[1] = verticies[i1 + 1];
+        B[0] = verticies[(i1 + 2) % count];
+        B[1] = verticies[(i1 + 3) % count];
+        C[0] = verticies[(i1 + 4) % count];
+        C[1] = verticies[(i1 + 5) % count];
+
+        // Update curr
+        curr = _pg_is_convex_cross_product(A, B, C);
+
+        // If curr is not equal to 0
+        if (curr != 0) {
+            // If direction of cross product of
+            // all adjacent edges are not same
+            if (curr * prev < 0) {
+                PyMem_Free(_memory);
+                return 0;
+            }
+            else {
+                // Update curr
+                prev = curr;
+            }
+        }
+    }
+    PyMem_Free(_memory);
+    return 1;
+}
+
+static PyObject *
+pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
+{
+    int result = _pg_polygon_is_convex_helper((&self->polygon)->vertices,
+                                              (&self->polygon)->verts_num * 2);
+
+    return PyBool_FromLong(result);
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
@@ -915,6 +999,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
      NULL},
+    {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
