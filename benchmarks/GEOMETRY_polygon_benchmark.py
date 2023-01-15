@@ -2,6 +2,7 @@ from benchmark_utils import TestSuite
 
 from geometry import Polygon, regular_polygon
 
+
 # === Tests ===
 # Each test consists of a tuple of: (name, call)
 # The name is a string containing the name of the test
@@ -11,9 +12,24 @@ from geometry import Polygon, regular_polygon
 # the formula is time = (time per CPT calls repeated REP times) / REP
 # ====================================================
 
+
+class ObjWithPolyAttribute:
+    def __init__(self, polygon=None):
+        self.polygon = polygon
+
+
+class ObjWithPolyMethodAttribute:
+    def __init__(self, polygon=None):
+        self._poly = polygon
+
+    def polygon(self):
+        return self._poly
+
+
+triang_vertices = [(50, 50), (50, 100), (70, 55)]
 GLOB = {
     "Polygon": Polygon,
-    "po3": Polygon([(50, 50), (50, 100), (70, 55)]),
+    "po3": Polygon(triang_vertices),
     "po4": Polygon([(50, 50), (50, 100), (70, 55), (100, 23)]),
     "po100": regular_polygon(100, (50, 50), 50),
     "p1_i": (50, 50),
@@ -24,10 +40,14 @@ GLOB = {
     "p2_f": (50.0, 100.0),
     "p3_f": (70.0, 55.0),
     "p4_f": (100.0, 23.0),
-    "poly3_int_list": [(50, 50), (50, 100), (70, 55)],
+    "poly3_int_list": triang_vertices,
     "poly4_int_list": [(50, 50), (50, 100), (70, 55), (100, 23)],
     "poly3_float_list": [(50.0, 50.0), (50.0, 100.0), (70.0, 55.0)],
     "poly4_float_list": [(50.0, 50.0), (50.0, 100.0), (70.0, 55.0), (100.0, 23.0)],
+    "poly_attribute": ObjWithPolyAttribute(triang_vertices),
+    "poly_method_attribute": ObjWithPolyMethodAttribute(triang_vertices),
+    "poly_attribute_poly": ObjWithPolyAttribute(Polygon(triang_vertices)),
+    "poly_method_attribute_poly": ObjWithPolyMethodAttribute(Polygon(triang_vertices)),
 }
 
 instatiation_tests = [
@@ -41,6 +61,10 @@ instatiation_tests = [
     ("(3) float 1 arg", "Polygon(poly3_float_list)"),
     ("(4) int 1 arg", "Polygon(poly4_int_list)"),
     ("(4) float 1 arg", "Polygon(poly4_float_list)"),
+    ("Polygon from ObjWithPolyAttribute 3", "Polygon(poly_attribute)"),
+    ("Polygon from ObjWithPolyMethodAttribute 3", "Polygon(poly_method_attribute)"),
+    ("Polygon from ObjWithPolyAttribute poly 3", "Polygon(poly_attribute_poly)"),
+    ("Polygon from ObjWithPolyMethodAttribute poly 3", "Polygon(poly_attribute_poly)"),
 ]
 
 getters_tests = [
