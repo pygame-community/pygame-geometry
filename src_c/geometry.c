@@ -266,55 +266,66 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
 static PyObject *
 geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 {
+    PyObject **colliders, **rays, *list;
+    Py_ssize_t colliders_length, rays_length, i, j;
+
     if (nargs < 2) {
         return RAISE(PyExc_TypeError,
                      "Invalid number of arguments, expected "
                      "exactly 2 arguments");
     }
 
-    if (!PySequence_FAST_CHECK(args[0]) || !PySequence_FAST_CHECK(args[1])) {
+    if (!PySequence_FAST_CHECK(args[0])) {
         return RAISE(PyExc_TypeError,
-                     "rays and colliders parameters must be sequences");
+                     "Invalid rays parameter, expected a sequence");
     }
 
-    PyObject **rays = PySequence_Fast_ITEMS(args[0]);
-    Py_ssize_t rays_length = PySequence_Fast_GET_SIZE(args[0]);
+    rays_length = PySequence_Fast_GET_SIZE(args[0]);
 
     /*If there are no rays, return an empty list*/
-    if (rays_length == 0) {
+    if (!rays_length) {
         return PyList_New(0);
     }
 
-    PyObject **colliders = PySequence_Fast_ITEMS(args[1]);
-    Py_ssize_t colliders_length = PySequence_Fast_GET_SIZE(args[1]);
-
-    if (colliders_length == 0) {
-        PyObject *ret = PyList_New(rays_length);
-        if (!ret) {
-            return NULL;
-        }
-        for (Py_ssize_t i = 0; i < rays_length; i++) {
-            Py_INCREF(Py_None);
-            PyList_SET_ITEM(ret, i, Py_None);
-        }
-
-        return ret;
+    if (!PySequence_FAST_CHECK(args[1])) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid colliders parameter, expected a sequence");
     }
 
-    PyObject *ret = PyList_New(rays_length);
-    if (!ret) {
+    colliders_length = PySequence_Fast_GET_SIZE(args[1]);
+
+    /*If there are no colliders, return a list of None objects,
+     * with the same length as the rays*/
+    if (!colliders_length) {
+        list = PyList_New(rays_length);
+        if (!list) {
+            return NULL;
+        }
+        for (i = 0; i < rays_length; i++) {
+            Py_INCREF(Py_None);
+            PyList_SET_ITEM(list, i, Py_None);
+        }
+
+        return list;
+    }
+
+    rays = PySequence_Fast_ITEMS(args[0]);
+    colliders = PySequence_Fast_ITEMS(args[1]);
+
+    /*Create a list to store the results*/
+    list = PyList_New(rays_length);
+    if (!list) {
         return NULL;
     }
 
     pgLineBase ray;
-    Py_ssize_t i, j;
     for (i = 0; i < rays_length; i++) {
         PyObject *ray_obj = rays[i];
         double max_t = 0;
 
         /*Convert the PyObject into a ray*/
         if (pgLine_Check(ray_obj)) {
-            memcpy(&ray, &pgLine_AsLine(ray_obj), sizeof(pgLineBase));
+            ray = pgLine_AsLine(ray_obj);
             max_t = 1.0;
         }
         else if (PyTuple_Check(ray_obj)) {
@@ -322,14 +333,13 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
                 (PyObject *const *)PySequence_Fast_ITEMS(ray_obj);
 
             if (!_pg_extract_ray_from_object_fastcall(
-                    ray_items, PySequence_Fast_GET_SIZE(ray_obj), &ray,
-                    &max_t)) {
-                Py_DECREF(ret);
+                    ray_items, PyTuple_GET_SIZE(ray_obj), &ray, &max_t)) {
+                Py_DECREF(list);
                 return NULL;
             }
         }
         else {
-            Py_DECREF(ret);
+            Py_DECREF(list);
             return RAISE(PyExc_TypeError,
                          "rays must be a sequence of lines or tuples");
         }
@@ -358,7 +368,7 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
                 }
             }
             else {
-                Py_DECREF(ret);
+                Py_DECREF(list);
                 return RAISE(PyExc_TypeError,
                              "collisions must be a sequence of "
                              "Line, Circle or Rect objects");
@@ -367,21 +377,21 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
 
         if (record_t == max_t) {
             Py_INCREF(Py_None);
-            PyList_SET_ITEM(ret, i, Py_None);
+            PyList_SET_ITEM(list, i, Py_None);
         }
         else {
             double x, y;
             pgLine_At(&ray, record_t, &x, &y);
             PyObject *point = pg_TupleFromDoublePair(x, y);
             if (!point) {
-                Py_DECREF(ret);
+                Py_DECREF(list);
                 return NULL;
             }
-            PyList_SET_ITEM(ret, i, point);
+            PyList_SET_ITEM(list, i, point);
         }
     }
 
-    return ret;
+    return list;
 }
 
 static PG_FORCE_INLINE void
