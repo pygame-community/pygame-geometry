@@ -269,7 +269,7 @@ geometry_multiraycast(PyObject *_null, PyObject *const *args, Py_ssize_t nargs)
     PyObject **colliders, **rays, *list;
     Py_ssize_t colliders_length, rays_length, i, j;
 
-    if (nargs < 2) {
+    if (nargs != 2) {
         return RAISE(PyExc_TypeError,
                      "Invalid number of arguments, expected "
                      "exactly 2 arguments");
