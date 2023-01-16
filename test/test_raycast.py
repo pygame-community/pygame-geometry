@@ -1,6 +1,6 @@
 import unittest
 
-from geometry import raycast, Circle, Line, multiraycast
+from geometry import raycast, Circle, Line, multiraycast, Polygon
 from pygame import Rect
 import math
 
@@ -812,6 +812,9 @@ class RaycastTest(unittest.TestCase):
             {1: 2, 3: 4},
             object(),
             lambda x: x,
+            Rect(0, 0, 1, 1),
+            Circle(0, 0, 1),
+            Polygon((0, 0), (1, 0), (1, 1)),
         ]
 
         valid_rays = [Line((0, 0), (1, 1))]
@@ -834,6 +837,9 @@ class RaycastTest(unittest.TestCase):
         """Tests that multiraycast works correctly with valid argument types but
         invalid rays and colliders inside the lists."""
         invalid_rays_sequences = [
+            [Rect(0, 0, 1, 1)],
+            [Circle(0, 0, 1)],
+            [Polygon((0, 0), (1, 1), (1, 0))],
             [1, 2, 3],
             ["1", "2", "3"],
             [None, None, None],
