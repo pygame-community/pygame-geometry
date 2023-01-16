@@ -490,9 +490,9 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
-double 
+static PG_FORCE_INLINE double
 _lerp_helper(float start, float end, float amount) {
-    return (1 - amount) * start + amount * end;
+    return start + (end - start) * amount;
 }
 
 static int
