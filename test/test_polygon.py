@@ -73,6 +73,10 @@ class PolygonTypeTest(unittest.TestCase):
             Vector2(1, 1),
             [p1, p2, p3, 32],
             [p1, p2, "(1, 1)"],
+            (p1, p2, "(1, 1)"),
+            (p1, p2, 32),
+            (p for p in [p1, p2, 32]),
+            (p for p in [p1, p2, "(1, 1)"]),
         )
 
         for value in invalid_types:
@@ -97,8 +101,14 @@ class PolygonTypeTest(unittest.TestCase):
     def test_construction_invalid_polygon(self):
         """Checks whether the constructor works correctly with invalid polygons"""
         invalid_polygons = (
+            [],
             [p1],  # 1
             [p1, p2],  # 2
+            (p1,),  # 1
+            (p1, p2),  # 2
+            (p for p in []),
+            (p for p in [p1]),  # generator
+            (p for p in [p1, p2]),  # generator
         )
 
         for polygon in invalid_polygons:
@@ -127,6 +137,57 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, [p1, p2, p3])
 
+    def test_construction_polygon_attribute(self):
+        """Ensures that you can construct a polygon from another object that has a
+        polygon attribute"""
+
+        # polygon attribute is a list of vertices
+        class PolygonObject:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, po.polygon)
+
+        # polygon attribute is a callable that returns a list of vertices
+        class PolygonObject1:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return self._poly
+
+        po = PolygonObject1([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+
+        # polygon attribute is a callable that returns a Polygon object
+        class PolygonObject2:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return Polygon(self._poly)
+
+        po = PolygonObject2(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon().vertices)
+
+        # polygon attribute is a polygon object
+        class PolygonObject3:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject3(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon.vertices)
+
     def test_construction_frompolygon(self):
         """Checks whether the constructor works correctly with another polygon"""
         po = Polygon([p1, p2, p3, p4])
@@ -134,6 +195,62 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
+
+    def test_construction_generator(self):
+        """Checks whether the constructor works correctly with a generator object"""
+
+        def generator():
+            yield p1
+            yield p2
+            yield p3
+            yield p4
+
+        po = Polygon(generator())
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterator(self):
+        """Checks whether the constructor works correctly with an iterator object"""
+
+        class Iterator:
+            def __init__(self, points):
+                self.points = points
+                self.index = 0
+
+            def __next__(self):
+                if self.index >= len(self.points):
+                    raise StopIteration
+                result = self.points[self.index]
+                self.index += 1
+                return result
+
+            def __iter__(self):
+                return self
+
+        it = Iterator([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterable(self):
+        """Checks whether the constructor works correctly with an object that implements the __iter__ method"""
+
+        it = iter([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon(p for p in [p1, p2, p3, p4])
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression2(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon((p for p in [p1, p2, p3, p4]))
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
 
     def test_perimeter(self):
         def get_perimeter(poly: geometry.Polygon) -> float:
@@ -1046,6 +1163,30 @@ class PolygonTypeTest(unittest.TestCase):
         for i in range(poly.verts_num):
             with self.assertRaises(TypeError):
                 poly[-i] = invalid_args[i]
+
+    def test_polygon___new__(self):
+        """Tests whether the __new__ method works correctly."""
+        polygon = Polygon.__new__(Polygon)
+        self.assertIsInstance(polygon, Polygon)
+        self.assertEqual(polygon.verts_num, 3)
+
+    def test_is_convex_meth(self):
+        p1 = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+        p2 = Polygon((0, 10), (5, 5), (10, 10), (10, 0), (0, 0))
+
+        with self.assertRaises(TypeError):
+            p1.is_convex(1)
+        with self.assertRaises(TypeError):
+            p1.is_convex("1")
+        with self.assertRaises(TypeError):
+            p1.is_convex([1])
+        with self.assertRaises(TypeError):
+            p1.is_convex((1,))
+        with self.assertRaises(TypeError):
+            p1.is_convex(object())
+
+        self.assertTrue(p1.is_convex())
+        self.assertFalse(p2.is_convex())
 
 
 if __name__ == "__main__":

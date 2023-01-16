@@ -75,183 +75,475 @@ _pg_polygon_vertices_astuple(pgPolygonBase *poly)
 }
 
 static int
-pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out)
+_pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 {
+    /* This function initializes a Polygon object. It can resize the memory
+     * for the vertices if needed, and therefore it should be used only when
+     * the polygon is not yet initialized. */
     Py_ssize_t length;
 
+    /* If the Python object is already a pgPolygonBase object, copy the
+     * relevant information from that object to the init_poly object into
+     * the memory, resize if needed. */
     if (pgPolygon_Check(obj)) {
         pgPolygonBase *poly = &pgPolygon_AsPolygon(obj);
 
-        out->verts_num = poly->verts_num;
-        if (!out->vertices) {
-            /* Only allocate new memory if the polygon vertices' memory is
-             * not allocated, just copy the values otherwise*/
-            out->vertices = PyMem_New(double, poly->verts_num * 2);
-            if (!out->vertices) {
+        /* Copy the vertices from the old polygon to the new polygon, while
+         * also allocating new memory. Resize the vertices array if needed. */
+        if (poly->verts_num > 3) {
+            PyMem_Resize(init_poly->vertices, double, poly->verts_num * 2);
+            if (!init_poly->vertices) {
+                return 0;
+            }
+        }
+        memcpy(init_poly->vertices, poly->vertices,
+               poly->verts_num * 2 * sizeof(double));
+
+        init_poly->verts_num = poly->verts_num;
+        init_poly->c_x = poly->c_x;
+        init_poly->c_y = poly->c_y;
+
+        return 1;
+    }
+
+    /*If the Python object is a Fast sequence, extract the vertices of the
+     polygon from the sequence*/
+    if (PySequence_FAST_CHECK(obj)) {
+        PyObject **f_arr = PySequence_Fast_ITEMS(obj);
+        length = PySequence_Fast_GET_SIZE(obj);
+
+        /*Make sure the sequence has at least 3 items (a polygon needs at
+        least 3 vertices)*/
+        if (length >= 3) {
+            Py_ssize_t i;
+
+            /* Resize the vertices array if needed. */
+            if (length > 3) {
+                PyMem_Resize(init_poly->vertices, double, length * 2);
+                if (!init_poly->vertices) {
+                    return 0;
+                }
+            }
+
+            /*Extract the x and y coordinates of each vertex and store them in
+            the init_poly object's vertices array*/
+            for (i = 0; i < length; i++) {
+                double x, y;
+                if (!pg_TwoDoublesFromObj(f_arr[i], &x, &y)) {
+                    /* Note: not using PyMem_Free on polygon vertices on
+                       failure because the pgPolygonBase is part of a Python
+                       object, which will handle freeing the memory on
+                       destruction. If we free the memory here, we will get a
+                       double free error. */
+                    return 0;
+                }
+                init_poly->vertices[i * 2] = x;
+                init_poly->vertices[i * 2 + 1] = y;
+                init_poly->c_x += x;
+                init_poly->c_y += y;
+            }
+
+            init_poly->verts_num = length;
+            /*Calculate the centroid of the polygon*/
+            init_poly->c_x /= length;
+            init_poly->c_y /= length;
+
+            return 1;
+        }
+        /*If the sequence only has one item, attempt to initialize the
+        init_poly object using that item*/
+        else if (length == 1) {
+            if (!_pgPolygon_InitFromObject(f_arr[0], init_poly)) {
+                return 0;
+            }
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /*If the Python object is not a Fast sequence but is still
+     considered a sequence by PySequence_Check, extract the vertices of
+     the polygon from the Sequence object*/
+    else if (PySequence_Check(obj)) {
+        /*Create an item variable to store the vertices of the polygon
+         as they are extracted from the object*/
+        PyObject *item = NULL;
+        length = PySequence_Length(obj);
+
+        /*Make sure the object has at least 3 items (a polygon needs at
+         least 3 vertices)*/
+        if (length >= 3) {
+            Py_ssize_t i;
+
+            /*Allocate memory for the vertices of the polygon*/
+            if (length > 3) {
+                PyMem_Resize(init_poly->vertices, double, length * 2);
+                if (!init_poly->vertices) {
+                    return 0;
+                }
+            }
+
+            /*Extract the x and y coordinates of each vertex and store
+            them in the init_poly object*/
+            for (i = 0; i < length; i++) {
+                double x, y;
+                item = PySequence_ITEM(obj, i);
+                if (!pg_TwoDoublesFromObj(item, &x, &y)) {
+                    Py_DECREF(item);
+                    /* Note: not using PyMem_Free on polygon vertices on
+                       failure because the pgPolygonBase is part of a Python
+                       object, which will handle freeing the memory on
+                       destruction. If we free the memory here, we will get a
+                       double free error. */
+                    return 0;
+                }
+                Py_DECREF(item);
+
+                init_poly->vertices[i * 2] = x;
+                init_poly->vertices[i * 2 + 1] = y;
+                init_poly->c_x += x;
+                init_poly->c_y += y;
+            }
+
+            init_poly->verts_num = length;
+            /*Calculate the centroid of the polygon*/
+            init_poly->c_x /= length;
+            init_poly->c_y /= length;
+
+            return 1;
+        }
+        /*If the object only has one item, attempt to initialize the
+        init_poly object using that item*/
+        else if (length == 1) {
+            item = PySequence_ITEM(obj, 0);
+            /*If the item is a Unicode string or if the
+            _pgPolygon_InitFromObject function fails, return 0
+            indicating that the init_poly object could not be
+            initialized*/
+            if (PyUnicode_Check(obj) ||
+                !_pgPolygon_InitFromObject(item, init_poly)) {
+                Py_DECREF(item);
+                return 0;
+            }
+            Py_DECREF(item);
+            return 1;
+        }
+
+        return 0;
+    }
+
+    /* If the Python object is an iterable sequence (generator) */
+    else if (PyIter_Check(obj)) {
+        PyObject *item = NULL;
+        PyObject *iter = PyObject_GetIter(obj);
+        Py_ssize_t i = 0, currently_allocated = 3;
+
+        /* Extract the x and y coordinates of each vertex and store
+           them in the init_poly object */
+        while ((item = PyIter_Next(iter))) {
+            double x, y;
+            if (!pg_TwoDoublesFromObj(item, &x, &y)) {
+                Py_DECREF(item);
+                Py_DECREF(iter);
+                /* Note: not using PyMem_Free on polygon vertices on
+                   failure because the pgPolygonBase is part of a Python
+                   object, which will handle freeing the memory on
+                   destruction. If we free the memory here, we will get a
+                   double free error. */
+                return 0;
+            }
+            Py_DECREF(item);
+
+            init_poly->vertices[i * 2] = x;
+            init_poly->vertices[i * 2 + 1] = y;
+            init_poly->c_x += x;
+            init_poly->c_y += y;
+
+            i++;
+            if (i + 1 > currently_allocated) {
+                /* Reallocate memory for the vertices of the polygon to 50%
+                   more than the current size */
+                currently_allocated = (currently_allocated * 3) / 2;
+                init_poly->vertices = PyMem_Resize(init_poly->vertices, double,
+                                                   2 * currently_allocated);
+                if (!init_poly->vertices) {
+                    Py_DECREF(iter);
+                    return 0;
+                }
+            }
+        }
+
+        if (i < 3) {
+            Py_DECREF(iter);
+            return 0;
+        }
+
+        /* Shrink the allocated memory to the actual size if necessary */
+        if (i < currently_allocated) {
+            init_poly->vertices =
+                PyMem_Resize(init_poly->vertices, double, 2 * i);
+            if (!init_poly->vertices) {
+                Py_DECREF(iter);
                 return 0;
             }
         }
 
-        memcpy(out->vertices, poly->vertices,
-               poly->verts_num * 2 * sizeof(double));
-        _set_polygon_center_coords(out);
+        Py_DECREF(iter);
+
+        init_poly->verts_num = i;
+        /* Calculate the centroid of the polygon */
+        init_poly->c_x /= i;
+        init_poly->c_y /= i;
+
+        return 1;
+    }
+
+    /*If the Python object has an attribute called "polygon", attempt
+    to extract the vertices of the polygon from that attribute*/
+    PyObject *polyattr;
+    if (!(polyattr = PyObject_GetAttrString(obj, "polygon"))) {
+        PyErr_Clear();
+        return 0;
+    }
+
+    /*call if it's a method*/
+    if (PyCallable_Check(polyattr)) {
+        PyObject *polyresult = PyObject_CallObject(polyattr, NULL);
+        Py_DECREF(polyattr);
+        if (!polyresult) {
+            PyErr_Clear();
+            return 0;
+        }
+        polyattr = polyresult;
+    }
+
+    if (!_pgPolygon_InitFromObject(polyattr, init_poly)) {
+        Py_DECREF(polyattr);
+        return 0;
+    }
+
+    Py_DECREF(polyattr);
+
+    return 1;
+}
+
+static int
+pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
+{
+    /* This function converts a Polygon compatible object to a pgPolygonBase
+     * object for use in C code. The "was_sequence" parameter indicates whether
+     * the object being converted was a sequence (1) or a pgPolygonBase struct
+     * (0). The "was_sequence" parameter should be used to determine whether to
+     * free the vertices of the pgPolygonBase object after use.
+     *
+     * 1. If "was_sequence" is 0, the object being converted was a
+     * pgPolygonBase struct. In this case, the vertices of the pgPolygonBase
+     * object do not need to be freed because they are part of the object
+     * and were not newly allocated.
+     *
+     * 2. If "was_sequence" is 1, the object being converted was a
+     * sequence (such as a list or tuple). In this case, the vertices of the
+     * pgPolygonBase's vertices must be freed using PyMem_Free after the object
+     * has been utilized, as they were allocated when the object was created
+     * from the sequence.
+     *
+     *  If the object being converted is a pgPolygonBase struct, the conversion
+     *  is more performant as it avoids a whole memory allocation and memcpy
+     *  (just doing a shallow copy), as well as making the other functions
+     *  that utilize this one simpler.
+     */
+
+    Py_ssize_t length;
+
+    if (pgPolygon_Check(obj)) {
+        /*Do a shallow copy of the pgPolygonBase object*/
+        *was_sequence = 0;
+        memcpy(out, &pgPolygon_AsPolygon(obj), sizeof(pgPolygonBase));
         return 1;
     }
 
     if (PySequence_FAST_CHECK(obj)) {
+        *was_sequence = 1;
         PyObject **f_arr = PySequence_Fast_ITEMS(obj);
         length = PySequence_Fast_GET_SIZE(obj);
 
         if (length >= 3) {
             Py_ssize_t i;
-            Py_ssize_t i2;
-            out->verts_num = length;
 
-            if (!out->vertices) {
-                /* Only allocate new memory if the polygon vertices' memory is
-                 * not allocated*/
-                out->vertices = PyMem_New(double, length * 2);
-                if (!out->vertices) {
-                    return 0;
-                }
-            }
-
-            double x_coord_sum = 0.0;
-            double y_coord_sum = 0.0;
-            for (i = 0; i < out->verts_num; i++) {
-                i2 = i * 2;
-                if (!pg_TwoDoublesFromObj(f_arr[i], &(out->vertices[i2]),
-                                          &(out->vertices[i2 + 1]))) {
-                    return 0;
-                }
-                x_coord_sum += out->vertices[i2];
-                y_coord_sum += out->vertices[i2 + 1];
-            }
-            out->c_x = x_coord_sum / out->verts_num;
-            out->c_y = y_coord_sum / out->verts_num;
-            return 1;
-        }
-        else if (length == 1) {
-            if (!pgPolygon_FromObject(f_arr[0], out)) {
-                return 0;
-            }
-            return 1;
-        }
-
-        /* Sequences of size 0 or 2 are not supported*/
-        return 0;
-    }
-    else if (PySequence_Check(obj)) {
-        /* Path for other sequences or Types that count as sequences*/
-        PyObject *tmp = NULL;
-        length = PySequence_Length(obj);
-
-        if (length >= 3) {
-            Py_ssize_t i;
-            Py_ssize_t i2;
-
-            out->verts_num = length;
+            /*Allocate memory for the vertices of the polygon*/
             out->vertices = PyMem_New(double, length * 2);
             if (!out->vertices) {
                 return 0;
             }
 
-            double x_coord_sum = 0.0;
-            double y_coord_sum = 0.0;
             for (i = 0; i < length; i++) {
-                i2 = i * 2;
-                tmp = PySequence_ITEM(obj, i);
-                if (!pg_TwoDoublesFromObj(tmp, &(out->vertices[i2]),
-                                          &(out->vertices[i2 + 1]))) {
-                    Py_DECREF(tmp);
+                double x, y;
+                if (!pg_TwoDoublesFromObj(f_arr[i], &x, &y)) {
+                    PyMem_Free(out->vertices);
                     return 0;
                 }
-                x_coord_sum += out->vertices[i2];
-                y_coord_sum += out->vertices[i2 + 1];
-                Py_DECREF(tmp);
-                tmp = NULL;
+                out->vertices[i * 2] = x;
+                out->vertices[i * 2 + 1] = y;
+                out->c_x += x;
+                out->c_y += y;
             }
-            out->c_x = x_coord_sum / out->verts_num;
-            out->c_y = y_coord_sum / out->verts_num;
+
+            out->verts_num = length;
+            /*Calculate the centroid of the polygon*/
+            out->c_x /= length;
+            out->c_y /= length;
+
+            return 1;
+        }
+        else if (length == 1) {
+            if (!pgPolygon_FromObject(f_arr[0], out, was_sequence)) {
+                return 0;
+            }
+            return 1;
+        }
+        /*Length is 0 or 2 -> invalid polygon*/
+        return 0;
+    }
+
+    else if (PySequence_Check(obj)) {
+        /* Path for other sequences or Types that count as sequences*/
+        *was_sequence = 1;
+        PyObject *tmp = NULL;
+        length = PySequence_Length(obj);
+
+        if (length >= 3) {
+            Py_ssize_t i;
+
+            out->vertices = PyMem_New(double, length * 2);
+            if (!out->vertices) {
+                return 0;
+            }
+
+            for (i = 0; i < length; i++) {
+                double x, y;
+                tmp = PySequence_ITEM(obj, i);
+                if (!pg_TwoDoublesFromObj(tmp, &x, &y)) {
+                    Py_DECREF(tmp);
+                    PyMem_Free(out->vertices);
+                    return 0;
+                }
+                Py_DECREF(tmp);
+                out->vertices[i * 2] = x;
+                out->vertices[i * 2 + 1] = y;
+                out->c_x += x;
+                out->c_y += y;
+            }
+
+            out->verts_num = length;
+            out->c_x /= length;
+            out->c_y /= length;
+
             return 1;
         }
         else if (length == 1) {
             tmp = PySequence_ITEM(obj, 0);
-            if (PyUnicode_Check(obj) || !pgPolygon_FromObject(tmp, out)) {
+            if (PyUnicode_Check(obj) ||
+                !pgPolygon_FromObject(tmp, out, was_sequence)) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             return 1;
         }
-
-        /* Sequences of size 0 or 2 are not supported*/
+        /*Length is 0 or 2 -> invalid polygon*/
         return 0;
     }
 
-    if (PyObject_HasAttrString(obj, "polygon")) {
-        PyObject *polyattr;
-        polyattr = PyObject_GetAttrString(obj, "polygon");
-        if (polyattr == NULL) {
-            PyErr_Clear();
-            return 0;
-        }
-        if (PyCallable_Check(polyattr)) /*call if it's a method*/
-        {
-            PyObject *polyresult = PyObject_CallObject(polyattr, NULL);
-            Py_DECREF(polyattr);
-            if (polyresult == NULL) {
-                PyErr_Clear();
-                return 0;
-            }
-            polyattr = polyresult;
-        }
-        if (!pgPolygon_FromObject(polyattr, out)) {
-            PyErr_Clear();
-            Py_DECREF(polyattr);
-            return 0;
-        }
-        Py_DECREF(polyattr);
-
-        return 1;
+    /* If the object is not a sequence, attempt to extract the vertices of the
+     * polygon from the object's "polygon" attribute */
+    PyObject *polyattr;
+    if (!(polyattr = PyObject_GetAttrString(obj, "polygon"))) {
+        PyErr_Clear();
+        return 0;
     }
 
-    return 0;
+    if (PyCallable_Check(polyattr)) /*call if it's a method*/
+    {
+        PyObject *polyresult = PyObject_CallObject(polyattr, NULL);
+        Py_DECREF(polyattr);
+        if (!polyresult) {
+            PyErr_Clear();
+            return 0;
+        }
+        polyattr = polyresult;
+    }
+
+    if (!pgPolygon_FromObject(polyattr, out, was_sequence)) {
+        PyErr_Clear();
+        Py_DECREF(polyattr);
+        return 0;
+    }
+
+    Py_DECREF(polyattr);
+
+    return 1;
 }
 
 static int
 pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
-                             pgPolygonBase *out)
+                             pgPolygonBase *out, int *was_sequence)
 {
+    /* This function converts a Polygon compatible object to a pgPolygonBase
+     * object for use in C code (in the case of a FASTCALL method).
+     * The "was_sequence" parameter indicates whether the object being
+     * converted was a sequence (1) or a pgPolygonBase struct (0). The
+     * "was_sequence" parameter should be used to determine whether to free the
+     * vertices of the pgPolygonBase object after use.
+     *
+     * 1. If "was_sequence" is 0, the object being converted was a
+     * pgPolygonBase struct. In this case, the vertices of the pgPolygonBase
+     * object do not need to be freed because they are part of the object
+     * and were not newly allocated.
+     *
+     * 2. If "was_sequence" is 1, the object being converted was a
+     * sequence (such as a list or tuple). In this case, the vertices of the
+     * pgPolygonBase's vertices must be freed using PyMem_Free after the object
+     * has been utilized, as they were allocated when the object was created
+     * from the sequence.
+     *
+     *  If the object being converted is a pgPolygonBase struct, the conversion
+     *  is more performant as it avoids a whole memory allocation and memcpy
+     *  (just doing a shallow copy), as well as making the other functions
+     *  that utilize this one simpler.
+     */
+
     if (nargs == 1) {
-        return pgPolygon_FromObject(args[0], out);
+        return pgPolygon_FromObject(args[0], out, was_sequence);
     }
+    /* Make sure the object has at least 3 items (a polygon needs at
+       least 3 vertices)*/
     else if (nargs >= 3) {
         Py_ssize_t i;
-        Py_ssize_t i2;
-        out->verts_num = nargs;
 
+        *was_sequence = 1;
+
+        out->vertices = PyMem_New(double, nargs * 2);
         if (!out->vertices) {
-            /* Only allocate new memory if the polygon vertices' memory is
-             * not allocated*/
-            out->vertices = PyMem_New(double, nargs * 2);
-            if (!out->vertices) {
-                return 0;
-            }
+            return 0;
         }
-        double x_coord_sum = 0.0;
-        double y_coord_sum = 0.0;
+
         for (i = 0; i < nargs; i++) {
-            i2 = i * 2;
-            if (!pg_TwoDoublesFromObj(args[i], &(out->vertices[i2]),
-                                      &(out->vertices[i2 + 1]))) {
+            double x, y;
+            if (!pg_TwoDoublesFromObj(args[i], &x, &y)) {
+                PyMem_Free(out->vertices);
                 return 0;
             }
-            x_coord_sum += out->vertices[i2];
-            y_coord_sum += out->vertices[i2 + 1];
+            out->vertices[i * 2] = x;
+            out->vertices[i * 2 + 1] = y;
+            out->c_x += x;
+            out->c_y += y;
         }
-        out->c_x = x_coord_sum / out->verts_num;
-        out->c_y = y_coord_sum / out->verts_num;
+
+        out->verts_num = nargs;
+        out->c_x /= nargs;
+        out->c_y /= nargs;
+
         return 1;
     }
 
@@ -261,7 +553,7 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
 static int
 pg_polygon_init(pgPolygonObject *self, PyObject *args, PyObject *kwds)
 {
-    if (!pgPolygon_FromObject(args, &(self->polygon))) {
+    if (!_pgPolygon_InitFromObject(args, &self->polygon)) {
         PyErr_SetString(PyExc_TypeError,
                         "Argument must be Polygon style object");
         return -1;
@@ -361,8 +653,12 @@ pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pgPolygonObject *self = (pgPolygonObject *)type->tp_alloc(type, 0);
 
     if (self) {
-        self->polygon.vertices = NULL;
-        self->polygon.verts_num = 0;
+        self->polygon.vertices = PyMem_New(double, 6);
+        if (!self->polygon.vertices) {
+            Py_DECREF(self);
+            return NULL;
+        }
+        self->polygon.verts_num = 3;
         self->polygon.c_x = 0;
         self->polygon.c_y = 0;
         self->weakreflist = NULL;
@@ -381,6 +677,35 @@ static PyObject *
 pgPolygon_New2(double *vertices, Py_ssize_t verts_num)
 {
     return _pg_polygon_subtype_new2(&pgPolygon_Type, vertices, verts_num);
+}
+
+static PyObject *
+pgPolygon_New4(double *vertices, Py_ssize_t verts_num, double c_x, double c_y)
+{
+    pgPolygonObject *polygon_obj =
+        (pgPolygonObject *)pgPolygon_Type.tp_new(&pgPolygon_Type, NULL, NULL);
+
+    if (!polygon_obj) {
+        return NULL;
+    }
+
+    if (verts_num < 3 || !vertices) {
+        /*A polygon requires 3 or more vertices*/
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    if (!(polygon_obj->polygon.vertices =
+              _pg_new_vertices_from_vertices(vertices, verts_num))) {
+        Py_DECREF(polygon_obj);
+        return NULL;
+    }
+
+    polygon_obj->polygon.verts_num = verts_num;
+    polygon_obj->polygon.c_x = c_x;
+    polygon_obj->polygon.c_y = c_y;
+
+    return (PyObject *)polygon_obj;
 }
 
 static void
@@ -640,6 +965,49 @@ _pg_polygon_scale_helper(pgPolygonBase *poly, double factor)
         poly->vertices[i2] = poly->vertices[i2] * factor + omf_cx;
         poly->vertices[i2 + 1] = poly->vertices[i2 + 1] * factor + omf_cy;
     }
+}
+/*
+ * this function takes in `pgPolygonBase *` and
+ * it returns an int representing whether the polygon is convex or not
+ * (concave)
+ */
+static int
+_pg_polygon_is_convex_helper(pgPolygonBase *poly)
+{
+    /* A polygon is convex if and only if the cross products of all the
+     * adjacent edges are all of the same sign.
+     */
+    Py_ssize_t i, i0, i1, i2;
+    Py_ssize_t verts_num = poly->verts_num;
+    Py_ssize_t count = 2 * verts_num;
+    double *vertices = poly->vertices;
+    int sign = 0;
+
+    for (i = 0; i < verts_num; i++) {
+        i0 = 2 * i % count;
+        i1 = 2 * (i + 1) % count;
+        i2 = 2 * (i + 2) % count;
+        double dx1 = vertices[i1] - vertices[i0];
+        double dy1 = vertices[i1 + 1] - vertices[i0 + 1];
+        double dx2 = vertices[i2] - vertices[i1];
+        double dy2 = vertices[i2 + 1] - vertices[i1 + 1];
+
+        double cross = dx1 * dy2 - dy1 * dx2;
+
+        if (cross == 0) {
+            /* The polygon is not convex if any two edges are colinear. */
+            return 0;
+        }
+        else if (sign == 0) {
+            sign = cross < 0 ? -1 : 1;
+        }
+        else if ((sign == -1 && cross > 0) || (sign == 1 && cross < 0)) {
+            /* The polygon is not convex if the cross products of any
+             * two adjacent edges are of different signs.
+             */
+            return 0;
+        }
+    }
 
     return 1;
 }
@@ -683,6 +1051,12 @@ pg_polygon_scale_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
+{
+    return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
@@ -692,6 +1066,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
      NULL},
     {"scale", (PyCFunction)pg_polygon_scale, METH_O, NULL},
     {"scale_ip", (PyCFunction)pg_polygon_scale_ip, METH_O, NULL},
+    {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
