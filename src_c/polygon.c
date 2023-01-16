@@ -972,7 +972,7 @@ pg_polygon_scale(pgPolygonObject *self, PyObject *arg)
     pgPolygonObject *new_poly;
 
     if (!pg_DoubleFromObj(arg, &factor)) {
-        return RAISE(PyExc_TypeError, "Expected a number");
+        return RAISE(PyExc_TypeError, "Invalid scale factor, must be numeric");
     }
 
     if (!(new_poly = (pgPolygonObject *)_pg_polygon_subtype_new2_copy(
@@ -994,7 +994,7 @@ pg_polygon_scale_ip(pgPolygonObject *self, PyObject *arg)
     double factor;
 
     if (!pg_DoubleFromObj(arg, &factor)) {
-        return RAISE(PyExc_TypeError, "Expected a number");
+        return RAISE(PyExc_TypeError, "Invalid scale factor, must be numeric");
     }
 
     if (!_pg_polygon_scale_helper(&self->polygon, factor)) {
