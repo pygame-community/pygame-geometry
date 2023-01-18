@@ -333,31 +333,6 @@ _pg_polygon_subtype_new2_copy(PyTypeObject *type, pgPolygonBase *polygon)
 }
 
 static PyObject *
-_pg_polygon_subtype_new2_transfer(PyTypeObject *type, double *vertices,
-                                  Py_ssize_t verts_num)
-{
-    pgPolygonObject *polygon_obj =
-        (pgPolygonObject *)pgPolygon_Type.tp_new(type, NULL, NULL);
-
-    if (!polygon_obj) {
-        return NULL;
-    }
-
-    if (verts_num < 3 || !vertices) {
-        /*A polygon requires 3 or more vertices*/
-        Py_DECREF(polygon_obj);
-        return NULL;
-    }
-
-    polygon_obj->polygon.vertices = vertices;
-    polygon_obj->polygon.verts_num = verts_num;
-
-    _set_polygon_center_coords(&(polygon_obj->polygon));
-
-    return (PyObject *)polygon_obj;
-}
-
-static PyObject *
 pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     pgPolygonObject *self = (pgPolygonObject *)type->tp_alloc(type, 0);
