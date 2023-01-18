@@ -19,13 +19,25 @@ _pg_circle_subtype_new3(PyTypeObject *type, double x, double y, double r)
 }
 
 static PyObject *
+_pg_circle_subtype_new(PyTypeObject *type, pgCircleBase *circle)
+{
+    pgCircleObject *circle_obj =
+        (pgCircleObject *)pgCircle_Type.tp_new(type, NULL, NULL);
+
+    if (circle_obj) {
+        circle_obj->circle = *circle;
+    }
+    return (PyObject *)circle_obj;
+}
+
+static PyObject *
 pg_circle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     pgCircleObject *self = (pgCircleObject *)type->tp_alloc(type, 0);
 
     if (self != NULL) {
         self->circle.x = self->circle.y = 0;
-        self->circle.r = 0;
+        self->circle.r = DBL_MIN;
         self->weakreflist = NULL;
     }
     return (PyObject *)self;
@@ -59,7 +71,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
     Py_ssize_t length;
 
     if (pgCircle_Check(obj)) {
-        memcpy(out, &((pgCircleObject *)obj)->circle, sizeof(pgCircleBase));
+        *out = pgCircle_AsCircle(obj);
         return 1;
     }
 
@@ -194,15 +206,15 @@ pgCircle_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
         return pgCircle_FromObject(args[0], out);
     }
     else if (nargs == 2) {
-        if (!pg_TwoDoublesFromObj(args[0], &(out->x), &(out->y)) ||
+        if (!pg_TwoDoublesFromObj(args[0], &out->x, &out->y) ||
             !_pg_circle_set_radius(args[1], out)) {
             return 0;
         }
         return 1;
     }
     else if (nargs == 3) {
-        if (!pg_DoubleFromObj(args[0], &(out->x)) ||
-            !pg_DoubleFromObj(args[1], &(out->y)) ||
+        if (!pg_DoubleFromObj(args[0], &out->x) ||
+            !pg_DoubleFromObj(args[1], &out->y) ||
             !_pg_circle_set_radius(args[2], out)) {
             return 0;
         }
@@ -227,8 +239,7 @@ pgCircle_New3(double x, double y, double r)
 static PyObject *
 pg_circle_copy(pgCircleObject *self, PyObject *_null)
 {
-    return _pg_circle_subtype_new3(Py_TYPE(self), self->circle.x,
-                                   self->circle.y, self->circle.r);
+    return _pg_circle_subtype_new(Py_TYPE(self), &self->circle);
 }
 
 static PyObject *
@@ -240,7 +251,7 @@ pg_circle_collidecircle(pgCircleObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "A CircleType object was expected");
     }
     return PyBool_FromLong(
-        pgCollision_CircleCircle(&(self->circle), &other_circle));
+        pgCollision_CircleCircle(&self->circle, &other_circle));
 }
 
 static PyObject *
@@ -251,7 +262,7 @@ pg_circle_collideline(pgCircleObject *self, PyObject *const *args,
     if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
         return RAISE(PyExc_TypeError, "A CircleType object was expected");
     }
-    return PyBool_FromLong(pgCollision_LineCircle(&line, &(self->circle)));
+    return PyBool_FromLong(pgCollision_LineCircle(&line, &self->circle));
 }
 
 static PyObject *
@@ -266,7 +277,7 @@ pg_circle_collidepoint(pgCircleObject *self, PyObject *const *args,
             "Circle.collidepoint requires a point or PointLike object");
     }
 
-    return PyBool_FromLong(pgCollision_CirclePoint(&(self->circle), px, py));
+    return PyBool_FromLong(pgCollision_CirclePoint(&self->circle, px, py));
 }
 static PyObject *
 pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
@@ -306,22 +317,22 @@ pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
                      "Invalid arguments number, must be 1, 2 or 4");
     }
 
-    return PyBool_FromLong(pgCollision_RectCircle(&temp, &(self->circle)));
+    return PyBool_FromLong(pgCollision_RectCircle(&temp, &self->circle));
 }
 
 static PyObject *
 pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
 {
     int result = 0;
+    pgCircleBase *scirc = &self->circle;
     if (pgCircle_Check(arg)) {
-        result =
-            pgCollision_CircleCircle(&self->circle, &pgCircle_AsCircle(arg));
+        result = pgCollision_CircleCircle(&pgCircle_AsCircle(arg), scirc);
     }
     else if (pgRect_Check(arg)) {
-        result = pgCollision_RectCircle(&pgRect_AsRect(arg), &self->circle);
+        result = pgCollision_RectCircle(&pgRect_AsRect(arg), scirc);
     }
     else if (pgLine_Check(arg)) {
-        result = pgCollision_LineCircle(&pgLine_AsLine(arg), &self->circle);
+        result = pgCollision_LineCircle(&pgLine_AsLine(arg), scirc);
     }
     else if (PySequence_Check(arg)) {
         double x, y;
@@ -330,7 +341,7 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
                 PyExc_TypeError,
                 "Invalid point argument, must be a sequence of 2 numbers");
         }
-        result = pgCollision_CirclePoint(&self->circle, x, y);
+        result = pgCollision_CirclePoint(scirc, x, y);
     }
     else {
         return RAISE(PyExc_TypeError,
@@ -344,10 +355,10 @@ pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
 static PyObject *
 pg_circle_as_rect(pgCircleObject *self, PyObject *_null)
 {
-    pgCircleBase scirc = self->circle;
-    int diameter = (int)(2 * scirc.r);
-    int x = (int)(scirc.x - scirc.r);
-    int y = (int)(scirc.y - scirc.r);
+    pgCircleBase *scirc = &self->circle;
+    int diameter = (int)(scirc->r * 2.0);
+    int x = (int)(scirc->x - scirc->r);
+    int y = (int)(scirc->y - scirc->r);
 
     return pgRect_New4(x, y, diameter, diameter);
 }
@@ -355,7 +366,7 @@ pg_circle_as_rect(pgCircleObject *self, PyObject *_null)
 static PyObject *
 pg_circle_update(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
 {
-    if (!pgCircle_FromObjectFastcall(args, nargs, &(self->circle))) {
+    if (!pgCircle_FromObjectFastcall(args, nargs, &self->circle)) {
         PyErr_SetString(
             PyExc_TypeError,
             "Circle.update requires a circle or CircleLike object");
@@ -435,10 +446,11 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
     }
     else if (pgPolygon_Check(arg)) {
         pgPolygonBase *poly = &pgPolygon_AsPolygon(arg);
-        Py_ssize_t i;
-        for (i = 0; i < poly->verts_num; i++) {
-            if (!pgCollision_CirclePoint(scirc, poly->vertices[i * 2],
-                                         poly->vertices[i * 2 + 1])) {
+        double *vertices = poly->vertices;
+        Py_ssize_t i2;
+        for (i2 = 0; i2 < poly->verts_num * 2; i2 += 2) {
+            if (!pgCollision_CirclePoint(scirc, vertices[i2],
+                                         vertices[i2 + 1])) {
                 Py_RETURN_FALSE;
             }
         }
@@ -647,7 +659,7 @@ static int
 pg_circle_setcenter(pgCircleObject *self, PyObject *value, void *closure)
 {
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_TwoDoublesFromObj(value, &(self->circle.x), &(self->circle.y))) {
+    if (!pg_TwoDoublesFromObj(value, &self->circle.x, &self->circle.y)) {
         PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
         return -1;
     }
@@ -753,7 +765,7 @@ pg_circle_getsafepickle(pgCircleObject *self, void *closure)
 static int
 pg_circle_init(pgCircleObject *self, PyObject *args, PyObject *kwds)
 {
-    if (!pgCircle_FromObject(args, &(self->circle))) {
+    if (!pgCircle_FromObject(args, &self->circle)) {
         PyErr_SetString(PyExc_TypeError,
                         "Argument must be Circle style object");
         return -1;
