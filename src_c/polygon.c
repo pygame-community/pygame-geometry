@@ -937,6 +937,30 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_polygon_get_bounding_box(pgPolygonObject *self, PyObject *_null)
+{
+    /* Return a Rect object that is the smallest rectangle that contains
+       the polygon. */
+    double min_x, min_y, max_x, max_y;
+    double *vertices = self->polygon.vertices;
+    Py_ssize_t i2, verts_num = self->polygon.verts_num;
+
+    min_x = max_x = vertices[0];
+    min_y = max_y = vertices[1];
+
+    for (i2 = 2; i2 < verts_num * 2; i2 += 2) {
+        min_x = MIN(min_x, vertices[i2]);
+        min_y = MIN(min_y, vertices[i2 + 1]);
+        max_x = MAX(max_x, vertices[i2]);
+        max_y = MAX(max_y, vertices[i2 + 1]);
+    }
+
+    return pgRect_New4((int)floor(min_x), (int)floor(min_y),
+                       (int)ceil(max_x - min_x + 1),
+                       (int)ceil(max_y - min_y + 1));
+}
+
 /*
  * this function takes in `pgPolygonBase *` and
  * it returns an int representing whether the polygon is convex or not
@@ -995,6 +1019,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate", (PyCFunction)pg_polygon_rotate, METH_O, NULL},
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
+     NULL},
+    {"get_bounding_box", (PyCFunction)pg_polygon_get_bounding_box, METH_NOARGS,
      NULL},
     {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
