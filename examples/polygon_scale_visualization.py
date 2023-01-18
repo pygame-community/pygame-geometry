@@ -36,9 +36,9 @@ ROTATION_SPEED = 0.8
 scaling_factor = 1
 
 font = pygame.font.SysFont("Arial", 20, True)
-text2 = font.render("MOUSE WHEEL to scale", True, WHITE)
-text2_r = text2.get_rect(center=(SCREEN_W2, 50))
 
+wheel_text = font.render("MOUSE WHEEL to scale", True, WHITE)
+wheel_text_r = wheel_text.get_rect(center=(SCREEN_W2, 50))
 scaling_up_text = font.render("Scaling up", True, GREEN)
 scaling_up_text_r = scaling_up_text.get_rect(center=(SCREEN_W2, 100))
 scaling_down_text = font.render("Scaling down", True, RED)
@@ -64,7 +64,7 @@ while keep:
     for poly in polygons:
         draw_polygon(screen, current_color, poly.vertices, 2)
 
-    screen.blit(text2, text2_r)
+    screen.blit(wheel_text, wheel_text_r)
 
     if scaling_factor != 1:
         if scaling_factor > 1:
