@@ -629,7 +629,7 @@ pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 pgPolygon_New(pgPolygonBase *p)
 {
-    return _pg_polygon_subtype_new2_copy(&pgPolygon_Type, p);
+    return (PyObject *)_pg_polygon_subtype_new2_copy(&pgPolygon_Type, p);
 }
 
 static PyObject *
@@ -731,23 +731,24 @@ _pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
     polygon->c_y += dy;
 
     Py_ssize_t i2;
+    double *vertices = polygon->vertices;
     if (dx) {
         if (dy) {
             for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
-                polygon->vertices[i2] += dx;
-                polygon->vertices[i2 + 1] += dy;
+                vertices[i2] += dx;
+                vertices[i2 + 1] += dy;
             }
             return;
         }
         for (i2 = 0; i2 < polygon->verts_num * 2; i2 += 2) {
-            polygon->vertices[i2] += dx;
+            vertices[i2] += dx;
         }
         return;
     }
 
     if (dy) {
         for (i2 = 1; i2 < polygon->verts_num * 2; i2 += 2) {
-            polygon->vertices[i2] += dy;
+            vertices[i2] += dy;
         }
     }
 }
