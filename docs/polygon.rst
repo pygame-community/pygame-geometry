@@ -1,3 +1,4 @@
+
 ==================
 :mod:`pygame_geometry.Polygon`
 ==================
@@ -16,7 +17,7 @@
     `Polygon` or have an attribute named "polygon".
 
     Specifically, to construct a `Polygon` you can pass the vertices' positions as
-    separate arguments or inside a Sequence(list or tuple).
+    separate arguments or inside a Sequence(list or tuple). Generators are also accepted.
 
     Functions that require a `Polygon` argument may also accept these values as Polygons:
     ::
@@ -208,6 +209,19 @@ Polygon Methods
 
       .. ## Polygon.rotate_ip ##
 
+    .. method:: is_convex
+
+        | :sl:`checks whether the polygon is convex or concave`
+        | :sg:`is_convex() -> bool`
+
+        Checks whether the polygon is convex or concave.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to check if it's convex.
+
+      .. ## Polygon.is_convex ##
+
     .. method:: add_vertex <<NOT YET IMPLEMENTED>>
 
         | :sl:`adds a vertex to the polygon`
@@ -267,3 +281,22 @@ Polygon Methods
             the vertex will not be removed and an error will be raised.
 
       .. ## Polygon.pop_vertex ##
+
+    .. method:: get_bounding_box
+
+        | :sl:`returns the bounding box of the polygon`
+        | :sg:`get_bounding_box() -> Rect`
+
+        Returns a `pygame.Rect` object that contains the `Polygon`. The Rect object will
+        be the smallest rectangle that contains the `Polygon`.
+
+        .. note::
+            In the case of a polygon with all vertices on a same line or all in the same
+            point, the returned Rect will have a width and height of 1. This is because
+            the Rect object cannot have a width or height of 0.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the bounding box.
+
+      .. ## Polygon.get_bounding_box ##

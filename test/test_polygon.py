@@ -1,6 +1,7 @@
 import unittest
+import random
 
-from pygame import Vector2, Vector3
+from pygame import Vector2, Vector3, Rect
 
 import geometry
 from geometry import Polygon, Line
@@ -34,6 +35,21 @@ def _rotate_vertices(poly: Polygon, angle: float):
     return rotated_vertices
 
 
+def _calculate_bounding_box(vertices) -> Rect:
+    """Calculates the bounding box of a polygon."""
+    min_x = min(vertices, key=lambda x: x[0])[0]
+    min_y = min(vertices, key=lambda x: x[1])[1]
+    max_x = max(vertices, key=lambda x: x[0])[0]
+    max_y = max(vertices, key=lambda x: x[1])[1]
+
+    return Rect(
+        math.floor(min_x),
+        math.floor(min_y),
+        math.ceil(max_x - min_x + 1),
+        math.ceil(max_y - min_y + 1),
+    )
+
+
 def _calculate_center(poly: Polygon):
     """Calculates the center of a polygon."""
     x = 0
@@ -59,6 +75,10 @@ class PolygonTypeTest(unittest.TestCase):
             Vector2(1, 1),
             [p1, p2, p3, 32],
             [p1, p2, "(1, 1)"],
+            (p1, p2, "(1, 1)"),
+            (p1, p2, 32),
+            (p for p in [p1, p2, 32]),
+            (p for p in [p1, p2, "(1, 1)"]),
         )
 
         for value in invalid_types:
@@ -83,8 +103,14 @@ class PolygonTypeTest(unittest.TestCase):
     def test_construction_invalid_polygon(self):
         """Checks whether the constructor works correctly with invalid polygons"""
         invalid_polygons = (
+            [],
             [p1],  # 1
             [p1, p2],  # 2
+            (p1,),  # 1
+            (p1, p2),  # 2
+            (p for p in []),
+            (p for p in [p1]),  # generator
+            (p for p in [p1, p2]),  # generator
         )
 
         for polygon in invalid_polygons:
@@ -113,6 +139,57 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(po.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, [p1, p2, p3])
 
+    def test_construction_polygon_attribute(self):
+        """Ensures that you can construct a polygon from another object that has a
+        polygon attribute"""
+
+        # polygon attribute is a list of vertices
+        class PolygonObject:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+        self.assertEqual(po_2.vertices, po.polygon)
+
+        # polygon attribute is a callable that returns a list of vertices
+        class PolygonObject1:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return self._poly
+
+        po = PolygonObject1([p1, p2, p3, p4])
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
+
+        # polygon attribute is a callable that returns a Polygon object
+        class PolygonObject2:
+            def __init__(self, polygon):
+                self._poly = polygon
+
+            def polygon(self):
+                return Polygon(self._poly)
+
+        po = PolygonObject2(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon().vertices)
+
+        # polygon attribute is a polygon object
+        class PolygonObject3:
+            def __init__(self, polygon):
+                self.polygon = polygon
+
+        po = PolygonObject3(Polygon([p1, p2, p3, p4]))
+        po_2 = Polygon(po)
+
+        self.assertEqual(po_2.vertices, po.polygon.vertices)
+
     def test_construction_frompolygon(self):
         """Checks whether the constructor works correctly with another polygon"""
         po = Polygon([p1, p2, p3, p4])
@@ -120,6 +197,62 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(po_2.vertices, [p1, p2, p3, p4])
         self.assertEqual(po_2.vertices, po.vertices)
+
+    def test_construction_generator(self):
+        """Checks whether the constructor works correctly with a generator object"""
+
+        def generator():
+            yield p1
+            yield p2
+            yield p3
+            yield p4
+
+        po = Polygon(generator())
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterator(self):
+        """Checks whether the constructor works correctly with an iterator object"""
+
+        class Iterator:
+            def __init__(self, points):
+                self.points = points
+                self.index = 0
+
+            def __next__(self):
+                if self.index >= len(self.points):
+                    raise StopIteration
+                result = self.points[self.index]
+                self.index += 1
+                return result
+
+            def __iter__(self):
+                return self
+
+        it = Iterator([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_iterable(self):
+        """Checks whether the constructor works correctly with an object that implements the __iter__ method"""
+
+        it = iter([p1, p2, p3, p4])
+        po = Polygon(it)
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon(p for p in [p1, p2, p3, p4])
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
+
+    def test_construction_generator_expression2(self):
+        """Checks whether the constructor works correctly with a generator expression"""
+        po = Polygon((p for p in [p1, p2, p3, p4]))
+
+        self.assertEqual(po.vertices, [p1, p2, p3, p4])
 
     def test_perimeter(self):
         def get_perimeter(poly: geometry.Polygon) -> float:
@@ -476,8 +609,8 @@ class PolygonTypeTest(unittest.TestCase):
             [Line((1, 2), (3, 4)), Line((3, 4), (5, 6)), Line((5, 6), (1, 2))],
         )
 
-    def test_move(self):
-        """Checks whether polygon moved correctly."""
+    def test_move_xy(self):
+        """Checks whether polygon move function works correctly with an x-y pair."""
         poly = Polygon(_some_vertices.copy())
         center_x = poly.c_x
         center_y = poly.c_y
@@ -495,6 +628,46 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertNotEqual(poly.vertices, new_poly.vertices)
         self.assertEqual(poly.vertices, _some_vertices)
         self.assertAlmostEqual(new_poly.c_x, center_x + 10.0)
+        self.assertAlmostEqual(new_poly.c_y, center_y + 10.0)
+
+    def test_move_x(self):
+        """Checks whether polygon move function works correctly with an x component."""
+        poly = Polygon(_some_vertices.copy())
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.move(10.0, 0.0)
+        vertices = _some_vertices.copy()
+
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[0] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(vertices, new_poly.vertices)
+        self.assertNotEqual(poly.vertices, new_poly.vertices)
+        self.assertEqual(poly.vertices, _some_vertices)
+        self.assertAlmostEqual(new_poly.c_x, center_x + 10.0)
+        self.assertAlmostEqual(new_poly.c_y, center_y)
+
+    def test_move_y(self):
+        """Checks whether polygon move function works correctly with a y component."""
+        poly = Polygon(_some_vertices.copy())
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        new_poly = poly.move(0.0, 10.0)
+        vertices = _some_vertices.copy()
+
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[1] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(vertices, new_poly.vertices)
+        self.assertNotEqual(poly.vertices, new_poly.vertices)
+        self.assertEqual(poly.vertices, _some_vertices)
+        self.assertAlmostEqual(new_poly.c_x, center_x)
         self.assertAlmostEqual(new_poly.c_y, center_y + 10.0)
 
     def test_move_inplace(self):
@@ -528,12 +701,41 @@ class PolygonTypeTest(unittest.TestCase):
                 poly.move(*arg)
 
     def test_move_return_type(self):
+        """Tests whether the move function returns a Polygon type/subtype object"""
+        move_amounts = [
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, 0),
+            (1.0, 1.0),
+            (0.0, 1.0),
+            (1.0, 0.0),
+            (0.0, 0.0),
+            (-1, -1),
+            (0, -1),
+            (-1, 0),
+            (-1.0, -1.0),
+            (0.0, -1.0),
+            (-1.0, 0.0),
+        ]
+
         poly = Polygon(_some_vertices.copy())
 
-        self.assertIsInstance(poly.move(1, 1), Polygon)
+        for move_amount in move_amounts:
+            self.assertIsInstance(poly.move(*move_amount), Polygon)
+            self.assertIsInstance(poly.move(move_amount), Polygon)
 
-    def test_move_ip(self):
-        """Ensures that the vertices are moved correctly"""
+        class TestPolygon(Polygon):
+            pass
+
+        polysub = TestPolygon(_some_vertices.copy())
+
+        for move_amount in move_amounts:
+            self.assertIsInstance(polysub.move(*move_amount), TestPolygon)
+            self.assertIsInstance(polysub.move(move_amount), TestPolygon)
+
+    def test_move_ip_xy(self):
+        """Checks whether polygon move_ip function works correctly with an x-y pair."""
         vertices = _some_vertices.copy()
         poly = Polygon(vertices)
         center_x = poly.c_x
@@ -548,6 +750,40 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertEqual(poly.vertices, vertices)
         self.assertEqual(poly.c_x, center_x + 10.0)
+        self.assertEqual(poly.c_y, center_y + 10.0)
+
+    def test_move_ip_x(self):
+        """Checks whether polygon move_ip function works correctly with an x component."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.move_ip(10.0, 0.0)
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[0] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x + 10.0)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_move_ip_y(self):
+        """Checks whether polygon move_ip function works correctly with a y component."""
+        vertices = _some_vertices.copy()
+        poly = Polygon(vertices)
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.move_ip(0.0, 10.0)
+        vertices = [list(vertex) for vertex in vertices]
+        for vertex in vertices:
+            vertex[1] += 10.0
+        vertices = [tuple(vertex) for vertex in vertices]
+
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
         self.assertEqual(poly.c_y, center_y + 10.0)
 
     def test_move_ip_inplace(self):
@@ -565,9 +801,38 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.c_y, center_y)
 
     def test_move_ip_return_type(self):
+        """Tests whether the move_ip function returns a Polygon type/subtype object"""
+        move_amounts = [
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, 0),
+            (1.0, 1.0),
+            (0.0, 1.0),
+            (1.0, 0.0),
+            (0.0, 0.0),
+            (-1, -1),
+            (0, -1),
+            (-1, 0),
+            (-1.0, -1.0),
+            (0.0, -1.0),
+            (-1.0, 0.0),
+        ]
+
         poly = Polygon(_some_vertices.copy())
 
-        self.assertEqual(type(poly.move_ip(0, 0)), type(None))
+        for move_amount in move_amounts:
+            self.assertEqual(type(poly.move_ip(*move_amount)), type(None))
+            self.assertEqual(type(poly.move_ip(move_amount)), type(None))
+
+        class TestPolygon(Polygon):
+            pass
+
+        polysub = TestPolygon(_some_vertices.copy())
+
+        for move_amount in move_amounts:
+            self.assertEqual(type(polysub.move_ip(*move_amount)), type(None))
+            self.assertEqual(type(polysub.move_ip(move_amount)), type(None))
 
     def test_move_ip_invalid_args(self):
         """tests if the function correctly handles incorrect types as parameters"""
@@ -885,6 +1150,105 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertIsInstance(poly.collidepoint((15.0 - e, 15.0)), bool)
         self.assertIsInstance(poly.collidepoint(15.0 - e, 15.0), bool)
 
+    def test_get_bounding_box_horizontal_line(self):
+        vertices = [(0, 0), (1, 0), (2, 0), (3, 0)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_vertical_line(self):
+        vertices = [(0, 0), (0, 1), (0, 2), (0, 3)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_square(self):
+        vertices = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_diagonal_line(self):
+        vertices = [(0, 0), (1, 1), (2, 2), (3, 3)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_negative_positions(self):
+        vertices = [(0.5, 0.5), (-0.5, -0.5), (1.5, 1.5), (-1.5, -1.5)]
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_nonsimple_random_positions(self):
+        vertices = []
+        for i in range(1000):
+            vertices.append((random.uniform(-100, 100), random.uniform(-100, 100)))
+        poly = Polygon(vertices)
+
+        bounding_box = poly.get_bounding_box()
+        expected_bounding_box = _calculate_bounding_box(vertices)
+
+        self.assertTrue(bounding_box.width > 0)
+        self.assertTrue(bounding_box.height > 0)
+        self.assertEqual(bounding_box, expected_bounding_box)
+
+        for vertex in vertices:
+            self.assertTrue(bounding_box.collidepoint(vertex))
+
+    def test_get_bounding_box_return_type(self):
+        """Tests whether the get_bounding_box method returns a Rect."""
+        poly = Polygon(_some_vertices.copy())
+        self.assertIsInstance(poly.get_bounding_box(), Rect)
+
+    def test_get_bounding_box_argnum(self):
+        """Tests whether the get_bounding_box method correctly handles invalid parameter
+        numbers."""
+        poly = Polygon(_some_vertices.copy())
+
+        with self.assertRaises(TypeError):
+            poly.get_bounding_box(1)
+
     def test_assign_subscript(self):
         """Tests whether assigning to a subscript works correctly."""
         new_vertices = [(1.11, 32), (-2, 2.0), (3.23, 3.0)]
@@ -938,6 +1302,30 @@ class PolygonTypeTest(unittest.TestCase):
         for i in range(poly.verts_num):
             with self.assertRaises(TypeError):
                 poly[-i] = invalid_args[i]
+
+    def test_polygon___new__(self):
+        """Tests whether the __new__ method works correctly."""
+        polygon = Polygon.__new__(Polygon)
+        self.assertIsInstance(polygon, Polygon)
+        self.assertEqual(polygon.verts_num, 3)
+
+    def test_is_convex_meth(self):
+        p1 = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+        p2 = Polygon((0, 10), (5, 5), (10, 10), (10, 0), (0, 0))
+
+        with self.assertRaises(TypeError):
+            p1.is_convex(1)
+        with self.assertRaises(TypeError):
+            p1.is_convex("1")
+        with self.assertRaises(TypeError):
+            p1.is_convex([1])
+        with self.assertRaises(TypeError):
+            p1.is_convex((1,))
+        with self.assertRaises(TypeError):
+            p1.is_convex(object())
+
+        self.assertTrue(p1.is_convex())
+        self.assertFalse(p2.is_convex())
 
 
 if __name__ == "__main__":
