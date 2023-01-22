@@ -247,7 +247,7 @@ Circle Methods
 
         | :sl:`checks if a polygon intersects the circle`
         | :sg:`collidepolygon(Polygon, only_edges=False) -> bool`
-        | :sg:`collidepolygon((x1, y1), (x2, y2), ...) -> bool`
+        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
         | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
 
         The `collidepolygon` method tests whether a given polygon intersects the `Circle`. It
