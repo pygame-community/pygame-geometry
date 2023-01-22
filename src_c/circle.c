@@ -472,10 +472,8 @@ static PyObject *
 pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
                          Py_ssize_t nargs)
 {
-    int was_sequence, result = 0;
+    int was_sequence, result = 0, only_edges = 0;
     pgPolygonBase poly;
-    pgCircleBase *scirc = &self->circle;
-    int only_edges = 0;
 
     /* Check for the optional only_edges argument */
     if (args[nargs - 1] == Py_True) {
@@ -489,7 +487,7 @@ pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
             "collidepolygon requires a PolygonType or PolygonLike object");
     }
 
-    result = pgCollision_CirclePolygon(scirc, &poly, only_edges);
+    result = pgCollision_CirclePolygon(&self->circle, &poly, only_edges);
 
     PG_FREEPOLY_COND(&poly, was_sequence);
 
