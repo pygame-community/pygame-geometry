@@ -468,6 +468,34 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
     return PyBool_FromLong(result);
 }
 
+static PyObject *
+pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
+{
+    int was_sequence, result = 0;
+    pgPolygonBase poly;
+    pgCircleBase *scirc = &self->circle;
+    int only_edges = 0;
+
+    /* Check for the optional only_edges argument */
+    if (args[nargs - 1] == Py_True) {
+        only_edges = 1;
+        nargs--;
+    }
+
+    if (!pgPolygon_FromObjectFastcall(args, nargs, &poly, &was_sequence)) {
+        return RAISE(
+            PyExc_TypeError,
+            "collidepolygon requires a PolygonType or PolygonLike object");
+    }
+
+    result = pgCollision_CirclePolygon(scirc, &poly, only_edges);
+
+    PG_FREEPOLY_COND(&poly, was_sequence);
+
+    return PyBool_FromLong(result);
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -475,6 +503,8 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_circle_colliderect, METH_FASTCALL, NULL},
     {"collideswith", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
+    {"collidepolygon", (PyCFunction)pg_circle_collidepolygon, METH_FASTCALL,
+     NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_circle_move, METH_FASTCALL, NULL},

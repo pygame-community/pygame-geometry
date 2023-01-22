@@ -320,6 +320,93 @@ pgCollision_PolygonPoint(pgPolygonBase *poly, double x, double y)
 }
 
 static int
+_pgCollision_PolygonPoint_opt(pgPolygonBase *poly, double x, double y)
+{
+    /* This is a faster version of pgCollision_PolygonPoint that assumes
+     * that the point passed is not on one of the polygon's vertices. */
+    int collision = 0;
+    Py_ssize_t i, j;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        double xi = poly->vertices[i * 2];
+        double yi = poly->vertices[i * 2 + 1];
+        double xj = poly->vertices[j * 2];
+        double yj = poly->vertices[j * 2 + 1];
+
+        if (((yi > y) != (yj > y)) &&
+            (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            collision = !collision;
+        }
+    }
+
+    return collision;
+}
+
+static int
+pgCollision_CirclePolygon(pgCircleBase *circle, pgPolygonBase *poly,
+                          int only_edges)
+{
+    Py_ssize_t i, j;
+    double cx = circle->x;
+    double cy = circle->y;
+    double cr = circle->r;
+    double cr_sqr = cr * cr;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        double xi = poly->vertices[i * 2];
+        double yi = poly->vertices[i * 2 + 1];
+        double xj = poly->vertices[j * 2];
+        double yj = poly->vertices[j * 2 + 1];
+
+        double dx = xj - xi;
+        double dy = yj - yi;
+
+        double xi_m_cx = xi - cx;
+        double yi_m_cy = yi - cy;
+
+        double at2 = 2 * (dx * dx + dy * dy);
+        double b = 2 * (dx * xi_m_cx + dy * yi_m_cy);
+        double c = xi_m_cx * xi_m_cx + yi_m_cy * yi_m_cy - cr_sqr;
+
+        double bb4ac = b * b - 2 * at2 * c;
+
+        if (bb4ac < 0) {
+            continue;
+        }
+
+        double sqrt_bb4ac = sqrt(bb4ac);
+        double mu1 = (-b + sqrt_bb4ac) / at2;
+        double mu2 = (-b - sqrt_bb4ac) / at2;
+
+        if ((0 <= mu1 && mu1 <= 1) || (0 <= mu2 && mu2 <= 1)) {
+            return 1;
+        }
+    }
+
+    if (only_edges) {
+        return 0;
+    }
+
+    int center_inside = _pgCollision_PolygonPoint_opt(poly, cx, cy);
+
+    if (center_inside) {
+        return 1;
+    }
+
+    /* Check if any of the polygon's vertices are inside the circle */
+    for (i = 0; i < poly->verts_num; i++) {
+        double dx = poly->vertices[i * 2] - cx;
+        double dy = poly->vertices[i * 2 + 1] - cy;
+
+        if (dx * dx + dy * dy <= cr_sqr) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int
 pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
 {
     double x1 = A->x1;

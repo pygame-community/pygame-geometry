@@ -243,6 +243,30 @@ Circle Methods
 
       .. ## Circle.colliderect ##
 
+    .. method:: collidepolygon
+
+        | :sl:`checks if a polygon intersects the circle`
+        | :sg:`collidepolygon(Polygon, only_edges=False) -> bool`
+        | :sg:`collidepolygon((x1, y1), (x2, y2), ...) -> bool`
+        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
+
+        The `collidepolygon` method tests whether a given polygon intersects the `Circle`. It
+        takes either a `Polygon` object, a tuple of (x, y) coordinate pairs representing the
+        vertices of the polygon, or a list of (x, y) coordinate pairs as its argument.
+        Returns `True` if any portion of the polygon overlaps with the `Circle`, `False`
+        otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Circle`. This means that a polygon that is
+        completely inscribed or circumscribed by the `Circle` will not be considered to
+        collide with the `Circle`.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the collision.
+
+      .. ## Circle.collidepolygon ##
+
     .. method:: collideswith
 
         | :sl:`test if a shape or point and the circle collide`

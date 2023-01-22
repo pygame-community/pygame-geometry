@@ -54,6 +54,8 @@ performing transformations and checking for collisions with other objects.
 
     colliderect: Checks if the circle collides with the given rectangle.
 
+    collidepolygon: Checks if the circle collides with the given polygon.
+
     collideswith: Checks if the circle collides with the given object.
 
     contains: Checks if the circle contains the given object.
@@ -153,6 +155,8 @@ other objects.
     copy: Returns a copy of the polygon.
 
     collidepoint: Checks if the polygon collides with the given point.
+
+    collidecircle: Checks if the polygon collides with the given circle.
 
     is_convex: Checks if the polygon is convex.
 

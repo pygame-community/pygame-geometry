@@ -149,6 +149,29 @@ Polygon Methods
 
       .. ## Polygon.collidepoint ##
 
+    .. method:: collidecircle
+
+        | :sl:`tests if a circle is inside the polygon`
+        | :sg:`collidecircle(Circle, only_edges=False) -> bool`
+        | :sg:`collidecircle((x, y), radius, only_edges=False) -> bool`
+        | :sg:`collidecircle(x, y, radius, only_edges=False) -> bool`
+
+        The `collidecircle` method tests whether a given circle intersects the `Polygon`. It
+        takes either a `Circle` object, a tuple of the form (x, y, radius) or the x, y
+        coordinates of the center of the circle and its radius as arguments. It returns
+        True if the circle intersects the `Polygon`, False otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Circle`. This means that a circle that is
+        completely inscribed or circumscribed by the `Polygon` will not be considered
+        colliding with the `Polygon`.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the collision.
+
+      .. ## Polygon.collidecircle ##
+
     .. method:: copy
 
         | :sl:`returns a copy of the polygon`
