@@ -7,7 +7,7 @@ pygame.init()
 
 # Constants
 # -----------------------------------
-FPS = 120
+FPS = 60
 BACKGROUND_COLOR = (20, 20, 20)
 WHITE = (255, 255, 255)
 GRAY = (120, 120, 120)
@@ -79,6 +79,10 @@ def populate_points(number):
         points.append((x, y))
 
 
+def green_gray(colliding):
+    return GREEN if colliding else GRAY
+
+
 populate_rects(15)
 populate_lines(15)
 populate_circles(15)
@@ -100,24 +104,24 @@ while keep:
     coll = 0
 
     for rect in rects:
-        color = GREEN if m_circle.colliderect(rect) else GRAY
-        coll |= color is GREEN
-        draw_rect(screen, color, rect, 2)
+        colliding = m_circle.colliderect(rect)
+        coll |= colliding
+        draw_rect(screen, green_gray(colliding), rect, 2)
 
     for line in lines:
-        color = GREEN if m_circle.collideline(line) else GRAY
-        coll |= color is GREEN
-        draw_line(screen, color, line.a, line.b, 2)
+        colliding = m_circle.collideline(line)
+        coll |= colliding
+        draw_line(screen, green_gray(colliding), line.a, line.b, 2)
 
     for circle in circles:
-        color = GREEN if m_circle.collidecircle(circle) else GRAY
-        coll |= color is GREEN
-        draw_circle(screen, color, circle.center, circle.r, 2)
+        colliding = m_circle.collidecircle(circle)
+        coll |= colliding
+        draw_circle(screen, green_gray(colliding), circle.center, circle.r, 2)
 
     for point in points:
-        color = GREEN if m_circle.collidepoint(point) else GRAY
-        coll |= color is GREEN
-        draw_circle(screen, color, point, 3)
+        colliding = m_circle.collidepoint(point)
+        coll |= colliding
+        draw_circle(screen, green_gray(colliding), point, 3)
 
     draw_line(screen, WHITE, (SCREEN_W_HALF, 0), (SCREEN_W_HALF, SCREEN_H), 2)
     draw_line(screen, WHITE, (0, SCREEN_H_HALF), (SCREEN_W, SCREEN_H_HALF), 2)
@@ -140,22 +144,14 @@ while keep:
             keep = False
         elif event.type == pygame.MOUSEWHEEL:
             if event.y > 0:
-                if acc_amt <= 0:
-                    acc_amt = 0
                 acc_amt += 0.012
             else:
                 if m_circle.r < 5:
                     continue
-                if acc_amt >= 0:
-                    acc_amt = 0
                 acc_amt -= 0.014
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
-                rects = []
-                lines = []
-                circles = []
-                points = []
-
+                rects, lines, circles, points = [], [], [], []
                 populate_rects(15)
                 populate_lines(15)
                 populate_circles(15)
