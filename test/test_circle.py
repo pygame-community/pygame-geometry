@@ -1033,6 +1033,8 @@ class CircleTypeTest(unittest.TestCase):
                 c.collidepolygon(value)
             with self.assertRaises(TypeError):
                 c.collidepolygon(value, True)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value, False)
 
     def test_collidepolygon_argnum(self):
         """Tests if the function correctly handles incorrect number of parameters"""
@@ -1053,6 +1055,8 @@ class CircleTypeTest(unittest.TestCase):
                 c.collidepolygon(*arg)
             with self.assertRaises(TypeError):
                 c.collidepolygon(*arg, True)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg, False)
 
     def test_collidepolygon_return_type(self):
         """Tests if the function returns the correct type"""
@@ -1060,17 +1064,21 @@ class CircleTypeTest(unittest.TestCase):
 
         vertices = [(-5, 0), (5, 0), (0, 5)]
 
-        self.assertIsInstance(c.collidepolygon(Polygon(vertices)), bool)
-        self.assertIsInstance(c.collidepolygon(vertices), bool)
-        self.assertIsInstance(c.collidepolygon(tuple(vertices)), bool)
-        self.assertIsInstance(c.collidepolygon(*vertices), bool)
-        self.assertIsInstance(c.collidepolygon([list(v) for v in vertices]), bool)
+        items = [
+            Polygon(vertices),
+            vertices,
+            tuple(vertices),
+            [list(v) for v in vertices],
+        ]
 
-        self.assertIsInstance(c.collidepolygon(Polygon(vertices), True), bool)
-        self.assertIsInstance(c.collidepolygon(vertices, True), bool)
-        self.assertIsInstance(c.collidepolygon(tuple(vertices), True), bool)
+        for item in items:
+            self.assertIsInstance(c.collidepolygon(item), bool)
+            self.assertIsInstance(c.collidepolygon(item, True), bool)
+            self.assertIsInstance(c.collidepolygon(item, False), bool)
+
+        self.assertIsInstance(c.collidepolygon(*vertices), bool)
         self.assertIsInstance(c.collidepolygon(*vertices, True), bool)
-        self.assertIsInstance(c.collidepolygon([list(v) for v in vertices], True), bool)
+        self.assertIsInstance(c.collidepolygon(*vertices, False), bool)
 
     def test_collidepolygon(self):
         """Ensures that the collidepolygon method correctly determines if a polygon
@@ -1088,21 +1096,27 @@ class CircleTypeTest(unittest.TestCase):
 
         # circle contains polygon
         self.assertTrue(c.collidepolygon(p1))
+        self.assertTrue(c.collidepolygon(p1, False))
 
         # non colliding
         self.assertFalse(c.collidepolygon(p2))
+        self.assertFalse(c.collidepolygon(p2, False))
 
         # intersecting polygon
         self.assertTrue(c.collidepolygon(p3))
+        self.assertTrue(c.collidepolygon(p3, False))
 
         # polygon contains circle
         self.assertTrue(c.collidepolygon(p4))
+        self.assertTrue(c.collidepolygon(p4, False))
 
         # circle contains polygon, barely touching
         self.assertTrue(c.collidepolygon(p5))
+        self.assertTrue(c.collidepolygon(p5, False))
 
         # circle contains polygon, barely not touching
         self.assertTrue(c.collidepolygon(p6))
+        self.assertTrue(c.collidepolygon(p6, False))
 
         # --- Edge only ---
 

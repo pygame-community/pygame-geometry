@@ -1327,6 +1327,8 @@ class PolygonTypeTest(unittest.TestCase):
                 p.collidecircle(value)
             with self.assertRaises(TypeError):
                 p.collidecircle(value, True)
+            with self.assertRaises(TypeError):
+                p.collidecircle(value, False)
 
     def test_collidecircle_argnum(self):
         """Tests if the function correctly handles incorrect number of parameters"""
@@ -1348,6 +1350,8 @@ class PolygonTypeTest(unittest.TestCase):
                 p.collidecircle(*arg)
             with self.assertRaises(TypeError):
                 p.collidecircle(*arg, True)
+            with self.assertRaises(TypeError):
+                p.collidecircle(*arg, False)
 
     def test_collidecircle_return_type(self):
         """Tests if the function returns the correct type"""
@@ -1355,15 +1359,20 @@ class PolygonTypeTest(unittest.TestCase):
 
         circle_val = [10, 10, 4]
 
-        self.assertIsInstance(p.collidecircle(Circle(circle_val)), bool)
-        self.assertIsInstance(p.collidecircle(circle_val), bool)
-        self.assertIsInstance(p.collidecircle(tuple(circle_val)), bool)
-        self.assertIsInstance(p.collidecircle(*circle_val), bool)
+        items = [
+            Circle(circle_val),
+            circle_val,
+            tuple(circle_val),
+        ]
 
-        self.assertIsInstance(p.collidecircle(Circle(circle_val), True), bool)
-        self.assertIsInstance(p.collidecircle(circle_val, True), bool)
-        self.assertIsInstance(p.collidecircle(tuple(circle_val), True), bool)
+        for item in items:
+            self.assertIsInstance(p.collidecircle(item), bool)
+            self.assertIsInstance(p.collidecircle(item, True), bool)
+            self.assertIsInstance(p.collidecircle(item, False), bool)
+
+        self.assertIsInstance(p.collidecircle(*circle_val), bool)
         self.assertIsInstance(p.collidecircle(*circle_val, True), bool)
+        self.assertIsInstance(p.collidecircle(*circle_val, False), bool)
 
     def test_collidecircle(self):
         """Ensures that the collidecircle method correctly determines if a polygon
@@ -1381,21 +1390,27 @@ class PolygonTypeTest(unittest.TestCase):
 
         # circle contains polygon
         self.assertTrue(p1.collidecircle(c))
+        self.assertTrue(p1.collidecircle(c), False)
 
         # non colliding
         self.assertFalse(p2.collidecircle(c))
+        self.assertFalse(p2.collidecircle(c), False)
 
         # intersecting polygon
         self.assertTrue(p3.collidecircle(c))
+        self.assertTrue(p3.collidecircle(c), False)
 
         # polygon contains circle
         self.assertTrue(p4.collidecircle(c))
+        self.assertTrue(p4.collidecircle(c), False)
 
         # circle contains polygon, barely touching
         self.assertTrue(p5.collidecircle(c))
+        self.assertTrue(p5.collidecircle(c), False)
 
         # circle contains polygon, barely not touching
         self.assertTrue(p6.collidecircle(c))
+        self.assertTrue(p6.collidecircle(c), False)
 
         # --- Edge only ---
 

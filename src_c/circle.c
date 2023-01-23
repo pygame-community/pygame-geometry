@@ -472,12 +472,14 @@ static PyObject *
 pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
                          Py_ssize_t nargs)
 {
-    int was_sequence, result = 0, only_edges = 0;
+    int was_sequence, result, only_edges = 0;
     pgPolygonBase poly;
 
     /* Check for the optional only_edges argument */
-    if (args[nargs - 1] == Py_True) {
-        only_edges = 1;
+    if (PyBool_Check(args[nargs - 1])) {
+        if (args[nargs - 1] == Py_True) {
+            only_edges = 1;
+        }
         nargs--;
     }
 

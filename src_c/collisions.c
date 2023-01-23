@@ -352,6 +352,7 @@ pgCollision_CirclePolygon(pgCircleBase *circle, pgPolygonBase *poly,
     double cr = circle->r;
     double cr_sqr = cr * cr;
 
+    /* Check if the circle is colliding with any of the polygon's edges. */
     for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
         double xi = poly->vertices[i * 2];
         double yi = poly->vertices[i * 2 + 1];
@@ -383,6 +384,8 @@ pgCollision_CirclePolygon(pgCircleBase *circle, pgPolygonBase *poly,
         }
     }
 
+    /* Circle is not colliding with any of the polygon's edges. If we only
+     * care for edge collision, return now. */
     if (only_edges) {
         return 0;
     }
