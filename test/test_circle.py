@@ -1100,7 +1100,7 @@ class CircleTypeTest(unittest.TestCase):
         # intersecting polygon
         self.assertTrue(c.collidepolygon(p3))
 
-        # circle contained in polygon
+        # polygon contains circle
         self.assertTrue(c.collidepolygon(p4))
 
         # circle contains polygon, barely touching
@@ -1120,7 +1120,7 @@ class CircleTypeTest(unittest.TestCase):
         # intersecting polygon
         self.assertTrue(c.collidepolygon(p3, True))
 
-        # circle contained in polygon
+        # polygon contains circle
         self.assertFalse(c.collidepolygon(p4, True))
 
         # circle contains polygon, barely touching
