@@ -1432,6 +1432,32 @@ class PolygonTypeTest(unittest.TestCase):
         # circle contains polygon, barely not touching
         self.assertFalse(p6.collidecircle(c, True))
 
+    def test_collidepolygon_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collidecircle(c, value)
+
 
 if __name__ == "__main__":
     unittest.main()
