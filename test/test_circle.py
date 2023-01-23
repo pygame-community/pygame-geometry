@@ -1038,16 +1038,11 @@ class CircleTypeTest(unittest.TestCase):
         """Tests if the function correctly handles incorrect number of parameters"""
         c = Circle(10, 10, 4)
 
-        vertices = [(-5, 0), (5, 0), (0, 5)]
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
         invalid_args = [
-            (Polygon(vertices), Polygon(vertices)),
-            (Polygon(vertices), Polygon(vertices), Polygon(vertices)),
-            (
-                Polygon(vertices),
-                Polygon(vertices),
-                Polygon(vertices),
-                Polygon(vertices),
-            ),
+            (poly, poly),
+            (poly, poly, poly),
+            (poly, poly, poly, poly),
         ]
 
         with self.assertRaises(TypeError):
