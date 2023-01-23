@@ -6,7 +6,7 @@ from math import sqrt
 from pygame import Vector2, Vector3
 from pygame import Rect
 
-from geometry import Circle, Line, Polygon
+from geometry import Circle, Line, Polygon, regular_polygon
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -1003,6 +1003,131 @@ class CircleTypeTest(unittest.TestCase):
 
         # intersecting polygon
         self.assertFalse(c.contains(p3))
+
+    def test_collidepolygon_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value, True)
+
+    def test_collidepolygon_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        vertices = [(-5, 0), (5, 0), (0, 5)]
+        invalid_args = [
+            (Polygon(vertices), Polygon(vertices)),
+            (Polygon(vertices), Polygon(vertices), Polygon(vertices)),
+            (
+                Polygon(vertices),
+                Polygon(vertices),
+                Polygon(vertices),
+                Polygon(vertices),
+            ),
+        ]
+
+        with self.assertRaises(TypeError):
+            c.collidepolygon()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg, True)
+
+    def test_collidepolygon_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        vertices = [(-5, 0), (5, 0), (0, 5)]
+
+        self.assertIsInstance(c.collidepolygon(Polygon(vertices)), bool)
+        self.assertIsInstance(c.collidepolygon(vertices), bool)
+        self.assertIsInstance(c.collidepolygon(tuple(vertices)), bool)
+        self.assertIsInstance(c.collidepolygon(*vertices), bool)
+        self.assertIsInstance(c.collidepolygon([list(v) for v in vertices]), bool)
+
+        self.assertIsInstance(c.collidepolygon(Polygon(vertices), True), bool)
+        self.assertIsInstance(c.collidepolygon(vertices, True), bool)
+        self.assertIsInstance(c.collidepolygon(tuple(vertices), True), bool)
+        self.assertIsInstance(c.collidepolygon(*vertices, True), bool)
+        self.assertIsInstance(c.collidepolygon([list(v) for v in vertices], True), bool)
+
+    def test_collidepolygon(self):
+        """Ensures that the collidepolygon method correctly determines if a polygon
+        is colliding with the circle"""
+        epsilon = 0.00000000000001
+
+        c = Circle(0, 0, 15)
+
+        p1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+        p2 = Polygon([(100, 150), (200, 225), (150, 200)])
+        p3 = Polygon([(0, 0), (50, 50), (50, -50), (0, -50)])
+        p4 = regular_polygon(4, c.center, 100)
+        p5 = regular_polygon(3, (c.x + c.r - 5, c.y), 5)
+        p6 = regular_polygon(3, (c.x + c.r - 5, c.y), 5 - epsilon)
+
+        # circle contains polygon
+        self.assertTrue(c.collidepolygon(p1))
+
+        # non colliding
+        self.assertFalse(c.collidepolygon(p2))
+
+        # intersecting polygon
+        self.assertTrue(c.collidepolygon(p3))
+
+        # circle contained in polygon
+        self.assertTrue(c.collidepolygon(p4))
+
+        # circle contains polygon, barely touching
+        self.assertTrue(c.collidepolygon(p5))
+
+        # circle contains polygon, barely not touching
+        self.assertTrue(c.collidepolygon(p6))
+
+        # --- Edge only ---
+
+        # circle contains polygon
+        self.assertFalse(c.collidepolygon(p1, True))
+
+        # non colliding
+        self.assertFalse(c.collidepolygon(p2, True))
+
+        # intersecting polygon
+        self.assertTrue(c.collidepolygon(p3, True))
+
+        # circle contained in polygon
+        self.assertFalse(c.collidepolygon(p4, True))
+
+        # circle contains polygon, barely touching
+        self.assertTrue(c.collidepolygon(p5, True))
+
+        # circle contains polygon, barely not touching
+        self.assertFalse(c.collidepolygon(p6, True))
 
 
 if __name__ == "__main__":
