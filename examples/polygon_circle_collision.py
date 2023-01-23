@@ -12,6 +12,7 @@ FPS = 60
 WIDTH, HEIGHT = 800, 800
 WIDTH2, HEIGHT2 = WIDTH // 2, HEIGHT // 2
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Polygon-Circle Collision Visualization")
 clock = pygame.time.Clock()
 
 font = pygame.font.SysFont("Arial", 25, bold=True)
