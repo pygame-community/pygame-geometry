@@ -1164,6 +1164,25 @@ class CircleTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 c.collidepolygon(poly, value)
 
+    def test_collidepolygon_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        c_copy = c.copy()
+        poly_copy = poly.copy()
+
+        c.collidepolygon(poly)
+
+        self.assertEqual(c.x, c_copy.x)
+        self.assertEqual(c.y, c_copy.y)
+        self.assertEqual(c.r, c_copy.r)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
+
 
 if __name__ == "__main__":
     unittest.main()
