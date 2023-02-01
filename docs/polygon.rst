@@ -262,7 +262,7 @@ Polygon Methods
         | :sl:`removes and returns a vertex from the polygon`
         | :sg:`pop_vertex(index) -> (x, y)`
 
-        Removes and returns vertex at the given index from the `Polygon`, but only if
+        Removes and returns the vertex at the given index from the `Polygon`, but only if
         it has more than three vertices already. Returns the removed vertex as a tuple.
 
         .. note::
