@@ -942,7 +942,7 @@ pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
         }
     }
     else if (v_ix >= v_num) {
-        return RAISE(PyExc_IndexError, "vertex index out of range");
+        return RAISE(PyExc_IndexError, "Vertex index out of range");
     }
 
     poly->c_x = (poly->c_x * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
