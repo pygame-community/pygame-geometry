@@ -841,7 +841,7 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
     }
 
     if (!pg_TwoDoublesFromObj(args[1], &x, &y)) {
-        return RAISE(PyExc_TypeError, "Invalid vertex coordinates");
+        return RAISE(PyExc_TypeError, "Invalid vertex coordinate");
     }
 
     PyMem_Resize(poly->vertices, double, v_num * 2 + 2);
