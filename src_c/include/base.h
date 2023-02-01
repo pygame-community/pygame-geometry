@@ -8,24 +8,20 @@
 static PG_FORCE_INLINE int
 pg_IntFromObj(PyObject *obj, int *val)
 {
-    int tmp_val;
-
     if (PyFloat_Check(obj)) {
         /* Python3.8 complains with deprecation warnings if we pass
          * floats to PyLong_AsLong.
          */
-        double dv = PyFloat_AsDouble(obj);
-        tmp_val = (int)dv;
-    }
-    else {
-        tmp_val = PyLong_AsLong(obj);
+        *val = (int)PyFloat_AS_DOUBLE(obj);
+        return 1;
     }
 
-    if (tmp_val == -1 && PyErr_Occurred()) {
+    *val = PyLong_AsLong(obj);
+    if (PyErr_Occurred()) {
         PyErr_Clear();
         return 0;
     }
-    *val = tmp_val;
+
     return 1;
 }
 
@@ -249,6 +245,26 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
     result = pg_UintFromObj(item, val);
     Py_DECREF(item);
     return result;
+}
+
+static PG_FORCE_INLINE int
+pg_Pyssize_tFromObj(PyObject *obj, Py_ssize_t *val)
+{
+    if (PyFloat_Check(obj)) {
+        /* Python3.8 complains with deprecation warnings if we pass
+         * floats to PyLong_AsLong.
+         */
+        *val = (Py_ssize_t)PyFloat_AS_DOUBLE(obj);
+        return 1;
+    }
+
+    *val = PyLong_AsSsize_t(obj);
+    if (PyErr_Occurred()) {
+        PyErr_Clear();
+        return 0;
+    }
+
+    return 1;
 }
 
 static PG_FORCE_INLINE int

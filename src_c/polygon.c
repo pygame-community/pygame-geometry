@@ -828,16 +828,15 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
                          Py_ssize_t nargs)
 {
     double x, y;
-    int vertex_index;
-    pgPolygonBase *polygon = &self->polygon;
-    Py_ssize_t verts_num = polygon->verts_num;
+    pgPolygonBase *poly = &self->polygon;
+    Py_ssize_t v_ix, v_num = poly->verts_num;
 
     if (nargs != 2) {
         return RAISE(PyExc_TypeError,
-                     "insert_vertex requires a pair of numbers");
+                     "insert_vertex requires a vertex index and a vertex");
     }
 
-    if (!pg_IntFromObj(args[0], &vertex_index)) {
+    if (!pg_Pyssize_tFromObj(args[0], &v_ix)) {
         return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 
@@ -845,35 +844,34 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "Invalid vertex coordinates");
     }
 
-    PyMem_Resize(polygon->vertices, double, verts_num * 2 + 2);
+    PyMem_Resize(poly->vertices, double, v_num * 2 + 2);
 
-    if (!polygon->vertices) {
+    if (!poly->vertices) {
         return PyErr_NoMemory();
     }
 
-    if (vertex_index < 0) {
-        vertex_index += verts_num + 1;
-        if (vertex_index < 0) {
-            vertex_index = 0;
+    if (v_ix < 0) {
+        v_ix += v_num + 1;
+        if (v_ix < 0) {
+            v_ix = 0;
         }
     }
-    else if (vertex_index > verts_num) {
-        vertex_index = verts_num;
+    else if (v_ix > v_num) {
+        v_ix = v_num;
     }
 
-    if (vertex_index < verts_num) {
-        memmove(polygon->vertices + vertex_index * 2 + 2,
-                polygon->vertices + vertex_index * 2,
-                (verts_num - vertex_index) * 2 * sizeof(double));
+    if (v_ix < v_num) {
+        memmove(poly->vertices + v_ix * 2 + 2, poly->vertices + v_ix * 2,
+                (v_num - v_ix) * 2 * sizeof(double));
     }
 
-    polygon->vertices[vertex_index * 2] = x;
-    polygon->vertices[vertex_index * 2 + 1] = y;
+    poly->vertices[v_ix * 2] = x;
+    poly->vertices[v_ix * 2 + 1] = y;
 
-    polygon->c_x = (polygon->c_x * verts_num + x) / (verts_num + 1);
-    polygon->c_y = (polygon->c_y * verts_num + y) / (verts_num + 1);
+    poly->c_x = (poly->c_x * v_num + x) / (v_num + 1);
+    poly->c_y = (poly->c_y * v_num + y) / (v_num + 1);
 
-    polygon->verts_num++;
+    poly->verts_num++;
 
     Py_RETURN_NONE;
 }
@@ -881,49 +879,44 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
 static PyObject *
 pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
 {
-    int vertex_index;
-    pgPolygonBase *polygon = &self->polygon;
-    Py_ssize_t verts_num = polygon->verts_num;
+    pgPolygonBase *poly = &self->polygon;
+    Py_ssize_t v_ix, v_num = poly->verts_num;
 
-    if (verts_num == 3) {
-        return RAISE(PyExc_IndexError,
-                     "cannot remove a vertex from a triangle");
+    if (v_num == 3) {
+        return RAISE(PyExc_TypeError,
+                     "Cannot remove a vertex from a triangle");
     }
 
-    if (!pg_IntFromObj(arg, &vertex_index)) {
+    if (!pg_Pyssize_tFromObj(arg, &v_ix)) {
         return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 
-    if (vertex_index < 0) {
-        vertex_index += verts_num;
-        if (vertex_index < 0) {
-            vertex_index = 0;
+    if (v_ix < 0) {
+        v_ix += v_num;
+        if (v_ix < 0) {
+            v_ix = 0;
         }
     }
-    else if (vertex_index >= verts_num) {
+    else if (v_ix >= v_num) {
         return RAISE(PyExc_IndexError, "vertex index out of range");
     }
 
-    polygon->c_x =
-        (polygon->c_x * verts_num - polygon->vertices[vertex_index * 2]) /
-        (verts_num - 1);
-    polygon->c_y =
-        (polygon->c_y * verts_num - polygon->vertices[vertex_index * 2 + 1]) /
-        (verts_num - 1);
+    poly->c_x = (poly->c_x * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
+    poly->c_y =
+        (poly->c_y * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
 
-    if (vertex_index < verts_num) {
-        memmove(polygon->vertices + vertex_index * 2,
-                polygon->vertices + vertex_index * 2 + 2,
-                (verts_num - vertex_index - 1) * 2 * sizeof(double));
+    if (v_ix < v_num) {
+        memmove(poly->vertices + v_ix * 2, poly->vertices + v_ix * 2 + 2,
+                (v_num - v_ix - 1) * 2 * sizeof(double));
     }
 
-    PyMem_Resize(polygon->vertices, double, verts_num * 2 - 2);
+    PyMem_Resize(poly->vertices, double, v_num * 2 - 2);
 
-    if (!polygon->vertices) {
+    if (!poly->vertices) {
         return PyErr_NoMemory();
     }
 
-    polygon->verts_num--;
+    poly->verts_num--;
 
     Py_RETURN_NONE;
 }
@@ -931,55 +924,49 @@ pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
 static PyObject *
 pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
 {
-    int vertex_index = -1;
-    pgPolygonBase *polygon = &self->polygon;
-    Py_ssize_t verts_num = polygon->verts_num;
+    pgPolygonBase *poly = &self->polygon;
+    Py_ssize_t v_ix = -1, v_num = poly->verts_num;
 
-    if (verts_num == 3) {
-        return RAISE(PyExc_IndexError, "cannot pop a vertex from a triangle");
+    if (v_num == 3) {
+        return RAISE(PyExc_TypeError, "Cannot pop a vertex from a triangle");
     }
 
-    if (!pg_IntFromObj(arg, &vertex_index)) {
-        return RAISE(PyExc_TypeError, "invalid vertex index");
+    if (!pg_Pyssize_tFromObj(arg, &v_ix)) {
+        return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 
-    if (vertex_index < 0) {
-        vertex_index += verts_num;
-        if (vertex_index < 0) {
-            vertex_index = 0;
+    if (v_ix < 0) {
+        v_ix += v_num;
+        if (v_ix < 0) {
+            v_ix = 0;
         }
     }
-    else if (vertex_index >= verts_num) {
+    else if (v_ix >= v_num) {
         return RAISE(PyExc_IndexError, "vertex index out of range");
     }
 
-    polygon->c_x =
-        (polygon->c_x * verts_num - polygon->vertices[vertex_index * 2]) /
-        (verts_num - 1);
-    polygon->c_y =
-        (polygon->c_y * verts_num - polygon->vertices[vertex_index * 2 + 1]) /
-        (verts_num - 1);
+    poly->c_x = (poly->c_x * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
+    poly->c_y =
+        (poly->c_y * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
 
-    PyObject *vertex =
-        pg_TupleFromDoublePair(polygon->vertices[vertex_index * 2],
-                               polygon->vertices[vertex_index * 2 + 1]);
+    PyObject *vertex = pg_TupleFromDoublePair(poly->vertices[v_ix * 2],
+                                              poly->vertices[v_ix * 2 + 1]);
     if (!vertex) {
         return NULL;
     }
 
-    if (vertex_index < verts_num) {
-        memmove(polygon->vertices + vertex_index * 2,
-                polygon->vertices + vertex_index * 2 + 2,
-                (verts_num - vertex_index - 1) * 2 * sizeof(double));
+    if (v_ix < v_num) {
+        memmove(poly->vertices + v_ix * 2, poly->vertices + v_ix * 2 + 2,
+                (v_num - v_ix - 1) * 2 * sizeof(double));
     }
 
-    PyMem_Resize(polygon->vertices, double, verts_num * 2 - 2);
+    PyMem_Resize(poly->vertices, double, v_num * 2 - 2);
 
-    if (!polygon->vertices) {
+    if (!poly->vertices) {
         return PyErr_NoMemory();
     }
 
-    polygon->verts_num--;
+    poly->verts_num--;
 
     return vertex;
 }

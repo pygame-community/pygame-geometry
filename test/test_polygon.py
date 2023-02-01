@@ -1035,6 +1035,14 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.insert_vertex(value, (1, 1))
 
+    def test_insert_vertex_permanence(self):
+        """Ensures that the polygon's vertices are not modified when a vertex is added."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+        poly = Polygon(vertices)
+        poly.insert_vertex(1, (1.5, 1.5))
+        new_vertices = [(1, 1), (1.5, 1.5), (2, 2), (3, 3), (4, 4)]
+        self.assertEqual(poly.vertices, new_vertices)
+
     def test_remove_vertex(self):
         """Checks whether a vertex is removed correctly."""
         vertices = _some_vertices.copy()
@@ -1047,10 +1055,11 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.vertices, vertices)
         self.assertEqual(poly.verts_num, 3)
 
-        poly2 = Polygon(_some_vertices.copy())
-        for i in range(poly2.verts_num):
-            with self.assertRaises(IndexError):
-                poly2.remove_vertex(i)
+        # triangle
+        poly = Polygon(_some_vertices.copy())
+        for i in range(poly.verts_num):
+            with self.assertRaises(TypeError):
+                poly.remove_vertex(i)
 
     def test_remove_vertex_invalid_args(self):
         """Checks whether the function can handle invalid types correctly."""
@@ -1089,6 +1098,13 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(IndexError):
                 poly.remove_vertex(index)
 
+    def test_remove_vertex_permanence(self):
+        """Ensures that the polygon's vertices are not modified when a vertex is removed."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+        poly = Polygon(vertices)
+        poly.remove_vertex(1)
+        self.assertEqual(poly.vertices, [v for v in vertices if v != (2, 2)])
+
     def test_pop_vertex(self):
         """Checks whether a vertex is removed correctly."""
         vertices = _some_vertices.copy()
@@ -1102,10 +1118,11 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.verts_num, 3)
         self.assertEqual(vert, real_vert)
 
-        poly2 = Polygon(_some_vertices.copy())
-        for i in range(poly2.verts_num):
-            with self.assertRaises(IndexError):
-                poly2.pop_vertex(i)
+        # triangle
+        poly = Polygon(_some_vertices.copy())
+        for i in range(poly.verts_num):
+            with self.assertRaises(TypeError):
+                poly.pop_vertex(i)
 
     def test_pop_vertex_invalid_args(self):
         """Checks whether the function can handle invalid types correctly."""
@@ -1153,6 +1170,13 @@ class PolygonTypeTest(unittest.TestCase):
         poly.pop_vertex(1)
 
         self.assertEqual((14.736666666666665, -4.666666666666667), poly.center)
+
+    def test_pop_vertex_permanence(self):
+        """Ensures that the polygon's vertices are not modified when a vertex is removed."""
+        vertices = [(1, 1), (2, 2), (3, 3), (4, 4)]
+        poly = Polygon(vertices)
+        poly.pop_vertex(1)
+        self.assertEqual(poly.vertices, [v for v in vertices if v != (2, 2)])
 
     def test_remove_vertex_center(self):
         """Checks whether the center is updated correctly."""
