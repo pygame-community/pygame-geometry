@@ -812,7 +812,6 @@ class PolygonTypeTest(unittest.TestCase):
         angles = [-90, -180, -270]
 
         for angle in angles:
-
             poly1 = gen_poly.copy()
             poly1.rotate_ip(angle)
 
@@ -825,14 +824,12 @@ class PolygonTypeTest(unittest.TestCase):
                 self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_conjugate(self):
-
         vertices = _some_vertices.copy()
         gen_poly = Polygon(vertices)
 
         angles = [-90, -180, -270]
 
         for angle in angles:
-
             poly1 = gen_poly.copy()
             po1 = poly1.rotate(angle)
 

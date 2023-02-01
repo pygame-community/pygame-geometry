@@ -92,7 +92,6 @@ for _ in range(SHAPES_NUMBER):
 
 # Game loop
 while keep:
-
     screen.fill(BACKGROUND_COLOR)
     clock.tick_busy_loop(FPS)
 
@@ -100,7 +99,6 @@ while keep:
 
     # main update and draw loop, draw every shape and update their size
     for shape, color, coll_color in zip(shapes, colors, colliding_colors):
-
         is_circle = isinstance(shape, Circle)
         is_rect = isinstance(shape, pygame.Rect)
 
@@ -168,7 +166,6 @@ while keep:
     # event loop
 
     for event in pygame.event.get():
-
         if event.type == pygame.QUIT:
             keep = False
         elif event.type == pygame.MOUSEWHEEL:

@@ -80,7 +80,6 @@ while keep:
 
     # event loop
     for event in pygame.event.get():
-
         if event.type == pygame.QUIT:
             keep = False
         elif event.type == pygame.MOUSEWHEEL:
