@@ -14,7 +14,6 @@ def _get_vertices_from_rect(rect: pygame.Rect):
 
 class TestGeometry(unittest.TestCase):
     def test_rect_to_polygon(self):
-
         rects_base = [
             (1, 2, 3, 4),  # normalised rect
             (-1, -2, 3, 4),  # normalised rect, negative position

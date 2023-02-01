@@ -282,8 +282,15 @@ Polygon Methods
         not modified. The scaling is done relative to the center of the `Polygon`.
 
         .. note::
-            Scaling the polygon by a factor greater than 1 will make it bigger, while
-            scaling it by a factor less than 1 but greater than 0 will make it smaller.
+            Using a `factor` greater than 1 will enlarge the `Polygon`.
+            Using a `factor` less than 1 will shrink the `Polygon`.
+
+        .. warning::
+            Scaling a `Polygon` by a factor very close to 0 could make it disappear.
+            This is because the vertices of the `Polygon` will be so close to each other
+            that they will be considered to be in the same point. This is a limitation of
+            the algorithm used to calculate the collisions and a general limitation of
+            the floating point numbers used in computers.
 
         .. note::
             Keep in mind that the more vertices the polygon has, the more CPU time it will
@@ -296,13 +303,19 @@ Polygon Methods
         | :sl:`scales the polygon by a given factor`
         | :sg:`scale_ip(factor) -> None`
 
-        Scales the Polygon by the given factor. The original Polygon is modified.
-        Always returns None. The scaling is done relative to the center of the
-        `Polygon`.
+        Scales the Polygon from its center by the given factor. The original Polygon is modified.
+        Always returns None.
 
         .. note::
-            Scaling the polygon by a factor greater than 1 will make it bigger, while
-            scaling it by a factor less than 1 but greater than 0 will make it smaller.
+            Using a `factor` greater than 1 will enlarge the `Polygon`.
+            Using a `factor` less than 1 will shrink the `Polygon`.
+
+        .. warning::
+            Repeatedly scaling a `Polygon` by a factor less than 1 will eventually make it
+            disappear. This is because the vertices of the `Polygon` will be so close to
+            each other that they will be considered to be in the same point. This is a
+            limitation of the algorithm used to calculate the collisions and a general
+            limitation of the floating point numbers used in computers.
 
         .. note::
             Keep in mind that the more vertices the polygon has, the more CPU time it will

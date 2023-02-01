@@ -763,7 +763,7 @@ class RaycastTest(unittest.TestCase):
                 (353.28849270664506, 157.28849270664506),
             ),
         ]
-        for (output, expected) in inputs_outputs:
+        for output, expected in inputs_outputs:
             if expected is None:
                 self.assertIsNone(output)
             else:

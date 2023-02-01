@@ -826,7 +826,6 @@ class PolygonTypeTest(unittest.TestCase):
         angles = [-90, -180, -270]
 
         for angle in angles:
-
             poly1 = gen_poly.copy()
             poly1.rotate_ip(angle)
 
@@ -839,14 +838,12 @@ class PolygonTypeTest(unittest.TestCase):
                 self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_conjugate(self):
-
         vertices = _some_vertices.copy()
         gen_poly = Polygon(vertices)
 
         angles = [-90, -180, -270]
 
         for angle in angles:
-
             poly1 = gen_poly.copy()
             po1 = poly1.rotate(angle)
 
@@ -1009,16 +1006,21 @@ class PolygonTypeTest(unittest.TestCase):
         """Tests whether the scale_ip method works correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        scales = [0.5, 1.0, 2.0, 0.1, 10]
+        scales = [0.5, 1.0, 2.0, 0.1, 10, 100, 1000, 0.12, 0.001, 0.000000001]
 
         for scale in scales:
-            new_vertices = _some_vertices.copy()
-            new_poly = poly.copy()
-            new_vertices = _scale_polygon(
-                new_vertices, len(new_vertices), new_poly.c_x, new_poly.c_y, scale
+            newpoly = poly.copy()
+            data = (
+                newpoly.center,
+                newpoly.verts_num,
+                _scale_polygon(
+                    _some_vertices.copy(), 3, newpoly.c_x, newpoly.c_y, scale
+                ),
             )
-            new_poly.scale_ip(scale)
-            self.assertEqual(new_poly.vertices, new_vertices)
+            newpoly.scale_ip(scale)
+            self.assertEqual(data[0], newpoly.center)
+            self.assertEqual(data[1], newpoly.verts_num)
+            self.assertEqual(data[2], newpoly.vertices)
 
     def test_scale_ip_inplace(self):
         """Ensures that scaling the polygon by 1.0 will not change its position."""
@@ -1071,16 +1073,21 @@ class PolygonTypeTest(unittest.TestCase):
         """Tests whether the scale method works correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        scales = [0.5, 1.0, 2.0, 0.1, 10]
+        scales = [0.5, 1.0, 2.0, 0.1, 10, 100, 1000, 0.12, 0.001, 0.000000001]
 
         for scale in scales:
-            new_vertices = _some_vertices.copy()
             new_poly = poly.copy()
-            new_vertices = _scale_polygon(
-                new_vertices, len(new_vertices), new_poly.c_x, new_poly.c_y, scale
+            data = (
+                new_poly.center,
+                new_poly.verts_num,
+                _scale_polygon(
+                    _some_vertices.copy(), 3, new_poly.c_x, new_poly.c_y, scale
+                ),
             )
             new_poly = poly.scale(scale)
-            self.assertEqual(new_poly.vertices, new_vertices)
+            self.assertEqual(data[0], new_poly.center)
+            self.assertEqual(data[1], new_poly.verts_num)
+            self.assertEqual(data[2], new_poly.vertices)
 
     def test_scale_return_type(self):
         """Tests whether the scale method returns the correct type."""

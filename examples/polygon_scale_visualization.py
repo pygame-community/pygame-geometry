@@ -45,7 +45,6 @@ scaling_down_text = font.render("Scaling down", True, RED)
 scaling_down_text_r = scaling_down_text.get_rect(center=(SCREEN_W2, 100))
 
 while keep:
-
     for i, poly in enumerate(polygons, start=1):
         poly.rotate_ip(i * ROTATION_SPEED / len(polygons))
 
