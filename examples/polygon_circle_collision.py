@@ -36,7 +36,6 @@ only_edges = False
 running = True
 
 while running:
-
     circle.center = pygame.mouse.get_pos()
 
     colliding = circle.collidepolygon(polygon, only_edges)
