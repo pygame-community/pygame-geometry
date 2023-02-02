@@ -154,6 +154,12 @@ other objects.
 
     collidepoint: Checks if the polygon collides with the given point.
 
+    insert_vertex: Adds a vertex to the polygon.
+
+    remove_vertex: Removes a vertex from the polygon.
+
+    pop_vertex: Removes and returns a vertex from the polygon.
+
     is_convex: Checks if the polygon is convex.
 
 Functions

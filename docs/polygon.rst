@@ -46,21 +46,29 @@ Polygon Attributes
         | :sl:`the vertices of the polygon`
         | :sg:`vertices -> List[Tuple[float, float]]`
 
-        It's a List of Tuples representing the coordinates of the vertices. You can
-        change the vertices of the `Polygon` by reassigning this attribute
-        directly (e.g. 'polygon.vertices = [(0, 0), (1, 1), (2, 2)]') or by indexing
-        the `Polygon` (e.g. 'polygon[0] = (0, 0)'). The former will change all the
-        vertices while the latter will only change the selected vertex. If you just want
-        to add a single vertex, you can use the 'add_vertex' method.
+        A list of tuples representing the coordinates of the polygon's vertices.
+        You can modify the vertices in several ways:
+
+        - Directly reassign the `vertices` attribute: ``polygon.vertices = [(0, 0), (1, 1), (0, 1)]``
+        - Index the `Polygon`: ``polygon[0] = (0, 0)``
+        - Use the `insert_vertex` method to add a single vertex
 
         .. note::
-            If you want to change a vertex at a specific index the correct way to do it
-            is 'polygon[index] = (x, y)'.
-            The code 'polygon.vertices[index] = (x, y)' is not correct as you will not
-            change the vertex at the specified index.
-            Just as an example by doing 'polygon.vertices[0] = (0, 0)' you will not change
-            the first vertex of the actual polygon but rather the first element of the list
-            of vertices.
+            Directly reassigning the `vertices` attribute will always recalculate the center
+            of the `Polygon`. This means that even if you change the entire list to the same
+            values except for one vertex, changing the entire vertices list is always more
+            expensive than changing a single vertex.
+
+            For example, if you have a polygon with vertices [(0, 0), (1, 1), (0, 1)] and
+            you want to change the first vertex to (99, 99), you should use ``polygon[0] = (99, 99)``
+            instead of ``polygon.vertices = [(99, 99), (1, 1), (0, 1)]``.
+
+        .. note::
+            To change a single vertex at an index, the correct method is ``polygon[index] = (x, y)``.
+            Do not use ``polygon.vertices[index] = (x, y)`` as this will not change the vertex
+            at the specified index but rather the element at the specified index of the
+            newly created list of vertices.
+
 
     .. attribute:: center
         | :sl:`the center of the polygon`
@@ -213,59 +221,71 @@ Polygon Methods
 
       .. ## Polygon.is_convex ##
 
-    .. method:: add_vertex <<NOT YET IMPLEMENTED>>
+    .. method:: insert_vertex
+        | :sl:`inserts a new vertex to the polygon`
+        | :sg:`insert_vertex(index, (x, y)) -> None`
+        | :sg:`insert_vertex(index, Vector2) -> None`
 
-        | :sl:`adds a vertex to the polygon`
-        | :sg:`add_vertex(index, (x, y)) -> None`
-        | :sg:`add_vertex(index, Vector2) -> None`
-
-        Adds a vertex at the given index to the `Polygon`. Always returns None.
-
-        .. note::
-            The given index must be between 0 and the number of vertices - 1.
-            If the index is 0, the vertex will be added at the beginning of the list of
-            vertices. If the index is the number of vertices of the `Polygon`, the vertex
-            will be added at the end of the list of vertices.
+        Adds a new vertex to the `Polygon`'s vertices at the specified index. The method returns `None`.
 
         .. note::
-            You can add as many vertices as you want, but keep in mind that the more
-            vertices you have, the more CPU time it will take to calculate the collisions,
-            move the `Polygon`, copying, etc. It is recommended to keep the number of vertices
-            as low as possible and as close as the strict minimum as possible.
+            The `index` argument can be any positive or negative integer. If the `index` is
+            negative, it is counted from the end of the list of vertices. For example, if
+            the `index` is -1, the vertex will be inserted at the end of the list. If the
+            `index` is positive and greater than the number of vertices, the vertex
+            will always be inserted at the end of the list.
 
-      .. ## Polygon.add_vertex ##
+            Inserting a vertex at the end of the list:
+            ```
+            polygon = Polygon([(0,0), (1,0), (1,1)])
+            polygon.insert_vertex(-1, (0,1)) # same will happen with 3 or more as index
+            print(polygon.vertices)
+            # Output: [(0,0), (1,0), (1,1), (0,1)]
+            ```
 
-    .. method:: remove_vertex <<NOT YET IMPLEMENTED>>
+        .. note::
+            You can insert as many vertices as memory available, but keep in mind that a larger
+            number of vertices will increase CPU usage for tasks such as calculating collisions,
+            moving the `Polygon`, copying, etc. It is recommended to keep the number of
+            vertices as low as possible.
 
+      .. ## Polygon.insert_vertex ##
+
+
+    .. method:: remove_vertex
         | :sl:`removes a vertex from the polygon`
         | :sg:`remove_vertex(index) -> None`
 
-        Removes a vertex at the given index from the `Polygon`, but only if the `Polygon`
-        has more than three vertices already. Always returns None.
+        Removes a vertex at the given `index` from the `Polygon`, but only if the `Polygon`
+        has more than three vertices already. This method always returns `None`.
 
         .. note::
-            The given index must be between 0 and the number of vertices - 1.
-            If the index is 0, the first vertex will be removed. If the index is the number
-            of vertices of the `Polygon` minus one, the last vertex will be removed.
+            The `index` must be less than the number of vertices in the `Polygon`.
+            If `index` is 0, the first vertex will be removed. If `index` is the number
+            of vertices in the `Polygon` minus one, the last vertex will be removed.
+            If a negative `index` is given, it will be counted from the end of the list of vertices.
+            For example, an `index` of -1 will remove the last vertex in the `Polygon`.
+
         .. note::
-            Since the minimum number of vertices for a `Polygon` is 3 (triangle), you
-            cannot remove a vertex if the `Polygon` only has 3 vertices. If you try,
-            the vertex will not be removed and an error will be raised.
+            The minimum number of vertices for a `Polygon` is 3 (a triangle), so you cannot
+            remove a vertex if the `Polygon` only has 3 vertices.
+            If you attempt to do so, the vertex will not be removed and an error will be raised.
 
       .. ## Polygon.remove_vertex ##
 
-    .. method:: pop_vertex <<NOT YET IMPLEMENTED>>
-
+    .. method:: pop_vertex
         | :sl:`removes and returns a vertex from the polygon`
         | :sg:`pop_vertex(index) -> (x, y)`
 
-        Removes and returns vertex at the given index from the `Polygon`, but only if
+        Removes and returns the vertex at the given index from the `Polygon`, but only if
         it has more than three vertices already. Returns the removed vertex as a tuple.
 
         .. note::
-            The given index must be between 0 and the number of vertices - 1.
+            The given index must be less than the number of vertices of the `Polygon`.
             If the index is 0, the first vertex will be removed. If the index is the number
             of vertices of the `Polygon` minus one, the last vertex will be removed.
+            If a negative index is given, it will be counted from the end of the list of
+            vertices.
         .. note::
             Since the minimum number of vertices for a `Polygon` is 3 (triangle), you
             cannot remove a vertex if the `Polygon` only has 3 vertices. If you try,

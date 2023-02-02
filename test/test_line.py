@@ -67,7 +67,6 @@ class LineTypeTest(unittest.TestCase):
                 Line(*arg_seq)
 
     def testConstructionX1Y1X2Y2_float(self):
-
         line = Line(1.0, 2.0, 3.0, 4.0)
 
         self.assertEqual(line.x1, 1.0)
@@ -76,7 +75,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 4.0)
 
     def testConstructionTUP_X1Y1X2Y2_float(self):
-
         line = Line((1.0, 2.0, 3.0, 4.0))
 
         self.assertEqual(line.x1, 1.0)
@@ -85,7 +83,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 4.0)
 
     def testConstructionX1Y1X2Y2_int(self):
-
         line = Line(1, 2, 3, 4)
 
         self.assertEqual(line.x1, 1.0)
@@ -989,7 +986,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(l.is_perpendicular([(3, 3), (6, 6)]))
 
     def test_meth_perpendicular_argtype(self):
-
         l = Line(0, 0, 1, 1)
         args = [
             1,
