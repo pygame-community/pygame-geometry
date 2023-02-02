@@ -56,7 +56,6 @@ class TestGroup:
         self.show_std = show_std
 
     def print_name(self):
-
         print(self.name.upper())
         print("=" * 50)
 
