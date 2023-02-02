@@ -1002,7 +1002,15 @@ class PolygonTypeTest(unittest.TestCase):
         """Checks whether the function can handle invalid types correctly."""
         vertices = _some_vertices.copy()
         poly = Polygon(vertices)
-        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+        invalid_types = (
+            1.332,
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(vertices),
+        )
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
@@ -1063,7 +1071,15 @@ class PolygonTypeTest(unittest.TestCase):
         vertices = _some_vertices.copy()
         vertices.append((4.21, -34.0))
         poly = Polygon(vertices)
-        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+        invalid_types = (
+            1.332,
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(vertices),
+        )
 
         for value in invalid_types:
             with self.assertRaises(TypeError):
@@ -1126,7 +1142,15 @@ class PolygonTypeTest(unittest.TestCase):
         vertices = _some_vertices.copy()
         vertices.append((4.21, -34.0))
         poly = Polygon(vertices)
-        invalid_types = (None, [], "1", (1,), Vector3(1, 1, 3), Polygon(vertices))
+        invalid_types = (
+            1.332,
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(vertices),
+        )
 
         for value in invalid_types:
             with self.assertRaises(TypeError):

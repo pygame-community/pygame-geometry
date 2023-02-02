@@ -836,7 +836,7 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
                      "insert_vertex requires a vertex index and a vertex");
     }
 
-    if (!pg_Pyssize_tFromObj(args[0], &v_ix)) {
+    if (!pg_IndexFromObj(args[0], &v_ix)) {
         return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 
@@ -887,7 +887,7 @@ pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
                      "Cannot remove a vertex from a triangle");
     }
 
-    if (!pg_Pyssize_tFromObj(arg, &v_ix)) {
+    if (!pg_IndexFromObj(arg, &v_ix)) {
         return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 
@@ -931,7 +931,7 @@ pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
         return RAISE(PyExc_TypeError, "Cannot pop a vertex from a triangle");
     }
 
-    if (!pg_Pyssize_tFromObj(arg, &v_ix)) {
+    if (!pg_IndexFromObj(arg, &v_ix)) {
         return RAISE(PyExc_TypeError, "Invalid vertex index");
     }
 

@@ -248,23 +248,13 @@ pg_UintFromObjIndex(PyObject *obj, int _index, Uint32 *val)
 }
 
 static PG_FORCE_INLINE int
-pg_Pyssize_tFromObj(PyObject *obj, Py_ssize_t *val)
+pg_IndexFromObj(PyObject *obj, Py_ssize_t *val)
 {
-    if (PyFloat_Check(obj)) {
-        /* Python3.8 complains with deprecation warnings if we pass
-         * floats to PyLong_AsLong.
-         */
-        *val = (Py_ssize_t)PyFloat_AS_DOUBLE(obj);
+    if (PyIndex_Check(obj)) {
+        *val = PyNumber_AsSsize_t(obj, NULL);
         return 1;
     }
-
-    *val = PyLong_AsSsize_t(obj);
-    if (PyErr_Occurred()) {
-        PyErr_Clear();
-        return 0;
-    }
-
-    return 1;
+    return 0;
 }
 
 static PG_FORCE_INLINE int
