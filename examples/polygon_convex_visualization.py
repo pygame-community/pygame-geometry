@@ -33,7 +33,6 @@ scroll_text = font.render("Scroll wheel to select vertex", True, WHITE)
 scroll_text_r = scroll_text.get_rect(center=(SCREEN_W / 2, SCREEN_H - 50))
 
 while keep:
-
     screen.fill(BACKGROUND)
 
     polygon[index] = pygame.mouse.get_pos()
