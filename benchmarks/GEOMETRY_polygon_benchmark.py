@@ -204,6 +204,20 @@ subscript_tests = [
     ("[-1]", "po100[-1]"),
 ]
 
+scale_tests = [
+    ("2.0", "po100.scale(2)"),
+    ("1.0", "po100.scale(1)"),
+    ("0.5", "po100.scale(0.5)"),
+    ("0.1", "po100.scale(0.1)"),
+]
+
+scale_ip_tests = [
+    ("2.0", "po100.scale_ip(2)"),
+    ("1.0", "po100.scale_ip(1)"),
+    ("0.5", "po100.scale_ip(0.5)"),
+    ("0.1", "po100.scale_ip(0.1)"),
+]
+
 GROUPS = [
     ("Instatiation", instatiation_tests),
     ("Attribute Getters", getters_tests),
@@ -217,6 +231,8 @@ GROUPS = [
     ("Get Bounding Box", get_bounding_box_tests),
     ("Subscript", subscript_tests),
     ("Subscript Assignment", subscript_assignment_tests),
+    ("Scale", scale_tests),
+    ("Scale_ip", scale_ip_tests),
 ]
 
 if __name__ == "__main__":

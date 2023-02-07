@@ -162,6 +162,10 @@ other objects.
 
     is_convex: Checks if the polygon is convex.
 
+    scale: Scales the polygon by the given amount.
+
+    scale_ip: Scales the polygon by the given amount in place.
+
 Functions
 =========
 The geometry module also contains a number of standalone functions for performing operations
