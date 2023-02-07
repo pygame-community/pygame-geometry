@@ -44,7 +44,7 @@ points = []
 
 def populate_rects(number):
     # in bottomleft quadrant
-    for i in range(number):
+    for _ in range(number):
         dim_x = randint(15, 50)
         dim_y = randint(15, 50)
         x = randint(0, SCREEN_W_HALF - dim_x)
@@ -54,7 +54,7 @@ def populate_rects(number):
 
 def populate_lines(number):
     # in topleft quadrant
-    for i in range(number):
+    for _ in range(number):
         x1 = randint(0, SCREEN_W_HALF - 1)
         y1 = randint(31, SCREEN_H_HALF - 1)
         x2 = randint(0, SCREEN_W_HALF - 1)
@@ -64,7 +64,7 @@ def populate_lines(number):
 
 def populate_circles(number):
     # in bottomright quadrant
-    for i in range(number):
+    for _ in range(number):
         radius = randint(10, 50)
         x = randint(radius + SCREEN_W_HALF, SCREEN_W - radius)
         y = randint(radius + SCREEN_H_HALF, SCREEN_H - radius)
@@ -73,7 +73,7 @@ def populate_circles(number):
 
 def populate_points(number):
     # in topright quadrant
-    for i in range(number):
+    for _ in range(number):
         x = randint(SCREEN_W_HALF + 15, SCREEN_W - 15)
         y = randint(31, SCREEN_H_HALF - 15)
         points.append((x, y))

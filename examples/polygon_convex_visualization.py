@@ -39,12 +39,7 @@ while keep:
 
     is_convex = polygon.is_convex()
 
-    if is_convex:
-        current_color = GREEN
-    else:
-        current_color = RED
-
-    pygame.draw.polygon(screen, current_color, polygon.vertices)
+    pygame.draw.polygon(screen, GREEN if is_convex else RED, polygon.vertices)
 
     for vertex in polygon.vertices:
         pygame.draw.circle(screen, WHITE, vertex, 5, 3)
