@@ -43,4 +43,7 @@ pgRaycast_LineCircle(pgLineBase *, pgCircleBase *, double, double *);
 static int
 pgCollision_PolygonPoint(pgPolygonBase *, double, double);
 
+static int
+pgCollision_PolygonLine(pgPolygonBase *, pgLineBase *, int);
+
 #endif /* ~_PG_COLLISIONS_H */

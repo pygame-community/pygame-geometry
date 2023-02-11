@@ -490,6 +490,33 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_collidepolygon(pgLineObject *self, PyObject *const *args,
+                       Py_ssize_t nargs)
+{
+    pgPolygonBase poly;
+    int was_sequence, result = 0, only_edges = 0;
+
+    if (PyBool_Check(args[nargs - 1])) {
+        if (args[nargs - 1] == Py_True) {
+            only_edges = 1;
+        }
+        nargs--;
+    }
+
+    if (!pgPolygon_FromObjectFastcall(args, nargs, &poly, &was_sequence)) {
+        return RAISE(
+            PyExc_TypeError,
+            "collidepolygon requires a Polygon or PolygonLike object");
+    }
+
+    result = pgCollision_PolygonLine(&poly, &self->line, only_edges);
+
+    PG_FREEPOLY_COND(&poly, was_sequence);
+
+    return PyBool_FromLong(result);
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -501,6 +528,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_FASTCALL, NULL},
     {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
+    {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},

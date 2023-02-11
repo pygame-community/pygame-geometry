@@ -319,6 +319,70 @@ pgCollision_PolygonPoint(pgPolygonBase *poly, double x, double y)
     return collision;
 }
 
+static inline int
+pgCollision_PolygonPoints(pgPolygonBase *poly, double x1, double y1, double x2,
+                          double y2)
+{
+    int collision1 = 0, collision2 = 0;
+    Py_ssize_t i, j;
+
+    double *vertices = poly->vertices;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        double xi = vertices[i * 2];
+        double yi = vertices[i * 2 + 1];
+        double xj = vertices[j * 2];
+        double yj = vertices[j * 2 + 1];
+
+        double xj_xi = xj - xi;
+        double yj_yi = yj - yi;
+
+        if (((yi > y1) != (yj > y1)) &&
+            (x1 < xj_xi * (y1 - yi) / yj_yi + xi)) {
+            collision1 = !collision1;
+        }
+
+        if (((yi > y2) != (yj > y2)) &&
+            (x2 < xj_xi * (y2 - yi) / yj_yi + xi)) {
+            collision2 = !collision2;
+        }
+    }
+
+    return collision1 || collision2;
+}
+
+static inline int
+_pgCollision_line_edges(pgLineBase *line, pgPolygonBase *poly)
+{
+    Py_ssize_t i, j;
+    double *vertices = poly->vertices;
+
+    for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
+        if (pgCollision_LineLine(line, &(pgLineBase){vertices[j * 2],
+                                                     vertices[j * 2 + 1],
+                                                     vertices[i * 2],
+                                                     vertices[i * 2 + 1]})) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static inline int
+pgCollision_PolygonLine(pgPolygonBase *poly, pgLineBase *line, int only_edges)
+{
+    int collision = 0;
+    collision = _pgCollision_line_edges(line, poly);
+
+    if (collision || only_edges) {
+        return collision;
+    }
+
+    return pgCollision_PolygonPoints(poly, line->x1, line->y1, line->x2,
+                                     line->y2);
+}
+
 static int
 pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
 {
