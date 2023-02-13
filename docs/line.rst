@@ -303,9 +303,9 @@ Line Methods
         | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
         | :sg:`collidepolygon(x1, y1, x2, y2, ..., only_edges=False) -> bool`
 
-        Tests whether a given `Polygon` intersects the `Line`.
+        Tests whether a given `Polygon` collides with the `Line`.
         It takes either a `Polygon` or Polygon-like object as an argument and it returns
-        `True` if the polygon overlaps with the `Line`, `False` otherwise.
+        `True` if the polygon collides with the `Line`, `False` otherwise.
 
         The optional `only_edges` argument can be set to `True` to only test whether the
         edges of the polygon intersect the `Line`. This means that a Line that is
