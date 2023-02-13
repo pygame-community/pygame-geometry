@@ -477,9 +477,7 @@ pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
 
     /* Check for the optional only_edges argument */
     if (PyBool_Check(args[nargs - 1])) {
-        if (args[nargs - 1] == Py_True) {
-            only_edges = 1;
-        }
+        only_edges = args[nargs - 1] == Py_True;
         nargs--;
     }
 
