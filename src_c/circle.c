@@ -110,7 +110,7 @@ pgCircle_FromObject(PyObject *obj, pgCircleBase *out)
         /* Path for other sequences or Types that count as sequences*/
         PyObject *tmp = NULL;
         length = PySequence_Length(obj);
-        if (length == 3) {
+        if (length == 3 && !pgPolygon_Check(obj)) {
             /*These are to be substituted with better pg_DoubleFromSeqIndex()
              * implementations*/
             tmp = PySequence_ITEM(obj, 0);
