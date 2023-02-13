@@ -1141,6 +1141,7 @@ pg_polygon_collideline(pgPolygonObject *self, PyObject *const *args,
     pgLineBase line;
     int only_edges = 0;
 
+    /* Check for the optional only_edges argument */
     if (PyBool_Check(args[nargs - 1])) {
         if (args[nargs - 1] == Py_True) {
             only_edges = 1;

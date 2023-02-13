@@ -495,8 +495,9 @@ pg_line_collidepolygon(pgLineObject *self, PyObject *const *args,
                        Py_ssize_t nargs)
 {
     pgPolygonBase poly;
-    int was_sequence, result = 0, only_edges = 0;
+    int was_sequence, result, only_edges = 0;
 
+    /* Check for the optional only_edges argument */
     if (PyBool_Check(args[nargs - 1])) {
         if (args[nargs - 1] == Py_True) {
             only_edges = 1;
