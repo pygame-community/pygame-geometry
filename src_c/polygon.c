@@ -1064,6 +1064,7 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "rotate_ip requires 1 or 2 arguments");
     }
 
+
     pgPolygonBase *poly = &self->polygon;
     double angle;
     double rx = poly->c_x, ry = poly->c_y;
