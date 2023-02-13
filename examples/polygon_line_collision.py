@@ -5,17 +5,20 @@ from pygame.draw import line as draw_line, polygon as draw_polygon
 from geometry import Line, regular_polygon
 
 
-# using this because we're missing line.rotate()
-def rotate_line(line, angle):
-    angle = radians(angle)
-
-    x = line.x2 - line.x1
-    y = line.y2 - line.y1
-
-    x1 = x * cos(angle) - y * sin(angle)
-    y1 = x * sin(angle) + y * cos(angle)
-
-    line.b = (x1 + line.x1, y1 + line.y1)
+# using this because we're missing line.rotate(), rotates a line around its midpoint
+def rotate_line(line, d_ang):
+    angle = radians(d_ang)
+    ca, sa = cos(d_ang), sin(d_ang)
+    xm, ym = line.midpoint
+    ax, ay = line.a
+    bx, by = line.b
+    ax -= xm
+    ay -= ym
+    bx -= xm
+    by -= ym
+    new_ax, new_ay = xm + ax * ca - ay * sa, ym + ax * sa + ay * ca
+    new_bx, new_by = xm + bx * ca - by * sa, ym + bx * sa + by * ca
+    line.a, line.b = (new_ax, new_ay), (new_bx, new_by)
 
 
 pygame.init()
