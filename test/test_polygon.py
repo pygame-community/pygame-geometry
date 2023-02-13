@@ -4,7 +4,7 @@ import random
 from pygame import Vector2, Vector3, Rect
 
 import geometry
-from geometry import Polygon, Line, Circle
+from geometry import Polygon, Line, Circle, regular_polygon
 
 import math
 
@@ -1713,6 +1713,75 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.verts_num, poly_copy.verts_num)
         self.assertEqual(poly.c_x, poly_copy.c_x)
         self.assertEqual(poly.c_y, poly_copy.c_y)
+
+    def test_collideline_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        l = Line(0, 0, 1, 1)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collideline(l, value)
+
+    def test_collidepolygon(self):
+        """Ensures that the collidepolygon method correctly determines if a Polygon
+        is colliding with the Line"""
+
+        l = Line(0, 0, 10, 10)
+        p1 = regular_polygon(4, l.midpoint, 100)
+        p2 = Polygon((100, 100), (150, 150), (150, 100))
+        p3 = regular_polygon(4, l.a, 10)
+        p4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))
+        p5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
+
+        # line inside polygon
+        self.assertTrue(l.collidepolygon(p1))
+
+        # line outside polygon
+        self.assertFalse(l.collidepolygon(p2))
+
+        # line intersects polygon edge
+        self.assertTrue(l.collidepolygon(p3))
+
+        # line intersects polygon vertex
+        self.assertTrue(l.collidepolygon(p4))
+
+        # line touches polygon vertex
+        self.assertTrue(l.collidepolygon(p5))
+
+        # --- Edge only ---
+
+        # line inside polygon
+        self.assertFalse(l.collidepolygon(p1, True))
+
+        # line outside polygon
+        self.assertFalse(l.collidepolygon(p2, True))
+
+        # line intersects polygon edge
+        self.assertTrue(l.collidepolygon(p3, True))
+
+        # line intersects polygon vertex
+        self.assertTrue(l.collidepolygon(p4, True))
+
+        # line touches polygon vertex
+        self.assertTrue(l.collidepolygon(p5, True))
 
 
 if __name__ == "__main__":
