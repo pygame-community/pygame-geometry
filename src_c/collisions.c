@@ -352,16 +352,15 @@ pgCollision_PolygonPoints(pgPolygonBase *poly, double x1, double y1, double x2,
 }
 
 static inline int
-_pgCollision_line_edges(pgLineBase *line, pgPolygonBase *poly)
+_pgCollision_line_polyedges(pgLineBase *line, pgPolygonBase *poly)
 {
     Py_ssize_t i, j;
     double *vertices = poly->vertices;
 
     for (i = 0, j = poly->verts_num - 1; i < poly->verts_num; j = i++) {
-        if (pgCollision_LineLine(line, &(pgLineBase){vertices[j * 2],
-                                                     vertices[j * 2 + 1],
-                                                     vertices[i * 2],
-                                                     vertices[i * 2 + 1]})) {
+        if (pgCollision_LineLine(
+                line, &(pgLineBase){vertices[j * 2], vertices[j * 2 + 1],
+                                    vertices[i * 2], vertices[i * 2 + 1]})) {
             return 1;
         }
     }
@@ -372,8 +371,7 @@ _pgCollision_line_edges(pgLineBase *line, pgPolygonBase *poly)
 static inline int
 pgCollision_PolygonLine(pgPolygonBase *poly, pgLineBase *line, int only_edges)
 {
-    int collision = 0;
-    collision = _pgCollision_line_edges(line, poly);
+    int collision = _pgCollision_line_polyedges(line, poly);
 
     if (collision || only_edges) {
         return collision;
