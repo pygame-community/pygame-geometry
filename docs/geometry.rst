@@ -216,3 +216,27 @@ such as raycasting and general utility functions.
         of the rectangle, respectively.
 
       .. ## geometry.rect_to_polygon ##
+
+    .. method:: multiraycast
+
+        | :sl:`Returns a list of intersection points between a sequence of rays and a sequence of colliders`
+        | :sg:`multiraycast(rays, colliders) -> [(x, y) | None]`
+
+        This function returns a list of intersection points between a sequence of
+        rays and a sequence of colliders.
+        The rays parameter is a sequence that can be composed of the following objects:
+
+        - Line objects.
+        - Tuples of: origin point, angle, max_dist.
+        - Tuples of: origin point, direction, max_dist.
+        - Tuples of: origin point, end point.
+
+        Apart from Lines, which have fixed length, the rays can have any length,
+        including infinite length. To define an infinite ray, set the max_dist parameter
+        to a negative value. The max_dist parameter cannot be set to 0.
+        The colliders can be any sequence of objects such as Circle, Line, or Rect.
+
+        The function returns a list of tuples containing the closest intersection point to
+        the ray's origin, or None if it couldn't find one.
+
+     .. ## geometry.multiraycast ##
