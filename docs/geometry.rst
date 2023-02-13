@@ -120,6 +120,8 @@ other objects.
 
     colliderect: Checks if the line collides with the given rectangle.
 
+    collidepolygon: Checks if the line collides with the given polygon.
+
     collideswith: Checks if the line collides with the given object.
 
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
@@ -153,6 +155,8 @@ other objects.
     copy: Returns a copy of the polygon.
 
     collidepoint: Checks if the polygon collides with the given point.
+
+    collideline: Checks if the polygon collides with the given line.
 
     insert_vertex: Adds a vertex to the polygon.
 
