@@ -4,7 +4,7 @@ import random
 from pygame import Vector2, Vector3, Rect
 
 import geometry
-from geometry import Polygon
+from geometry import Polygon, Line, Circle
 
 import math
 
@@ -1620,6 +1620,99 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertTrue(p1.is_convex())
         self.assertFalse(p2.is_convex())
+
+    def test_collideline_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            # Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+            Polygon((0, 0), (0, 1), (1, 1), (1, 0)),
+        )
+
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                p.collideline(value)
+            with self.assertRaises(TypeError):
+                p.collideline(value, True)
+            with self.assertRaises(TypeError):
+                p.collideline(value, False)
+
+    def test_collideline_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (l, l),
+            (l, l, l),
+            (l, l, l, l),
+        ]
+
+        with self.assertRaises(TypeError):
+            p.collideline()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                p.collideline(*arg)
+            with self.assertRaises(TypeError):
+                p.collideline(*arg, True)
+            with self.assertRaises(TypeError):
+                p.collideline(*arg, False)
+
+    def test_collideline_return_type(self):
+        """Tests if the function returns the correct type"""
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+
+        items = [
+            Line(0, 0, 1, 1),
+            [0, 0, 1, 1],
+            (0, 0, 1, 1),
+            [(0, 0), (1, 1)],
+            ((0, 0), (1, 1)),
+        ]
+
+        for item in items:
+            self.assertIsInstance(p.collideline(item), bool)
+            self.assertIsInstance(p.collideline(item, True), bool)
+            self.assertIsInstance(p.collideline(item, False), bool)
+        for item in items[1:]:
+            self.assertIsInstance(p.collideline(*item), bool)
+            self.assertIsInstance(p.collideline(*item, True), bool)
+            self.assertIsInstance(p.collideline(*item, False), bool)
+
+    def test_collideline_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        l = Line((0, 0), (1, 1))
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        l_copy = l.copy()
+        poly_copy = poly.copy()
+
+        poly.collideline(l)
+
+        self.assertEqual(l.a, l_copy.a)
+        self.assertEqual(l.b, l_copy.b)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
 
 
 if __name__ == "__main__":

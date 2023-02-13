@@ -2,7 +2,7 @@ import unittest
 
 from pygame import Vector2, Vector3, Rect
 
-from geometry import Circle, Line
+from geometry import Circle, Line, Polygon
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -1003,6 +1003,100 @@ class LineTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(TypeError):
                 l.is_perpendicular(value)
+
+    def test_collidepolygon_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        l = Line(0, 0, 1, 1)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value, True)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value, False)
+
+    def test_collidepolygon_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (poly, poly),
+            (poly, poly, poly),
+            (poly, poly, poly, poly),
+        ]
+
+        with self.assertRaises(TypeError):
+            l.collidepolygon()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg, True)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg, False)
+
+    def test_collidepolygon_return_type(self):
+        """Tests if the function returns the correct type"""
+        l = Line(0, 0, 1, 1)
+
+        vertices = [(-5, 0), (5, 0), (0, 5)]
+
+        items = [
+            Polygon(vertices),
+            vertices,
+            tuple(vertices),
+            [list(v) for v in vertices],
+        ]
+
+        for item in items:
+            self.assertIsInstance(l.collidepolygon(item), bool)
+            self.assertIsInstance(l.collidepolygon(item, True), bool)
+            self.assertIsInstance(l.collidepolygon(item, False), bool)
+
+        self.assertIsInstance(l.collidepolygon(*vertices), bool)
+        self.assertIsInstance(l.collidepolygon(*vertices, True), bool)
+        self.assertIsInstance(l.collidepolygon(*vertices, False), bool)
+
+    def test_collidepolygon_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        l = Line((0, 0), (1, 1))
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        l_copy = l.copy()
+        poly_copy = poly.copy()
+
+        l.collidepolygon(poly)
+
+        self.assertEqual(l.a, l_copy.a)
+        self.assertEqual(l.b, l_copy.b)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
 
 
 if __name__ == "__main__":

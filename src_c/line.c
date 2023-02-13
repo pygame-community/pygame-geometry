@@ -116,7 +116,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     }
     if (PySequence_Check(obj)) {
         length = PySequence_Length(obj);
-        if (length == 4) {
+        if (length == 4 && !pgPolygon_Check(obj)) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_DoubleFromObj(tmp, &(out->x1))) {
@@ -168,6 +168,9 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             }
             Py_DECREF(sub);
             return IS_LINE_VALID(out);
+        }
+        else {
+            return 0;
         }
     }
     if (PyObject_HasAttrString(obj, "line")) {
@@ -527,7 +530,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_FASTCALL, NULL},
     {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
-    {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL, NULL},
+    {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL,
+     NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
