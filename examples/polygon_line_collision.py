@@ -8,7 +8,7 @@ from geometry import Line, regular_polygon
 # using this because we're missing line.rotate(), rotates a line around its midpoint
 def rotate_line(line, d_ang):
     angle = radians(d_ang)
-    ca, sa = cos(d_ang), sin(d_ang)
+    ca, sa = cos(angle), sin(angle)
     xm, ym = line.midpoint
     ax, ay = line.a
     bx, by = line.b
