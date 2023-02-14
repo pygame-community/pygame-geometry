@@ -3,87 +3,23 @@ name: macOS latest
 on: [ push, pull_request ]
 
 jobs:
-  Python_37:
+  test:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
     steps:
       - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.7
-        run: |
-          brew install python@3.7
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          /usr/local/opt/python@3.7/bin/python3.7 -m pip install setuptools -U
-          /usr/local/opt/python@3.7/bin/python3.7 -m pip install pygame-ce
-          /usr/local/opt/python@3.7/bin/python3.7 -m pip install .
+          python -m pip install setuptools -U
+          python -m pip install pygame-ce
+          python -m pip install .
       - name: Run Tests
         run: |
-          /usr/local/opt/python@3.7/bin/python3.7 -m unittest
-
-  Python_38:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.8
-        run: |
-          brew install python@3.8
-      - name: Install dependencies
-        run: |
-          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          /usr/local/opt/python@3.8/bin/python3.8 -m pip install setuptools -U
-          /usr/local/opt/python@3.8/bin/python3.8 -m pip install pygame-ce
-          /usr/local/opt/python@3.8/bin/python3.8 -m pip install .
-      - name: Run Tests
-        run: |
-          /usr/local/opt/python@3.8/bin/python3.8 -m unittest
-
-  Python_39:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.9
-        run: |
-          brew install python@3.9
-      - name: Install dependencies
-        run: |
-          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          /usr/local/opt/python@3.9/bin/python3.9 -m pip install setuptools -U
-          /usr/local/opt/python@3.9/bin/python3.9 -m pip install pygame-ce
-          /usr/local/opt/python@3.9/bin/python3.9 -m pip install .
-      - name: Run Tests
-        run: |
-          /usr/local/opt/python@3.9/bin/python3.9 -m unittest
-
-  Python_310:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.10
-        run: |
-          brew install python@3.10
-      - name: Install dependencies
-        run: |
-          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          /usr/local/opt/python@3.10/bin/python3.10 -m pip install setuptools -U
-          /usr/local/opt/python@3.10/bin/python3.10 -m pip install pygame-ce
-          /usr/local/opt/python@3.10/bin/python3.10 -m pip install .
-      - name: Run Tests
-        run: |
-          /usr/local/opt/python@3.10/bin/python3.10 -m unittest
-
-  Python_311:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.11
-        run: |
-          brew install python@3.11
-      - name: Install dependencies
-        run: |
-          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          /usr/local/opt/python@3.11/bin/python3.11 -m pip install setuptools -U
-          /usr/local/opt/python@3.11/bin/python3.11 -m pip install pygame-ce
-          /usr/local/opt/python@3.11/bin/python3.11 -m pip install .
-      - name: Run Tests
-        run: |
-          /usr/local/opt/python@3.11/bin/python3.11 -m unittest
+          python -m unittest

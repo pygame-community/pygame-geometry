@@ -3,62 +3,17 @@ name: Windows latest
 on: [ push, pull_request ]
 
 jobs:
-  Python_37:
+  test:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
     steps:
       - uses: actions/checkout@v3.0.2
       - name: Install packages
         run: |
-          py -3.7 -m pip install --upgrade pip
-          py -3.7 -m pip install pygame-ce
-          py -3.7 -m pip install .
+          py -${{ matrix.python-version }} -m pip install --upgrade pip
+          py -${{ matrix.python-version }} -m pip install pygame-ce
+          py -${{ matrix.python-version }} -m pip install .
       - name: Run Tests
-        run: py -3.7 -m unittest
-
-  Python_38:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install packages
-        run: |
-          py -3.8 -m pip install --upgrade pip
-          py -3.8 -m pip install pygame-ce
-          py -3.8 -m pip install .
-      - name: Run Tests
-        run: py -3.8 -m unittest
-
-  Python_39:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install packages
-        run: |
-          py -3.9 -m pip install --upgrade pip
-          py -3.9 -m pip install pygame-ce
-          py -3.9 -m pip install .
-      - name: Run Tests
-        run: py -3.9 -m unittest
-
-  Python_310:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install packages
-        run: |
-          py -3.10 -m pip install --upgrade pip
-          py -3.10 -m pip install pygame-ce
-          py -3.10 -m pip install .
-      - name: Run Tests
-        run: py -3.10 -m unittest
-
-  Python_311:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install packages
-        run: |
-          py -3.11 -m pip install --upgrade pip
-          py -3.11 -m pip install pygame-ce
-          py -3.11 -m pip install .
-      - name: Run Tests
-        run: py -3.11 -m unittest
+        run: py -${{ matrix.python-version }} -m unittest

@@ -3,100 +3,25 @@ name: Ubuntu latest
 on: [ push, pull_request ]
 
 jobs:
-  Python_37:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
     steps:
       - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.7
+      - name: Install Python
         run: |
-          # Add the deadsnakes PPA to install python 3.7
+          # Add the deadsnakes PPA to install python
           sudo add-apt-repository ppa:deadsnakes/ppa
           sudo apt-get update
-          sudo apt-get install python3.7-dev
-          sudo apt-get install python3.7-distutils
+          sudo apt-get install python${{ matrix.python-version }}-dev
+          sudo apt-get install python${{ matrix.python-version }}-distutils
       - name: Install dependencies
         run: |
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python3.7 -m pip install setuptools -U
-          python3.7 -m pip install pygame-ce
-          python3.7 -m pip install .
+          python${{ matrix.python-version }} -m pip install setuptools -U
+          python${{ matrix.python-version }} -m pip install pygame-ce
+          python${{ matrix.python-version }} -m pip install .
       - name: Run Tests
-        run: python3.7 -m unittest
-
-  Python_38:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.8
-        run: |
-          # Add the deadsnakes PPA to install python 3.8
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get update
-          sudo apt-get install python3.8-dev
-          sudo apt-get install python3.8-distutils
-      - name: Install dependencies
-        run: |
-          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python3.8 -m pip install setuptools -U
-          python3.8 -m pip install pygame-ce
-          python3.8 -m pip install .
-      - name: Run Tests
-        run: python3.8 -m unittest
-
-  Python_39:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.9
-        run: |
-          # Add the deadsnakes PPA to install python 3.9
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get update
-          sudo apt-get install python3.9-dev
-          sudo apt-get install python3.9-distutils
-      - name: Install dependencies
-        run: |
-          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python3.9 -m pip install setuptools -U
-          python3.9 -m pip install pygame-ce
-          python3.9 -m pip install .
-      - name: Run Tests
-        run: python3.9 -m unittest
-  Python_310:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.10
-        run: |
-          # Add the deadsnakes PPA to install python 3.10
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get update
-          sudo apt-get install python3.10-dev
-      - name: Install dependencies
-        run: |
-          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python3.10 -m pip install setuptools -U
-          python3.10 -m pip install pygame-ce
-          python3.10 -m pip install .
-      - name: Run Tests
-        run: python3.10 -m unittest
-  Python_311:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.0.2
-      - name: Install Python 3.11
-        run: |
-          # Add the deadsnakes PPA to install python 3.11
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get update
-          sudo apt-get install python3.11-dev
-      - name: Install dependencies
-        run: |
-          sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config
-          # Use python3.11 to install the packages
-          python3.11 -m pip install setuptools -U
-          python3.11 -m pip install pygame-ce
-          python3.11 -m pip install .
-      - name: Run Tests
-        run: |
-          python3.11 -m unittest
+        run: python${{ matrix.python-version }} -m unittest
