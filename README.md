@@ -16,7 +16,7 @@ special colliders easier for their video game.
 **Everything you see in this repository is subject to change as
 this project is heavily in development.** This decision is also
 subject to change when this project migrates to the
-[official pygame repository](https://github.com/pygame/pygame) or
+[official pygame-ce repository](https://github.com/pygame-community/pygame-ce) or
 becomes a third-party library.
 
 ## Installation (Python 3.7+)
