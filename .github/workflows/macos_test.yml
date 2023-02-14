@@ -3,7 +3,7 @@ name: macOS latest
 on: [ push, pull_request ]
 
 jobs:
-  test:
+  Python:
     runs-on: macos-latest
     strategy:
       matrix:

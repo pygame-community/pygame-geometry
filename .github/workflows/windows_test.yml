@@ -3,7 +3,7 @@ name: Windows latest
 on: [ push, pull_request ]
 
 jobs:
-  test:
+  Python:
     runs-on: windows-latest
     strategy:
       matrix:

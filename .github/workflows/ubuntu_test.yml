@@ -3,7 +3,7 @@ name: Ubuntu latest
 on: [ push, pull_request ]
 
 jobs:
-  test:
+  Python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
