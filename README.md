@@ -14,10 +14,8 @@ purpose of this repository is to help users integrate
 special colliders easier for their video game.
 
 **Everything you see in this repository is subject to change as
-this project is heavily in development.** This decision is also
-subject to change when this project migrates to the
-[official pygame-ce repository](https://github.com/pygame-community/pygame-ce) or
-becomes a third-party library.
+this project is heavily in development.** The project is set to be migrated to the
+[official pygame-ce repository](https://github.com/pygame-community/pygame-ce).
 
 ## Installation (Python 3.7+)
 Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md)
