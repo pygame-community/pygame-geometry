@@ -216,7 +216,7 @@ Line Methods
     .. method:: flip
 
         | :sl:`flips the line a and b points`
-        | :sg:`flip(axis) -> Line`
+        | :sg:`flip() -> Line`
 
         Returns a new `Line` that has the `a` and `b` points flipped.
         The original `Line` is not modified.
@@ -226,7 +226,7 @@ Line Methods
     .. method:: flip_ip
 
         | :sl:`flips the line a and b points, in place`
-        | :sg:`flip_ip(axis) -> None`
+        | :sg:`flip_ip() -> None`
 
         Flips the `Line`'s `b` and `b` points. The original `Line` is modified.
         Always returns None.
@@ -323,10 +323,10 @@ Line Methods
     .. method:: as_circle
 
         | :sl:`instantiates a circle from a line`
-        | :sg:`flip(axis) -> Line`
+        | :sg:`as_circle() -> Circle`
 
-        Returns a `Circle` object, with the center point being the center point of the line,
-        and the diameter being the length of the line.
+        Returns a `Circle` object, with the center point being the center point of the `Line`,
+        and the diameter being the length of the `Line`.
 
       .. ## Line.as_circle ##
 

@@ -493,16 +493,9 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
 static PyObject *
 pg_line_as_circle(pgLineObject *self, PyObject *_null)
 {
-    pgCircleObject *circle_obj =
-        (pgCircleObject *)pgCircle_Type.tp_new(&pgCircle_Type, NULL, NULL);
-
-    if (circle_obj) {
-        circle_obj->circle.x = (self->line.x1 + self->line.x2) / 2;
-        circle_obj->circle.y = (self->line.y1 + self->line.y2) / 2;
-        circle_obj->circle.r = pgLine_Length(&self->line) / 2;
-    }
-
-    return (PyObject *)circle_obj;
+    return pgCircle_New3((self->line.x1 + self->line.x2) / 2,
+                         (self->line.y1 + self->line.y2) / 2,
+                         pgLine_Length(&self->line) / 2);
 }
 
 static struct PyMethodDef pg_line_methods[] = {

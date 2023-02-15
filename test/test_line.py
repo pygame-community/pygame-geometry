@@ -646,6 +646,7 @@ class LineTypeTest(unittest.TestCase):
 
         ret = line.flip()
 
+        self.assertIsInstance(ret, Line)
         self.assertEqual(ret.x1, 3.3)
         self.assertEqual(ret.y1, 4.4)
         self.assertEqual(ret.x2, 1.1)
@@ -701,6 +702,7 @@ class LineTypeTest(unittest.TestCase):
         line = Line(3, 5, 7, 5)
         circle = line.as_circle()
 
+        self.assertIsInstance(circle, Circle)
         self.assertEqual(circle.x, 5)
         self.assertEqual(circle.y, 5)
         self.assertEqual(circle.r, 2)
