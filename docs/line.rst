@@ -316,6 +316,20 @@ Line Methods
             If a shape is passed it must be an actual single shape object. It cannot be a
             tuple or list of coordinates that represent the shape. This is because there
             is no way to determine what type of shape the coordinates represent.
+        
+      .. ## Line.collideswith ##
+
+
+    .. method:: as_circle
+
+        | :sl:`instantiates a circle from a line`
+        | :sg:`flip(axis) -> Line`
+
+        Returns a `Circle` object, with the center point being the center point of the line,
+        and the diameter being the length of the line.
+
+      .. ## Line.as_circle ##
+
 
     .. method:: at
 
