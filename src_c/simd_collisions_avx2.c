@@ -4,6 +4,7 @@
 
 #if defined(_MSC_VER)
 #include <intrin.h>
+#include <malloc.h>
 #endif
 
 #if defined(HAVE_IMMINTRIN_H) && !defined(SDL_DISABLE_IMMINTRIN_H)
@@ -31,14 +32,18 @@ pg_HasAVX2(void)
     __cpuid(cpu_info, 0);
 
     int info_n = cpu_info[0];
-    int data[info_n][4];
+    int *data = (int *)_alloca(sizeof(int) * info_n * 4);
+    // int data[info_n][4];
 
     for (int i = 0; i <= info_n; i++) {
         __cpuidex(cpu_info, i, 0);
-        memcpy(&data[i], cpu_info, sizeof(int) * 4);
+
+        // memcpy(&data[i], cpu_info, sizeof(int) * 4);
+        memcpy(data + i * 4, cpu_info, sizeof(int) * 4);
     }
 
-    has_avx2 = data[7][1] >> 5 & 1;
+    // has_avx2 = data[7][1] >> 5 & 1;
+    has_avx2 = data[7 * 4 + 1] >> 5 & 1;
 #else
     has_avx2 = 0;
 #endif
@@ -141,9 +146,7 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
 
     return 1;
 }
-#endif /* ~AVX2_IS_SUPPORTED */
 
-#if AVX2_IS_SUPPORTED
 PG_FORCEINLINE static int
 pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line)
 {
@@ -212,9 +215,7 @@ pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line)
     // if no lines touch the rectangle then this will be false
     return _mm256_movemask_pd(t_u_256d) != 0x0;
 }
-#endif /* ~AVX2_IS_SUPPORTED */
 
-#if AVX2_IS_SUPPORTED
 PG_FORCEINLINE static int
 pgRaycast_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double max_t,
                         double *T)
