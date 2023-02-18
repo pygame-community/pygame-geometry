@@ -322,7 +322,7 @@ Line Methods
 
     .. method:: as_circle
 
-        | :sl:`instantiates a circle from a line`
+        | :sl:`returns a circle that extends over the line`
         | :sg:`as_circle() -> Circle`
 
         Returns a `Circle` object, with the center point being the center point of the `Line`,
