@@ -108,6 +108,10 @@ other objects.
 
     scale_ip: Scales the line by the given amount in place.
 
+    flip: Switches the endpoints of the line.
+
+    flip_ip: Switches the endpoints of the line in place.
+
     update: Updates the line's attributes.
 
     copy: Returns a copy of the line.
@@ -121,6 +125,8 @@ other objects.
     colliderect: Checks if the line collides with the given rectangle.
 
     collideswith: Checks if the line collides with the given object.
+
+    as_circle: Returns a circle which fully encloses the line.
 
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
