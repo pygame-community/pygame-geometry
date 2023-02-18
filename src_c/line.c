@@ -519,6 +519,21 @@ pg_line_collidepolygon(pgLineObject *self, PyObject *const *args,
     return PyBool_FromLong(result);
 }
 
+static PyObject *
+pg_line_as_circle(pgLineObject *self, PyObject *_null)
+{
+    pgCircleObject *circle_obj =
+        (pgCircleObject *)pgCircle_Type.tp_new(&pgCircle_Type, NULL, NULL);
+
+    if (circle_obj) {
+        circle_obj->circle.x = (self->line.x1 + self->line.x2) / 2;
+        circle_obj->circle.y = (self->line.y1 + self->line.y2) / 2;
+        circle_obj->circle.r = pgLine_Length(&self->line) / 2;
+    }
+
+    return (PyObject *)circle_obj;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -539,6 +554,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
     {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
+    {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
