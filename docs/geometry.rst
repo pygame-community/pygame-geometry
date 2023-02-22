@@ -223,6 +223,60 @@ such as raycasting and general utility functions.
 
       .. ## geometry.rect_to_polygon ##
 
+    .. method:: is_line
+
+        | :sl:`Checks if the given object is a geometry.Line`
+        | :sg:`is_line(obj) -> bool`
+
+        This function checks if the given object is a geometry.Line.
+        It returns True if the object is a geometry.Line, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Line class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Line).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_line.
+            Utilizing is_line can save an unwanted Line import.
+
+      .. ## geometry.is_line ##
+
+    .. method:: is_circle
+
+        | :sl:`Checks if the given object is a geometry.Circle`
+        | :sg:`is_circle(obj) -> bool`
+
+        This function checks if the given object is a geometry.Circle.
+        It returns True if the object is a geometry.Circle, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Circle class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Circle).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_circle.
+            Utilizing is_circle can save an unwanted Circle import.
+
+      .. ## geometry.is_circle ##
+
+    .. method:: is_polygon
+
+        | :sl:`Checks if the given object is a geometry.Polygon`
+        | :sg:`is_polygon(obj) -> bool`
+
+        This function checks if the given object is a geometry.Polygon.
+        It returns True if the object is a geometry.Polygon, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Polygon class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Polygon).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_polygon.
+            Utilizing is_polygon can save an unwanted Polygon import.
+
+      .. ## geometry.is_polygon ##
+
     .. method:: multiraycast
 
         | :sl:`Returns a list of intersection points between a sequence of rays and a sequence of colliders`

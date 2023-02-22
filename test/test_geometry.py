@@ -1,6 +1,8 @@
 import unittest
 import pygame
 import geometry
+from geometry import Line, Circle, Polygon, is_line, is_circle, is_polygon
+from pygame import Rect
 
 
 def _get_vertices_from_rect(rect: pygame.Rect):
@@ -75,6 +77,122 @@ class TestGeometry(unittest.TestCase):
         for invalid_rect in invalid_rects:
             with self.assertRaises(TypeError):
                 geometry.rect_to_polygon(invalid_rect)
+
+    def test_is_line(self):
+        """Test is_line function"""
+
+        class TestLine(Line):
+            pass
+
+        items = [
+            (Line(0, 0, 1, 1), True),
+            (Circle(0, 0, 1), False),
+            (Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]), False),
+            (Rect(0, 0, 1, 1), False),
+            (TestLine(0, 0, 1, 1), False),
+            (1, False),
+            (1.0, False),
+            (True, False),
+            (False, False),
+            (None, False),
+            ("", False),
+            ("string", False),
+            ([], False),
+            ([1], False),
+            ((1,), False),
+            ({}, False),
+        ]
+        for obj, expected in items:
+            self.assertEqual(expected, is_line(obj))
+
+        # Check that the function doesn't modify the line
+        # =================================================
+        l = Line(0, 0, 1, 1)
+        start, end = l.a, l.b
+
+        self.assertTrue(is_line(l))
+        self.assertEqual(start, l.a)
+        self.assertEqual(end, l.b)
+        # =================================================
+
+    def test_is_circle(self):
+        """Test is_circle function"""
+
+        class TestCircle(Circle):
+            pass
+
+        items = [
+            (Line(0, 0, 1, 1), False),
+            (Circle(0, 0, 1), True),
+            (Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]), False),
+            (Rect(0, 0, 1, 1), False),
+            (TestCircle(0, 0, 1), False),
+            (1, False),
+            (1.0, False),
+            (True, False),
+            (False, False),
+            (None, False),
+            ("", False),
+            ("string", False),
+            ([], False),
+            ([1], False),
+            ((1,), False),
+            ({}, False),
+        ]
+        for obj, expected in items:
+            self.assertEqual(expected, is_circle(obj))
+
+        # Check that the function doesn't modify the circle
+        # =================================================
+        c = Circle(0, 0, 1)
+        center = c.center
+        radius = c.r
+
+        self.assertTrue(is_circle(c))
+        self.assertEqual(center, c.center)
+        self.assertEqual(radius, c.r)
+        # =================================================
+
+    def test_is_polygon(self):
+        """Test is_polygon function"""
+
+        class TestPolygon(Polygon):
+            pass
+
+        items = [
+            (Line(0, 0, 1, 1), False),
+            (Circle(0, 0, 1), False),
+            (Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]), True),
+            (Rect(0, 0, 1, 1), False),
+            (TestPolygon([(0, 0), (1, 0), (1, 1), (0, 1)]), False),
+            (1, False),
+            (1.0, False),
+            (True, False),
+            (False, False),
+            (None, False),
+            ("", False),
+            ("string", False),
+            ([], False),
+            ([1], False),
+            ((1,), False),
+            ({}, False),
+        ]
+        for obj, expected in items:
+            self.assertEqual(expected, is_polygon(obj))
+
+        # Check that the function doesn't modify the polygon
+        # =================================================
+        p = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+        verts = p.vertices
+        verts_num = p.verts_num
+        cx, cy = p.center
+
+        self.assertTrue(is_polygon(p))
+        self.assertEqual(verts, p.vertices)
+        self.assertEqual(verts_num, p.verts_num)
+        self.assertEqual(cx, p.c_x)
+        self.assertEqual(cy, p.c_y)
+        # =================================================
 
 
 if __name__ == "__main__":
