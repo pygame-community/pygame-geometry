@@ -781,7 +781,6 @@ pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null) {
     
     PyObject *list = PyList_New(verts_num);
     if (!list) {
-        Py_DECREF(list);
         return NULL;
     }
 
