@@ -2,6 +2,10 @@ name: macOS latest
 
 on: [ push, pull_request ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Python:
     runs-on: macos-latest
@@ -17,10 +21,9 @@ jobs:
       - name: Install dependencies
         run: |
           brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
-          python -m pip install --upgrade pip
           python -m pip install setuptools -U
           python -m pip install pygame-ce
-          python -m setup install
+          python -m pip install .
       - name: Run Tests
         run: |
           python -m unittest
