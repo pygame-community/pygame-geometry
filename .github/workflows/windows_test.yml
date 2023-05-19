@@ -18,8 +18,9 @@ jobs:
       - name: Install packages
         run: |
           py -${{ matrix.python-version }} -m pip install --upgrade pip
+          py -${{ matrix.python-version }} -m pip install wheel
           py -${{ matrix.python-version }} -m pip install pygame-ce
-          py -${{ matrix.python-version }} -m setup install
+          py -${{ matrix.python-version }} -m pip install .
       - name: Run Tests
         run: py -${{ matrix.python-version }} -m unittest
 
