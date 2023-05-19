@@ -65,7 +65,6 @@ class CircleTypeTest(unittest.TestCase):
                 c = Circle(*arg_seq)
 
     def testConstructionXYR_float(self):
-
         c = Circle(1.0, 2.0, 3.0)
 
         self.assertEqual(1.0, c.x)
@@ -73,7 +72,6 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(3.0, c.r)
 
     def testConstructionTUP_XYR_float(self):
-
         c = Circle((1.0, 2.0, 3.0))
 
         self.assertEqual(1.0, c.x)
@@ -81,7 +79,6 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(3.0, c.r)
 
     def testConstructionXYR_int(self):
-
         c = Circle(1, 2, 3)
 
         self.assertEqual(1.0, c.x)
@@ -89,7 +86,6 @@ class CircleTypeTest(unittest.TestCase):
         self.assertEqual(3.0, c.r)
 
     def testConstructionTUP_XYR_int(self):
-
         c = Circle((1, 2, 3))
 
         self.assertEqual(1.0, c.x)
@@ -704,7 +700,6 @@ class CircleTypeTest(unittest.TestCase):
         self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
     def test_as_rect_invalid_args(self):
-
         c = Circle(0, 0, 10)
 
         invalid_args = [None, [], "1", (1,), Vector2(1, 1), 1]

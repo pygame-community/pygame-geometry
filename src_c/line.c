@@ -569,6 +569,21 @@ pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_as_circle(pgLineObject *self, PyObject *_null)
+{
+    pgCircleObject *circle_obj =
+        (pgCircleObject *)pgCircle_Type.tp_new(&pgCircle_Type, NULL, NULL);
+
+    if (circle_obj) {
+        circle_obj->circle.x = (self->line.x1 + self->line.x2) / 2;
+        circle_obj->circle.y = (self->line.y1 + self->line.y2) / 2;
+        circle_obj->circle.r = pgLine_Length(&self->line) / 2;
+    }
+
+    return (PyObject *)circle_obj;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -589,6 +604,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
     {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
     {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
+    {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */

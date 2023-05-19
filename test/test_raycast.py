@@ -1,6 +1,6 @@
 import unittest
 
-from geometry import raycast, Circle, Line
+from geometry import raycast, Circle, Line, multiraycast, Polygon
 from pygame import Rect
 import math
 
@@ -763,12 +763,307 @@ class RaycastTest(unittest.TestCase):
                 (353.28849270664506, 157.28849270664506),
             ),
         ]
-        for (output, expected) in inputs_outputs:
+        for output, expected in inputs_outputs:
             if expected is None:
                 self.assertIsNone(output)
             else:
                 self.assertAlmostEqual(output[0], expected[0])
                 self.assertAlmostEqual(output[1], expected[1])
+
+    def test_multiraycast_no_rays(self):
+        """Test that multiraycast returns an empty list when no rays are given."""
+        rays = []
+        colliders = [Line((0, 0), (1, 0))]
+
+        self.assertEqual([], multiraycast(rays, colliders))
+
+    def test_multiraycast_no_colliders(self):
+        """Test that multiraycast returns None for all rays when there are no
+        colliders."""
+        rays = [Line((0, 0), (1, 0))]
+        colliders = []
+
+        self.assertEqual(multiraycast(rays, colliders), [None])
+
+    def test_multiraycast_no_colliders_no_rays(self):
+        """Test that multiraycast returns an empty list when there are no rays."""
+        rays = []
+        colliders = []
+
+        self.assertEqual(multiraycast(rays, colliders), [])
+
+    def test_multiraycast_one_ray_one_collider(self):
+        """Test that a single ray and collider returns the correct result."""
+        rays = [Line((0, 0), (1, 0))]
+        colliders = [Line((0, 0), (1, 0))]
+
+        self.assertEqual(multiraycast(rays, colliders), [raycast(rays[0], colliders)])
+
+    def test_multiraycast_invalid_argtype(self):
+        """Test that multiraycast raises a TypeError when given invalid arguments."""
+        invalid_argtypes = [
+            1,
+            1.0,
+            "1",
+            None,
+            True,
+            False,
+            {1, 2, 3},
+            {1: 2, 3: 4},
+            object(),
+            lambda x: x,
+            Rect(0, 0, 1, 1),
+            Circle(0, 0, 1),
+            Polygon((0, 0), (1, 0), (1, 1)),
+        ]
+
+        valid_rays = [Line((0, 0), (1, 1))]
+        valid_colliders = [Line((1, 0), (0, 1))]
+
+        for argtype in invalid_argtypes:
+            # invalid rays
+            with self.assertRaises(TypeError):
+                multiraycast(argtype, valid_colliders)
+
+            # invalid colliders
+            with self.assertRaises(TypeError):
+                multiraycast(valid_rays, argtype)
+
+            # invalid rays and colliders
+            with self.assertRaises(TypeError):
+                multiraycast(argtype, argtype)
+
+    def test_multiraycast_valid_argtype_invalid_values(self):
+        """Tests that multiraycast works correctly with valid argument types but
+        invalid rays and colliders inside the lists."""
+        invalid_rays_sequences = [
+            [Rect(0, 0, 1, 1)],
+            [Circle(0, 0, 1)],
+            [Polygon((0, 0), (1, 1), (1, 0))],
+            [1, 2, 3],
+            ["1", "2", "3"],
+            [None, None, None],
+            [True, False, True],
+            [1.0, 2.0, 3.0],
+            [((0, 0), (1, 1)), 1, 2, 3],
+            [Line((0, 0), (1, 1)), 1, 2, 3],
+            [((0, 0), (1, 1), 1.23), "1"],
+            [((0, 0), 45, 1), None],
+            [Line((0, 0), (1, 1)), True],
+            [((0, 0), (1, 1)), False],
+            [((0, 0), (1, 1)), [1, 2, 3]],
+            [Line((0, 0), (1, 1)), (1, 2, 3)],
+            [((0, 0), (1, 1), 1.23), {1, 2, 3}],
+            [((0, 0), 56, 2), 1, Line((1, 0), (0, 1))],
+            [Line((0, 0), (1, 1)), "1", Line((1, 0), (0, 1))],
+            [((0, 0), (1, 1), 3), None, Line((1, 0), (0, 1))],
+            [((0, 0), 42, 2), True, Line((1, 0), (0, 1))],
+            [Line((0, 0), (1, 1)), False, Line((1, 0), (0, 1))],
+            [((0, 0), (1, 1), 8), [1, 2, 3], Line((1, 0), (0, 1))],
+            [((0, 0), (1, 1)), (1, 2, 3), Line((1, 0), (0, 1))],
+            [((0, 0), 2, 2), (1, 2, 3), Line((1, 0), (0, 1))],
+        ]
+
+        invalid_colliders_sequences = [
+            [1, 2, 3],
+            ["1", "2", "3"],
+            [None, None, None],
+            [True, False, True],
+            [1.0, 2.0, 3.0],
+            [((0, 0), (1, 1)), 1, 2, 3],
+            [Circle((0, 0), 10), 1, 2, 3],
+            [((0, 0), (1, 1), 1.23), "1"],
+            [((0, 0), 45, 1), None],
+            [Rect((0, 0), (1, 1)), True],
+            [((0, 0), (1, 1)), False],
+            [((0, 0), (1, 1)), [1, 2, 3]],
+            [Line((0, 0), (1, 1)), (1, 2, 3)],
+            [((0, 0), (1, 1), 1.23), {1, 2, 3}],
+            [((0, 0), 56, 2), 1, Line((1, 0), (0, 1))],
+            [Rect((0, 0), (1, 1)), "1", Line((1, 0), (0, 1))],
+            [((0, 0), (1, 1), 3), None, Rect((1, 0), (0, 1))],
+            [((0, 0), 42, 2), True, Line((1, 0), (0, 1))],
+            [Line((0, 0), (1, 1)), False, Line((1, 0), (0, 1))],
+            [((0, 0), (1, 1), 8), [1, 2, 3], Rect((1, 0), (0, 1))],
+            [((0, 0), (1, 1)), (1, 2, 3), Line((1, 0), (0, 1))],
+        ]
+
+        valid_rays = [Line((0, 0), (1, 1))]
+        valid_colliders = [Line((1, 0), (0, 1))]
+
+        # invalid rays
+        for rays in invalid_rays_sequences:
+            with self.assertRaises(TypeError):
+                multiraycast(rays, valid_colliders)
+
+        # invalid colliders
+        for colliders in invalid_colliders_sequences:
+            with self.assertRaises(TypeError):
+                multiraycast(valid_rays, colliders)
+
+        # invalid rays and colliders
+        for rays, colliders in zip(invalid_rays_sequences, invalid_colliders_sequences):
+            with self.assertRaises(TypeError):
+                multiraycast(rays, colliders)
+
+    def test_multiraycast_with_lines(self):
+        """Test that multiraycast returns the correct results for a list of lines."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multiraycast_with_rects(self):
+        """Test that multiraycast returns the correct results for a list of rects."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Rect(0, 1, 33, 310),
+            Rect(0, 32, 331, 12),
+            Rect(0, 213, 31, 1),
+            Rect(33, 0, 22, 1),
+            Rect(31, 9, 8, 76),
+            Rect(0, 99, 33, 1),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multiraycast_with_circles(self):
+        """Test that multiraycast returns the correct results for a list of circles."""
+        rays = [
+            Line((0, 0), (1, 0)),
+            Line((0, 0), (1, 1)),
+            Line((0, 0), (0, 1)),
+            Line((0, 0), (-1, 1)),
+            Line((0, 0), (-1, 0)),
+            Line((0, 0), (-1, -1)),
+            Line((0, 0), (0, -1)),
+            Line((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Circle(0, 1, 33),
+            Circle(0, 32, 331),
+            Circle(0, 213, 31),
+            Circle(33, 0, 22),
+            Circle(31, 9, 8),
+            Circle(0, 99, 33),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multicast_with_rays_as_tuples(self):
+        """Test that multiraycast returns the correct results for a list of tuples of
+        origin and end points."""
+        rays = [
+            ((0, 0), (1, 0)),
+            ((0, 0), (1, 1)),
+            ((0, 0), (0, 1)),
+            ((0, 0), (-1, 1)),
+            ((0, 0), (-1, 0)),
+            ((0, 0), (-1, -1)),
+            ((0, 0), (0, -1)),
+            ((0, 0), (1, -1)),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(ray, colliders) for ray in rays],
+        )
+
+    def test_multicast_with_rays_tuple_origindirectionmaxdist(self):
+        """Test that multiraycast returns the correct results for a list of tuples of
+        origin, direction and maxdist."""
+        rays = [
+            ((0, 0), (1, 0), 1),
+            ((0, 0), (1, 1), 1.1),
+            ((0, 0), (0, 1), 2),
+            ((0, 0), (-1, 1), 1.32),
+            ((0, 0), (-1, 0), 5),
+            ((0, 0), (-1, -1), 3),
+            ((0, 0), (0, -1), 0.13),
+            ((0, 0), (1, -1), 0.223),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(*ray, colliders) for ray in rays],
+        )
+
+    def test_multicast_with_rays_tuple_originanglemaxdist(self):
+        """Test that multiraycast returns the correct results for a list of tuples of
+        origin, angle, maxdist."""
+        rays = [
+            ((0, 0), 0, 1),
+            ((0, 0), 45, 3),
+            ((0, 0), 90, 2.3),
+            ((0, 0), 135, 1),
+            ((0, 0), 180, 0.2),
+            ((0, 0), 225, 0.65),
+            ((0, 0), 270, 1.23),
+            ((0, 0), 315, 1.11),
+        ]
+        colliders = [
+            Line((0, 1), (33, -310)),
+            Line((0, 32), (331, 12)),
+            Line((0, 213), (-31, 1)),
+            Line((33, 0), (-22, 1)),
+            Line((31, 9), (-8, 76)),
+            Line((0, 99), (33, -1)),
+        ]
+
+        self.assertEqual(
+            multiraycast(rays, colliders),
+            [raycast(*ray, colliders) for ray in rays],
+        )
 
 
 if __name__ == "__main__":

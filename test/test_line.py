@@ -67,7 +67,6 @@ class LineTypeTest(unittest.TestCase):
                 Line(*arg_seq)
 
     def testConstructionX1Y1X2Y2_float(self):
-
         line = Line(1.0, 2.0, 3.0, 4.0)
 
         self.assertEqual(line.x1, 1.0)
@@ -76,7 +75,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 4.0)
 
     def testConstructionTUP_X1Y1X2Y2_float(self):
-
         line = Line((1.0, 2.0, 3.0, 4.0))
 
         self.assertEqual(line.x1, 1.0)
@@ -85,7 +83,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 4.0)
 
     def testConstructionX1Y1X2Y2_int(self):
-
         line = Line(1, 2, 3, 4)
 
         self.assertEqual(line.x1, 1.0)
@@ -718,6 +715,7 @@ class LineTypeTest(unittest.TestCase):
 
         ret = line.flip()
 
+        self.assertIsInstance(ret, Line)
         self.assertEqual(ret.x1, 3.3)
         self.assertEqual(ret.y1, 4.4)
         self.assertEqual(ret.x2, 1.1)
@@ -768,6 +766,18 @@ class LineTypeTest(unittest.TestCase):
 
         with self.assertRaises(TypeError):
             A.collidecircle(1, 2, 3, 4)
+
+    def test_meth_as_circle(self):
+        line = Line(3, 5, 7, 5)
+        circle = line.as_circle()
+
+        self.assertIsInstance(circle, Circle)
+        self.assertEqual(circle.x, 5)
+        self.assertEqual(circle.y, 5)
+        self.assertEqual(circle.r, 2)
+
+        with self.assertRaises(TypeError):
+            line.as_circle(1)
 
     def test_meth_update(self):
         line = Line(0, 0, 1, 1)
@@ -1058,7 +1068,6 @@ class LineTypeTest(unittest.TestCase):
         self.assertFalse(l.is_perpendicular([(3, 3), (6, 6)]))
 
     def test_meth_perpendicular_argtype(self):
-
         l = Line(0, 0, 1, 1)
         args = [
             1,
