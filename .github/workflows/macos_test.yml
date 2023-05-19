@@ -2,10 +2,6 @@ name: macOS latest
 
 on: [ push, pull_request ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   Python:
     runs-on: macos-latest
