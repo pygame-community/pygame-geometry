@@ -20,7 +20,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install setuptools -U
           python -m pip install pygame-ce
-          python -m setup.py install
+          python -m build --wheel
+          python -m pip install .
       - name: Run Tests
         run: |
           python -m unittest
