@@ -157,6 +157,15 @@ Polygon Methods
 
       .. ## Polygon.collidepoint ##
 
+    .. method:: as_segments
+
+        | :sl:`returns the line segments of the polygon`
+        | :sg:`as_segments() -> list[Line]`
+
+        Returns a list of the line segments of the polygon given as self.
+
+      .. ## Polygon.as_segments ##
+
     .. method:: copy
 
         | :sl:`returns a copy of the polygon`
