@@ -774,11 +774,12 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
-pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null) {
+pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null)
+{
     double *vertices = self->polygon.vertices;
     Py_ssize_t verts_num = self->polygon.verts_num;
     Py_ssize_t verts_num_double = verts_num * 2;
-    
+
     PyObject *list = PyList_New(verts_num);
     if (!list) {
         return NULL;
@@ -787,13 +788,13 @@ pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null) {
     for (Py_ssize_t i = 0; i < verts_num; i++) {
         Py_ssize_t i2 = i * 2;
         PyObject *line = pgLine_New4(vertices[i2], vertices[i2 + 1],
-                                        vertices[(i2 + 2) % verts_num_double],
-                                        vertices[(i2 + 3) % verts_num_double]);
+                                     vertices[(i2 + 2) % verts_num_double],
+                                     vertices[(i2 + 3) % verts_num_double]);
         if (!line) {
             Py_DECREF(list);
             return NULL;
         }
-        
+
         PyList_SET_ITEM(list, i, line);
     }
 
@@ -1070,7 +1071,8 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *const *args,
     /*get the rotation point argument if given*/
     if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
         return RAISE(PyExc_TypeError,
-                     "Invalid rotation_point argument, must be numeric");
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
     }
 
     ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), poly);
@@ -1091,7 +1093,6 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
         return RAISE(PyExc_TypeError, "rotate_ip requires 1 or 2 arguments");
     }
 
-
     pgPolygonBase *poly = &self->polygon;
     double angle;
     double rx = poly->c_x, ry = poly->c_y;
@@ -1105,7 +1106,8 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
     /*get the rotation point argument if given*/
     if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
         return RAISE(PyExc_TypeError,
-                     "Invalid rotation_point argument, must be numeric");
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
     }
 
     _pg_rotate_polygon_helper(&self->polygon, angle, rx, ry);
