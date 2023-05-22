@@ -201,8 +201,10 @@ pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
                         double *T)
 {
 #if AVX2_IS_SUPPORTED
-    return pgIntersection_LineRect_avx2(line, rect, X, Y, T);
-#else
+    if (pg_HasAVX2())
+        return pgIntersection_LineRect_avx2(line, rect, X, Y, T);
+#endif /* ~__AVX2__ */
+
     double x = (double)rect->x;
     double y = (double)rect->y;
     double w = (double)rect->w;
@@ -237,15 +239,16 @@ pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
     }
 
     return ret;
-#endif /* ~__AVX2__ */
 }
 
 static int
 pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 {
 #if AVX2_IS_SUPPORTED
-    return pgCollision_RectLine_avx2(rect, line);
-#else
+    if (pg_HasAVX2())
+        return pgCollision_RectLine_avx2(rect, line);
+#endif /* ~__AVX2__ */
+
     double x = (double)rect->x;
     double y = (double)rect->y;
     double w = (double)rect->w;
@@ -258,7 +261,6 @@ pgCollision_RectLine(SDL_Rect *rect, pgLineBase *line)
 
     return pgCollision_LineLine(line, &a) || pgCollision_LineLine(line, &b) ||
            pgCollision_LineLine(line, &c) || pgCollision_LineLine(line, &d);
-#endif /* ~__AVX2__ */
 }
 
 static int
@@ -451,8 +453,10 @@ static int
 pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T)
 {
 #if AVX2_IS_SUPPORTED
-    return pgRaycast_LineRect_avx2(line, rect, max_t, T);
-#else
+    if (pg_HasAVX2())
+        return pgRaycast_LineRect_avx2(line, rect, max_t, T);
+#endif /* ~__AVX2__ */
+
     double x = (double)rect->x;
     double y = (double)rect->y;
     double w = (double)rect->w;
@@ -482,7 +486,6 @@ pgRaycast_LineRect(pgLineBase *line, SDL_Rect *rect, double max_t, double *T)
     }
 
     return ret;
-#endif /* ~__AVX2__ */
 }
 
 static int

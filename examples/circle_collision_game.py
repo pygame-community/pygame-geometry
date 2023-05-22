@@ -2,6 +2,7 @@ from random import randint, random
 from typing import List, Tuple, Union
 
 import pygame
+from pygame.draw import circle as draw_circle, line as draw_line, rect as draw_rect
 
 from geometry import Circle
 
@@ -33,7 +34,7 @@ def get_new_circle_surf(
 
 # Constants and font --------------------------
 FONT = pygame.font.SysFont("Consolas", 25, True)
-FPS = 120
+FPS = 60
 ALPHA_VALUE = 80
 SUB_TEXT_ALPHA = 180
 SHAPES_NUMBER = 1000
@@ -49,6 +50,7 @@ WIDTH, HEIGHT = 1422, 800
 
 # Game variables and fundamentals --------------------------
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Circle Collision Game")
 clock = pygame.time.Clock()
 keep: bool = True
 
@@ -105,10 +107,10 @@ while keep:
         if feed_active and mouse_circle.collideswith(shape):
             if is_circle:
                 shape.r += 0.2
-                pygame.draw.circle(screen, coll_color, shape.center, shape.r)
+                draw_circle(screen, coll_color, shape.center, shape.r, 3)
             elif is_rect:
                 shape.inflate_ip(1, 1)
-                pygame.draw.rect(screen, coll_color, shape)
+                draw_rect(screen, coll_color, shape, 3)
         else:
             if is_circle:
                 if shape.r <= 1.5:
@@ -122,7 +124,7 @@ while keep:
                     )
 
                 shape.r -= 0.25
-                pygame.draw.circle(screen, color, shape.center, shape.r)
+                draw_circle(screen, color, shape.center, shape.r, 2)
             elif is_rect:
                 value = 0.25
 
@@ -138,7 +140,7 @@ while keep:
                             (dimx, dimy),
                         )
 
-                pygame.draw.rect(screen, color, shape)
+                draw_rect(screen, color, shape, 2)
 
     # blit the mouse circle surface on the screen
     screen.blit(
@@ -185,7 +187,6 @@ while keep:
     screen.blit(sub_text_surf, (0, 0))
     screen.blit(txt_surf, TXT_SURF_BLIT_POS)
 
-    pygame.display.set_caption(str(clock.get_fps()))
     pygame.display.update()
 
 pygame.quit()
