@@ -56,7 +56,7 @@ performing transformations and checking for collisions with other objects.
 
     collideswith: Checks if the circle collides with the given object.
 
-    contains: Checks if the circle contains the given object.
+    contains: Checks if the circle fully contains the given object.
 
     as_rect: Returns the smallest rectangle that contains the circle.
 
@@ -128,6 +128,14 @@ other objects.
 
     as_circle: Returns a circle which fully encloses the line.
 
+    as_rect: Returns the smallest rectangle that contains the line.
+
+    is_parallel: Checks if the line is parallel to the given line.
+
+    is_perpendicular: Checks if the line is perpendicular to the given line.
+
+    at: Returns the point at the given position along the line based on a factor.
+
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Polygon
@@ -167,6 +175,14 @@ other objects.
     pop_vertex: Removes and returns a vertex from the polygon.
 
     is_convex: Checks if the polygon is convex.
+
+    get_bounding_box: Returns the smallest rectangle that contains the polygon.
+
+    as_segments: Returns a list of lines that make up the polygon.
+
+    rotate: Rotates the polygon by the given amount.
+
+    rotate_ip: Rotates the polygon by the given amount in place.
 
 Functions
 =========
