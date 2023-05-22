@@ -774,6 +774,33 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
+pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null) {
+    double *vertices = self->polygon.vertices;
+    Py_ssize_t verts_num = self->polygon.verts_num;
+    Py_ssize_t verts_num_double = verts_num * 2;
+    
+    PyObject *list = PyList_New(verts_num);
+    if (!list) {
+        return NULL;
+    }
+
+    for (Py_ssize_t i = 0; i < verts_num; i++) {
+        Py_ssize_t i2 = i * 2;
+        PyObject *line = pgLine_New4(vertices[i2], vertices[i2 + 1],
+                                        vertices[(i2 + 2) % verts_num_double],
+                                        vertices[(i2 + 3) % verts_num_double]);
+        if (!line) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        
+        PyList_SET_ITEM(list, i, line);
+    }
+
+    return list;
+}
+
+static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
                    Py_ssize_t nargs)
 {
@@ -1163,6 +1190,7 @@ pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
+    {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
     {"rotate", (PyCFunction)pg_polygon_rotate, METH_FASTCALL, NULL},
