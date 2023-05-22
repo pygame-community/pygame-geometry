@@ -325,6 +325,7 @@ Polygon Methods
 
         | :sl:`scales the polygon by a given factor`
         | :sg:`scale(factor) -> Polygon`
+
         Returns a new Polygon that is scaled by the given factor. The original Polygon is
         not modified. The scaling is done relative to the center of the `Polygon`.
 
@@ -349,6 +350,7 @@ Polygon Methods
 
         | :sl:`scales the polygon by a given factor`
         | :sg:`scale_ip(factor) -> None`
+
         Scales the Polygon from its center by the given factor. The original Polygon is modified.
         Always returns None.
 
