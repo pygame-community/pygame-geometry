@@ -56,7 +56,7 @@ performing transformations and checking for collisions with other objects.
 
     collideswith: Checks if the circle collides with the given object.
 
-    contains: Checks if the circle contains the given object.
+    contains: Checks if the circle fully contains the given object.
 
     as_rect: Returns the smallest rectangle that contains the circle.
 
