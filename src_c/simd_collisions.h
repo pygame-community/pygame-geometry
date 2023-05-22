@@ -20,6 +20,9 @@
 #endif /* ~defined(__AVX2__) && defined(HAVE_IMMINTRIN_H) && \
           !defined(SDL_DISABLE_IMMINTRIN_H) */
 
+PG_FORCEINLINE static int
+pg_HasAVX2(void);
+
 #ifdef AVX2_IS_SUPPORTED
 PG_FORCEINLINE static int
 pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
