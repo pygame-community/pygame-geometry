@@ -1043,7 +1043,7 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *const *args,
     /*get the rotation point argument if given*/
     if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
         return RAISE(PyExc_TypeError,
-                     "Invalid rotation point argument, must be numeric");
+                     "Invalid rotation_point argument, must be numeric");
     }
 
     ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), poly);
@@ -1072,13 +1072,13 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
     /*get the angle argument*/
     if (!pg_DoubleFromObj(args[0], &angle)) {
         return RAISE(PyExc_TypeError,
-                     "Invalid argument parameter, must be numeric");
+                     "Invalid angle argument, must be numeric");
     }
 
     /*get the rotation point argument if given*/
     if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
         return RAISE(PyExc_TypeError,
-                     "Invalid rotation point argument, must be numeric");
+                     "Invalid rotation_point argument, must be numeric");
     }
 
     _pg_rotate_polygon_helper(&self->polygon, angle, rx, ry);
