@@ -745,6 +745,101 @@ pg_line_as_circle(pgLineObject *self, PyObject *_null)
     return (PyObject *)circle_obj;
 }
 
+static void
+_pg_rotate_line_helper(pgLineBase *line, double angle, double rx, double ry)
+{
+    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
+        return;
+    }
+
+    double angle_rad = DEG_TO_RAD(angle);
+
+    double x1 = line->x1, y1 = line->y1;
+    double x2 = line->x2, y2 = line->y2;
+
+    double cos_a = cos(angle_rad);
+    double sin_a = sin(angle_rad);
+
+    x1 -= rx;
+    y1 -= ry;
+    x2 -= rx;
+    y2 -= ry;
+
+    double x1_new = x1 * cos_a - y1 * sin_a;
+    double y1_new = x1 * sin_a + y1 * cos_a;
+    double x2_new = x2 * cos_a - y2 * sin_a;
+    double y2_new = x2 * sin_a + y2 * cos_a;
+
+    line->x1 = x1_new + rx;
+    line->y1 = y1_new + ry;
+
+    line->x2 = x2_new + rx;
+    line->y2 = y2_new + ry;
+}
+
+static PyObject *
+pg_line_rotate(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate requires 1 or 2 arguments");
+    }
+
+    pgLineBase *line = &self->line;
+    double angle, rx, ry;
+
+    rx = (line->x1 + line->x2) / 2;
+    ry = (line->y1 + line->y2) / 2;
+
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
+    }
+
+    PyObject *line_obj;
+    if (!(line_obj = pgLine_New(line))) {
+        return NULL;
+    }
+
+    _pg_rotate_line_helper(&pgLine_AsLine(line_obj), angle, rx, ry);
+
+    return line_obj;
+}
+
+static PyObject *
+pg_line_rotate_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate requires 1 or 2 arguments");
+    }
+
+    pgLineBase *line = &self->line;
+    double angle, rx, ry;
+
+    rx = (line->x1 + line->x2) / 2;
+    ry = (line->y1 + line->y2) / 2;
+
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
+    }
+
+    _pg_rotate_line_helper(line, angle, rx, ry);
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -770,6 +865,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
     {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
     {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
+    {"rotate", (PyCFunction)pg_line_rotate, METH_FASTCALL, NULL},
+    {"rotate_ip", (PyCFunction)pg_line_rotate_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
