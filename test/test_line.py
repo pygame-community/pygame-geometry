@@ -641,6 +641,75 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             line.move_ip("1", "2")
 
+    def test_meth_scale(self):
+        line = Line(0, 0, 10, 0).scale(2, 0)
+        self.assertEqual(line.length, 20)
+        line = Line(0, 0, 20, 0).scale(2.1, 0)
+        self.assertEqual(line.length, 42)
+        line = Line(0, 0, 10, 0).scale(4, 0)
+        self.assertEqual(line.length, 40)
+        line = Line(0, 0, 10, 0).scale(3, 0)
+        self.assertEqual(line.length, 30)
+        line = Line(10, 10, 20, 20).scale(2, 0)
+        self.assertEqual(line.length, 28.284271247461902)
+        line = Line(10, 10, 20, 20).scale(2, 0.5)
+        self.assertEqual(line.length, 28.284271247461902)
+        line = Line(10, 10, 20, 20).scale(2, 1)
+        self.assertEqual(line.length, 28.284271247461902)
+
+        with self.assertRaises(ValueError):
+            line = line.scale(0, 0.5)
+
+        with self.assertRaises(ValueError):
+            line = line.scale(2, -0.1)
+
+        with self.assertRaises(ValueError):
+            line = line.scale(-2, -0.5)
+
+        with self.assertRaises(ValueError):
+            line = line.scale(17, 1.1)
+
+        with self.assertRaises(ValueError):
+            line = line.scale(17, 10.0)
+
+    def test_meth_scale_ip(self):
+        line = Line(0, 0, 10, 0)
+        line.scale_ip(2, 0)
+        self.assertEqual(line.length, 20)
+        line = Line(0, 0, 20, 0)
+        line.scale_ip(2.1, 0)
+        self.assertEqual(line.length, 42)
+        line = Line(0, 0, 10, 0)
+        line.scale_ip(4, 0)
+        self.assertEqual(line.length, 40)
+        line = Line(0, 0, 10, 0)
+        line.scale_ip(3, 0)
+        self.assertEqual(line.length, 30)
+        line = Line(10, 10, 20, 20)
+        line.scale_ip(2, 0)
+        self.assertEqual(line.length, 28.284271247461902)
+        line = Line(10, 10, 20, 20)
+        line.scale_ip(2, 0.5)
+        self.assertEqual(line.length, 28.284271247461902)
+        line = Line(10, 10, 20, 20)
+        line.scale_ip(2, 1.0)
+        self.assertEqual(line.length, 28.284271247461902)
+
+        with self.assertRaises(ValueError):
+            line.scale_ip(0, 0.5)
+
+        with self.assertRaises(ValueError):
+            line.scale_ip(2, -0.1)
+
+        with self.assertRaises(ValueError):
+            line.scale_ip(-2, -0.5)
+
+        with self.assertRaises(ValueError):
+            line.scale_ip(17, 1.1)
+
+        with self.assertRaises(ValueError):
+            line.scale_ip(17, 10.0)
+
     def test_meth_flip(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
 
