@@ -774,6 +774,34 @@ pg_polygon_move(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
 }
 
 static PyObject *
+pg_polygon_as_segments(pgPolygonObject *self, PyObject *_null)
+{
+    double *vertices = self->polygon.vertices;
+    Py_ssize_t verts_num = self->polygon.verts_num;
+    Py_ssize_t verts_num_double = verts_num * 2;
+
+    PyObject *list = PyList_New(verts_num);
+    if (!list) {
+        return NULL;
+    }
+
+    for (Py_ssize_t i = 0; i < verts_num; i++) {
+        Py_ssize_t i2 = i * 2;
+        PyObject *line = pgLine_New4(vertices[i2], vertices[i2 + 1],
+                                     vertices[(i2 + 2) % verts_num_double],
+                                     vertices[(i2 + 3) % verts_num_double]);
+        if (!line) {
+            Py_DECREF(list);
+            return NULL;
+        }
+
+        PyList_SET_ITEM(list, i, line);
+    }
+
+    return list;
+}
+
+static PyObject *
 pg_polygon_move_ip(pgPolygonObject *self, PyObject *const *args,
                    Py_ssize_t nargs)
 {
@@ -952,12 +980,12 @@ pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
 }
 
 static void
-_pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
+_pg_rotate_polygon_helper(pgPolygonBase *poly, double angle, double rx,
+                          double ry)
 {
     if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
         return;
     }
-    double c_x = poly->c_x, c_y = poly->c_y;
     Py_ssize_t i2, verts_num = poly->verts_num;
     double *vertices = poly->vertices;
 
@@ -966,14 +994,14 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
 
     if (fmod(angle_rad, M_PI_QUO_2) != 0.0) {
         /* handle the general angle case that's not 90, 180 or 270 degrees */
-        double cos_a = cos(angle_rad) - 1;
-        double sin_a = sin(angle_rad);
+        double c = cos(angle_rad) - 1;
+        double s = sin(angle_rad);
 
         for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
-            double dx = vertices[i2] - c_x;
-            double dy = vertices[i2 + 1] - c_y;
-            vertices[i2] += dx * cos_a - dy * sin_a;
-            vertices[i2 + 1] += dx * sin_a + dy * cos_a;
+            double dx = vertices[i2] - rx;
+            double dy = vertices[i2 + 1] - ry;
+            vertices[i2] += dx * c - dy * s;
+            vertices[i2 + 1] += dx * s + dy * c;
         }
         return;
     }
@@ -989,8 +1017,8 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
     switch ((int)(angle_rad / M_PI_QUO_2)) {
         case 1:
             /*90 degrees*/
-            v1 = c_x + c_y;
-            v2 = c_y - c_x;
+            v1 = rx + ry;
+            v2 = ry - rx;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
                 double tmp = vertices[i2];
                 vertices[i2] = v1 - vertices[i2 + 1];
@@ -999,8 +1027,8 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
             return;
         case 2:
             /*180 degrees*/
-            v1 = c_x * 2;
-            v2 = c_y * 2;
+            v1 = rx * 2;
+            v2 = ry * 2;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
                 vertices[i2] = v1 - vertices[i2];
                 vertices[i2 + 1] = v2 - vertices[i2 + 1];
@@ -1008,8 +1036,8 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
             return;
         case 3:
             /*270 degrees*/
-            v1 = c_x + c_y;
-            v2 = c_x - c_y;
+            v1 = rx + ry;
+            v2 = rx - ry;
             for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
                 double tmp = vertices[i2];
                 vertices[i2] = v2 + vertices[i2 + 1];
@@ -1023,37 +1051,66 @@ _pg_rotate_polygon_helper(pgPolygonBase *poly, double angle)
 }
 
 static PyObject *
-pg_polygon_rotate(pgPolygonObject *self, PyObject *arg)
+pg_polygon_rotate(pgPolygonObject *self, PyObject *const *args,
+                  Py_ssize_t nargs)
 {
-    double angle;
-    pgPolygonObject *ret;
-
-    if (!pg_DoubleFromObj(arg, &angle)) {
-        return RAISE(PyExc_TypeError,
-                     "Invalid angle parameter, must be numeric");
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate requires 1 or 2 arguments");
     }
 
-    ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), &self->polygon);
+    pgPolygonObject *ret;
+    pgPolygonBase *poly = &self->polygon;
+    double angle, rx = poly->c_x, ry = poly->c_y;
+
+    /*get the angle argument*/
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    /*get the rotation point argument if given*/
+    if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
+    }
+
+    ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), poly);
     if (!ret) {
         return NULL;
     }
 
-    _pg_rotate_polygon_helper(&ret->polygon, angle);
+    _pg_rotate_polygon_helper(&ret->polygon, angle, rx, ry);
 
     return (PyObject *)ret;
 }
 
 static PyObject *
-pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *arg)
+pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
+                     Py_ssize_t nargs)
 {
-    double angle;
-
-    if (!pg_DoubleFromObj(arg, &angle)) {
-        return RAISE(PyExc_TypeError,
-                     "Invalid angle parameter, must be numeric");
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate_ip requires 1 or 2 arguments");
     }
 
-    _pg_rotate_polygon_helper(&self->polygon, angle);
+    pgPolygonBase *poly = &self->polygon;
+    double angle;
+    double rx = poly->c_x, ry = poly->c_y;
+
+    /*get the angle argument*/
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    /*get the rotation point argument if given*/
+    if (nargs == 2 && !pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation_point argument, must be a sequence of "
+                     "two numbers");
+    }
+
+    _pg_rotate_polygon_helper(&self->polygon, angle, rx, ry);
 
     Py_RETURN_NONE;
 }
@@ -1135,10 +1192,11 @@ pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
 }
 
 static struct PyMethodDef pg_polygon_methods[] = {
+    {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_polygon_move_ip, METH_FASTCALL, NULL},
-    {"rotate", (PyCFunction)pg_polygon_rotate, METH_O, NULL},
-    {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_O, NULL},
+    {"rotate", (PyCFunction)pg_polygon_rotate, METH_FASTCALL, NULL},
+    {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
      NULL},
     {"get_bounding_box", (PyCFunction)pg_polygon_get_bounding_box, METH_NOARGS,

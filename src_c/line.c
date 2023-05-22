@@ -613,6 +613,100 @@ pg_line_as_segments(pgLineObject *self, PyObject *arg)
     return list;
 }
 
+static PG_FORCE_INLINE double
+_lerp_helper(float start, float end, float amount) {
+    return start + (end - start) * amount;
+}
+
+static int
+_line_scale_helper(pgLineBase *line, double factor, double origin) {
+    if (factor == 1.0) {
+        return 1;
+    }
+    else if (factor <= 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Can only scale by a positive non zero number");
+        return 0;
+    }
+
+    if (origin < 0.0 || origin > 1.0) {
+        PyErr_SetString(PyExc_ValueError, "Origin must be between 0 and 1");
+        return 0;
+    }
+
+    double x1 = line->x1;
+    double y1 = line->y1;
+    double x2 = line->x2;
+    double y2 = line->y2;
+
+    double x1_factor = x1 * factor;
+    double y1_factor = y1 * factor;
+    double x2_factor = x2 * factor;
+    double y2_factor = y2 * factor;
+
+    double fac_m_one = factor - 1;
+    double dx = _lerp_helper(fac_m_one * x1, fac_m_one * x2, origin);
+    double dy = _lerp_helper(fac_m_one * y1, fac_m_one * y2, origin);
+    
+    line->x1 = x1_factor - dx;
+    line->y1 = y1_factor - dy;
+    line->x2 = x2_factor - dx;
+    line->y2 = y2_factor - dy;
+
+    return 1;
+}
+
+static PyObject *
+pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    double factor, origin;
+
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
+        return RAISE(PyExc_TypeError,
+                     "scale requires a sequence of two numbers");
+    }
+
+    PyObject *line;
+    if (!(line = pgLine_New(&self->line))) {
+        return NULL;
+    }
+
+    if (!_line_scale_helper(&pgLine_AsLine(line), factor, origin)) {
+        return NULL;
+    }
+
+    return line;
+}
+
+static PyObject *
+pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    double factor, origin;
+
+    if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
+        return RAISE(PyExc_TypeError,
+                     "scale_ip requires a sequence of two numbers");
+    }
+
+    if (!_line_scale_helper(&pgLine_AsLine(self), factor, origin)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_line_as_circle(pgLineObject *self, PyObject *_null)
+{
+    pgCircleObject *circle_obj =
+        (pgCircleObject *)pgCircle_Type.tp_new(&pgCircle_Type, NULL, NULL);
+
+    if (circle_obj) {
+        circle_obj->circle.x = (self->line.x1 + self->line.x2) / 2;
+        circle_obj->circle.y = (self->line.y1 + self->line.y2) / 2;
+        circle_obj->circle.r = pgLine_Length(&self->line) / 2;
+    }
+
+    return (PyObject *)circle_obj;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -633,6 +727,9 @@ static struct PyMethodDef pg_line_methods[] = {
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
     {"as_points", (PyCFunction)pg_line_as_points, METH_O, NULL},
     {"as_segments", (PyCFunction)pg_line_as_segments, METH_O, NULL},
+    {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
+    {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
+    {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */

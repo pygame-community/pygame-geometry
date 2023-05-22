@@ -157,6 +157,15 @@ Polygon Methods
 
       .. ## Polygon.collidepoint ##
 
+    .. method:: as_segments
+
+        | :sl:`returns the line segments of the polygon`
+        | :sg:`as_segments() -> list[Line]`
+
+        Returns a list of the line segments of the polygon given as self.
+
+      .. ## Polygon.as_segments ##
+
     .. method:: copy
 
         | :sl:`returns a copy of the polygon`
@@ -174,10 +183,11 @@ Polygon Methods
     .. method:: rotate
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate(angle) -> Polygon`
+        | :sg:`rotate(angle, rotation_point) -> Polygon`
 
         Returns a new Polygon that is rotated by the given angle (in degrees). The original
-        Polygon is not modified. The rotation is done around the center of the `Polygon`.
+        Polygon is not modified. The rotation is done around the center of the `Polygon` by
+        default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while
@@ -192,11 +202,11 @@ Polygon Methods
     .. method:: rotate_ip
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate_ip(angle) -> None`
+        | :sg:`rotate_ip(angle, rotation_point) -> None`
 
         Rotates the Polygon by the given angle (in degrees). The original Polygon
         is modified. Always returns None. The rotation is done around the center of the
-        `Polygon`.
+        `Polygon` by default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while

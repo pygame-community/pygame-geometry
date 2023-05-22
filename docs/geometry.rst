@@ -56,7 +56,7 @@ performing transformations and checking for collisions with other objects.
 
     collideswith: Checks if the circle collides with the given object.
 
-    contains: Checks if the circle contains the given object.
+    contains: Checks if the circle fully contains the given object.
 
     as_rect: Returns the smallest rectangle that contains the circle.
 
@@ -108,6 +108,10 @@ other objects.
 
     scale_ip: Scales the line by the given amount in place.
 
+    flip: Switches the endpoints of the line.
+
+    flip_ip: Switches the endpoints of the line in place.
+
     update: Updates the line's attributes.
 
     copy: Returns a copy of the line.
@@ -121,6 +125,16 @@ other objects.
     colliderect: Checks if the line collides with the given rectangle.
 
     collideswith: Checks if the line collides with the given object.
+
+    as_circle: Returns a circle which fully encloses the line.
+
+    as_rect: Returns the smallest rectangle that contains the line.
+
+    is_parallel: Checks if the line is parallel to the given line.
+
+    is_perpendicular: Checks if the line is perpendicular to the given line.
+
+    at: Returns the point at the given position along the line based on a factor.
 
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
@@ -161,6 +175,14 @@ other objects.
     pop_vertex: Removes and returns a vertex from the polygon.
 
     is_convex: Checks if the polygon is convex.
+
+    get_bounding_box: Returns the smallest rectangle that contains the polygon.
+
+    as_segments: Returns a list of lines that make up the polygon.
+
+    rotate: Rotates the polygon by the given amount.
+
+    rotate_ip: Rotates the polygon by the given amount in place.
 
 Functions
 =========
@@ -216,3 +238,81 @@ such as raycasting and general utility functions.
         of the rectangle, respectively.
 
       .. ## geometry.rect_to_polygon ##
+
+    .. method:: is_line
+
+        | :sl:`Checks if the given object is a geometry.Line`
+        | :sg:`is_line(obj) -> bool`
+
+        This function checks if the given object is a geometry.Line.
+        It returns True if the object is a geometry.Line, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Line class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Line).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_line.
+            Utilizing is_line can save an unwanted Line import.
+
+      .. ## geometry.is_line ##
+
+    .. method:: is_circle
+
+        | :sl:`Checks if the given object is a geometry.Circle`
+        | :sg:`is_circle(obj) -> bool`
+
+        This function checks if the given object is a geometry.Circle.
+        It returns True if the object is a geometry.Circle, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Circle class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Circle).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_circle.
+            Utilizing is_circle can save an unwanted Circle import.
+
+      .. ## geometry.is_circle ##
+
+    .. method:: is_polygon
+
+        | :sl:`Checks if the given object is a geometry.Polygon`
+        | :sg:`is_polygon(obj) -> bool`
+
+        This function checks if the given object is a geometry.Polygon.
+        It returns True if the object is a geometry.Polygon, and False otherwise.
+
+        .. note::
+
+            If the python object subclasses the geometry.Polygon class, this function will
+            return False. Note that this function is equivalent to isinstance(obj, Polygon).
+            Using that isinstance check is better for typechecking with mypy, and more
+            explicit - so it’s recommended to use that instead of is_polygon.
+            Utilizing is_polygon can save an unwanted Polygon import.
+
+      .. ## geometry.is_polygon ##
+
+    .. method:: multiraycast
+
+        | :sl:`Returns a list of intersection points between a sequence of rays and a sequence of colliders`
+        | :sg:`multiraycast(rays, colliders) -> [(x, y) | None]`
+
+        This function returns a list of intersection points between a sequence of
+        rays and a sequence of colliders.
+        The rays parameter is a sequence that can be composed of the following objects:
+
+        - Line objects.
+        - Tuples of: origin point, angle, max_dist.
+        - Tuples of: origin point, direction, max_dist.
+        - Tuples of: origin point, end point.
+
+        Apart from Lines, which have fixed length, the rays can have any length,
+        including infinite length. To define an infinite ray, set the max_dist parameter
+        to a negative value. The max_dist parameter cannot be set to 0.
+        The colliders can be any sequence of objects such as Circle, Line, or Rect.
+
+        The function returns a list of tuples containing the closest intersection point to
+        the ray's origin, or None if it couldn't find one.
+
+     .. ## geometry.multiraycast ##

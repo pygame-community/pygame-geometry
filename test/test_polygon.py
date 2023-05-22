@@ -4,7 +4,7 @@ import random
 from pygame import Vector2, Vector3, Rect
 
 import geometry
-from geometry import Polygon
+from geometry import Polygon, Line
 
 import math
 
@@ -15,16 +15,20 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
-def _rotate_vertices(poly: Polygon, angle: float):
+def _rotate_vertices(poly: Polygon, angle: float, center=None):
     """Rotates the vertices of a polygon by the given angle."""
     angle = math.radians(angle)
     rotated_vertices = []
 
     cos_a = math.cos(angle) - 1
     sin_a = math.sin(angle)
+
+    cx = poly.c_x if center is None else center[0]
+    cy = poly.c_y if center is None else center[1]
+
     for vertex in poly.vertices:
-        dx = vertex[0] - poly.c_x
-        dy = vertex[1] - poly.c_y
+        dx = vertex[0] - cx
+        dy = vertex[1] - cy
         rotated_vertices.append(
             (
                 vertex[0] + dx * cos_a - dy * sin_a,
@@ -582,6 +586,33 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(repr(polygon), p_repr)
         self.assertEqual(polygon.__repr__(), p_repr)
 
+    def test_as_segments(self):
+        """Checks whether polygon segments are correct"""
+        poly = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+        self.assertEqual(
+            poly.as_segments(),
+            [
+                Line((0, 0), (1, 0)),
+                Line((1, 0), (1, 1)),
+                Line((1, 1), (0, 1)),
+                Line((0, 1), (0, 0)),
+            ],
+        )
+        poly = Polygon([(123.23, 35.6), (56.4, 87.45), (43.1, 12.3)])
+        self.assertEqual(
+            poly.as_segments(),
+            [
+                Line((123.23, 35.6), (56.4, 87.45)),
+                Line((56.4, 87.45), (43.1, 12.3)),
+                Line((43.1, 12.3), (123.23, 35.6)),
+            ],
+        )
+        poly = Polygon([[1, 2], [3, 4], [5, 6]])
+        self.assertEqual(
+            poly.as_segments(),
+            [Line((1, 2), (3, 4)), Line((3, 4), (5, 6)), Line((5, 6), (1, 2))],
+        )
+
     def test_move_xy(self):
         """Checks whether polygon move function works correctly with an x-y pair."""
         poly = Polygon(_some_vertices.copy())
@@ -855,13 +886,25 @@ class PolygonTypeTest(unittest.TestCase):
             -23.31545,
         ]
 
+        rot_centers = [
+            gen_poly.center,
+            (0, 0),
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, 0),
+            (-1, -1),
+        ] + vertices
+
         for angle in angles:
-            poly = gen_poly.copy()
-            rotated_vertices = _rotate_vertices(poly, angle)
-            p2 = poly.rotate(angle)
-            for v1, v2 in zip(p2.vertices, rotated_vertices):
-                self.assertAlmostEqual(v1[0], v2[0])
-                self.assertAlmostEqual(v1[1], v2[1])
+            for c in rot_centers:
+                poly = gen_poly.copy()
+                rotated_vertices = _rotate_vertices(poly, angle, c)
+                p2 = poly.rotate(angle, c)
+                for v1, v2 in zip(p2.vertices, rotated_vertices):
+                    self.assertAlmostEqual(v1[0], v2[0])
+                    self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_invalid_args(self):
         """Tests whether the function can handle invalid parameter types correctly."""
@@ -881,11 +924,15 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.rotate(value)
 
+        for value in [t for t in invalid_types if not isinstance(t, Vector2)]:
+            with self.assertRaises(TypeError):
+                poly.rotate(2, value)
+
     def test_rotate_argnum(self):
         """Tests whether the function can handle invalid parameter number correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        invalid_args = [(1, 1), (1, 1, 1, 1)]
+        invalid_args = [(1, (1, 1), (1, 1)), (1, (1, 1), (1, 1), (1, 1))]
 
         for arg in invalid_args:
             with self.assertRaises(TypeError):
@@ -929,13 +976,25 @@ class PolygonTypeTest(unittest.TestCase):
             -23.31545,
         ]
 
+        rot_centers = [
+            gen_poly.center,
+            (0, 0),
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, 0),
+            (-1, -1),
+        ] + vertices
+
         for angle in angles:
-            poly = gen_poly.copy()
-            rotated_vertices = _rotate_vertices(poly, angle)
-            poly.rotate_ip(angle)
-            for v1, v2 in zip(poly.vertices, rotated_vertices):
-                self.assertAlmostEqual(v1[0], v2[0])
-                self.assertAlmostEqual(v1[1], v2[1])
+            for c in rot_centers:
+                poly = gen_poly.copy()
+                rotated_vertices = _rotate_vertices(poly, angle, c)
+                poly.rotate_ip(angle, c)
+                for v1, v2 in zip(poly.vertices, rotated_vertices):
+                    self.assertAlmostEqual(v1[0], v2[0])
+                    self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_ip_conjugate(self):
         vertices = _some_vertices.copy()
@@ -993,6 +1052,10 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.rotate_ip(value)
 
+        for value in [t for t in invalid_types if not isinstance(t, Vector2)]:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(2, value)
+
     def test_collidepoint(self):
         """Tests whether the collidepoint method works correctly."""
         poly = Polygon(_some_vertices.copy())
@@ -1040,7 +1103,7 @@ class PolygonTypeTest(unittest.TestCase):
         """Tests whether the function can handle invalid parameter number correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        invalid_args = [(1, 1), (1, 1, 1, 1)]
+        invalid_args = [(1, (1, 1), (1, 1)), (1, (1, 1), (1, 1), (1, 1))]
 
         with self.assertRaises(TypeError):
             poly.rotate_ip()
@@ -1078,6 +1141,16 @@ class PolygonTypeTest(unittest.TestCase):
         center_y = poly.c_y
 
         new_poly = poly.rotate(0)
+
+        self.assertEqual(new_poly.vertices, poly.vertices)
+        self.assertEqual(new_poly.c_x, poly.c_x)
+        self.assertEqual(new_poly.c_y, poly.c_y)
+
+        self.assertEqual(new_poly.vertices, vertices)
+        self.assertEqual(new_poly.c_x, center_x)
+        self.assertEqual(new_poly.c_y, center_y)
+
+        new_poly = poly.rotate(0, poly.center)
 
         self.assertEqual(new_poly.vertices, poly.vertices)
         self.assertEqual(new_poly.c_x, poly.c_x)
