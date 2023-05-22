@@ -429,12 +429,42 @@ geometry_rect_to_polygon(PyObject *_null, PyObject *arg)
                           tmp->y + tmp->h / 2);
 }
 
+static PyObject *
+geometry_is_line(PyObject *_null, PyObject *arg)
+{
+    if (pgLine_Check(arg)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+geometry_is_circle(PyObject *_null, PyObject *arg)
+{
+    if (pgCircle_Check(arg)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject *
+geometry_is_polygon(PyObject *_null, PyObject *arg)
+{
+    if (pgPolygon_Check(arg)) {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
 static PyMethodDef _pg_module_methods[] = {
     {"regular_polygon", (PyCFunction)geometry_regular_polygon, METH_FASTCALL,
      NULL},
     {"multiraycast", (PyCFunction)geometry_multiraycast, METH_FASTCALL, NULL},
     {"raycast", (PyCFunction)pg_raycast, METH_FASTCALL, NULL},
     {"rect_to_polygon", (PyCFunction)geometry_rect_to_polygon, METH_O, NULL},
+    {"is_line", (PyCFunction)geometry_is_line, METH_O, NULL},
+    {"is_circle", (PyCFunction)geometry_is_circle, METH_O, NULL},
+    {"is_polygon", (PyCFunction)geometry_is_polygon, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 MODINIT_DEFINE(geometry)
@@ -551,3 +581,4 @@ MODINIT_DEFINE(geometry)
     }
     return module;
 }
+ 

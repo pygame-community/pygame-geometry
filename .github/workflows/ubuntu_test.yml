@@ -11,10 +11,11 @@ jobs:
   Python:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
         python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
     steps:
-      - uses: actions/checkout@v3.0.2
+      - uses: actions/checkout@v3
       - name: Install Python
         run: |
           # Add the deadsnakes PPA to install python
@@ -25,7 +26,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python${{ matrix.python-version }} -m pip install setuptools -U
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install wheel
           python${{ matrix.python-version }} -m pip install pygame-ce
           python${{ matrix.python-version }} -m pip install .
       - name: Run Tests
