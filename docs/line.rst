@@ -374,3 +374,33 @@ Line Methods
         Returns a new `Line` having the same position and radius as the original.
 
       .. ## Line.copy ##
+
+    .. method:: rotate
+
+        | :sl:`returns a copy of the line rotated around its midpoint`
+        | :sg:`rotate(angle, rotation_point) -> Line`
+
+        Returns a new `Line` that is rotated by the given angle (in degrees).
+        The original `Line` is not modified. By default, the `Line` is rotated around its
+        midpoint, but that can be changed by passing a different rotation point.
+
+        .. note::
+            Rotating the line by positive angles will rotate it clockwise, while
+            rotating it by negative angles will rotate it counter-clockwise.
+
+      .. ## Line.rotate ##
+
+    .. method:: rotate_ip
+
+        | :sl:`rotates the line around its midpoint`
+        | :sg:`rotate_ip(angle, rotation_point) -> None`
+
+        Rotates the `Line` by the given angle (in degrees). The original `Line` is modified.
+        By default, the `Line` is rotated around its midpoint, but that can be changed by
+        passing a different rotation point.
+
+        .. note::
+            Rotating the line by positive angles will rotate it clockwise, while
+            rotating it by negative angles will rotate it counter-clockwise.
+
+      .. ## Line.rotate_ip ##
