@@ -1086,6 +1086,111 @@ class LineTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 l.is_perpendicular(value)
 
+    def test_meth_rotate_ip_invalid_argnum(self):
+        l = Line(0, 0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            l.rotate_ip()
+
+        invalid_args = [
+            (1, (2, 2), 2),
+            (1, (2, 2), 2, 2),
+            (1, (2, 2), 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2, 2),
+        ]
+
+        for args in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate_ip(*args)
+
+    def test_meth_rotate_ip_invalid_argtype(self):
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            ("a",),  # angle str
+            (None,),  # angle str
+            ((1, 2)),  # angle tuple
+            ([1, 2]),  # angle list
+            (1, "a"),  # origin str
+            (1, None),  # origin None
+            (1, True),  # origin True
+            (1, False),  # origin False
+            (1, (1, 2, 3)),  # origin tuple
+            (1, [1, 2, 3]),  # origin list
+            (1, (1, "a")),  # origin str
+            (1, ("a", 1)),  # origin str
+            (1, (1, None)),  # origin None
+            (1, (None, 1)),  # origin None
+            (1, (1, (1, 2))),  # origin tuple
+            (1, (1, [1, 2])),  # origin list
+        ]
+
+        for value in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate_ip(*value)
+
+    def test_meth_rotate_ip_return(self):
+        l = Line(0, 0, 1, 1)
+        angles = [0, 45, 90, 180, 270, 360, -45, -90, -180, -270, -360, 0, 0.1, -0.0]
+
+        for angle in angles:
+            self.assertIsNone(l.rotate_ip(angle))
+            self.assertIsInstance(l.rotate_ip(angle), type(None))
+
+    def test_meth_rotate_invalid_argnum(self):
+        l = Line(0, 0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            l.rotate()
+
+        invalid_args = [
+            (1, (2, 2), 2),
+            (1, (2, 2), 2, 2),
+            (1, (2, 2), 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2, 2),
+        ]
+
+        for args in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate(*args)
+
+    def test_meth_rotate_invalid_argtype(self):
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            ("a",),  # angle str
+            (None,),  # angle str
+            ((1, 2)),  # angle tuple
+            ([1, 2]),  # angle list
+            (1, "a"),  # origin str
+            (1, None),  # origin None
+            (1, True),  # origin True
+            (1, False),  # origin False
+            (1, (1, 2, 3)),  # origin tuple
+            (1, [1, 2, 3]),  # origin list
+            (1, (1, "a")),  # origin str
+            (1, ("a", 1)),  # origin str
+            (1, (1, None)),  # origin None
+            (1, (None, 1)),  # origin None
+            (1, (1, (1, 2))),  # origin tuple
+            (1, (1, [1, 2])),  # origin list
+        ]
+
+        for value in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate(*value)
+
+    def test_meth_rotate_return(self):
+        l = Line(0, 0, 1, 1)
+        angles = [0, 45, 90, 180, 270, 360, -45, -90, -180, -270, -360, 0, 0.1, -0.0]
+
+        for angle in angles:
+            self.assertIsInstance(l.rotate(angle), Line)
+
 
 if __name__ == "__main__":
     unittest.main()
