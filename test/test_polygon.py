@@ -1707,7 +1707,7 @@ class PolygonTypeTest(unittest.TestCase):
 
         self.assertTrue(p1.is_convex())
         self.assertFalse(p2.is_convex())
-     
+
     def test_collidecircle_argtype(self):
         """Tests if the function correctly handles incorrect types as parameters"""
 
@@ -1884,7 +1884,7 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertEqual(poly.verts_num, poly_copy.verts_num)
         self.assertEqual(poly.c_x, poly_copy.c_x)
         self.assertEqual(poly.c_y, poly_copy.c_y)
-    
+
     def test_scale_ip(self):
         """Tests whether the scale_ip method works correctly."""
         poly = Polygon(_some_vertices.copy())
@@ -2015,6 +2015,7 @@ class PolygonTypeTest(unittest.TestCase):
         for arg in invalid_args:
             with self.assertRaises(TypeError):
                 poly.scale(*arg)
+
 
 if __name__ == "__main__":
     unittest.main()
