@@ -344,10 +344,10 @@ Polygon Methods
 
       .. ## Polygon.pop_vertex ##
 
-    .. method:: get_bounding_box
+    .. method:: as_rect
 
         | :sl:`returns the bounding box of the polygon`
-        | :sg:`get_bounding_box() -> Rect`
+        | :sg:`as_rect() -> Rect`
 
         Returns a `pygame.Rect` object that contains the `Polygon`. The Rect object will
         be the smallest rectangle that contains the `Polygon`.
@@ -361,7 +361,7 @@ Polygon Methods
             Keep in mind that the more vertices the polygon has, the more CPU time it will
             take to calculate the bounding box.
 
-      .. ## Polygon.get_bounding_box ##
+      .. ## Polygon.as_rect ##
 
     .. method:: scale
 

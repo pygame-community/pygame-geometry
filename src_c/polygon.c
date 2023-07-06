@@ -1116,7 +1116,7 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
 }
 
 static PyObject *
-pg_polygon_get_bounding_box(pgPolygonObject *self, PyObject *_null)
+pg_polygon_as_rect(pgPolygonObject *self, PyObject *_null)
 {
     /* Return a Rect object that is the smallest rectangle that contains
        the polygon. */
@@ -1310,7 +1310,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"collideline", (PyCFunction)pg_polygon_collideline, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_polygon_collidecircle, METH_FASTCALL,
      NULL},
-    {"get_bounding_box", (PyCFunction)pg_polygon_get_bounding_box, METH_NOARGS,
+    {"as_rect", (PyCFunction)pg_polygon_as_rect, METH_NOARGS,
      NULL},
     {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
