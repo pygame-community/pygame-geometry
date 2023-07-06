@@ -1,4 +1,5 @@
 import unittest
+from math import sqrt
 
 from pygame import Vector2, Vector3, Rect
 
@@ -6,6 +7,17 @@ from geometry import Circle, Line
 
 E_T = "Expected True, "
 E_F = "Expected False, "
+
+
+def _distance(p1, p2):
+    return sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+
+def get_points_between(line, n_pts):
+    dx = (line.x2 - line.x1) / (n_pts + 1)
+    dy = (line.y2 - line.y1) / (n_pts + 1)
+
+    return [(line.x1 + i * dx, line.y1 + i * dy) for i in range(n_pts + 2)]
 
 
 class LineTypeTest(unittest.TestCase):
@@ -1085,6 +1097,112 @@ class LineTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(TypeError):
                 l.is_perpendicular(value)
+
+    def test_meth_as_points(self):
+        """Test the as_points method."""
+        l = Line(0, 0, 1, 1)
+
+        for i in range(100):
+            pts = l.as_points(i)
+            self.assertEqual(2 + i, len(pts))
+            ex_pts = get_points_between(l, i)
+
+            for actual_pt, expected_pt in zip(pts, ex_pts):
+                self.assertIsInstance(actual_pt, tuple)
+                self.assertEqual(2, len(actual_pt))
+                self.assertAlmostEqual(expected_pt[0], actual_pt[0], places=14)
+                self.assertAlmostEqual(expected_pt[1], actual_pt[1], places=14)
+
+            self.assertAlmostEqual(
+                sum(_distance(p1, p2) for p1, p2 in zip(pts, pts[1:])), l.length
+            )
+
+    def test_meth_as_points_argtype(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            "string",
+            None,
+            [1, 2, 3],
+            [1, "s", 3, 4],
+            (1, 2, 3),
+            (1, "s", 3, 4),
+            ((1, "s"), (3, 4)),
+            ((1, 4), (3, "4")),
+            {1: 2, 3: 4},
+            object(),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.as_points(value)
+
+    def test_meth_as_points_argnum(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            (1, 2),
+            (1, 2, 3),
+            (1, 2, 3, 4),
+            (1, 2, 3, 4, 5),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.as_points(*value)
+
+    def test_meth_as_points_argvalue(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            -1,
+            -2,
+            -3,
+            -4,
+            -5,
+        ]
+        for value in args:
+            with self.assertRaises(ValueError):
+                l.as_points(value)
+
+    def test_meth_as_segments_argtype(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            "string",
+            None,
+            [1, 2, 3],
+            [1, "s", 3, 4],
+            (1, 2, 3),
+            (1, "s", 3, 4),
+            ((1, "s"), (3, 4)),
+            ((1, 4), (3, "4")),
+            {1: 2, 3: 4},
+            object(),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.as_segments(value)
+
+    def test_meth_as_segments_argnum(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            (1, 2),
+            (1, 2, 3),
+            (1, 2, 3, 4),
+            (1, 2, 3, 4, 5),
+        ]
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.as_segments(*value)
+
+    def test_meth_as_segments_argvalue(self):
+        l = Line(0, 0, 1, 1)
+        args = [
+            0,
+            -1,
+            -2,
+            -3,
+            -4,
+            -5,
+        ]
+        for value in args:
+            with self.assertRaises(ValueError):
+                l.as_segments(value)
 
 
 if __name__ == "__main__":
