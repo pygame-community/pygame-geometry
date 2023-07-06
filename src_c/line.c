@@ -479,7 +479,7 @@ pg_line_flip(pgLineObject *self, PyObject *_null)
 }
 
 static PyObject *
-pg_line_flip_ip(pgLineObject *self, PyObject *_null)
+pg_line_flip_ab_ip(pgLineObject *self, PyObject *_null)
 {
     double tx = self->line.x2;
     double ty = self->line.y2;
@@ -754,8 +754,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
-    {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
-    {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
+    {"flip_ab", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
+    {"flip_ab_ip", (PyCFunction)pg_line_flip_ab_ip, METH_NOARGS, NULL},
     {"as_points", (PyCFunction)pg_line_as_points, METH_O, NULL},
     {"as_segments", (PyCFunction)pg_line_as_segments, METH_O, NULL},
     {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},

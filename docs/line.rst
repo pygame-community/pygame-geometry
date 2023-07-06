@@ -237,25 +237,25 @@ Line Methods
 
       .. ## Line.scale_ip ##
 
-    .. method:: flip
+    .. method:: flip_ab
 
         | :sl:`flips the line a and b points`
-        | :sg:`flip() -> Line`
+        | :sg:`flip_ab() -> Line`
 
         Returns a new `Line` that has the `a` and `b` points flipped.
         The original `Line` is not modified.
 
-      .. ## Line.flip ##
+      .. ## Line.flip_ab ##
 
-    .. method:: flip_ip
+    .. method:: flip_ab_ip
 
         | :sl:`flips the line a and b points, in place`
-        | :sg:`flip_ip() -> None`
+        | :sg:`flip_ab_ip() -> None`
 
         Flips the `Line`'s `b` and `b` points. The original `Line` is modified.
         Always returns None.
 
-      .. ## Line.flip_ip ##
+      .. ## Line.flip_ab_ip ##
 
     .. method:: is_parallel
 

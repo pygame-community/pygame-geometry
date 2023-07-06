@@ -725,7 +725,7 @@ class LineTypeTest(unittest.TestCase):
     def test_meth_flip(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
 
-        ret = line.flip()
+        ret = line.flip_ab()
 
         self.assertIsInstance(ret, Line)
         self.assertEqual(ret.x1, 3.3)
@@ -734,12 +734,12 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(ret.y2, 2.2)
 
         with self.assertRaises(TypeError):
-            line.flip(1)
+            line.flip_ab(1)
 
-    def test_meth_flip_ip(self):
+    def test_meth_flip_ab_ip(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
 
-        line.flip_ip()
+        line.flip_ab_ip()
 
         self.assertEqual(line.x1, 3.3)
         self.assertEqual(line.y1, 4.4)
@@ -747,7 +747,7 @@ class LineTypeTest(unittest.TestCase):
         self.assertEqual(line.y2, 2.2)
 
         with self.assertRaises(TypeError):
-            line.flip_ip(1)
+            line.flip_ab_ip(1)
 
     def test_meth_collidepoint(self):
         A = Line(0, 0, 1, 1)
