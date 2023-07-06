@@ -1191,6 +1191,27 @@ pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
     return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
 }
 
+static PyObject *
+pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
+                         Py_ssize_t nargs)
+{
+    pgCircleBase circle;
+    int only_edges = 0;
+
+    /* Check for the optional only_edges argument */
+    if (PyBool_Check(args[nargs - 1])) {
+        only_edges = args[nargs - 1] == Py_True;
+        nargs--;
+    }
+
+    if (!pgCircle_FromObjectFastcall(args, nargs, &circle)) {
+        return RAISE(PyExc_TypeError, "Invalid circle parameter");
+    }
+
+    return PyBool_FromLong(
+        pgCollision_CirclePolygon(&circle, &self->polygon, only_edges));
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
@@ -1198,6 +1219,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate", (PyCFunction)pg_polygon_rotate, METH_FASTCALL, NULL},
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
+     NULL},
+    {"collidecircle", (PyCFunction)pg_polygon_collidecircle, METH_FASTCALL,
      NULL},
     {"get_bounding_box", (PyCFunction)pg_polygon_get_bounding_box, METH_NOARGS,
      NULL},

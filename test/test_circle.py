@@ -6,7 +6,7 @@ from math import sqrt
 from pygame import Vector2, Vector3
 from pygame import Rect
 
-from geometry import Circle, Line, Polygon
+from geometry import Circle, Line, Polygon, regular_polygon
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -998,6 +998,185 @@ class CircleTypeTest(unittest.TestCase):
 
         # intersecting polygon
         self.assertFalse(c.contains(p3))
+
+    def test_collidepolygon_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value, True)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(value, False)
+
+    def test_collidepolygon_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (poly, poly),
+            (poly, poly, poly),
+            (poly, poly, poly, poly),
+        ]
+
+        with self.assertRaises(TypeError):
+            c.collidepolygon()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg, True)
+            with self.assertRaises(TypeError):
+                c.collidepolygon(*arg, False)
+
+    def test_collidepolygon_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        vertices = [(-5, 0), (5, 0), (0, 5)]
+
+        items = [
+            Polygon(vertices),
+            vertices,
+            tuple(vertices),
+            [list(v) for v in vertices],
+        ]
+
+        for item in items:
+            self.assertIsInstance(c.collidepolygon(item), bool)
+            self.assertIsInstance(c.collidepolygon(item, True), bool)
+            self.assertIsInstance(c.collidepolygon(item, False), bool)
+
+        self.assertIsInstance(c.collidepolygon(*vertices), bool)
+        self.assertIsInstance(c.collidepolygon(*vertices, True), bool)
+        self.assertIsInstance(c.collidepolygon(*vertices, False), bool)
+
+    def test_collidepolygon(self):
+        """Ensures that the collidepolygon method correctly determines if a polygon
+        is colliding with the circle"""
+        epsilon = 0.00000000000001
+
+        c = Circle(0, 0, 15)
+
+        p1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+        p2 = Polygon([(100, 150), (200, 225), (150, 200)])
+        p3 = Polygon([(0, 0), (50, 50), (50, -50), (0, -50)])
+        p4 = regular_polygon(4, c.center, 100)
+        p5 = regular_polygon(3, (c.x + c.r - 5, c.y), 5)
+        p6 = regular_polygon(3, (c.x + c.r - 5, c.y), 5 - epsilon)
+
+        # circle contains polygon
+        self.assertTrue(c.collidepolygon(p1))
+        self.assertTrue(c.collidepolygon(p1, False))
+
+        # non colliding
+        self.assertFalse(c.collidepolygon(p2))
+        self.assertFalse(c.collidepolygon(p2, False))
+
+        # intersecting polygon
+        self.assertTrue(c.collidepolygon(p3))
+        self.assertTrue(c.collidepolygon(p3, False))
+
+        # polygon contains circle
+        self.assertTrue(c.collidepolygon(p4))
+        self.assertTrue(c.collidepolygon(p4, False))
+
+        # circle contains polygon, barely touching
+        self.assertTrue(c.collidepolygon(p5))
+        self.assertTrue(c.collidepolygon(p5, False))
+
+        # circle contains polygon, barely not touching
+        self.assertTrue(c.collidepolygon(p6))
+        self.assertTrue(c.collidepolygon(p6, False))
+
+        # --- Edge only ---
+
+        # circle contains polygon
+        self.assertFalse(c.collidepolygon(p1, True))
+
+        # non colliding
+        self.assertFalse(c.collidepolygon(p2, True))
+
+        # intersecting polygon
+        self.assertTrue(c.collidepolygon(p3, True))
+
+        # polygon contains circle
+        self.assertFalse(c.collidepolygon(p4, True))
+
+        # circle contains polygon, barely touching
+        self.assertTrue(c.collidepolygon(p5, True))
+
+        # circle contains polygon, barely not touching
+        self.assertFalse(c.collidepolygon(p6, True))
+
+    def test_collidepolygon_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collidepolygon(poly, value)
+
+    def test_collidepolygon_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        c_copy = c.copy()
+        poly_copy = poly.copy()
+
+        c.collidepolygon(poly)
+
+        self.assertEqual(c.x, c_copy.x)
+        self.assertEqual(c.y, c_copy.y)
+        self.assertEqual(c.r, c_copy.r)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
 
 
 if __name__ == "__main__":
