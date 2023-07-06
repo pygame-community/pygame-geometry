@@ -184,6 +184,10 @@ other objects.
 
     is_convex: Checks if the polygon is convex.
 
+    scale: Scales the polygon by the given amount.
+
+    scale_ip: Scales the polygon by the given amount in place.
+
     get_bounding_box: Returns the smallest rectangle that contains the polygon.
 
     as_segments: Returns a list of lines that make up the polygon.

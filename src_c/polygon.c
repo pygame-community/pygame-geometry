@@ -1191,6 +1191,73 @@ pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
     return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
 }
 
+static int
+_pg_polygon_scale_helper(pgPolygonBase *poly, double factor)
+{
+    /* Takes in a factor and scales the polygon by that factor,
+     * if the factor is less than 1, the polygon will be shrunk, if the
+     * factor is greater than 1, the polygon will be enlarged.
+     */
+    if (factor == 1.0) {
+        return 1;
+    }
+    else if (factor <= 0.0) {
+        PyErr_SetString(PyExc_ValueError, "Invalid scale factor, must be > 0");
+        return 0;
+    }
+
+    double *vertices = poly->vertices;
+    double one_m_fac = 1.0 - factor;
+    double omf_cx = one_m_fac * poly->c_x;
+    double omf_cy = one_m_fac * poly->c_y;
+
+    Py_ssize_t i2;
+    for (i2 = 0; i2 < poly->verts_num * 2; i2 += 2) {
+        vertices[i2] = vertices[i2] * factor + omf_cx;
+        vertices[i2 + 1] = vertices[i2 + 1] * factor + omf_cy;
+    }
+    return 1;
+}
+
+static PyObject *
+pg_polygon_scale(pgPolygonObject *self, PyObject *arg)
+{
+    double factor;
+    pgPolygonObject *new_poly;
+
+    if (!pg_DoubleFromObj(arg, &factor)) {
+        return RAISE(PyExc_TypeError, "Invalid scale factor, must be numeric");
+    }
+
+    if (!(new_poly = (pgPolygonObject *)_pg_polygon_subtype_new2_copy(
+              Py_TYPE(self), &self->polygon))) {
+        return NULL;
+    }
+
+    if (!_pg_polygon_scale_helper(&new_poly->polygon, factor)) {
+        Py_DECREF(new_poly);
+        return NULL;
+    }
+
+    return (PyObject *)new_poly;
+}
+
+static PyObject *
+pg_polygon_scale_ip(pgPolygonObject *self, PyObject *arg)
+{
+    double factor;
+
+    if (!pg_DoubleFromObj(arg, &factor)) {
+        return RAISE(PyExc_TypeError, "Invalid scale factor, must be numeric");
+    }
+
+    if (!_pg_polygon_scale_helper(&self->polygon, factor)) {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyObject *
 pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
                          Py_ssize_t nargs)
@@ -1231,6 +1298,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
      NULL},
     {"remove_vertex", (PyCFunction)pg_polygon_remove_vertex, METH_O, NULL},
     {"pop_vertex", (PyCFunction)pg_polygon_pop_vertex, METH_O, NULL},
+    {"scale", (PyCFunction)pg_polygon_scale, METH_O, NULL},
+    {"scale_ip", (PyCFunction)pg_polygon_scale_ip, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 static PyObject *
