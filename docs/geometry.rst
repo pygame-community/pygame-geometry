@@ -136,6 +136,10 @@ other objects.
 
     at: Returns the point at the given position along the line based on a factor.
 
+    as_segments: returns the line as a list of segments.
+
+    as_points: returns the line as a list of points.
+
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Polygon
