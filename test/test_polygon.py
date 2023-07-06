@@ -1708,7 +1708,7 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertTrue(p1.is_convex())
         self.assertFalse(p2.is_convex())
 
-        def test_collidecircle_argtype(self):
+    def test_collidecircle_argtype(self):
         """Tests if the function correctly handles incorrect types as parameters"""
 
         invalid_types = (
@@ -2015,6 +2015,7 @@ class PolygonTypeTest(unittest.TestCase):
         for arg in invalid_args:
             with self.assertRaises(TypeError):
                 poly.scale(*arg)
+
     def test_collideline_argtype(self):
         """Tests if the function correctly handles incorrect types as parameters"""
 
