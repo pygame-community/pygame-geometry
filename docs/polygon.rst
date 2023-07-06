@@ -157,6 +157,29 @@ Polygon Methods
 
       .. ## Polygon.collidepoint ##
 
+    .. method:: collidecircle
+
+        | :sl:`tests if a circle is inside the polygon`
+        | :sg:`collidecircle(Circle, only_edges=False) -> bool`
+        | :sg:`collidecircle((x, y), radius, only_edges=False) -> bool`
+        | :sg:`collidecircle(x, y, radius, only_edges=False) -> bool`
+
+        Tests whether a given `Circle` collides with the `Polygon`.
+        It takes either a `Circle` or Circle-like object as an argument and it returns
+        `True` if the circle collides with the `Polygon`, `False` otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Circle`. This means that a Polygon that is
+        completely inscribed in, or circumscribed by the `Circle` will not be considered colliding.
+        This can be useful for performance reasons if you only care about the edges of the
+        polygon.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the collision.
+
+      .. ## Polygon.collidecircle ##
+
     .. method:: as_segments
 
         | :sl:`returns the line segments of the polygon`
@@ -183,10 +206,11 @@ Polygon Methods
     .. method:: rotate
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate(angle) -> Polygon`
+        | :sg:`rotate(angle, rotation_point) -> Polygon`
 
         Returns a new Polygon that is rotated by the given angle (in degrees). The original
-        Polygon is not modified. The rotation is done around the center of the `Polygon`.
+        Polygon is not modified. The rotation is done around the center of the `Polygon` by
+        default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while
@@ -201,11 +225,11 @@ Polygon Methods
     .. method:: rotate_ip
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate_ip(angle) -> None`
+        | :sg:`rotate_ip(angle, rotation_point) -> None`
 
         Rotates the Polygon by the given angle (in degrees). The original Polygon
         is modified. Always returns None. The rotation is done around the center of the
-        `Polygon`.
+        `Polygon` by default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while
