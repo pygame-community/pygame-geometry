@@ -54,6 +54,8 @@ performing transformations and checking for collisions with other objects.
 
     colliderect: Checks if the circle collides with the given rectangle.
 
+    collidepolygon: Checks if the circle collides with the given polygon.
+
     collideswith: Checks if the circle collides with the given object.
 
     contains: Checks if the circle fully contains the given object.
@@ -138,6 +140,10 @@ other objects.
 
     at: Returns the point at the given position along the line based on a factor.
 
+    as_segments: returns the line as a list of segments.
+
+    as_points: returns the line as a list of points.
+
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Polygon
@@ -172,6 +178,8 @@ other objects.
 
     collideline: Checks if the polygon collides with the given line.
 
+    collidecircle: Checks if the polygon collides with the given circle.
+
     insert_vertex: Adds a vertex to the polygon.
 
     remove_vertex: Removes a vertex from the polygon.
@@ -179,6 +187,10 @@ other objects.
     pop_vertex: Removes and returns a vertex from the polygon.
 
     is_convex: Checks if the polygon is convex.
+
+    scale: Scales the polygon by the given amount.
+
+    scale_ip: Scales the polygon by the given amount in place.
 
     get_bounding_box: Returns the smallest rectangle that contains the polygon.
 

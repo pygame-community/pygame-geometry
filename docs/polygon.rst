@@ -171,6 +171,24 @@ Polygon Methods
         The optional `only_edges` argument can be set to `True` to only test whether the
         edges of the polygon intersect the `Line`. This means that a Line that is
         inscribed by the `Polygon` or completely outside of it will not be considered colliding.
+        
+      .. ## Polygon.collideline ##  
+
+    .. method:: collidecircle
+
+        | :sl:`tests if a circle is inside the polygon`
+        | :sg:`collidecircle(Circle, only_edges=False) -> bool`
+        | :sg:`collidecircle((x, y), radius, only_edges=False) -> bool`
+        | :sg:`collidecircle(x, y, radius, only_edges=False) -> bool`
+
+        Tests whether a given `Circle` collides with the `Polygon`.
+        It takes either a `Circle` or Circle-like object as an argument and it returns
+        `True` if the circle collides with the `Polygon`, `False` otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Circle`. This means that a Polygon that is
+        completely inscribed in, or circumscribed by the `Circle` will not be considered colliding.
+
         This can be useful for performance reasons if you only care about the edges of the
         polygon.
 
@@ -178,7 +196,7 @@ Polygon Methods
             Keep in mind that the more vertices the polygon has, the more CPU time it will
             take to calculate the collision.
 
-      .. ## Polygon.collideline ##
+      .. ## Polygon.collidecircle ##
 
     .. method:: as_segments
 
@@ -206,10 +224,11 @@ Polygon Methods
     .. method:: rotate
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate(angle) -> Polygon`
+        | :sg:`rotate(angle, rotation_point) -> Polygon`
 
         Returns a new Polygon that is rotated by the given angle (in degrees). The original
-        Polygon is not modified. The rotation is done around the center of the `Polygon`.
+        Polygon is not modified. The rotation is done around the center of the `Polygon` by
+        default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while
@@ -224,11 +243,11 @@ Polygon Methods
     .. method:: rotate_ip
 
         | :sl:`rotates the polygon by a given angle`
-        | :sg:`rotate_ip(angle) -> None`
+        | :sg:`rotate_ip(angle, rotation_point) -> None`
 
         Rotates the Polygon by the given angle (in degrees). The original Polygon
         is modified. Always returns None. The rotation is done around the center of the
-        `Polygon`.
+        `Polygon` by default but can be changed by passing a different rotation point.
 
         .. note::
             Rotating the polygon by positive angles will rotate it clockwise, while
@@ -343,3 +362,53 @@ Polygon Methods
             take to calculate the bounding box.
 
       .. ## Polygon.get_bounding_box ##
+
+    .. method:: scale
+
+        | :sl:`scales the polygon by a given factor`
+        | :sg:`scale(factor) -> Polygon`
+
+        Returns a new Polygon that is scaled by the given factor. The original Polygon is
+        not modified. The scaling is done relative to the center of the `Polygon`.
+
+        .. note::
+            Using a `factor` greater than 1 will enlarge the `Polygon`.
+            Using a `factor` less than 1 will shrink the `Polygon`.
+
+        .. warning::
+            Scaling a `Polygon` by a factor very close to 0 could make it disappear.
+            This is because the vertices of the `Polygon` will be so close to each other
+            that they will be considered to be in the same point. This is a limitation of
+            the algorithm used to calculate the collisions and a general limitation of
+            the floating point numbers used in computers.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to scale it.
+
+      .. ## Polygon.scale ##
+
+    .. method:: scale_ip
+
+        | :sl:`scales the polygon by a given factor`
+        | :sg:`scale_ip(factor) -> None`
+
+        Scales the Polygon from its center by the given factor. The original Polygon is modified.
+        Always returns None.
+
+        .. note::
+            Using a `factor` greater than 1 will enlarge the `Polygon`.
+            Using a `factor` less than 1 will shrink the `Polygon`.
+
+        .. warning::
+            Repeatedly scaling a `Polygon` by a factor less than 1 will eventually make it
+            disappear. This is because the vertices of the `Polygon` will be so close to
+            each other that they will be considered to be in the same point. This is a
+            limitation of the algorithm used to calculate the collisions and a general
+            limitation of the floating point numbers used in computers.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to scale it.
+
+      .. ## Polygon.scale_ip ##

@@ -4,7 +4,7 @@ import random
 from pygame import Vector2, Vector3, Rect
 
 import geometry
-from geometry import Polygon, Line, Circle, regular_polygon
+from geometry import Polygon, Circle, Line, regular_polygon
 
 import math
 
@@ -15,16 +15,20 @@ p4 = (332.0, 64.0)
 _some_vertices = [(10.0, 10.0), (20.0, 20.0), (30.0, 10.0)]
 
 
-def _rotate_vertices(poly: Polygon, angle: float):
+def _rotate_vertices(poly: Polygon, angle: float, center=None):
     """Rotates the vertices of a polygon by the given angle."""
     angle = math.radians(angle)
     rotated_vertices = []
 
     cos_a = math.cos(angle) - 1
     sin_a = math.sin(angle)
+
+    cx = poly.c_x if center is None else center[0]
+    cy = poly.c_y if center is None else center[1]
+
     for vertex in poly.vertices:
-        dx = vertex[0] - poly.c_x
-        dy = vertex[1] - poly.c_y
+        dx = vertex[0] - cx
+        dy = vertex[1] - cy
         rotated_vertices.append(
             (
                 vertex[0] + dx * cos_a - dy * sin_a,
@@ -58,6 +62,20 @@ def _calculate_center(poly: Polygon):
         x += vertex[0]
         y += vertex[1]
     return x / poly.verts_num, y / poly.verts_num
+
+
+def _scale_polygon(vertices, num_verts, cx, cy, fac):
+    one_m_fac = 1 - fac
+    omf_cx = one_m_fac * cx
+    omf_cy = one_m_fac * cy
+
+    new_vertices = []
+
+    for i in range(num_verts):
+        x, y = vertices[i]
+        new_vertices.append((x * fac + omf_cx, y * fac + omf_cy))
+
+    return new_vertices
 
 
 class PolygonTypeTest(unittest.TestCase):
@@ -882,13 +900,25 @@ class PolygonTypeTest(unittest.TestCase):
             -23.31545,
         ]
 
+        rot_centers = [
+            gen_poly.center,
+            (0, 0),
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, 0),
+            (-1, -1),
+        ] + vertices
+
         for angle in angles:
-            poly = gen_poly.copy()
-            rotated_vertices = _rotate_vertices(poly, angle)
-            p2 = poly.rotate(angle)
-            for v1, v2 in zip(p2.vertices, rotated_vertices):
-                self.assertAlmostEqual(v1[0], v2[0])
-                self.assertAlmostEqual(v1[1], v2[1])
+            for c in rot_centers:
+                poly = gen_poly.copy()
+                rotated_vertices = _rotate_vertices(poly, angle, c)
+                p2 = poly.rotate(angle, c)
+                for v1, v2 in zip(p2.vertices, rotated_vertices):
+                    self.assertAlmostEqual(v1[0], v2[0])
+                    self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_invalid_args(self):
         """Tests whether the function can handle invalid parameter types correctly."""
@@ -908,11 +938,15 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.rotate(value)
 
+        for value in [t for t in invalid_types if not isinstance(t, Vector2)]:
+            with self.assertRaises(TypeError):
+                poly.rotate(2, value)
+
     def test_rotate_argnum(self):
         """Tests whether the function can handle invalid parameter number correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        invalid_args = [(1, 1), (1, 1, 1, 1)]
+        invalid_args = [(1, (1, 1), (1, 1)), (1, (1, 1), (1, 1), (1, 1))]
 
         for arg in invalid_args:
             with self.assertRaises(TypeError):
@@ -956,13 +990,25 @@ class PolygonTypeTest(unittest.TestCase):
             -23.31545,
         ]
 
+        rot_centers = [
+            gen_poly.center,
+            (0, 0),
+            (1, 1),
+            (0, 1),
+            (1, 0),
+            (0, -1),
+            (-1, 0),
+            (-1, -1),
+        ] + vertices
+
         for angle in angles:
-            poly = gen_poly.copy()
-            rotated_vertices = _rotate_vertices(poly, angle)
-            poly.rotate_ip(angle)
-            for v1, v2 in zip(poly.vertices, rotated_vertices):
-                self.assertAlmostEqual(v1[0], v2[0])
-                self.assertAlmostEqual(v1[1], v2[1])
+            for c in rot_centers:
+                poly = gen_poly.copy()
+                rotated_vertices = _rotate_vertices(poly, angle, c)
+                poly.rotate_ip(angle, c)
+                for v1, v2 in zip(poly.vertices, rotated_vertices):
+                    self.assertAlmostEqual(v1[0], v2[0])
+                    self.assertAlmostEqual(v1[1], v2[1])
 
     def test_rotate_ip_conjugate(self):
         vertices = _some_vertices.copy()
@@ -1020,6 +1066,10 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.rotate_ip(value)
 
+        for value in [t for t in invalid_types if not isinstance(t, Vector2)]:
+            with self.assertRaises(TypeError):
+                poly.rotate_ip(2, value)
+
     def test_collidepoint(self):
         """Tests whether the collidepoint method works correctly."""
         poly = Polygon(_some_vertices.copy())
@@ -1067,7 +1117,7 @@ class PolygonTypeTest(unittest.TestCase):
         """Tests whether the function can handle invalid parameter number correctly."""
         poly = Polygon(_some_vertices.copy())
 
-        invalid_args = [(1, 1), (1, 1, 1, 1)]
+        invalid_args = [(1, (1, 1), (1, 1)), (1, (1, 1), (1, 1), (1, 1))]
 
         with self.assertRaises(TypeError):
             poly.rotate_ip()
@@ -1105,6 +1155,16 @@ class PolygonTypeTest(unittest.TestCase):
         center_y = poly.c_y
 
         new_poly = poly.rotate(0)
+
+        self.assertEqual(new_poly.vertices, poly.vertices)
+        self.assertEqual(new_poly.c_x, poly.c_x)
+        self.assertEqual(new_poly.c_y, poly.c_y)
+
+        self.assertEqual(new_poly.vertices, vertices)
+        self.assertEqual(new_poly.c_x, center_x)
+        self.assertEqual(new_poly.c_y, center_y)
+
+        new_poly = poly.rotate(0, poly.center)
 
         self.assertEqual(new_poly.vertices, poly.vertices)
         self.assertEqual(new_poly.c_x, poly.c_x)
@@ -1648,6 +1708,313 @@ class PolygonTypeTest(unittest.TestCase):
         self.assertTrue(p1.is_convex())
         self.assertFalse(p2.is_convex())
 
+        def test_collidecircle_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            Polygon((0, 0), (0, 1), (1, 1), (1, 0)),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector2(10, 10),
+        )
+
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                p.collidecircle(value)
+            with self.assertRaises(TypeError):
+                p.collidecircle(value, True)
+            with self.assertRaises(TypeError):
+                p.collidecircle(value, False)
+
+    def test_collidecircle_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        circle = Circle(10, 10, 4)
+        invalid_args = [
+            (circle, circle),
+            (circle, circle, circle),
+            (circle, circle, circle, circle),
+            (circle, circle, circle, circle, circle),
+        ]
+
+        with self.assertRaises(TypeError):
+            p.collidecircle()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                p.collidecircle(*arg)
+            with self.assertRaises(TypeError):
+                p.collidecircle(*arg, True)
+            with self.assertRaises(TypeError):
+                p.collidecircle(*arg, False)
+
+    def test_collidecircle_return_type(self):
+        """Tests if the function returns the correct type"""
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        circle_val = [10, 10, 4]
+
+        items = [
+            Circle(circle_val),
+            circle_val,
+            tuple(circle_val),
+        ]
+
+        for item in items:
+            self.assertIsInstance(p.collidecircle(item), bool)
+            self.assertIsInstance(p.collidecircle(item, True), bool)
+            self.assertIsInstance(p.collidecircle(item, False), bool)
+
+        self.assertIsInstance(p.collidecircle(*circle_val), bool)
+        self.assertIsInstance(p.collidecircle(*circle_val, True), bool)
+        self.assertIsInstance(p.collidecircle(*circle_val, False), bool)
+
+    def test_collidecircle(self):
+        """Ensures that the collidecircle method correctly determines if a polygon
+        is colliding with the circle"""
+        epsilon = 0.00000000000001
+
+        c = Circle(0, 0, 15)
+
+        p1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+        p2 = Polygon([(100, 150), (200, 225), (150, 200)])
+        p3 = Polygon([(0, 0), (50, 50), (50, -50), (0, -50)])
+        p4 = regular_polygon(4, c.center, 100)
+        p5 = regular_polygon(3, (c.x + c.r - 5, c.y), 5)
+        p6 = regular_polygon(3, (c.x + c.r - 5, c.y), 5 - epsilon)
+
+        # circle contains polygon
+        self.assertTrue(p1.collidecircle(c))
+        self.assertTrue(p1.collidecircle(c), False)
+
+        # non colliding
+        self.assertFalse(p2.collidecircle(c))
+        self.assertFalse(p2.collidecircle(c), False)
+
+        # intersecting polygon
+        self.assertTrue(p3.collidecircle(c))
+        self.assertTrue(p3.collidecircle(c), False)
+
+        # polygon contains circle
+        self.assertTrue(p4.collidecircle(c))
+        self.assertTrue(p4.collidecircle(c), False)
+
+        # circle contains polygon, barely touching
+        self.assertTrue(p5.collidecircle(c))
+        self.assertTrue(p5.collidecircle(c), False)
+
+        # circle contains polygon, barely not touching
+        self.assertTrue(p6.collidecircle(c))
+        self.assertTrue(p6.collidecircle(c), False)
+
+        # --- Edge only ---
+
+        # circle contains polygon
+        self.assertFalse(p1.collidecircle(c, True))
+
+        # non colliding
+        self.assertFalse(p2.collidecircle(c, True))
+
+        # intersecting polygon
+        self.assertTrue(p3.collidecircle(c, True))
+
+        # polygon contains circle
+        self.assertFalse(p4.collidecircle(c, True))
+
+        # circle contains polygon, barely touching
+        self.assertTrue(p5.collidecircle(c, True))
+
+        # circle contains polygon, barely not touching
+        self.assertFalse(p6.collidecircle(c, True))
+
+    def test_collidepolygon_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collidecircle(c, value)
+
+    def test_collidecircle_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        c = Circle(10, 10, 4)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        c_copy = c.copy()
+        poly_copy = poly.copy()
+
+        poly.collidecircle(c)
+
+        self.assertEqual(c.x, c_copy.x)
+        self.assertEqual(c.y, c_copy.y)
+        self.assertEqual(c.r, c_copy.r)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
+
+    def test_scale_ip(self):
+        """Tests whether the scale_ip method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10, 100, 1000, 0.12, 0.001, 0.000000001]
+
+        for scale in scales:
+            newpoly = poly.copy()
+            data = (
+                newpoly.center,
+                newpoly.verts_num,
+                _scale_polygon(
+                    _some_vertices.copy(), 3, newpoly.c_x, newpoly.c_y, scale
+                ),
+            )
+            newpoly.scale_ip(scale)
+            self.assertEqual(data[0], newpoly.center)
+            self.assertEqual(data[1], newpoly.verts_num)
+            self.assertEqual(data[2], newpoly.vertices)
+
+    def test_scale_ip_inplace(self):
+        """Ensures that scaling the polygon by 1.0 will not change its position."""
+        poly = Polygon(_some_vertices.copy())
+        vertices = _some_vertices.copy()
+        center_x = poly.c_x
+        center_y = poly.c_y
+
+        poly.scale_ip(1.0)
+
+        vertices = [tuple(vertex) for vertex in vertices]
+        self.assertEqual(poly.vertices, vertices)
+        self.assertEqual(poly.c_x, center_x)
+        self.assertEqual(poly.c_y, center_y)
+
+    def test_scale_ip_return_type(self):
+        """Tests whether the scale_ip method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertEqual(type(poly.scale_ip(1.32)), type(None))
+
+    def test_scale_ip_invalid_args(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.scale_ip(value)
+
+    def test_scale_ip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.scale_ip(*arg)
+
+    def test_scale(self):
+        """Tests whether the scale method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10, 100, 1000, 0.12, 0.001, 0.000000001]
+
+        for scale in scales:
+            new_poly = poly.copy()
+            data = (
+                new_poly.center,
+                new_poly.verts_num,
+                _scale_polygon(
+                    _some_vertices.copy(), 3, new_poly.c_x, new_poly.c_y, scale
+                ),
+            )
+            new_poly = poly.scale(scale)
+            self.assertEqual(data[0], new_poly.center)
+            self.assertEqual(data[1], new_poly.verts_num)
+            self.assertEqual(data[2], new_poly.vertices)
+
+    def test_scale_return_type(self):
+        """Tests whether the scale method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        scales = [0.5, 1.0, 2.0, 0.1, 10]
+
+        for scale_val in scales:
+            self.assertIsInstance(poly.scale(scale_val), Polygon)
+
+        class TestPolygon(Polygon):
+            pass
+
+        poly2 = TestPolygon(_some_vertices.copy())
+
+        for scale_val in scales:
+            self.assertIsInstance(poly2.scale(scale_val), TestPolygon)
+
+    def test_scale_invalid_args(self):
+        """tests if the function correctly handles incorrect types as parameters"""
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            Vector3(1, 1, 3),
+            Polygon(_some_vertices.copy()),
+        )
+
+        poly = Polygon(_some_vertices.copy())
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.scale(value)
+
+    def test_scale_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 1), (1, 1, 1, 1)]
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.scale(*arg)
     def test_collideline_argtype(self):
         """Tests if the function correctly handles incorrect types as parameters"""
 

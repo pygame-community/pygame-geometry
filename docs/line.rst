@@ -397,3 +397,38 @@ Line Methods
         Returns a new `Line` having the same position and radius as the original.
 
       .. ## Line.copy ##
+
+    .. method:: as_segments
+
+        | :sl:`returns the line as a list of segments`
+        | :sg:`as_segments(n_segments) -> [(x, y), (x, y)]`
+
+        Segments the original line into N Lines of equal length and returns a list of
+        them. The number of segments is determined by the `n_segments` parameter.
+
+        .. note::
+            The original line is not modified. The returned list of lines will always
+            have the first line's `a` point at the same position as the original line's `a`
+            point and the last line's `b` point at the same position as the original line's
+            `b` point.
+
+
+      .. ## Line.as_segments ##
+
+    .. method:: as_points
+
+        | :sl:`returns the line as a list of points`
+        | :sg:`as_points(n_points) -> [(x, y), (x, y)]`
+
+        Returns a list of points that represent the line. The first point in the list
+        will be the line's `a` point and the last point will be the line's `b` point.
+        The number of points is determined by the `n_points` parameter.
+
+        .. note::
+            The n_points parameter refers to the number of points that will created in
+            between the line's `a` and `b` points. The number of points returned will
+            always be n_points + 2. Because of this the n_points parameter must be at
+            least 0.
+
+
+      .. ## Line.as_points ##

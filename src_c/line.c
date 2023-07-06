@@ -493,6 +493,129 @@ pg_line_flip_ip(pgLineObject *self, PyObject *_null)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+pg_line_as_points(pgLineObject *self, PyObject *arg)
+{
+    int N = 0;
+    if (!pg_IntFromObj(arg, &N)) {
+        return RAISE(PyExc_TypeError, "as_points requires an integer");
+    }
+    if (N < 0) {
+        return RAISE(PyExc_ValueError, "as_points requires a positive integer");
+    }
+
+    PyObject *point = NULL;
+    PyObject *list = PyList_New(2 + N);
+    if (!list) {
+        return NULL;
+    }
+
+    pgLineBase *line = &self->line;
+
+    // Add the start and end points to the list
+    point = pg_TupleFromDoublePair(line->x1, line->y1);
+    if (!point) {
+        Py_DECREF(list);
+        return NULL;
+    }
+    PyList_SET_ITEM(list, 0, point);
+    point = pg_TupleFromDoublePair(line->x2, line->y2);
+    if (!point) {
+        Py_DECREF(list);
+        return NULL;
+    }
+    PyList_SET_ITEM(list, N + 1, point);
+
+    if (!N) {
+        return list;
+    }
+    else if (N == 1) {
+        point = pg_TupleFromDoublePair((line->x1 + line->x2) / 2,
+                                       (line->y1 + line->y2) / 2);
+        if (!point) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, 1, point);
+        return list;
+    }
+
+    double step_x = (line->x2 - line->x1) / (N + 1);
+    double step_y = (line->y2 - line->y1) / (N + 1);
+    double x = line->x1 + step_x;
+    double y = line->y1 + step_y;
+
+    Py_ssize_t i;
+    for (i = 1; i < N + 1; i++) {
+        point = pg_TupleFromDoublePair(x, y);
+        if (!point) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i, point);
+        x += step_x;
+        y += step_y;
+    }
+
+    return list;
+}
+
+static PyObject *
+pg_line_as_segments(pgLineObject *self, PyObject *arg)
+{
+    /* Segments the line into N Lines of equal length and returns a list of
+     * them. */
+
+    int N = 1;
+    if (!pg_IntFromObj(arg, &N)) {
+        return RAISE(PyExc_TypeError,
+                     "as_segments requires an integer");
+    }
+    if (N < 1) {
+        return RAISE(PyExc_ValueError,
+                     "as_segments requires a positive integer");
+    }
+
+    PyObject *line_obj = NULL;
+    PyObject *list = PyList_New(N);
+    if (!list) {
+        return NULL;
+    }
+
+    if (N == 1) {
+        line_obj = pg_line_copy(self, NULL);
+        if (!line_obj) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, 0, line_obj);
+        return list;
+    }
+
+    pgLineBase *line = &self->line;
+
+    double step_x = (line->x2 - line->x1) / N;
+    double step_y = (line->y2 - line->y1) / N;
+    double x1 = line->x1, y1 = line->y1;
+    double x2 = x1 + step_x, y2 = y1 + step_y;
+
+    Py_ssize_t i;
+    for (i = 0; i < N; i++) {
+        line_obj = _pg_line_subtype_new4(Py_TYPE(self), x1, y1, x2, y2);
+        if (!line_obj) {
+            Py_DECREF(list);
+            return NULL;
+        }
+        PyList_SET_ITEM(list, i, line_obj);
+        x1 = x2;
+        y1 = y2;
+        x2 += step_x;
+        y2 += step_y;
+    }
+
+    return list;
+}
+
 static PG_FORCE_INLINE double
 _lerp_helper(float start, float end, float amount) {
     return start + (end - start) * amount;
@@ -633,6 +756,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
     {"flip", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
     {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_NOARGS, NULL},
+    {"as_points", (PyCFunction)pg_line_as_points, METH_O, NULL},
+    {"as_segments", (PyCFunction)pg_line_as_segments, METH_O, NULL},
     {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
     {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
     {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
