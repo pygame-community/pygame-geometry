@@ -557,6 +557,20 @@ class LineTypeTest(unittest.TestCase):
         self.assertTrue(c.collideswith(p), E_T + "point should collide here")
         self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
+        # polygon
+        l4 = Line(0, 0, 10, 10)
+        po1 = regular_polygon(4, l4.midpoint, 100)
+        po2 = Polygon((100, 100), (150, 150), (150, 100))
+        po3 = regular_polygon(4, l4.a, 10)
+        po4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))
+        po5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
+
+        self.assertTrue(l4.collideswith(po1))
+        self.assertFalse(l4.collideswith(po2))
+        self.assertTrue(l4.collideswith(po3))
+        self.assertTrue(l4.collideswith(po4))
+        self.assertTrue(l4.collideswith(po5))
+
     def test_meth_copy(self):
         line = Line(1, 2, 3, 4)
         # check 1 arg passed
@@ -1218,7 +1232,7 @@ class LineTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 l.collidepolygon(poly, value)
 
-    def test_collideline(self):
+    def test_collidepolygon(self):
         """Ensures that the collidepolygon method correctly determines if a Polygon
         is colliding with the Line"""
 
@@ -1230,36 +1244,36 @@ class LineTypeTest(unittest.TestCase):
         p5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
 
         # line inside polygon
-        self.assertTrue(p1.collideline(l))
+        self.assertTrue(l.collidepolygon(p1))
 
         # line outside polygon
-        self.assertFalse(p2.collideline(l))
+        self.assertFalse(l.collidepolygon(p2))
 
         # line intersects polygon edge
-        self.assertTrue(p3.collideline(l))
+        self.assertTrue(l.collidepolygon(p3))
 
         # line intersects polygon vertex
-        self.assertTrue(p4.collideline(l))
+        self.assertTrue(l.collidepolygon(p4))
 
         # line touches polygon vertex
-        self.assertTrue(p5.collideline(l))
+        self.assertTrue(l.collidepolygon(p5))
 
         # --- Edge only ---
 
         # line inside polygon
-        self.assertFalse(p1.collideline(l, True))
+        self.assertFalse(l.collidepolygon(p1, True))
 
         # line outside polygon
-        self.assertFalse(p2.collideline(l, True))
+        self.assertFalse(l.collidepolygon(p2, True))
 
         # line intersects polygon edge
-        self.assertTrue(p3.collideline(l, True))
+        self.assertTrue(l.collidepolygon(p3, True))
 
         # line intersects polygon vertex
-        self.assertTrue(p4.collideline(l, True))
+        self.assertTrue(l.collidepolygon(p4, True))
 
         # line touches polygon vertex
-        self.assertTrue(p5.collideline(l, True))
+        self.assertTrue(l.collidepolygon(p5, True))
 
     def test_meth_as_points(self):
         """Test the as_points method."""

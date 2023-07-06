@@ -272,6 +272,7 @@ Circle Methods
         | :sg:`collideswith(Line) -> bool`
         | :sg:`collideswith(Circle) -> bool`
         | :sg:`collideswith(Rect) -> bool`
+        | :sg:`collideswith(Polygon) -> bool`
         | :sg:`collideswith((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 

@@ -406,6 +406,10 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
     else if (pgCircle_Check(arg)) {
         result = pgCollision_LineCircle(&self->line, &pgCircle_AsCircle(arg));
     }
+    else if (pgPolygon_Check(arg)) {
+        result =
+            pgCollision_PolygonLine(&pgPolygon_AsPolygon(arg), &self->line, 0);
+    }
     else if (PySequence_Check(arg)) {
         double x, y;
         if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
@@ -418,7 +422,7 @@ pg_line_collideswith(pgLineObject *self, PyObject *arg)
     else {
         return RAISE(PyExc_TypeError,
                      "Invalid shape argument, must be a CircleType, RectType, "
-                     "LineType or a sequence of 2 numbers");
+                     "LineType, PolygonType or a sequence of 2 numbers");
     }
 
     return PyBool_FromLong(result);
@@ -501,7 +505,8 @@ pg_line_as_points(pgLineObject *self, PyObject *arg)
         return RAISE(PyExc_TypeError, "as_points requires an integer");
     }
     if (N < 0) {
-        return RAISE(PyExc_ValueError, "as_points requires a positive integer");
+        return RAISE(PyExc_ValueError,
+                     "as_points requires a positive integer");
     }
 
     PyObject *point = NULL;
@@ -568,8 +573,7 @@ pg_line_as_segments(pgLineObject *self, PyObject *arg)
 
     int N = 1;
     if (!pg_IntFromObj(arg, &N)) {
-        return RAISE(PyExc_TypeError,
-                     "as_segments requires an integer");
+        return RAISE(PyExc_TypeError, "as_segments requires an integer");
     }
     if (N < 1) {
         return RAISE(PyExc_ValueError,
@@ -617,17 +621,20 @@ pg_line_as_segments(pgLineObject *self, PyObject *arg)
 }
 
 static PG_FORCE_INLINE double
-_lerp_helper(float start, float end, float amount) {
+_lerp_helper(float start, float end, float amount)
+{
     return start + (end - start) * amount;
 }
 
 static int
-_line_scale_helper(pgLineBase *line, double factor, double origin) {
+_line_scale_helper(pgLineBase *line, double factor, double origin)
+{
     if (factor == 1.0) {
         return 1;
     }
     else if (factor <= 0.0) {
-        PyErr_SetString(PyExc_ValueError, "Can only scale by a positive non zero number");
+        PyErr_SetString(PyExc_ValueError,
+                        "Can only scale by a positive non zero number");
         return 0;
     }
 
@@ -649,7 +656,7 @@ _line_scale_helper(pgLineBase *line, double factor, double origin) {
     double fac_m_one = factor - 1;
     double dx = _lerp_helper(fac_m_one * x1, fac_m_one * x2, origin);
     double dy = _lerp_helper(fac_m_one * y1, fac_m_one * y2, origin);
-    
+
     line->x1 = x1_factor - dx;
     line->y1 = y1_factor - dy;
     line->x2 = x2_factor - dx;
@@ -659,7 +666,8 @@ _line_scale_helper(pgLineBase *line, double factor, double origin) {
 }
 
 static PyObject *
-pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
+pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
     double factor, origin;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {
@@ -680,7 +688,8 @@ pg_line_scale(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
 }
 
 static PyObject *
-pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
+pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
     double factor, origin;
 
     if (!pg_TwoDoublesFromFastcallArgs(args, nargs, &factor, &origin)) {

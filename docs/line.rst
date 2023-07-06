@@ -350,13 +350,14 @@ Line Methods
         | :sg:`collideswith(Line) -> bool`
         | :sg:`collideswith(Circle) -> bool`
         | :sg:`collideswith(Rect) -> bool`
+        | :sg:`collideswith(Polygon) -> bool`
         | :sg:`collideswith((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
         Returns `True` if any portion of the shape or point overlaps with the Line,
         `False` otherwise. This is a general alternative to the collision problem as it can
         be used to test for collisions with any shape or point. The shape can be a
-        Line, Circle, or Rect. The point can be a tuple or list containing the x and y
+        `Line`, `Circle`, `Polygon`, or `Rect`. The point can be a tuple or list containing the x and y
         coordinates of the point or a Vector2.
 
         .. note::

@@ -699,6 +699,14 @@ class CircleTypeTest(unittest.TestCase):
         self.assertTrue(c.collideswith(p), E_T + "point should collide here")
         self.assertFalse(c.collideswith(p2), E_F + "point should not collide here")
 
+        #polygon
+        c4 = Circle(0, 0, 15)
+        po1 = Polygon([(-5, 0), (5, 0), (0, 5)])
+        po2 = Polygon([(100, 150), (200, 225), (150, 200)])
+
+        self.assertTrue(c.collideswith(po1), E_T + "polygon should collide here")
+        self.assertFalse(c.collideswith(po2), E_F + "polygon should not collide here")
+
     def test_as_rect_invalid_args(self):
         c = Circle(0, 0, 10)
 
