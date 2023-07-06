@@ -764,15 +764,15 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures that updating the circle to its position doesn't
         move the circle to another position"""
         c = Circle(0, 0, 10)
-        c_x = c.x
-        c_y = c.y
+        centerx = c.x
+        centery = c.y
         c_r = c.r
         c_r_sqr = c.r_sqr
 
         c.update(0, 0, 10)
 
-        self.assertEqual(c.x, c_x)
-        self.assertEqual(c.y, c_y)
+        self.assertEqual(c.x, centerx)
+        self.assertEqual(c.y, centery)
         self.assertEqual(c.r, c_r)
         self.assertEqual(c.r_sqr, c_r_sqr)
 
@@ -782,15 +782,15 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures that updating the circle to its position doesn't
         move the circle to another position"""
         c = Circle(0, 0, 10)
-        c_x = c.x
-        c_y = c.y
+        centerx = c.x
+        centery = c.y
         c_r = c.r
         c_r_sqr = c.r_sqr
 
         c.update(c)
 
-        self.assertEqual(c.x, c_x)
-        self.assertEqual(c.y, c_y)
+        self.assertEqual(c.x, centerx)
+        self.assertEqual(c.y, centery)
         self.assertEqual(c.r, c_r)
         self.assertEqual(c.r_sqr, c_r_sqr)
 
@@ -1175,8 +1175,8 @@ class CircleTypeTest(unittest.TestCase):
 
         self.assertEqual(poly.vertices, poly_copy.vertices)
         self.assertEqual(poly.verts_num, poly_copy.verts_num)
-        self.assertEqual(poly.c_x, poly_copy.c_x)
-        self.assertEqual(poly.c_y, poly_copy.c_y)
+        self.assertEqual(poly.centerx, poly_copy.centerx)
+        self.assertEqual(poly.centery, poly_copy.centery)
 
 
 if __name__ == "__main__":

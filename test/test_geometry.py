@@ -190,8 +190,8 @@ class TestGeometry(unittest.TestCase):
         self.assertTrue(is_polygon(p))
         self.assertEqual(verts, p.vertices)
         self.assertEqual(verts_num, p.verts_num)
-        self.assertEqual(cx, p.c_x)
-        self.assertEqual(cy, p.c_y)
+        self.assertEqual(cx, p.centerx)
+        self.assertEqual(cy, p.centery)
         # =================================================
 
 

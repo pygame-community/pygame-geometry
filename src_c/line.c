@@ -1236,21 +1236,21 @@ pg_line_getsafepickle(pgLineObject *self, void *closure)
 }
 
 static PyObject *
-pg_line_get_midpoint(pgLineObject *self, void *closure)
+pg_line_get_center(pgLineObject *self, void *closure)
 {
     return pg_TupleFromDoublePair((self->line.x1 + self->line.x2) / 2,
                                   (self->line.y1 + self->line.y2) / 2);
 }
 
 static int
-pg_line_set_midpoint(pgLineObject *self, PyObject *value, void *closure)
+pg_line_set_center(pgLineObject *self, PyObject *value, void *closure)
 {
     double m_x, m_y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_TwoDoublesFromObj(value, &m_x, &m_y)) {
         PyErr_SetString(
             PyExc_TypeError,
-            "Invalid midpoint value, expected a sequence of 2 numbers");
+            "Invalid center value, expected a sequence of 2 numbers");
         return -1;
     }
 
@@ -1266,19 +1266,19 @@ pg_line_set_midpoint(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-pg_line_get_midpoint_x(pgLineObject *self, void *closure)
+pg_line_get_centerx(pgLineObject *self, void *closure)
 {
     return PyFloat_FromDouble((self->line.x1 + self->line.x2) / 2);
 }
 
 static int
-pg_line_set_midpoint_x(pgLineObject *self, PyObject *value, void *closure)
+pg_line_set_centerx(pgLineObject *self, PyObject *value, void *closure)
 {
     double m_x;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_DoubleFromObj(value, &m_x)) {
         PyErr_SetString(PyExc_TypeError,
-                        "Invalid midpoint_x value, expected a numeric value");
+                        "Invalid centerx value, expected a numeric value");
         return -1;
     }
 
@@ -1289,19 +1289,19 @@ pg_line_set_midpoint_x(pgLineObject *self, PyObject *value, void *closure)
 }
 
 static PyObject *
-pg_line_get_midpoint_y(pgLineObject *self, void *closure)
+pg_line_get_centery(pgLineObject *self, void *closure)
 {
     return PyFloat_FromDouble((self->line.y1 + self->line.y2) / 2);
 }
 
 static int
-pg_line_set_midpoint_y(pgLineObject *self, PyObject *value, void *closure)
+pg_line_set_centery(pgLineObject *self, PyObject *value, void *closure)
 {
     double m_y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (!pg_DoubleFromObj(value, &m_y)) {
         PyErr_SetString(PyExc_TypeError,
-                        "Invalid midpoint_y value, expected a numeric value");
+                        "Invalid centery value, expected a numeric value");
         return -1;
     }
 
@@ -1320,12 +1320,12 @@ static PyGetSetDef pg_line_getsets[] = {
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"length", (getter)pg_line_getlength, NULL, NULL, NULL},
     {"slope", (getter)pg_line_getslope, NULL, NULL, NULL},
-    {"midpoint", (getter)pg_line_get_midpoint, (setter)pg_line_set_midpoint,
+    {"center", (getter)pg_line_get_center, (setter)pg_line_set_center,
      NULL, NULL},
-    {"midpoint_x", (getter)pg_line_get_midpoint_x,
-     (setter)pg_line_set_midpoint_x, NULL, NULL},
-    {"midpoint_y", (getter)pg_line_get_midpoint_y,
-     (setter)pg_line_set_midpoint_y, NULL, NULL},
+    {"centerx", (getter)pg_line_get_centerx,
+     (setter)pg_line_set_centerx, NULL, NULL},
+    {"centery", (getter)pg_line_get_centery,
+     (setter)pg_line_set_centery, NULL, NULL},
     {"angle", (getter)pg_line_getangle, NULL, NULL, NULL},
     {"__safe_for_unpickling__", (getter)pg_line_getsafepickle, NULL, NULL,
      NULL},

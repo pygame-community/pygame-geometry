@@ -88,11 +88,11 @@ other objects.
 
     angle: The angle of the line.
 
-    midpoint: The midpoint of the line.
+    center: The center of the line.
 
-    midpoint_x: The x coordinate of the midpoint of the line.
+    centerx: The x coordinate of the center of the line.
 
-    midpoint_y: The y coordinate of the midpoint of the line.
+    centery: The y coordinate of the center of the line.
 
     slope: The slope of the line.
 
@@ -160,9 +160,9 @@ other objects.
 
     center: The center point of the polygon.
 
-    c_x: The x coordinate of the center of the polygon.
+    centerx: The x coordinate of the center of the polygon.
 
-    c_y: The y coordinate of the center of the polygon.
+    centery: The y coordinate of the center of the polygon.
 
     perimeter: The perimeter of the polygon.
 

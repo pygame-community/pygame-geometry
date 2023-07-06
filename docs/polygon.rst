@@ -79,18 +79,18 @@ Polygon Attributes
         move the `Polygon`. If reassigned, the `Polygon`'s vertices will be moved to
         create a `Polygon` with matching center.
 
-    .. attribute:: c_x
+    .. attribute:: centerx
         | :sl:`the x coordinate of the center of the polygon`
-        | :sg:`c_x -> float`
+        | :sg:`centerx -> float`
 
         It's the x coordinate of the center of the `Polygon`. It is calculated as the
         average of all the x coordinates of the vertices. It can be reassigned to move
         the `Polygon`. If reassigned, the polygon's vertices will be moved to
         create a `Polygon` with matching center.
 
-    .. attribute:: c_y
+    .. attribute:: centery
         | :sl:`the y coordinate of the center of the polygon`
-        | :sg:`c_y -> float`
+        | :sg:`centery -> float`
 
         It's the y coordinate of the center of the `Polygon`. It is calculated as the
         average of all the y coordinates of the vertices. It can be reassigned to move

@@ -419,91 +419,91 @@ class LineTypeTest(unittest.TestCase):
         expected_length = 5.414794548272353
         self.assertEqual(line.length, expected_length)
 
-    def test_attrib_midpoint(self):
-        """a full test for the midpoint attribute"""
+    def test_attrib_center(self):
+        """a full test for the center attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         expected_a = expected_x1, expected_y1
         expected_b = expected_x2, expected_y2
-        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+        expected_center = (expected_x1 + expected_x2) / 2, (
             expected_y1 + expected_y2
         ) / 2
         line = Line(expected_a, expected_b)
 
-        self.assertEqual(line.midpoint, expected_midpoint)
+        self.assertEqual(line.center, expected_center)
 
-        line.midpoint = expected_midpoint[0] - 1, expected_midpoint[1] + 1.321
+        line.center = expected_center[0] - 1, expected_center[1] + 1.321
 
         self.assertEqual(
-            line.midpoint, (expected_midpoint[0] - 1, expected_midpoint[1] + 1.321)
+            line.center, (expected_center[0] - 1, expected_center[1] + 1.321)
         )
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3], 1, 1.2):
             with self.assertRaises(TypeError):
-                line.midpoint = value
+                line.center = value
 
         with self.assertRaises(AttributeError):
-            del line.midpoint
+            del line.center
 
-    def test_attrib_midpoint_x(self):
-        """a full test for the midpoint_x attribute"""
+    def test_attrib_centerx(self):
+        """a full test for the centerx attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         expected_a = expected_x1, expected_y1
         expected_b = expected_x2, expected_y2
-        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+        expected_center = (expected_x1 + expected_x2) / 2, (
             expected_y1 + expected_y2
         ) / 2
         line = Line(expected_a, expected_b)
 
-        self.assertEqual(line.midpoint_x, expected_midpoint[0])
+        self.assertEqual(line.centerx, expected_center[0])
 
-        line.midpoint_x = expected_midpoint[0] - 1
+        line.centerx = expected_center[0] - 1
 
-        self.assertEqual(line.midpoint_x, expected_midpoint[0] - 1)
+        self.assertEqual(line.centerx, expected_center[0] - 1)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.midpoint_x = value
+                line.centerx = value
 
         with self.assertRaises(AttributeError):
-            del line.midpoint_x
+            del line.centerx
 
-    def test_attrib_midpoint_y(self):
-        """a full test for the midpoint_y attribute"""
+    def test_attrib_centery(self):
+        """a full test for the centery attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         expected_a = expected_x1, expected_y1
         expected_b = expected_x2, expected_y2
-        expected_midpoint = (expected_x1 + expected_x2) / 2, (
+        expected_center = (expected_x1 + expected_x2) / 2, (
             expected_y1 + expected_y2
         ) / 2
         line = Line(expected_a, expected_b)
 
-        self.assertEqual(line.midpoint_y, expected_midpoint[1])
+        self.assertEqual(line.centery, expected_center[1])
 
-        line.midpoint_y = expected_midpoint[1] - 1.321
+        line.centery = expected_center[1] - 1.321
 
-        self.assertEqual(line.midpoint_y, expected_midpoint[1] - 1.321)
+        self.assertEqual(line.centery, expected_center[1] - 1.321)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.midpoint_y = value
+                line.centery = value
 
         with self.assertRaises(AttributeError):
-            del line.midpoint_y
+            del line.centery
 
     def test_collideswith_argtype(self):
         """tests if the function correctly handles incorrect types as parameters"""
@@ -1189,8 +1189,8 @@ class LineTypeTest(unittest.TestCase):
 
         self.assertEqual(poly.vertices, poly_copy.vertices)
         self.assertEqual(poly.verts_num, poly_copy.verts_num)
-        self.assertEqual(poly.c_x, poly_copy.c_x)
-        self.assertEqual(poly.c_y, poly_copy.c_y)
+        self.assertEqual(poly.centerx, poly_copy.centerx)
+        self.assertEqual(poly.centery, poly_copy.centery)
 
     def test_collidepolygon_invalid_only_edges_param(self):
         """Tests if the function correctly handles incorrect types as only_edges parameter"""
@@ -1223,7 +1223,7 @@ class LineTypeTest(unittest.TestCase):
         is colliding with the Line"""
 
         l = Line(0, 0, 10, 10)
-        p1 = regular_polygon(4, l.midpoint, 100)
+        p1 = regular_polygon(4, l.center, 100)
         p2 = Polygon((100, 100), (150, 150), (150, 100))
         p3 = regular_polygon(4, l.a, 10)
         p4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))

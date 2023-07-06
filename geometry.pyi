@@ -54,9 +54,9 @@ class Line(Sequence[float]):
     a: Tuple[float, float]
     b: Tuple[float, float]
     length: float
-    midpoint: Tuple[float, float]
-    midpoint_x: float
-    midpoint_y: float
+    center: Tuple[float, float]
+    centerx: float
+    centery: float
     slope: float
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
@@ -205,8 +205,8 @@ class Polygon:
     vertices: List[Coordinate]
     verts_num: int
     perimeter: float
-    c_x: float
-    c_y: float
+    centerx: float
+    centery: float
     center: Tuple[float, float]
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
