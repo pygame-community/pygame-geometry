@@ -2016,6 +2016,168 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.scale(*arg)
 
+    def test_collideline_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            # Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+            Polygon((0, 0), (0, 1), (1, 1), (1, 0)),
+        )
+
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                p.collideline(value)
+            with self.assertRaises(TypeError):
+                p.collideline(value, True)
+            with self.assertRaises(TypeError):
+                p.collideline(value, False)
+
+    def test_collideline_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (l, l),
+            (l, l, l),
+            (l, l, l, l),
+        ]
+
+        with self.assertRaises(TypeError):
+            p.collideline()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                p.collideline(*arg)
+            with self.assertRaises(TypeError):
+                p.collideline(*arg, True)
+            with self.assertRaises(TypeError):
+                p.collideline(*arg, False)
+
+    def test_collideline_return_type(self):
+        """Tests if the function returns the correct type"""
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+
+        items = [
+            Line(0, 0, 1, 1),
+            [0, 0, 1, 1],
+            (0, 0, 1, 1),
+            [(0, 0), (1, 1)],
+            ((0, 0), (1, 1)),
+        ]
+
+        for item in items:
+            self.assertIsInstance(p.collideline(item), bool)
+            self.assertIsInstance(p.collideline(item, True), bool)
+            self.assertIsInstance(p.collideline(item, False), bool)
+        for item in items[1:]:
+            self.assertIsInstance(p.collideline(*item), bool)
+            self.assertIsInstance(p.collideline(*item, True), bool)
+            self.assertIsInstance(p.collideline(*item, False), bool)
+
+    def test_collideline_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        l = Line((0, 0), (1, 1))
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        l_copy = l.copy()
+        poly_copy = poly.copy()
+
+        poly.collideline(l)
+
+        self.assertEqual(l.a, l_copy.a)
+        self.assertEqual(l.b, l_copy.b)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
+
+    def test_collideline_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        l = Line(0, 0, 1, 1)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                poly.collideline(l, value)
+
+    def test_collidepolygon(self):
+        """Ensures that the collidepolygon method correctly determines if a Polygon
+        is colliding with the Line"""
+
+        l = Line(0, 0, 10, 10)
+        p1 = regular_polygon(4, l.midpoint, 100)
+        p2 = Polygon((100, 100), (150, 150), (150, 100))
+        p3 = regular_polygon(4, l.a, 10)
+        p4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))
+        p5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
+
+        # line inside polygon
+        self.assertTrue(l.collidepolygon(p1))
+
+        # line outside polygon
+        self.assertFalse(l.collidepolygon(p2))
+
+        # line intersects polygon edge
+        self.assertTrue(l.collidepolygon(p3))
+
+        # line intersects polygon vertex
+        self.assertTrue(l.collidepolygon(p4))
+
+        # line touches polygon vertex
+        self.assertTrue(l.collidepolygon(p5))
+
+        # --- Edge only ---
+
+        # line inside polygon
+        self.assertFalse(l.collidepolygon(p1, True))
+
+        # line outside polygon
+        self.assertFalse(l.collidepolygon(p2, True))
+
+        # line intersects polygon edge
+        self.assertTrue(l.collidepolygon(p3, True))
+
+        # line intersects polygon vertex
+        self.assertTrue(l.collidepolygon(p4, True))
+
+        # line touches polygon vertex
+        self.assertTrue(l.collidepolygon(p5, True))
+
 
 if __name__ == "__main__":
     unittest.main()

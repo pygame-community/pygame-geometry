@@ -1190,7 +1190,6 @@ pg_polygon_is_convex(pgPolygonObject *self, PyObject *_null)
 {
     return PyBool_FromLong(_pg_polygon_is_convex_helper(&self->polygon));
 }
-
 static int
 _pg_polygon_scale_helper(pgPolygonBase *poly, double factor)
 {
@@ -1259,6 +1258,27 @@ pg_polygon_scale_ip(pgPolygonObject *self, PyObject *arg)
 }
 
 static PyObject *
+pg_polygon_collideline(pgPolygonObject *self, PyObject *const *args,
+                       Py_ssize_t nargs)
+{
+    pgLineBase line;
+    int only_edges = 0;
+
+    /* Check for the optional only_edges argument */
+    if (PyBool_Check(args[nargs - 1])) {
+        only_edges = args[nargs - 1] == Py_True;
+        nargs--;
+    }
+  
+    if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
+        return RAISE(PyExc_TypeError, "Invalid line parameter");
+    }
+
+    return PyBool_FromLong(
+        pgCollision_PolygonLine(&self->polygon, &line, only_edges));
+}
+
+static PyObject *
 pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
                          Py_ssize_t nargs)
 {
@@ -1287,6 +1307,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"rotate_ip", (PyCFunction)pg_polygon_rotate_ip, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_polygon_collidepoint, METH_FASTCALL,
      NULL},
+    {"collideline", (PyCFunction)pg_polygon_collideline, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_polygon_collidecircle, METH_FASTCALL,
      NULL},
     {"get_bounding_box", (PyCFunction)pg_polygon_get_bounding_box, METH_NOARGS,

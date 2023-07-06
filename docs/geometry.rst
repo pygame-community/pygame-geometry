@@ -126,6 +126,8 @@ other objects.
 
     colliderect: Checks if the line collides with the given rectangle.
 
+    collidepolygon: Checks if the line collides with the given polygon.
+
     collideswith: Checks if the line collides with the given object.
 
     as_circle: Returns a circle which fully encloses the line.
@@ -173,6 +175,8 @@ other objects.
     copy: Returns a copy of the polygon.
 
     collidepoint: Checks if the polygon collides with the given point.
+
+    collideline: Checks if the polygon collides with the given line.
 
     collidecircle: Checks if the polygon collides with the given circle.
 

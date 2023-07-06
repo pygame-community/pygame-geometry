@@ -3,7 +3,7 @@ from math import sqrt
 
 from pygame import Vector2, Vector3, Rect
 
-from geometry import Circle, Line
+from geometry import Circle, Line, Polygon, regular_polygon
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -1097,6 +1097,169 @@ class LineTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(TypeError):
                 l.is_perpendicular(value)
+
+    def test_collidepolygon_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        l = Line(0, 0, 1, 1)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value, True)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(value, False)
+
+    def test_collidepolygon_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (poly, poly),
+            (poly, poly, poly),
+            (poly, poly, poly, poly),
+        ]
+
+        with self.assertRaises(TypeError):
+            l.collidepolygon()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg, True)
+            with self.assertRaises(TypeError):
+                l.collidepolygon(*arg, False)
+
+    def test_collidepolygon_return_type(self):
+        """Tests if the function returns the correct type"""
+        l = Line(0, 0, 1, 1)
+
+        vertices = [(-5, 0), (5, 0), (0, 5)]
+
+        items = [
+            Polygon(vertices),
+            vertices,
+            tuple(vertices),
+            [list(v) for v in vertices],
+        ]
+
+        for item in items:
+            self.assertIsInstance(l.collidepolygon(item), bool)
+            self.assertIsInstance(l.collidepolygon(item, True), bool)
+            self.assertIsInstance(l.collidepolygon(item, False), bool)
+
+        self.assertIsInstance(l.collidepolygon(*vertices), bool)
+        self.assertIsInstance(l.collidepolygon(*vertices, True), bool)
+        self.assertIsInstance(l.collidepolygon(*vertices, False), bool)
+
+    def test_collidepolygon_no_invalidation(self):
+        """Ensures that the function doesn't modify the polygon or the circle"""
+        l = Line((0, 0), (1, 1))
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        l_copy = l.copy()
+        poly_copy = poly.copy()
+
+        l.collidepolygon(poly)
+
+        self.assertEqual(l.a, l_copy.a)
+        self.assertEqual(l.b, l_copy.b)
+
+        self.assertEqual(poly.vertices, poly_copy.vertices)
+        self.assertEqual(poly.verts_num, poly_copy.verts_num)
+        self.assertEqual(poly.c_x, poly_copy.c_x)
+        self.assertEqual(poly.c_y, poly_copy.c_y)
+
+    def test_collidepolygon_invalid_only_edges_param(self):
+        """Tests if the function correctly handles incorrect types as only_edges parameter"""
+        l = Line(0, 0, 1, 1)
+        poly = Polygon((-5, 0), (5, 0), (0, 5))
+
+        invalid_types = (
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collidepolygon(poly, value)
+
+    def test_collideline(self):
+        """Ensures that the collidepolygon method correctly determines if a Polygon
+        is colliding with the Line"""
+
+        l = Line(0, 0, 10, 10)
+        p1 = regular_polygon(4, l.midpoint, 100)
+        p2 = Polygon((100, 100), (150, 150), (150, 100))
+        p3 = regular_polygon(4, l.a, 10)
+        p4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))
+        p5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
+
+        # line inside polygon
+        self.assertTrue(p1.collideline(l))
+
+        # line outside polygon
+        self.assertFalse(p2.collideline(l))
+
+        # line intersects polygon edge
+        self.assertTrue(p3.collideline(l))
+
+        # line intersects polygon vertex
+        self.assertTrue(p4.collideline(l))
+
+        # line touches polygon vertex
+        self.assertTrue(p5.collideline(l))
+
+        # --- Edge only ---
+
+        # line inside polygon
+        self.assertFalse(p1.collideline(l, True))
+
+        # line outside polygon
+        self.assertFalse(p2.collideline(l, True))
+
+        # line intersects polygon edge
+        self.assertTrue(p3.collideline(l, True))
+
+        # line intersects polygon vertex
+        self.assertTrue(p4.collideline(l, True))
+
+        # line touches polygon vertex
+        self.assertTrue(p5.collideline(l, True))
 
     def test_meth_as_points(self):
         """Test the as_points method."""

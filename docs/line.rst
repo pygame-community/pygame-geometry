@@ -320,6 +320,29 @@ Line Methods
 
       .. ## Line.collidecircle ##
 
+    .. method:: collidepolygon
+
+        | :sl:`test if a line intersects with a polygon`
+        | :sg:`collidepolygon(Polygon, only_edges=False) -> bool`
+        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
+        | :sg:`collidepolygon(x1, y1, x2, y2, ..., only_edges=False) -> bool`
+
+        Tests whether a given `Polygon` collides with the `Line`.
+        It takes either a `Polygon` or Polygon-like object as an argument and it returns
+        `True` if the polygon collides with the `Line`, `False` otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Line`. This means that a Line that is
+        inscribed by the `Polygon` or completely outside of it will not be considered colliding.
+        This can be useful for performance reasons if you only care about the edges of the
+        polygon.
+
+        .. note::
+            Keep in mind that the more vertices the polygon has, the more CPU time it will
+            take to calculate the collision.
+
+      .. ## Line.collidepolygon ##
+
 
     .. method:: collideswith
 

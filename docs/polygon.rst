@@ -157,6 +157,23 @@ Polygon Methods
 
       .. ## Polygon.collidepoint ##
 
+    .. method:: collideline
+
+        | :sl:`tests if a line intersects the polygon`
+        | :sg:`collideline(Line, only_edges=False) -> bool`
+        | :sg:`collideline((x1, y1), (x2, y2), only_edges=False) -> bool`
+        | :sg:`collideline(x1, y1, x2, y2, only_edges=False) -> bool`
+
+        Tests whether a given `Line` collides with the `Polygon`.
+        It takes either a `Line` or Line-like object as an argument and it returns `True`
+        if the `Line` collides with the `Polygon`, `False` otherwise.
+
+        The optional `only_edges` argument can be set to `True` to only test whether the
+        edges of the polygon intersect the `Line`. This means that a Line that is
+        inscribed by the `Polygon` or completely outside of it will not be considered colliding.
+        
+      .. ## Polygon.collideline ##  
+
     .. method:: collidecircle
 
         | :sl:`tests if a circle is inside the polygon`
@@ -171,6 +188,7 @@ Polygon Methods
         The optional `only_edges` argument can be set to `True` to only test whether the
         edges of the polygon intersect the `Circle`. This means that a Polygon that is
         completely inscribed in, or circumscribed by the `Circle` will not be considered colliding.
+
         This can be useful for performance reasons if you only care about the edges of the
         polygon.
 

@@ -116,7 +116,7 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
     }
     if (PySequence_Check(obj)) {
         length = PySequence_Length(obj);
-        if (length == 4) {
+        if (length == 4 && !pgPolygon_Check(obj)) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
             if (!pg_DoubleFromObj(tmp, &(out->x1))) {
@@ -168,6 +168,9 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
             }
             Py_DECREF(sub);
             return IS_LINE_VALID(out);
+        }
+        else {
+            return 0;
         }
     }
     if (PyObject_HasAttrString(obj, "line")) {
@@ -693,6 +696,32 @@ pg_line_scale_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs) {
 }
 
 static PyObject *
+pg_line_collidepolygon(pgLineObject *self, PyObject *const *args,
+                       Py_ssize_t nargs)
+{
+    pgPolygonBase poly;
+    int was_sequence, result, only_edges = 0;
+
+    /* Check for the optional only_edges argument */
+    if (PyBool_Check(args[nargs - 1])) {
+        only_edges = args[nargs - 1] == Py_True;
+        nargs--;
+    }
+
+    if (!pgPolygon_FromObjectFastcall(args, nargs, &poly, &was_sequence)) {
+        return RAISE(
+            PyExc_TypeError,
+            "collidepolygon requires a Polygon or PolygonLike object");
+    }
+
+    result = pgCollision_PolygonLine(&poly, &self->line, only_edges);
+
+    PG_FREEPOLY_COND(&poly, was_sequence);
+
+    return PyBool_FromLong(result);
+}
+
+static PyObject *
 pg_line_as_circle(pgLineObject *self, PyObject *_null)
 {
     pgCircleObject *circle_obj =
@@ -718,6 +747,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_FASTCALL, NULL},
     {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
+    {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL,
+     NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},

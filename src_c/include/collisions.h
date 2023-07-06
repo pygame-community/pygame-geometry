@@ -44,6 +44,9 @@ static int
 pgCollision_PolygonPoint(pgPolygonBase *, double, double);
 
 static int
+pgCollision_PolygonLine(pgPolygonBase *, pgLineBase *, int);
+static int
 pgCollision_CirclePolygon(pgCircleBase *, pgPolygonBase *, int);
+
 
 #endif /* ~_PG_COLLISIONS_H */
