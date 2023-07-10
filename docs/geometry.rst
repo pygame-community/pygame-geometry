@@ -110,9 +110,9 @@ other objects.
 
     scale_ip: Scales the line by the given amount in place.
 
-    flip: Switches the endpoints of the line.
+    flip_ab: Switches the endpoints of the line.
 
-    flip_ip: Switches the endpoints of the line in place.
+    flip_ab_ip: Switches the endpoints of the line in place.
 
     update: Updates the line's attributes.
 
