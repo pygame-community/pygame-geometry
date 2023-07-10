@@ -272,6 +272,7 @@ Circle Methods
         | :sg:`collideswith(Line) -> bool`
         | :sg:`collideswith(Circle) -> bool`
         | :sg:`collideswith(Rect) -> bool`
+        | :sg:`collideswith(Polygon) -> bool`
         | :sg:`collideswith((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
@@ -284,12 +285,16 @@ Circle Methods
 
         .. note::
             It is important to note that the shape must be an actual shape object, such as
-            a `Line`, `Circle`, or `Rect` instance. It is not possible to pass a tuple
+            a `Line`, `Circle`, `Polygon`, or `Rect` instance. It is not possible to pass a tuple
             or list of coordinates representing the shape as an argument(except for a point),
             because the type of shape represented by the coordinates cannot be determined.
             For example, a tuple with the format (a, b, c, d) could represent either a `Line`
             or a Rect object, and there is no way to determine which is which without explicitly
             passing a `Line` or `Rect` object as an argument.
+
+         .. note::
+            Collisions with a `Polygon` object are evaluated the same way the :meth:`collidepolygon`
+            method does by default, meaning with only_edges set to `False`.
 
       .. ## Circle.collideswith ##
 
