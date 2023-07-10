@@ -559,7 +559,7 @@ class LineTypeTest(unittest.TestCase):
 
         # polygon
         l4 = Line(0, 0, 10, 10)
-        po1 = regular_polygon(4, l4.midpoint, 100)
+        po1 = regular_polygon(4, l4.center, 100)
         po2 = Polygon((100, 100), (150, 150), (150, 100))
         po3 = regular_polygon(4, l4.a, 10)
         po4 = Polygon((5, 5), (5, 10), (0, 10), (2.5, 2.5))
