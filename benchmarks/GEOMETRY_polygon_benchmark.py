@@ -182,10 +182,10 @@ collidepoint_tests = [
     ("NC float list", "po100.collidepoint([0.0, 1000.0])"),
 ]
 
-get_bounding_box_tests = [
-    ("3", "po3.get_bounding_box()"),
-    ("4", "po4.get_bounding_box()"),
-    ("100", "po100.get_bounding_box()"),
+as_rect_tests = [
+    ("3", "po3.as_rect()"),
+    ("4", "po4.as_rect()"),
+    ("100", "po100.as_rect()"),
 ]
 
 subscript_assignment_tests = [
@@ -228,7 +228,7 @@ GROUPS = [
     ("Rotate", rotate_tests),
     ("Rotate_ip", rotate_ip_tests),
     ("Collidepoint", collidepoint_tests),
-    ("Get Bounding Box", get_bounding_box_tests),
+    ("Get Bounding Box", as_rect_tests),
     ("Subscript", subscript_tests),
     ("Subscript Assignment", subscript_assignment_tests),
     ("Scale", scale_tests),

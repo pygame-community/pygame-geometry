@@ -192,7 +192,7 @@ other objects.
 
     scale_ip: Scales the polygon by the given amount in place.
 
-    get_bounding_box: Returns the smallest rectangle that contains the polygon.
+    as_rect: Returns the smallest rectangle that contains the polygon.
 
     as_segments: Returns a list of lines that make up the polygon.
 
