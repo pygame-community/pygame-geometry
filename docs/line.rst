@@ -111,32 +111,32 @@ Line Attributes
         This attribute is read-only, it cannot be reassigned. To change the line's slope
         use the `rotate` method or change its `a` or `b` attributes.
 
-    .. attribute:: midpoint
+    .. attribute:: center
         | :sl:`the coordinate of the middle point of the line`
-        | :sg:`midpoint -> (float, float)`
+        | :sg:`center -> (float, float)`
 
-        The midpoint of the line. Calculated using the `((x1 + x2) / 2, (y1 + y2) / 2)` formula.
+        The center of the line. Calculated using the `((x1 + x2) / 2, (y1 + y2) / 2)` formula.
         It can be reassigned to move the `Line`. If reassigned the `x1`, `y1`, `x2`, `y2`
-        attributes will be changed in order to produce a `Line` with matching midpoint.
+        attributes will be changed in order to produce a `Line` with matching center.
 
-    .. attribute:: midpoint_x
+    .. attribute:: centerx
         | :sl:`the x coordinate of the middle point of the line`
-        | :sg:`midpoint_x -> float`
+        | :sg:`centerx -> float`
 
-        The `x` coordinate of the midpoint of the line, it's calculated using
+        The `x` coordinate of the center of the line, it's calculated using
         the `((x1 + x2) / 2)` formula. It can be reassigned to move the `Line`.
         If reassigned the `x1` and `x2` attributes will be changed in order to
-        produce a `Line` with matching midpoint. The `y1` and `y2` attributes will not
+        produce a `Line` with matching center. The `y1` and `y2` attributes will not
         be affected.
 
-    .. attribute:: midpoint_y
+    .. attribute:: centery
         | :sl:`the y coordinate of the middle point of the line`
-        | :sg:`midpoint_y -> float`
+        | :sg:`centery -> float`
 
-        The `y` coordinate of the midpoint of the `Line`, it's calculated using
+        The `y` coordinate of the center of the `Line`, it's calculated using
         the `((y1 + y2) / 2)` formula. It can be reassigned to move the `Line`.
         If reassigned the `y1` and `y2` attributes will be changed in order to
-        produce a `Line` with matching midpoint. The `x1` and `x2` attributes will not
+        produce a `Line` with matching center. The `x1` and `x2` attributes will not
         be affected.
 
 Line Methods
@@ -220,7 +220,7 @@ Line Methods
         | :sg:`scale(factor_and_origin) -> Line`
 
         Returns a new `Line` which is scaled by the given factor from the specified origin with 0.0 being
-        the startpoint, 0.5 being the midpoint and 1.0 being the end point.
+        the startpoint, 0.5 being the center and 1.0 being the end point.
         The original `Line` is not modified.
 
       .. ## Line.scale ##
@@ -232,7 +232,7 @@ Line Methods
         | :sg:`scale_ip(factor_and_origin) -> None`
 
         Scales the `Line` by the given factor from the specified origin with 0.0 being
-        the startpoint, 0.5 being the midpoint and 1.0 being the end point.
+        the startpoint, 0.5 being the center and 1.0 being the end point.
         The original `Line` is modified.
 
       .. ## Line.scale_ip ##

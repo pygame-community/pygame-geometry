@@ -257,8 +257,8 @@ geometry_regular_polygon(PyObject *_null, PyObject *const *args,
 
     ret->polygon.vertices = vertices;
     ret->polygon.verts_num = sides;
-    ret->polygon.c_x = Cx;
-    ret->polygon.c_y = Cy;
+    ret->polygon.centerx = Cx;
+    ret->polygon.centery = Cy;
 
     return (PyObject *)ret;
 }

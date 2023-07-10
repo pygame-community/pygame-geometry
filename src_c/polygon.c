@@ -39,8 +39,8 @@ _set_polygon_center_coords(pgPolygonBase *polygon)
         sum_x += polygon->vertices[i2];
         sum_y += polygon->vertices[i2 + 1];
     }
-    polygon->c_x = sum_x / polygon->verts_num;
-    polygon->c_y = sum_y / polygon->verts_num;
+    polygon->centerx = sum_x / polygon->verts_num;
+    polygon->centery = sum_y / polygon->verts_num;
     return 1;
 }
 
@@ -84,8 +84,8 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
                poly->verts_num * 2 * sizeof(double));
 
         init_poly->verts_num = poly->verts_num;
-        init_poly->c_x = poly->c_x;
-        init_poly->c_y = poly->c_y;
+        init_poly->centerx = poly->centerx;
+        init_poly->centery = poly->centery;
 
         return 1;
     }
@@ -123,14 +123,14 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
                 }
                 init_poly->vertices[i * 2] = x;
                 init_poly->vertices[i * 2 + 1] = y;
-                init_poly->c_x += x;
-                init_poly->c_y += y;
+                init_poly->centerx += x;
+                init_poly->centery += y;
             }
 
             init_poly->verts_num = length;
             /*Calculate the centroid of the polygon*/
-            init_poly->c_x /= length;
-            init_poly->c_y /= length;
+            init_poly->centerx /= length;
+            init_poly->centery /= length;
 
             return 1;
         }
@@ -186,14 +186,14 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 
                 init_poly->vertices[i * 2] = x;
                 init_poly->vertices[i * 2 + 1] = y;
-                init_poly->c_x += x;
-                init_poly->c_y += y;
+                init_poly->centerx += x;
+                init_poly->centery += y;
             }
 
             init_poly->verts_num = length;
             /*Calculate the centroid of the polygon*/
-            init_poly->c_x /= length;
-            init_poly->c_y /= length;
+            init_poly->centerx /= length;
+            init_poly->centery /= length;
 
             return 1;
         }
@@ -241,8 +241,8 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 
             init_poly->vertices[i * 2] = x;
             init_poly->vertices[i * 2 + 1] = y;
-            init_poly->c_x += x;
-            init_poly->c_y += y;
+            init_poly->centerx += x;
+            init_poly->centery += y;
 
             i++;
             if (i + 1 > currently_allocated) {
@@ -277,8 +277,8 @@ _pgPolygon_InitFromObject(PyObject *obj, pgPolygonBase *init_poly)
 
         init_poly->verts_num = i;
         /* Calculate the centroid of the polygon */
-        init_poly->c_x /= i;
-        init_poly->c_y /= i;
+        init_poly->centerx /= i;
+        init_poly->centery /= i;
 
         return 1;
     }
@@ -369,14 +369,14 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
                 }
                 out->vertices[i * 2] = x;
                 out->vertices[i * 2 + 1] = y;
-                out->c_x += x;
-                out->c_y += y;
+                out->centerx += x;
+                out->centery += y;
             }
 
             out->verts_num = length;
             /*Calculate the centroid of the polygon*/
-            out->c_x /= length;
-            out->c_y /= length;
+            out->centerx /= length;
+            out->centery /= length;
 
             return 1;
         }
@@ -415,13 +415,13 @@ pgPolygon_FromObject(PyObject *obj, pgPolygonBase *out, int *was_sequence)
                 Py_DECREF(tmp);
                 out->vertices[i * 2] = x;
                 out->vertices[i * 2 + 1] = y;
-                out->c_x += x;
-                out->c_y += y;
+                out->centerx += x;
+                out->centery += y;
             }
 
             out->verts_num = length;
-            out->c_x /= length;
-            out->c_y /= length;
+            out->centerx /= length;
+            out->centery /= length;
 
             return 1;
         }
@@ -520,13 +520,13 @@ pgPolygon_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
             }
             out->vertices[i * 2] = x;
             out->vertices[i * 2 + 1] = y;
-            out->c_x += x;
-            out->c_y += y;
+            out->centerx += x;
+            out->centery += y;
         }
 
         out->verts_num = nargs;
-        out->c_x /= nargs;
-        out->c_y /= nargs;
+        out->centerx /= nargs;
+        out->centery /= nargs;
 
         return 1;
     }
@@ -600,8 +600,8 @@ _pg_polygon_subtype_new2_copy(PyTypeObject *type, pgPolygonBase *polygon)
     }
 
     polygon_obj->polygon.verts_num = polygon->verts_num;
-    polygon_obj->polygon.c_x = polygon->c_x;
-    polygon_obj->polygon.c_y = polygon->c_y;
+    polygon_obj->polygon.centerx = polygon->centerx;
+    polygon_obj->polygon.centery = polygon->centery;
 
     return polygon_obj;
 }
@@ -618,8 +618,8 @@ pg_polygon_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             return NULL;
         }
         self->polygon.verts_num = 3;
-        self->polygon.c_x = 0;
-        self->polygon.c_y = 0;
+        self->polygon.centerx = 0;
+        self->polygon.centery = 0;
         self->weakreflist = NULL;
     }
 
@@ -639,7 +639,8 @@ pgPolygon_New2(double *vertices, Py_ssize_t verts_num)
 }
 
 static PyObject *
-pgPolygon_New4(double *vertices, Py_ssize_t verts_num, double c_x, double c_y)
+pgPolygon_New4(double *vertices, Py_ssize_t verts_num, double centerx,
+               double centery)
 {
     pgPolygonObject *polygon_obj =
         (pgPolygonObject *)pgPolygon_Type.tp_new(&pgPolygon_Type, NULL, NULL);
@@ -661,8 +662,8 @@ pgPolygon_New4(double *vertices, Py_ssize_t verts_num, double c_x, double c_y)
     }
 
     polygon_obj->polygon.verts_num = verts_num;
-    polygon_obj->polygon.c_x = c_x;
-    polygon_obj->polygon.c_y = c_y;
+    polygon_obj->polygon.centerx = centerx;
+    polygon_obj->polygon.centery = centery;
 
     return (PyObject *)polygon_obj;
 }
@@ -727,8 +728,8 @@ _pg_move_polygon_helper(pgPolygonBase *polygon, double dx, double dy)
         return;
     }
 
-    polygon->c_x += dx;
-    polygon->c_y += dy;
+    polygon->centerx += dx;
+    polygon->centery += dy;
 
     Py_ssize_t i2;
     double *vertices = polygon->vertices;
@@ -876,8 +877,8 @@ pg_polygon_insert_vertex(pgPolygonObject *self, PyObject *const *args,
     poly->vertices[v_ix * 2] = x;
     poly->vertices[v_ix * 2 + 1] = y;
 
-    poly->c_x = (poly->c_x * v_num + x) / (v_num + 1);
-    poly->c_y = (poly->c_y * v_num + y) / (v_num + 1);
+    poly->centerx = (poly->centerx * v_num + x) / (v_num + 1);
+    poly->centery = (poly->centery * v_num + y) / (v_num + 1);
 
     poly->verts_num++;
 
@@ -909,9 +910,10 @@ pg_polygon_remove_vertex(pgPolygonObject *self, PyObject *arg)
         return RAISE(PyExc_IndexError, "vertex index out of range");
     }
 
-    poly->c_x = (poly->c_x * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
-    poly->c_y =
-        (poly->c_y * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
+    poly->centerx =
+        (poly->centerx * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
+    poly->centery =
+        (poly->centery * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
 
     if (v_ix < v_num) {
         memmove(poly->vertices + v_ix * 2, poly->vertices + v_ix * 2 + 2,
@@ -953,9 +955,10 @@ pg_polygon_pop_vertex(pgPolygonObject *self, PyObject *arg)
         return RAISE(PyExc_IndexError, "Vertex index out of range");
     }
 
-    poly->c_x = (poly->c_x * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
-    poly->c_y =
-        (poly->c_y * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
+    poly->centerx =
+        (poly->centerx * v_num - poly->vertices[v_ix * 2]) / (v_num - 1);
+    poly->centery =
+        (poly->centery * v_num - poly->vertices[v_ix * 2 + 1]) / (v_num - 1);
 
     PyObject *vertex = pg_TupleFromDoublePair(poly->vertices[v_ix * 2],
                                               poly->vertices[v_ix * 2 + 1]);
@@ -1060,7 +1063,7 @@ pg_polygon_rotate(pgPolygonObject *self, PyObject *const *args,
 
     pgPolygonObject *ret;
     pgPolygonBase *poly = &self->polygon;
-    double angle, rx = poly->c_x, ry = poly->c_y;
+    double angle, rx = poly->centerx, ry = poly->centery;
 
     /*get the angle argument*/
     if (!pg_DoubleFromObj(args[0], &angle)) {
@@ -1095,7 +1098,7 @@ pg_polygon_rotate_ip(pgPolygonObject *self, PyObject *const *args,
 
     pgPolygonBase *poly = &self->polygon;
     double angle;
-    double rx = poly->c_x, ry = poly->c_y;
+    double rx = poly->centerx, ry = poly->centery;
 
     /*get the angle argument*/
     if (!pg_DoubleFromObj(args[0], &angle)) {
@@ -1207,8 +1210,8 @@ _pg_polygon_scale_helper(pgPolygonBase *poly, double factor)
 
     double *vertices = poly->vertices;
     double one_m_fac = 1.0 - factor;
-    double omf_cx = one_m_fac * poly->c_x;
-    double omf_cy = one_m_fac * poly->c_y;
+    double omf_cx = one_m_fac * poly->centerx;
+    double omf_cy = one_m_fac * poly->centery;
 
     Py_ssize_t i2;
     for (i2 = 0; i2 < poly->verts_num * 2; i2 += 2) {
@@ -1269,7 +1272,7 @@ pg_polygon_collideline(pgPolygonObject *self, PyObject *const *args,
         only_edges = args[nargs - 1] == Py_True;
         nargs--;
     }
-  
+
     if (!pgLine_FromObjectFastcall(args, nargs, &line)) {
         return RAISE(PyExc_TypeError, "Invalid line parameter");
     }
@@ -1369,8 +1372,8 @@ pg_polygon_set_vertices(pgPolygonObject *self, PyObject *value, void *closure)
         s_poly->verts_num = len;
     }
 
-    s_poly->c_x = 0.0;
-    s_poly->c_y = 0.0;
+    s_poly->centerx = 0.0;
+    s_poly->centery = 0.0;
 
     for (i = 0; i < len; i++) {
         double x, y;
@@ -1382,14 +1385,14 @@ pg_polygon_set_vertices(pgPolygonObject *self, PyObject *value, void *closure)
         }
         s_poly->vertices[i * 2] = x;
         s_poly->vertices[i * 2 + 1] = y;
-        s_poly->c_x += x;
-        s_poly->c_y += y;
+        s_poly->centerx += x;
+        s_poly->centery += y;
     }
 
     s_poly->verts_num = len;
 
-    s_poly->c_x /= len;
-    s_poly->c_y /= len;
+    s_poly->centerx /= len;
+    s_poly->centery /= len;
 
     return 0;
 }
@@ -1416,8 +1419,8 @@ pg_polygon_ass_vertex(pgPolygonBase *poly, Py_ssize_t i, PyObject *v)
     }
 
     /* Update the center */
-    poly->c_x += (new_x - poly->vertices[i * 2]) / poly->verts_num;
-    poly->c_y += (new_y - poly->vertices[i * 2 + 1]) / poly->verts_num;
+    poly->centerx += (new_x - poly->vertices[i * 2]) / poly->verts_num;
+    poly->centery += (new_y - poly->vertices[i * 2 + 1]) / poly->verts_num;
 
     /* Update the vertex */
     poly->vertices[i * 2] = new_x;
@@ -1512,7 +1515,7 @@ static PySequenceMethods pg_polygon_as_sequence = {
 static PyObject *
 pg_polygon_get_center_x(pgPolygonObject *self, void *closure)
 {
-    return PyFloat_FromDouble(self->polygon.c_x);
+    return PyFloat_FromDouble(self->polygon.centerx);
 }
 
 static int
@@ -1524,14 +1527,15 @@ pg_polygon_set_center_x(pgPolygonObject *self, PyObject *value, void *closure)
         PyErr_SetString(PyExc_TypeError, "Expected a number");
         return -1;
     }
-    _pg_move_polygon_helper(&(self->polygon), (val - self->polygon.c_x), 0.0);
+    _pg_move_polygon_helper(&(self->polygon), (val - self->polygon.centerx),
+                            0.0);
     return 0;
 }
 
 static PyObject *
 pg_polygon_get_center_y(pgPolygonObject *self, void *closure)
 {
-    return PyFloat_FromDouble(self->polygon.c_y);
+    return PyFloat_FromDouble(self->polygon.centery);
 }
 
 static int
@@ -1543,14 +1547,16 @@ pg_polygon_set_center_y(pgPolygonObject *self, PyObject *value, void *closure)
         PyErr_SetString(PyExc_TypeError, "Expected a number");
         return -1;
     }
-    _pg_move_polygon_helper(&(self->polygon), 0.0, (val - self->polygon.c_y));
+    _pg_move_polygon_helper(&(self->polygon), 0.0,
+                            (val - self->polygon.centery));
     return 0;
 }
 
 static PyObject *
 pg_polygon_get_center(pgPolygonObject *self, void *closure)
 {
-    return pg_TupleFromDoublePair(self->polygon.c_x, self->polygon.c_y);
+    return pg_TupleFromDoublePair(self->polygon.centerx,
+                                  self->polygon.centery);
 }
 
 static PG_FORCEINLINE double
@@ -1581,22 +1587,23 @@ pg_polygon_get_perimeter(pgPolygonObject *self, void *closure)
 static int
 pg_polygon_set_center(pgPolygonObject *self, PyObject *value, void *closure)
 {
-    double new_c_x = 0, new_c_y = 0;
+    double new_centerx = 0, new_centery = 0;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
-    if (!pg_TwoDoublesFromObj(value, &new_c_x, &new_c_y)) {
+    if (!pg_TwoDoublesFromObj(value, &new_centerx, &new_centery)) {
         PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
         return -1;
     }
-    _pg_move_polygon_helper(&(self->polygon), (new_c_x - self->polygon.c_x),
-                            (new_c_y - self->polygon.c_y));
+    _pg_move_polygon_helper(&(self->polygon),
+                            (new_centerx - self->polygon.centerx),
+                            (new_centery - self->polygon.centery));
     return 0;
 }
 
 static PyGetSetDef pg_polygon_getsets[] = {
-    {"c_x", (getter)pg_polygon_get_center_x, (setter)pg_polygon_set_center_x,
-     NULL, NULL},
-    {"c_y", (getter)pg_polygon_get_center_y, (setter)pg_polygon_set_center_y,
-     NULL, NULL},
+    {"centerx", (getter)pg_polygon_get_center_x,
+     (setter)pg_polygon_set_center_x, NULL, NULL},
+    {"centery", (getter)pg_polygon_get_center_y,
+     (setter)pg_polygon_set_center_y, NULL, NULL},
     {"center", (getter)pg_polygon_get_center, (setter)pg_polygon_set_center,
      NULL, NULL},
     {"verts_num", (getter)pg_polygon_get_verts_num, NULL,

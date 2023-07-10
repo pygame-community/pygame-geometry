@@ -5,11 +5,11 @@ from pygame.draw import line as draw_line, polygon as draw_polygon
 from geometry import Line, regular_polygon
 
 
-# using this because we're missing line.rotate(), rotates a line around its midpoint
+# using this because we're missing line.rotate(), rotates a line around its center
 def rotate_line(line, d_ang):
     angle = radians(d_ang)
     ca, sa = cos(angle), sin(angle)
-    xm, ym = line.midpoint
+    xm, ym = line.center
     ax, ay = line.a
     bx, by = line.b
     ax -= xm
@@ -64,7 +64,7 @@ rotating = False
 while running:
     delta = (clock.tick(FPS) / 1000) * 60
 
-    line.midpoint = pygame.mouse.get_pos()
+    line.center = pygame.mouse.get_pos()
 
     colliding = line.collidepolygon(polygon, only_edges)
     # Alternative:
