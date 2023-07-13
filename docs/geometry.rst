@@ -72,13 +72,13 @@ other objects.
 
 **Here is the full list of attributes:**
 ::
-    x1: The x coordinate of the start point of the line.
+    xa: The x coordinate of the start point of the line.
 
-    y1: The y coordinate of the start point of the line.
+    ya: The y coordinate of the start point of the line.
 
-    x2: The x coordinate of the end point of the line.
+    xb: The x coordinate of the end point of the line.
 
-    y2: The y coordinate of the end point of the line.
+    yb: The y coordinate of the end point of the line.
 
     a: The start point of the line.
 

@@ -35,13 +35,13 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
         return 1;
     }
     else if (nargs == 2) {
-        if (!pg_TwoDoublesFromObj(args[0], &line->x1, &line->y1)) {
+        if (!pg_TwoDoublesFromObj(args[0], &line->xa, &line->ya)) {
             PyErr_SetString(
                 PyExc_TypeError,
                 "Invalid ray origin value, must be a pair of numeric values");
             return 0;
         }
-        if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
+        if (!pg_TwoDoublesFromObj(args[1], &line->xb, &line->yb)) {
             PyErr_SetString(
                 PyExc_TypeError,
                 "Invalid ray end value, must be a pair of numeric values");
@@ -53,7 +53,7 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
         return 1;
     }
     else if (nargs == 3) {
-        if (!pg_TwoDoublesFromObj(args[0], &line->x1, &line->y1)) {
+        if (!pg_TwoDoublesFromObj(args[0], &line->xa, &line->ya)) {
             PyErr_SetString(
                 PyExc_TypeError,
                 "Invalid ray origin value, must be a pair of numeric values");
@@ -68,10 +68,10 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
                 return 0;
             }
             angle = DEG_TO_RAD(angle);
-            line->x2 = line->x1 - cos(angle);
-            line->y2 = line->y1 - sin(angle);
+            line->xb = line->xa - cos(angle);
+            line->yb = line->ya - sin(angle);
         }
-        else if (!pg_TwoDoublesFromObj(args[1], &line->x2, &line->y2)) {
+        else if (!pg_TwoDoublesFromObj(args[1], &line->xb, &line->yb)) {
             PyErr_SetString(PyExc_TypeError,
                             "expected a pair of floats or a single float");
             return 0;
@@ -94,8 +94,8 @@ _pg_extract_ray_from_object_fastcall(PyObject *const *args, Py_ssize_t nargs,
                 "Invalid max distance value, must be nonzero numeric value");
             return 0;
         }
-        line->x2 = (line->x2 - line->x1) * max_dist + line->x1;
-        line->y2 = (line->y2 - line->y1) * max_dist + line->y1;
+        line->xb = (line->xb - line->xa) * max_dist + line->xa;
+        line->yb = (line->yb - line->ya) * max_dist + line->ya;
 
         *max_t = max_dist / pgLine_Length(line);
 

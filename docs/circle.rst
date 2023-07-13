@@ -218,8 +218,8 @@ Circle Methods
 
         | :sl:`test if a line collides with the circle`
         | :sg:`collideline(Line) -> bool`
-        | :sg:`collideline((x1, y1), (x2, y2)) -> bool`
-        | :sg:`collideline(x1, y1, x2, y2) -> bool`
+        | :sg:`collideline((xa, ya), (xb, yb)) -> bool`
+        | :sg:`collideline(xa, ya, xb, yb) -> bool`
 
         The `collideline` method tests whether a given line intersects the `Circle`. It takes
         either a `Line` object, a tuple of two (x, y) coordinate pairs representing the
@@ -247,8 +247,8 @@ Circle Methods
 
         | :sl:`checks if a polygon intersects the circle`
         | :sg:`collidepolygon(Polygon, only_edges=False) -> bool`
-        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
-        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
+        | :sg:`collidepolygon((xa, ya), (xb, yb), ..., only_edges=False) -> bool`
+        | :sg:`collidepolygon((xa, ya), (xb, yb), ..., only_edges=False) -> bool`
 
         Tests whether a given `Polygon` collides with the `Circle`.
         It takes either a `Polygon` or Polygon-like object as an argument and it returns

@@ -1,42 +1,42 @@
 #include "include/geometry.h"
 #include "include/collisions.h"
 
-#define IS_LINE_VALID(line) (line->x1 != line->x2 || line->y1 != line->y2)
+#define IS_LINE_VALID(line) (line->xa != line->xb || line->ya != line->yb)
 
 static double
 pgLine_Length(pgLineBase *line)
 {
-    double dx = line->x2 - line->x1;
-    double dy = line->y2 - line->y1;
+    double dx = line->xb - line->xa;
+    double dy = line->yb - line->ya;
     return sqrt(dx * dx + dy * dy);
 }
 
 static double
 pgLine_LengthSquared(pgLineBase *line)
 {
-    double dx = line->x2 - line->x1;
-    double dy = line->y2 - line->y1;
+    double dx = line->xb - line->xa;
+    double dy = line->yb - line->ya;
     return dx * dx + dy * dy;
 }
 
 static void
 pgLine_At(pgLineBase *line, double t, double *X, double *Y)
 {
-    *X = line->x1 + t * (line->x2 - line->x1);
-    *Y = line->y1 + t * (line->y2 - line->y1);
+    *X = line->xa + t * (line->xb - line->xa);
+    *Y = line->ya + t * (line->yb - line->ya);
 }
 
 static PyObject *
-_pg_line_subtype_new4(PyTypeObject *type, double x1, double y1, double x2,
-                      double y2)
+_pg_line_subtype_new4(PyTypeObject *type, double xa, double ya, double xb,
+                      double yb)
 {
     pgLineObject *line = (pgLineObject *)pgLine_Type.tp_new(type, NULL, NULL);
 
     if (line) {
-        line->line.x1 = x1;
-        line->line.y1 = y1;
-        line->line.x2 = x2;
-        line->line.y2 = y2;
+        line->line.xa = xa;
+        line->line.ya = ya;
+        line->line.xb = xb;
+        line->line.yb = yb;
     }
     return (PyObject *)line;
 }
@@ -47,8 +47,8 @@ pg_line_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     pgLineObject *self = (pgLineObject *)type->tp_alloc(type, 0);
 
     if (self != NULL) {
-        self->line.x1 = self->line.y1 = 0;
-        self->line.x2 = self->line.y2 = 0;
+        self->line.xa = self->line.ya = 0;
+        self->line.xb = self->line.yb = 0;
         self->weakreflist = NULL;
     }
     return (PyObject *)self;
@@ -90,17 +90,17 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         PyObject **farray = PySequence_Fast_ITEMS(obj);
 
         if (length == 4) {
-            if (!pg_DoubleFromObj(farray[0], &(out->x1)) ||
-                !pg_DoubleFromObj(farray[1], &(out->y1)) ||
-                !pg_DoubleFromObj(farray[2], &(out->x2)) ||
-                !pg_DoubleFromObj(farray[3], &(out->y2))) {
+            if (!pg_DoubleFromObj(farray[0], &(out->xa)) ||
+                !pg_DoubleFromObj(farray[1], &(out->ya)) ||
+                !pg_DoubleFromObj(farray[2], &(out->xb)) ||
+                !pg_DoubleFromObj(farray[3], &(out->yb))) {
                 return 0;
             }
             return IS_LINE_VALID(out);
         }
         else if (length == 2) {
-            if (!pg_TwoDoublesFromObj(farray[0], &(out->x1), &(out->y1)) ||
-                !pg_TwoDoublesFromObj(farray[1], &(out->x2), &(out->y2))) {
+            if (!pg_TwoDoublesFromObj(farray[0], &(out->xa), &(out->ya)) ||
+                !pg_TwoDoublesFromObj(farray[1], &(out->xb), &(out->yb))) {
                 PyErr_Clear();
                 return 0;
             }
@@ -119,25 +119,25 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         if (length == 4 && !pgPolygon_Check(obj)) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
-            if (!pg_DoubleFromObj(tmp, &(out->x1))) {
+            if (!pg_DoubleFromObj(tmp, &(out->xa))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 1);
-            if (!pg_DoubleFromObj(tmp, &(out->y1))) {
+            if (!pg_DoubleFromObj(tmp, &(out->ya))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 2);
-            if (!pg_DoubleFromObj(tmp, &(out->x2))) {
+            if (!pg_DoubleFromObj(tmp, &(out->xb))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 3);
-            if (!pg_DoubleFromObj(tmp, &(out->y2))) {
+            if (!pg_DoubleFromObj(tmp, &(out->yb))) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -147,13 +147,13 @@ pgLine_FromObject(PyObject *obj, pgLineBase *out)
         else if (length == 2) {
             PyObject *tmp;
             tmp = PySequence_GetItem(obj, 0);
-            if (!pg_TwoDoublesFromObj(tmp, &(out->x1), &(out->y1))) {
+            if (!pg_TwoDoublesFromObj(tmp, &(out->xa), &(out->ya))) {
                 Py_DECREF(tmp);
                 return 0;
             }
             Py_DECREF(tmp);
             tmp = PySequence_GetItem(obj, 1);
-            if (!pg_TwoDoublesFromObj(tmp, &(out->x2), &(out->y2))) {
+            if (!pg_TwoDoublesFromObj(tmp, &(out->xb), &(out->yb))) {
                 Py_DECREF(tmp);
                 return 0;
             }
@@ -204,17 +204,17 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
         return pgLine_FromObject(args[0], out);
     }
     else if (nargs == 2) {
-        if (!pg_TwoDoublesFromObj(args[0], &(out->x1), &(out->y1)) ||
-            !pg_TwoDoublesFromObj(args[1], &(out->x2), &(out->y2))) {
+        if (!pg_TwoDoublesFromObj(args[0], &(out->xa), &(out->ya)) ||
+            !pg_TwoDoublesFromObj(args[1], &(out->xb), &(out->yb))) {
             return 0;
         }
         return IS_LINE_VALID(out);
     }
     else if (nargs == 4) {
-        if (!pg_DoubleFromObj(args[0], &(out->x1)) ||
-            !pg_DoubleFromObj(args[1], &(out->y1)) ||
-            !pg_DoubleFromObj(args[2], &(out->x2)) ||
-            !pg_DoubleFromObj(args[3], &(out->y2))) {
+        if (!pg_DoubleFromObj(args[0], &(out->xa)) ||
+            !pg_DoubleFromObj(args[1], &(out->ya)) ||
+            !pg_DoubleFromObj(args[2], &(out->xb)) ||
+            !pg_DoubleFromObj(args[3], &(out->yb))) {
             return 0;
         }
         return IS_LINE_VALID(out);
@@ -225,20 +225,20 @@ pgLine_FromObjectFastcall(PyObject *const *args, Py_ssize_t nargs,
 static PyObject *
 pgLine_New(pgLineBase *l)
 {
-    return _pg_line_subtype_new4(&pgLine_Type, l->x1, l->y1, l->x2, l->y2);
+    return _pg_line_subtype_new4(&pgLine_Type, l->xa, l->ya, l->xb, l->yb);
 }
 
 static PyObject *
-pgLine_New4(double x1, double y1, double x2, double y2)
+pgLine_New4(double xa, double ya, double xb, double yb)
 {
-    return _pg_line_subtype_new4(&pgLine_Type, x1, y1, x2, y2);
+    return _pg_line_subtype_new4(&pgLine_Type, xa, ya, xb, yb);
 }
 
 static PyObject *
 pg_line_copy(pgLineObject *self, PyObject *_null)
 {
-    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1, self->line.y1,
-                                 self->line.x2, self->line.y2);
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.xa, self->line.ya,
+                                 self->line.xb, self->line.yb);
 }
 
 static PyObject *
@@ -252,10 +252,10 @@ pg_line_is_parallel(pgLineObject *self, PyObject *const *args,
                      "Line.is_parallel requires a line or LineLike object");
     }
 
-    double dx1 = self->line.x2 - self->line.x1;
-    double dy1 = self->line.y2 - self->line.y1;
-    double dx2 = other_line.x2 - other_line.x1;
-    double dy2 = other_line.y2 - other_line.y1;
+    double dx1 = self->line.xb - self->line.xa;
+    double dy1 = self->line.yb - self->line.ya;
+    double dx2 = other_line.xb - other_line.xa;
+    double dy2 = other_line.yb - other_line.ya;
 
     double cross = dx1 * dy2 - dy1 * dx2;
     return PyBool_FromLong(cross == 0);
@@ -306,10 +306,10 @@ pg_line_collidecircle(pgLineObject *self, PyObject *const *args,
 static PyObject *
 pg_line_as_rect(pgLineObject *self, PyObject *_null)
 {
-    double Ax = self->line.x1;
-    double Ay = self->line.y1;
-    double Bx = self->line.x2;
-    double By = self->line.y2;
+    double Ax = self->line.xa;
+    double Ay = self->line.ya;
+    double Bx = self->line.xb;
+    double By = self->line.yb;
 
     int rect_x = (int)floor(MIN(Ax, Bx));
     int rect_y = (int)floor(MIN(Ay, By));
@@ -383,10 +383,10 @@ pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
             "Line.is_perpendicular requires a Line or LineLike object");
     }
 
-    double dx1 = self->line.x2 - self->line.x1;
-    double dy1 = self->line.y2 - self->line.y1;
-    double dx2 = other_line.x2 - other_line.x1;
-    double dy2 = other_line.y2 - other_line.y1;
+    double dx1 = self->line.xb - self->line.xa;
+    double dy1 = self->line.yb - self->line.ya;
+    double dx2 = other_line.xb - other_line.xa;
+    double dy2 = other_line.yb - other_line.ya;
 
     double dot = dx1 * dx2 + dy1 * dy2;
 
@@ -437,9 +437,9 @@ pg_line_move(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         return RAISE(PyExc_TypeError, "move requires a pair of numbers");
     }
 
-    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x1 + Dx,
-                                 self->line.y1 + Dy, self->line.x2 + Dx,
-                                 self->line.y2 + Dy);
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.xa + Dx,
+                                 self->line.ya + Dy, self->line.xb + Dx,
+                                 self->line.yb + Dy);
 }
 
 static PyObject *
@@ -451,10 +451,10 @@ pg_line_move_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
         return RAISE(PyExc_TypeError, "move_ip requires a pair of numbers");
     }
 
-    self->line.x1 += Dx;
-    self->line.y1 += Dy;
-    self->line.x2 += Dx;
-    self->line.y2 += Dy;
+    self->line.xa += Dx;
+    self->line.ya += Dy;
+    self->line.xb += Dx;
+    self->line.yb += Dy;
 
     Py_RETURN_NONE;
 }
@@ -478,21 +478,21 @@ pg_line_at(pgLineObject *self, PyObject *obj)
 static PyObject *
 pg_line_flip(pgLineObject *self, PyObject *_null)
 {
-    return _pg_line_subtype_new4(Py_TYPE(self), self->line.x2, self->line.y2,
-                                 self->line.x1, self->line.y1);
+    return _pg_line_subtype_new4(Py_TYPE(self), self->line.xb, self->line.yb,
+                                 self->line.xa, self->line.ya);
 }
 
 static PyObject *
 pg_line_flip_ab_ip(pgLineObject *self, PyObject *_null)
 {
-    double tx = self->line.x2;
-    double ty = self->line.y2;
+    double tx = self->line.xb;
+    double ty = self->line.yb;
 
-    self->line.x2 = self->line.x1;
-    self->line.y2 = self->line.y1;
+    self->line.xb = self->line.xa;
+    self->line.yb = self->line.ya;
 
-    self->line.x1 = tx;
-    self->line.y1 = ty;
+    self->line.xa = tx;
+    self->line.ya = ty;
 
     Py_RETURN_NONE;
 }
@@ -518,13 +518,13 @@ pg_line_as_points(pgLineObject *self, PyObject *arg)
     pgLineBase *line = &self->line;
 
     // Add the start and end points to the list
-    point = pg_TupleFromDoublePair(line->x1, line->y1);
+    point = pg_TupleFromDoublePair(line->xa, line->ya);
     if (!point) {
         Py_DECREF(list);
         return NULL;
     }
     PyList_SET_ITEM(list, 0, point);
-    point = pg_TupleFromDoublePair(line->x2, line->y2);
+    point = pg_TupleFromDoublePair(line->xb, line->yb);
     if (!point) {
         Py_DECREF(list);
         return NULL;
@@ -535,8 +535,8 @@ pg_line_as_points(pgLineObject *self, PyObject *arg)
         return list;
     }
     else if (N == 1) {
-        point = pg_TupleFromDoublePair((line->x1 + line->x2) / 2,
-                                       (line->y1 + line->y2) / 2);
+        point = pg_TupleFromDoublePair((line->xa + line->xb) / 2,
+                                       (line->ya + line->yb) / 2);
         if (!point) {
             Py_DECREF(list);
             return NULL;
@@ -545,10 +545,10 @@ pg_line_as_points(pgLineObject *self, PyObject *arg)
         return list;
     }
 
-    double step_x = (line->x2 - line->x1) / (N + 1);
-    double step_y = (line->y2 - line->y1) / (N + 1);
-    double x = line->x1 + step_x;
-    double y = line->y1 + step_y;
+    double step_x = (line->xb - line->xa) / (N + 1);
+    double step_y = (line->yb - line->ya) / (N + 1);
+    double x = line->xa + step_x;
+    double y = line->ya + step_y;
 
     Py_ssize_t i;
     for (i = 1; i < N + 1; i++) {
@@ -598,30 +598,30 @@ pg_line_as_segments(pgLineObject *self, PyObject *arg)
 
     pgLineBase *line = &self->line;
 
-    double step_x = (line->x2 - line->x1) / N;
-    double step_y = (line->y2 - line->y1) / N;
-    double x1 = line->x1, y1 = line->y1;
-    double x2 = x1 + step_x, y2 = y1 + step_y;
+    double step_x = (line->xb - line->xa) / N;
+    double step_y = (line->yb - line->ya) / N;
+    double xa = line->xa, ya = line->ya;
+    double xb = xa + step_x, yb = ya + step_y;
 
     Py_ssize_t i;
     for (i = 0; i < N; i++) {
-        line_obj = _pg_line_subtype_new4(Py_TYPE(self), x1, y1, x2, y2);
+        line_obj = _pg_line_subtype_new4(Py_TYPE(self), xa, ya, xb, yb);
         if (!line_obj) {
             Py_DECREF(list);
             return NULL;
         }
         PyList_SET_ITEM(list, i, line_obj);
-        x1 = x2;
-        y1 = y2;
-        x2 += step_x;
-        y2 += step_y;
+        xa = xb;
+        ya = yb;
+        xb += step_x;
+        yb += step_y;
     }
 
     return list;
 }
 
 static PG_FORCE_INLINE double
-_lerp_helper(float start, float end, float amount)
+_lerp_helper(double start, double end, double amount)
 {
     return start + (end - start) * amount;
 }
@@ -643,24 +643,24 @@ _line_scale_helper(pgLineBase *line, double factor, double origin)
         return 0;
     }
 
-    double x1 = line->x1;
-    double y1 = line->y1;
-    double x2 = line->x2;
-    double y2 = line->y2;
+    double xa = line->xa;
+    double ya = line->ya;
+    double xb = line->xb;
+    double yb = line->yb;
 
-    double x1_factor = x1 * factor;
-    double y1_factor = y1 * factor;
-    double x2_factor = x2 * factor;
-    double y2_factor = y2 * factor;
+    double x1_factor = xa * factor;
+    double y1_factor = ya * factor;
+    double x2_factor = xb * factor;
+    double y2_factor = yb * factor;
 
     double fac_m_one = factor - 1;
-    double dx = _lerp_helper(fac_m_one * x1, fac_m_one * x2, origin);
-    double dy = _lerp_helper(fac_m_one * y1, fac_m_one * y2, origin);
+    double dx = _lerp_helper(fac_m_one * xa, fac_m_one * xb, origin);
+    double dy = _lerp_helper(fac_m_one * ya, fac_m_one * yb, origin);
 
-    line->x1 = x1_factor - dx;
-    line->y1 = y1_factor - dy;
-    line->x2 = x2_factor - dx;
-    line->y2 = y2_factor - dy;
+    line->xa = x1_factor - dx;
+    line->ya = y1_factor - dy;
+    line->xb = x2_factor - dx;
+    line->yb = y2_factor - dy;
 
     return 1;
 }
@@ -737,8 +737,8 @@ pg_line_as_circle(pgLineObject *self, PyObject *_null)
         (pgCircleObject *)pgCircle_Type.tp_new(&pgCircle_Type, NULL, NULL);
 
     if (circle_obj) {
-        circle_obj->circle.x = (self->line.x1 + self->line.x2) / 2;
-        circle_obj->circle.y = (self->line.y1 + self->line.y2) / 2;
+        circle_obj->circle.x = (self->line.xa + self->line.xb) / 2;
+        circle_obj->circle.y = (self->line.ya + self->line.yb) / 2;
         circle_obj->circle.r = pgLine_Length(&self->line) / 2;
     }
 
@@ -824,8 +824,8 @@ pg_line_contains_seq(pgLineObject *self, PyObject *arg)
 {
     if (PyNumber_Check(arg)) {
         double coord = PyFloat_AsDouble(arg);
-        return coord == self->line.x1 || coord == self->line.y1 ||
-               coord == self->line.x2 || coord == self->line.y1;
+        return coord == self->line.xa || coord == self->line.ya ||
+               coord == self->line.xb || coord == self->line.ya;
     }
 
     pgLineBase B;
@@ -928,18 +928,18 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
         double val = 0;
 
         if (pg_DoubleFromObj(value, &val)) {
-            self->line.x1 = val;
-            self->line.y1 = val;
-            self->line.x2 = val;
-            self->line.y2 = val;
+            self->line.xa = val;
+            self->line.ya = val;
+            self->line.xb = val;
+            self->line.yb = val;
         }
         else if (PyObject_IsInstance(value, (PyObject *)&pgLine_Type)) {
             pgLineObject *line = (pgLineObject *)value;
 
-            self->line.x1 = line->line.x1;
-            self->line.y1 = line->line.y1;
-            self->line.x2 = line->line.x2;
-            self->line.y2 = line->line.y2;
+            self->line.xa = line->line.xa;
+            self->line.ya = line->line.ya;
+            self->line.xb = line->line.xb;
+            self->line.yb = line->line.yb;
         }
         else if (PySequence_Check(value)) {
             PyObject *item;
@@ -958,10 +958,10 @@ pg_line_ass_subscript(pgLineObject *self, PyObject *op, PyObject *value)
                                  DBL_MIN, DBL_MAX);
                 }
             }
-            self->line.x1 = values[0];
-            self->line.y1 = values[1];
-            self->line.x2 = values[2];
-            self->line.y2 = values[3];
+            self->line.xa = values[0];
+            self->line.ya = values[1];
+            self->line.xb = values[2];
+            self->line.yb = values[3];
         }
         else {
             PyErr_SetString(PyExc_TypeError, "Expected a number or sequence");
@@ -1040,38 +1040,38 @@ static PyNumberMethods pg_line_as_number = {
 static PyObject *
 pg_line_repr(pgLineObject *self)
 {
-    PyObject *result, *x1, *y1, *x2, *y2;
+    PyObject *result, *xa, *ya, *xb, *yb;
 
-    x1 = PyFloat_FromDouble(self->line.x1);
-    if (!x1) {
+    xa = PyFloat_FromDouble(self->line.xa);
+    if (!xa) {
         return NULL;
     }
-    y1 = PyFloat_FromDouble(self->line.y1);
-    if (!y1) {
-        Py_DECREF(x1);
+    ya = PyFloat_FromDouble(self->line.ya);
+    if (!ya) {
+        Py_DECREF(xa);
         return NULL;
     }
-    x2 = PyFloat_FromDouble(self->line.x2);
-    if (!x2) {
-        Py_DECREF(x1);
-        Py_DECREF(y1);
+    xb = PyFloat_FromDouble(self->line.xb);
+    if (!xb) {
+        Py_DECREF(xa);
+        Py_DECREF(ya);
         return NULL;
     }
-    y2 = PyFloat_FromDouble(self->line.y2);
-    if (!y2) {
-        Py_DECREF(x1);
-        Py_DECREF(y1);
-        Py_DECREF(x2);
+    yb = PyFloat_FromDouble(self->line.yb);
+    if (!yb) {
+        Py_DECREF(xa);
+        Py_DECREF(ya);
+        Py_DECREF(xb);
         return NULL;
     }
 
     result =
-        PyUnicode_FromFormat("<Line((%R, %R), (%R, %R))>", x1, y1, x2, y2);
+        PyUnicode_FromFormat("<Line((%R, %R), (%R, %R))>", xa, ya, xb, yb);
 
-    Py_DECREF(x1);
-    Py_DECREF(y1);
-    Py_DECREF(x2);
-    Py_DECREF(y2);
+    Py_DECREF(xa);
+    Py_DECREF(ya);
+    Py_DECREF(xb);
+    Py_DECREF(yb);
 
     return result;
 }
@@ -1159,16 +1159,16 @@ pg_line_iterator(pgLineObject *self)
     }
 
 // they are repetitive enough that we can abstract them like this
-__LINE_GETSET_NAME(x1)
-__LINE_GETSET_NAME(y1)
-__LINE_GETSET_NAME(x2)
-__LINE_GETSET_NAME(y2)
+__LINE_GETSET_NAME(xa)
+__LINE_GETSET_NAME(ya)
+__LINE_GETSET_NAME(xb)
+__LINE_GETSET_NAME(yb)
 #undef __LINE_GETSET_NAME
 
 static PyObject *
 pg_line_geta(pgLineObject *self, void *closure)
 {
-    return pg_TupleFromDoublePair(self->line.x1, self->line.y1);
+    return pg_TupleFromDoublePair(self->line.xa, self->line.ya);
 }
 
 static int
@@ -1177,8 +1177,8 @@ pg_line_seta(pgLineObject *self, PyObject *value, void *closure)
     double x, y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (pg_TwoDoublesFromObj(value, &x, &y)) {
-        self->line.x1 = x;
-        self->line.y1 = y;
+        self->line.xa = x;
+        self->line.ya = y;
         return 0;
     }
     PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
@@ -1188,7 +1188,7 @@ pg_line_seta(pgLineObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_line_getb(pgLineObject *self, void *closure)
 {
-    return pg_TupleFromDoublePair(self->line.x2, self->line.y2);
+    return pg_TupleFromDoublePair(self->line.xb, self->line.yb);
 }
 
 static int
@@ -1197,8 +1197,8 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
     double x, y;
     DEL_ATTR_NOT_SUPPORTED_CHECK_NO_NAME(value);
     if (pg_TwoDoublesFromObj(value, &x, &y)) {
-        self->line.x2 = x;
-        self->line.y2 = y;
+        self->line.xb = x;
+        self->line.yb = y;
         return 0;
     }
     PyErr_SetString(PyExc_TypeError, "Expected a sequence of 2 numbers");
@@ -1208,13 +1208,13 @@ pg_line_setb(pgLineObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_line_getangle(pgLineObject *self, void *closure)
 {
-    double dx = self->line.x2 - self->line.x1;
+    double dx = self->line.xb - self->line.xa;
 
     if (dx == 0.0)
-        return (self->line.y2 > self->line.y1) ? PyFloat_FromDouble(-90.0)
+        return (self->line.yb > self->line.ya) ? PyFloat_FromDouble(-90.0)
                                                : PyFloat_FromDouble(90.0);
 
-    double dy = self->line.y2 - self->line.y1;
+    double dy = self->line.yb - self->line.ya;
 
     double gradient = (dy / dx);
     return PyFloat_FromDouble(-RAD_TO_DEG(atan(gradient)));
@@ -1229,12 +1229,12 @@ pg_line_getlength(pgLineObject *self, void *closure)
 static PyObject *
 pg_line_getslope(pgLineObject *self, void *closure)
 {
-    double dem = self->line.x2 - self->line.x1;
+    double dem = self->line.xb - self->line.xa;
     if (dem == 0) {
         return PyFloat_FromDouble(0);
     }
 
-    double slope = (self->line.y2 - self->line.y1) / dem;
+    double slope = (self->line.yb - self->line.ya) / dem;
     return PyFloat_FromDouble(slope);
 }
 
@@ -1247,8 +1247,8 @@ pg_line_getsafepickle(pgLineObject *self, void *closure)
 static PyObject *
 pg_line_get_center(pgLineObject *self, void *closure)
 {
-    return pg_TupleFromDoublePair((self->line.x1 + self->line.x2) / 2,
-                                  (self->line.y1 + self->line.y2) / 2);
+    return pg_TupleFromDoublePair((self->line.xa + self->line.xb) / 2,
+                                  (self->line.ya + self->line.yb) / 2);
 }
 
 static int
@@ -1263,13 +1263,13 @@ pg_line_set_center(pgLineObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    double dx = m_x - (self->line.x1 + self->line.x2) / 2;
-    double dy = m_y - (self->line.y1 + self->line.y2) / 2;
+    double dx = m_x - (self->line.xa + self->line.xb) / 2;
+    double dy = m_y - (self->line.ya + self->line.yb) / 2;
 
-    self->line.x1 += dx;
-    self->line.y1 += dy;
-    self->line.x2 += dx;
-    self->line.y2 += dy;
+    self->line.xa += dx;
+    self->line.ya += dy;
+    self->line.xb += dx;
+    self->line.yb += dy;
 
     return 0;
 }
@@ -1277,7 +1277,7 @@ pg_line_set_center(pgLineObject *self, PyObject *value, void *closure)
 static PyObject *
 pg_line_get_centerx(pgLineObject *self, void *closure)
 {
-    return PyFloat_FromDouble((self->line.x1 + self->line.x2) / 2);
+    return PyFloat_FromDouble((self->line.xa + self->line.xb) / 2);
 }
 
 static int
@@ -1291,16 +1291,16 @@ pg_line_set_centerx(pgLineObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    double dx = m_x - (self->line.x1 + self->line.x2) / 2;
-    self->line.x1 += dx;
-    self->line.x2 += dx;
+    double dx = m_x - (self->line.xa + self->line.xb) / 2;
+    self->line.xa += dx;
+    self->line.xb += dx;
     return 0;
 }
 
 static PyObject *
 pg_line_get_centery(pgLineObject *self, void *closure)
 {
-    return PyFloat_FromDouble((self->line.y1 + self->line.y2) / 2);
+    return PyFloat_FromDouble((self->line.ya + self->line.yb) / 2);
 }
 
 static int
@@ -1314,17 +1314,17 @@ pg_line_set_centery(pgLineObject *self, PyObject *value, void *closure)
         return -1;
     }
 
-    double dy = m_y - (self->line.y1 + self->line.y2) / 2;
-    self->line.y1 += dy;
-    self->line.y2 += dy;
+    double dy = m_y - (self->line.ya + self->line.yb) / 2;
+    self->line.ya += dy;
+    self->line.yb += dy;
     return 0;
 }
 
 static PyGetSetDef pg_line_getsets[] = {
-    {"x1", (getter)pg_line_getx1, (setter)pg_line_setx1, NULL, NULL},
-    {"y1", (getter)pg_line_gety1, (setter)pg_line_sety1, NULL, NULL},
-    {"x2", (getter)pg_line_getx2, (setter)pg_line_setx2, NULL, NULL},
-    {"y2", (getter)pg_line_gety2, (setter)pg_line_sety2, NULL, NULL},
+    {"xa", (getter)pg_line_getxa, (setter)pg_line_setxa, NULL, NULL},
+    {"ya", (getter)pg_line_getya, (setter)pg_line_setya, NULL, NULL},
+    {"xb", (getter)pg_line_getxb, (setter)pg_line_setxb, NULL, NULL},
+    {"yb", (getter)pg_line_getyb, (setter)pg_line_setyb, NULL, NULL},
     {"a", (getter)pg_line_geta, (setter)pg_line_seta, NULL, NULL},
     {"b", (getter)pg_line_getb, (setter)pg_line_setb, NULL, NULL},
     {"length", (getter)pg_line_getlength, NULL, NULL, NULL},

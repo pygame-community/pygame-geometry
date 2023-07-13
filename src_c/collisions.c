@@ -14,18 +14,18 @@
 static int
 pgCollision_LineLine(pgLineBase *A, pgLineBase *B)
 {
-    double x1_m_x2 = A->x1 - A->x2;
-    double y3_m_y4 = B->y1 - B->y2;
-    double y1_m_y2 = A->y1 - A->y2;
-    double x3_m_x4 = B->x1 - B->x2;
+    double x1_m_x2 = A->xa - A->xb;
+    double y3_m_y4 = B->ya - B->yb;
+    double y1_m_y2 = A->ya - A->yb;
+    double x3_m_x4 = B->xa - B->xb;
 
     double den = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
 
     if (!den)
         return 0;
 
-    double x1_m_x3 = A->x1 - B->x1;
-    double y1_m_y3 = A->y1 - B->y1;
+    double x1_m_x3 = A->xa - B->xa;
+    double y1_m_y3 = A->ya - B->ya;
 
     double t1 = x1_m_x3 * y3_m_y4 - y1_m_y3 * x3_m_x4;
     double t = t1 / den;
@@ -40,18 +40,18 @@ static int
 pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
                         double *T)
 {
-    double x1 = A->x1;
-    double y1 = A->y1;
-    double x2 = A->x2;
-    double y2 = A->y2;
-    double x3 = B->x1;
-    double y3 = B->y1;
-    double x4 = B->x2;
-    double y4 = B->y2;
+    double xa = A->xa;
+    double ya = A->ya;
+    double xb = A->xb;
+    double yb = A->yb;
+    double x3 = B->xa;
+    double y3 = B->ya;
+    double x4 = B->xb;
+    double y4 = B->yb;
 
-    double x1_m_x2 = x1 - x2;
+    double x1_m_x2 = xa - xb;
     double y3_m_y4 = y3 - y4;
-    double y1_m_y2 = y1 - y2;
+    double y1_m_y2 = ya - yb;
     double x3_m_x4 = x3 - x4;
 
     double den = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
@@ -59,8 +59,8 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
     if (!den)
         return 0;
 
-    double x1_m_x3 = x1 - x3;
-    double y1_m_y3 = y1 - y3;
+    double x1_m_x3 = xa - x3;
+    double y1_m_y3 = ya - y3;
 
     double t1 = x1_m_x3 * y3_m_y4 - y1_m_y3 * x3_m_x4;
     double t = t1 / den;
@@ -70,9 +70,9 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
 
     if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
         if (X)
-            *X = x1 + t * (x2 - x1);
+            *X = xa + t * (xb - xa);
         if (Y)
-            *Y = y1 + t * (y2 - y1);
+            *Y = ya + t * (yb - ya);
         if (T)
             *T = t;
         return 1;
@@ -83,12 +83,12 @@ pgIntersection_LineLine(pgLineBase *A, pgLineBase *B, double *X, double *Y,
 static int
 pgCollision_LinePoint(pgLineBase *line, double Cx, double Cy)
 {
-    double dx = line->x1 - Cx;
-    double dy = line->y1 - Cy;
-    double dx2 = line->x2 - Cx;
-    double dy2 = line->y2 - Cy;
-    double dx3 = line->x1 - line->x2;
-    double dy3 = line->y1 - line->y2;
+    double dx = line->xa - Cx;
+    double dy = line->ya - Cy;
+    double dx2 = line->xb - Cx;
+    double dy2 = line->yb - Cy;
+    double dx3 = line->xa - line->xb;
+    double dy3 = line->ya - line->yb;
 
     double d = sqrt(dx * dx + dy * dy) + sqrt(dx2 * dx2 + dy2 * dy2);
     double d3 = sqrt(dx3 * dx3 + dy3 * dy3);
@@ -109,19 +109,19 @@ static int
 pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
                           double *Y, double *T)
 {
-    double x1 = line->x1;
-    double y1 = line->y1;
-    double x2 = line->x2;
-    double y2 = line->y2;
+    double xa = line->xa;
+    double ya = line->ya;
+    double xb = line->xb;
+    double yb = line->yb;
     double xc = circle->x;
     double yc = circle->y;
     double rsq = circle->r * circle->r;
 
-    double x1_m_xc = x1 - xc;
-    double y1_m_yc = y1 - yc;
+    double x1_m_xc = xa - xc;
+    double y1_m_yc = ya - yc;
 
-    double dx = x2 - x1;
-    double dy = y2 - y1;
+    double dx = xb - xa;
+    double dy = yb - ya;
     double A = dx * dx + dy * dy;
     double B = 2 * (dx * x1_m_xc + dy * y1_m_yc);
     double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - rsq;
@@ -139,9 +139,9 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
     }
 
     if (X)
-        *X = x1 + t * dx;
+        *X = xa + t * dx;
     if (Y)
-        *Y = y1 + t * dy;
+        *Y = ya + t * dy;
     if (T)
         *T = t;
     return 1;
@@ -150,29 +150,29 @@ pgIntersection_LineCircle(pgLineBase *line, pgCircleBase *circle, double *X,
 static int
 pgCollision_LineCircle(pgLineBase *line, pgCircleBase *circle)
 {
-    double x1 = line->x1;
-    double y1 = line->y1;
-    double x2 = line->x2;
-    double y2 = line->y2;
+    double xa = line->xa;
+    double ya = line->ya;
+    double xb = line->xb;
+    double yb = line->yb;
     double cx = circle->x;
     double cy = circle->y;
     double r = circle->r;
 
-    if (pgCollision_CirclePoint(circle, x1, y1) ||
-        pgCollision_CirclePoint(circle, x2, y2))
+    if (pgCollision_CirclePoint(circle, xa, ya) ||
+        pgCollision_CirclePoint(circle, xb, yb))
         return 1;
 
-    double dx = x1 - x2;
-    double dy = y1 - y2;
+    double dx = xa - xb;
+    double dy = ya - yb;
     double len = sqrt((dx * dx) + (dy * dy));
 
     double dot =
-        (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / (len * len);
+        (((cx - xa) * (xb - xa)) + ((cy - ya) * (yb - ya))) / (len * len);
 
-    double closest_x = x1 + (dot * (x2 - x1));
-    double closest_y = y1 + (dot * (y2 - y1));
+    double closest_x = xa + (dot * (xb - xa));
+    double closest_y = ya + (dot * (yb - ya));
 
-    pgLineBase line2 = {x1, y1, x2, y2};
+    pgLineBase line2 = {xa, ya, xb, yb};
     if (!pgCollision_LinePoint(&line2, closest_x, closest_y))
         return 0;
 
@@ -231,9 +231,9 @@ pgIntersection_LineRect(pgLineBase *line, SDL_Rect *rect, double *X, double *Y,
 
     if (ret) {
         if (X)
-            *X = line->x1 + final_t * (line->x2 - line->x1);
+            *X = line->xa + final_t * (line->xb - line->xa);
         if (Y)
-            *Y = line->y1 + final_t * (line->y2 - line->y1);
+            *Y = line->ya + final_t * (line->yb - line->ya);
         if (T)
             *T = final_t;
     }
@@ -322,8 +322,8 @@ pgCollision_PolygonPoint(pgPolygonBase *poly, double x, double y)
 }
 
 static inline int
-pgCollision_PolygonPoints(pgPolygonBase *poly, double x1, double y1, double x2,
-                          double y2)
+pgCollision_PolygonPoints(pgPolygonBase *poly, double xa, double ya, double xb,
+                          double yb)
 {
     int collision1 = 0, collision2 = 0;
     Py_ssize_t i, j;
@@ -339,13 +339,13 @@ pgCollision_PolygonPoints(pgPolygonBase *poly, double x1, double y1, double x2,
         double xj_xi = xj - xi;
         double yj_yi = yj - yi;
 
-        if (((yi > y1) != (yj > y1)) &&
-            (x1 < xj_xi * (y1 - yi) / yj_yi + xi)) {
+        if (((yi > ya) != (yj > ya)) &&
+            (xa < xj_xi * (ya - yi) / yj_yi + xi)) {
             collision1 = !collision1;
         }
 
-        if (((yi > y2) != (yj > y2)) &&
-            (x2 < xj_xi * (y2 - yi) / yj_yi + xi)) {
+        if (((yi > yb) != (yj > yb)) &&
+            (xb < xj_xi * (yb - yi) / yj_yi + xi)) {
             collision2 = !collision2;
         }
     }
@@ -379,8 +379,8 @@ pgCollision_PolygonLine(pgPolygonBase *poly, pgLineBase *line, int only_edges)
         return collision;
     }
 
-    return pgCollision_PolygonPoints(poly, line->x1, line->y1, line->x2,
-                                     line->y2);
+    return pgCollision_PolygonPoints(poly, line->xa, line->ya, line->xb,
+                                     line->yb);
 }
 
 static int
@@ -476,18 +476,18 @@ pgCollision_CirclePolygon(pgCircleBase *circle, pgPolygonBase *poly,
 static int
 pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
 {
-    double x1 = A->x1;
-    double y1 = A->y1;
-    double x2 = A->x2;
-    double y2 = A->y2;
-    double x3 = B->x1;
-    double y3 = B->y1;
-    double x4 = B->x2;
-    double y4 = B->y2;
+    double xa = A->xa;
+    double ya = A->ya;
+    double xb = A->xb;
+    double yb = A->yb;
+    double x3 = B->xa;
+    double y3 = B->ya;
+    double x4 = B->xb;
+    double y4 = B->yb;
 
-    double x1_m_x2 = x1 - x2;
+    double x1_m_x2 = xa - xb;
     double y3_m_y4 = y3 - y4;
-    double y1_m_y2 = y1 - y2;
+    double y1_m_y2 = ya - yb;
     double x3_m_x4 = x3 - x4;
 
     double den = x1_m_x2 * y3_m_y4 - y1_m_y2 * x3_m_x4;
@@ -495,8 +495,8 @@ pgRaycast_LineLine(pgLineBase *A, pgLineBase *B, double max_t, double *T)
     if (!den)
         return 0;
 
-    double x1_m_x3 = x1 - x3;
-    double y1_m_y3 = y1 - y3;
+    double x1_m_x3 = xa - x3;
+    double y1_m_y3 = ya - y3;
 
     double t = x1_m_x3 * y3_m_y4 - y1_m_y3 * x3_m_x4;
     t /= den;
@@ -554,18 +554,18 @@ static int
 pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t,
                      double *T)
 {
-    double x1 = line->x1;
-    double y1 = line->y1;
-    double x2 = line->x2;
-    double y2 = line->y2;
+    double xa = line->xa;
+    double ya = line->ya;
+    double xb = line->xb;
+    double yb = line->yb;
     double xc = circle->x;
     double yc = circle->y;
 
-    double x1_m_xc = x1 - xc;
-    double y1_m_yc = y1 - yc;
+    double x1_m_xc = xa - xc;
+    double y1_m_yc = ya - yc;
 
-    double dx = x2 - x1;
-    double dy = y2 - y1;
+    double dx = xb - xa;
+    double dy = yb - ya;
     double A = dx * dx + dy * dy;
     double B = 2 * (dx * x1_m_xc + dy * y1_m_yc);
     double C = x1_m_xc * x1_m_xc + y1_m_yc * y1_m_yc - circle->r * circle->r;

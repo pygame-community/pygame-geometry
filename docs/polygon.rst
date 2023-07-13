@@ -21,8 +21,8 @@
 
     Functions that require a `Polygon` argument may also accept these values as Polygons:
     ::
-        ((x1, y1), (x2, y2), (x3, y3), ...)
-        [(x1, y1), (x2, y2), (x3, y3), ...]
+        ((xa, ya), (xb, yb), (x3, y3), ...)
+        [(xa, ya), (xb, yb), (x3, y3), ...]
 
     **You cannot create a polygon with less than 3 vertices.**
 Polygon Attributes
@@ -161,8 +161,8 @@ Polygon Methods
 
         | :sl:`tests if a line intersects the polygon`
         | :sg:`collideline(Line, only_edges=False) -> bool`
-        | :sg:`collideline((x1, y1), (x2, y2), only_edges=False) -> bool`
-        | :sg:`collideline(x1, y1, x2, y2, only_edges=False) -> bool`
+        | :sg:`collideline((xa, ya), (xb, yb), only_edges=False) -> bool`
+        | :sg:`collideline(xa, ya, xb, yb, only_edges=False) -> bool`
 
         Tests whether a given `Line` collides with the `Polygon`.
         It takes either a `Line` or Line-like object as an argument and it returns `True`

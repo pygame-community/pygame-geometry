@@ -55,11 +55,11 @@ def populate_rects(number):
 def populate_lines(number):
     # in topleft quadrant
     for _ in range(number):
-        x1 = randint(0, SCREEN_W_HALF - 1)
-        y1 = randint(31, SCREEN_H_HALF - 1)
-        x2 = randint(0, SCREEN_W_HALF - 1)
-        y2 = randint(31, SCREEN_H_HALF - 1)
-        lines.append(Line(x1, y1, x2, y2))
+        xa = randint(0, SCREEN_W_HALF - 1)
+        ya = randint(31, SCREEN_H_HALF - 1)
+        xb = randint(0, SCREEN_W_HALF - 1)
+        yb = randint(31, SCREEN_H_HALF - 1)
+        lines.append(Line(xa, ya, xb, yb))
 
 
 def populate_circles(number):

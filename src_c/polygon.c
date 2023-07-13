@@ -1560,10 +1560,10 @@ pg_polygon_get_center(pgPolygonObject *self, void *closure)
 }
 
 static PG_FORCEINLINE double
-_pg_distance(double x1, double y1, double x2, double y2)
+_pg_distance(double xa, double ya, double xb, double yb)
 {
-    double dx = x2 - x1;
-    double dy = y2 - y1;
+    double dx = xb - xa;
+    double dy = yb - ya;
     return sqrt(dx * dx + dy * dy);
 }
 
