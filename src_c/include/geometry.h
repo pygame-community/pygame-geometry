@@ -23,8 +23,8 @@ typedef struct {
 #define pgCircle_GETR(self) (pgCircle_CAST(self)->circle.r)
 
 typedef struct {
-    double x1, y1;
-    double x2, y2;
+    double xa, ya;
+    double xb, yb;
 } pgLineBase;
 
 typedef struct {
@@ -36,10 +36,10 @@ typedef struct {
 
 #define pgLine_GETLINE(o) (pgLine_CAST(o)->line)
 #define pgLine_AsLine(o) (pgLine_CAST(o)->line)
-#define pgLine_GETX1(self) (pgLine_CAST(self)->line.x1)
-#define pgLine_GETY1(self) (pgLine_CAST(self)->line.y1)
-#define pgLine_GETX2(self) (pgLine_CAST(self)->line.x2)
-#define pgLine_GETY2(self) (pgLine_CAST(self)->line.y2)
+#define pgLine_GETX1(self) (pgLine_CAST(self)->line.xa)
+#define pgLine_GETY1(self) (pgLine_CAST(self)->line.ya)
+#define pgLine_GETX2(self) (pgLine_CAST(self)->line.xb)
+#define pgLine_GETY2(self) (pgLine_CAST(self)->line.yb)
 
 // return 1 if success and 0 if failure
 static int

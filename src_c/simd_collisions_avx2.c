@@ -65,10 +65,10 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
     double Rh = (double)rect->h;
 
     // here we start to setup the variables
-    __m256d x1_256d = _mm256_set1_pd(line->x1);
-    __m256d y1_256d = _mm256_set1_pd(line->y1);
-    __m256d x2_256d = _mm256_set1_pd(line->x2);
-    __m256d y2_256d = _mm256_set1_pd(line->y2);
+    __m256d x1_256d = _mm256_set1_pd(line->xa);
+    __m256d y1_256d = _mm256_set1_pd(line->ya);
+    __m256d x2_256d = _mm256_set1_pd(line->xb);
+    __m256d y2_256d = _mm256_set1_pd(line->yb);
     __m256d x3_256d = _mm256_set_pd(Rx, Rx, Rx, Rx + Rw);
     __m256d y3_256d = _mm256_set_pd(Ry, Ry, Ry + Rh, Ry);
     __m256d x4_256d = _mm256_set_pd(Rx + Rw, Rx, Rx + Rw, Rx + Rw);
@@ -140,9 +140,9 @@ pgIntersection_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double *X,
     if (T)
         *T = t;
     if (X)
-        *X = line->x1 + t * (line->x2 - line->x1);
+        *X = line->xa + t * (line->xb - line->xa);
     if (Y)
-        *Y = line->y1 + t * (line->y2 - line->y1);
+        *Y = line->ya + t * (line->yb - line->ya);
 
     return 1;
 }
@@ -156,10 +156,10 @@ pgCollision_RectLine_avx2(SDL_Rect *rect, pgLineBase *line)
     double Rh = (double)rect->h;
 
     // here we start to setup the variables
-    __m256d x1_256d = _mm256_set1_pd(line->x1);
-    __m256d y1_256d = _mm256_set1_pd(line->y1);
-    __m256d x2_256d = _mm256_set1_pd(line->x2);
-    __m256d y2_256d = _mm256_set1_pd(line->y2);
+    __m256d x1_256d = _mm256_set1_pd(line->xa);
+    __m256d y1_256d = _mm256_set1_pd(line->ya);
+    __m256d x2_256d = _mm256_set1_pd(line->xb);
+    __m256d y2_256d = _mm256_set1_pd(line->yb);
     __m256d x3_256d = _mm256_set_pd(Rx, Rx, Rx, Rx + Rw);
     __m256d y3_256d = _mm256_set_pd(Ry, Ry, Ry + Rh, Ry);
     __m256d x4_256d = _mm256_set_pd(Rx + Rw, Rx, Rx + Rw, Rx + Rw);
@@ -226,10 +226,10 @@ pgRaycast_LineRect_avx2(pgLineBase *line, SDL_Rect *rect, double max_t,
     double Rh = (double)rect->h;
 
     // here we start to setup the variables
-    __m256d x1_256d = _mm256_set1_pd(line->x1);
-    __m256d y1_256d = _mm256_set1_pd(line->y1);
-    __m256d x2_256d = _mm256_set1_pd(line->x2);
-    __m256d y2_256d = _mm256_set1_pd(line->y2);
+    __m256d x1_256d = _mm256_set1_pd(line->xa);
+    __m256d y1_256d = _mm256_set1_pd(line->ya);
+    __m256d x2_256d = _mm256_set1_pd(line->xb);
+    __m256d y2_256d = _mm256_set1_pd(line->yb);
     __m256d x3_256d = _mm256_set_pd(Rx, Rx, Rx, Rx + Rw);
     __m256d y3_256d = _mm256_set_pd(Ry, Ry, Ry + Rh, Ry);
     __m256d x4_256d = _mm256_set_pd(Rx + Rw, Rx, Rx + Rw, Rx + Rw);

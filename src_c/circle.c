@@ -432,8 +432,8 @@ pg_circle_contains(pgCircleObject *self, PyObject *arg)
     else if (pgLine_Check(arg)) {
         pgLineBase *temp = &pgLine_AsLine(arg);
 
-        if (pgCollision_CirclePoint(scirc, temp->x1, temp->y1) &&
-            pgCollision_CirclePoint(scirc, temp->x2, temp->y2)) {
+        if (pgCollision_CirclePoint(scirc, temp->xa, temp->ya) &&
+            pgCollision_CirclePoint(scirc, temp->xb, temp->yb)) {
             result = 1;
         }
     }

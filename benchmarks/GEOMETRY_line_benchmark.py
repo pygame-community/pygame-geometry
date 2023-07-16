@@ -114,23 +114,23 @@ conversion_tests = [
 ]
 
 getters_tests = [
-    ("x1", "l1.x1"),
-    ("y1", "l1.y1"),
-    ("x2", "l1.x2"),
-    ("y2", "l1.y2"),
+    ("xa", "l1.xa"),
+    ("ya", "l1.ya"),
+    ("xb", "l1.xb"),
+    ("yb", "l1.yb"),
     ("a", "l1.a"),
     ("b", "l1.b"),
 ]
 
 setters_tests = [
-    ("x1 int", "l1.x1 = 1"),
-    ("x1 float", "l1.x1 = 1.0"),
-    ("y1 int", "l1.y1 = 1"),
-    ("y1 float", "l1.y1 = 1.0"),
-    ("x2 int", "l1.x2 = 1"),
-    ("x2 float", "l1.x2 = 1.0"),
-    ("y2 int", "l1.y2 = 1"),
-    ("y2 float", "l1.y2 = 1.0"),
+    ("xa int", "l1.xa = 1"),
+    ("xa float", "l1.xa = 1.0"),
+    ("ya int", "l1.ya = 1"),
+    ("ya float", "l1.ya = 1.0"),
+    ("xb int", "l1.xb = 1"),
+    ("xb float", "l1.xb = 1.0"),
+    ("yb int", "l1.yb = 1"),
+    ("yb float", "l1.yb = 1.0"),
     ("a int", "l1.a = (1, 1)"),
     ("a float", "l1.a = (1.0, 1.0)"),
     ("b int", "l1.b = (1, 1)"),

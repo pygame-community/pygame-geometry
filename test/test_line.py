@@ -14,10 +14,10 @@ def _distance(p1, p2):
 
 
 def get_points_between(line, n_pts):
-    dx = (line.x2 - line.x1) / (n_pts + 1)
-    dy = (line.y2 - line.y1) / (n_pts + 1)
+    dx = (line.xb - line.xa) / (n_pts + 1)
+    dy = (line.yb - line.ya) / (n_pts + 1)
 
-    return [(line.x1 + i * dx, line.y1 + i * dy) for i in range(n_pts + 2)]
+    return [(line.xa + i * dx, line.ya + i * dy) for i in range(n_pts + 2)]
 
 
 class LineTypeTest(unittest.TestCase):
@@ -46,19 +46,19 @@ class LineTypeTest(unittest.TestCase):
         """
         invalid_types = (None, [], "1", (1,), [1, 2, 3], Vector2(1, 1))
 
-        # Test x1
+        # Test xa
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 Line(value, 0, 1, 2)
-        # Test y1
+        # Test ya
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 Line(0, value, 1, 2)
-        # Test x2
+        # Test xb
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 Line(0, 0, value, 2)
-        # Test y2
+        # Test yb
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 Line(0, 1, 2, value)
@@ -81,64 +81,64 @@ class LineTypeTest(unittest.TestCase):
     def testConstructionX1Y1X2Y2_float(self):
         line = Line(1.0, 2.0, 3.0, 4.0)
 
-        self.assertEqual(line.x1, 1.0)
-        self.assertEqual(line.y1, 2.0)
-        self.assertEqual(line.x2, 3.0)
-        self.assertEqual(line.y2, 4.0)
+        self.assertEqual(line.xa, 1.0)
+        self.assertEqual(line.ya, 2.0)
+        self.assertEqual(line.xb, 3.0)
+        self.assertEqual(line.yb, 4.0)
 
     def testConstructionTUP_X1Y1X2Y2_float(self):
         line = Line((1.0, 2.0, 3.0, 4.0))
 
-        self.assertEqual(line.x1, 1.0)
-        self.assertEqual(line.y1, 2.0)
-        self.assertEqual(line.x2, 3.0)
-        self.assertEqual(line.y2, 4.0)
+        self.assertEqual(line.xa, 1.0)
+        self.assertEqual(line.ya, 2.0)
+        self.assertEqual(line.xb, 3.0)
+        self.assertEqual(line.yb, 4.0)
 
     def testConstructionX1Y1X2Y2_int(self):
         line = Line(1, 2, 3, 4)
 
-        self.assertEqual(line.x1, 1.0)
-        self.assertEqual(line.y1, 2.0)
-        self.assertEqual(line.x2, 3.0)
-        self.assertEqual(line.y2, 4.0)
+        self.assertEqual(line.xa, 1.0)
+        self.assertEqual(line.ya, 2.0)
+        self.assertEqual(line.xb, 3.0)
+        self.assertEqual(line.yb, 4.0)
 
     def testConstructionTUP_X1Y1X2Y2_int(self):
         line = Line((1, 2, 3, 4))
 
-        self.assertEqual(line.x1, 1.0)
-        self.assertEqual(line.y1, 2.0)
-        self.assertEqual(line.x2, 3.0)
-        self.assertEqual(line.y2, 4.0)
+        self.assertEqual(line.xa, 1.0)
+        self.assertEqual(line.ya, 2.0)
+        self.assertEqual(line.xb, 3.0)
+        self.assertEqual(line.yb, 4.0)
 
     def testConstruction_class_with_line_attrib(self):
         class_ = self.ClassWithLineAttrib(Line(1.1, 2.2, 3.3, 4.4))
 
         line = Line(class_)
 
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
+        self.assertEqual(line.xa, 1.1)
+        self.assertEqual(line.ya, 2.2)
+        self.assertEqual(line.xb, 3.3)
+        self.assertEqual(line.yb, 4.4)
 
     def testConstruction_class_with_line_property(self):
         class_ = self.ClassWithLineProperty(Line(1.1, 2.2, 3.3, 4.4))
 
         line = Line(class_)
 
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
+        self.assertEqual(line.xa, 1.1)
+        self.assertEqual(line.ya, 2.2)
+        self.assertEqual(line.xb, 3.3)
+        self.assertEqual(line.yb, 4.4)
 
     def testConstruction_class_with_line_function(self):
         class_ = self.ClassWithLineFunction(Line(1.1, 2.2, 3.3, 4.4))
 
         line = Line(class_)
 
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
+        self.assertEqual(line.xa, 1.1)
+        self.assertEqual(line.ya, 2.2)
+        self.assertEqual(line.xb, 3.3)
+        self.assertEqual(line.yb, 4.4)
 
     def testConstruction_degenerate(self):
         """Ensures that you can't create degenerate lines (lines with zero length)"""
@@ -196,111 +196,111 @@ class LineTypeTest(unittest.TestCase):
             Line(([1.0, 2.0], [1.0, 2.0]))
 
     def test_attrib_x1(self):
-        """a full test for the x1 attribute"""
+        """a full test for the xa attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         line = Line(1, expected_y1, expected_x2, expected_y2)
 
-        line.x1 = expected_x1
+        line.xa = expected_x1
 
-        self.assertEqual(line.x1, expected_x1)
-        self.assertEqual(line.y1, expected_y1)
-        self.assertEqual(line.x2, expected_x2)
-        self.assertEqual(line.y2, expected_y2)
+        self.assertEqual(line.xa, expected_x1)
+        self.assertEqual(line.ya, expected_y1)
+        self.assertEqual(line.xb, expected_x2)
+        self.assertEqual(line.yb, expected_y2)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.x1 = value
+                line.xa = value
 
         line = Line(0, 0, 1, 0)
 
         with self.assertRaises(AttributeError):
-            del line.x1
+            del line.xa
 
     def test_attrib_y1(self):
-        """a full test for the y1 attribute"""
+        """a full test for the ya attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         line = Line(expected_x1, 1, expected_x2, expected_y2)
 
-        line.y1 = expected_y1
+        line.ya = expected_y1
 
-        self.assertEqual(line.x1, expected_x1)
-        self.assertEqual(line.y1, expected_y1)
-        self.assertEqual(line.x2, expected_x2)
-        self.assertEqual(line.y2, expected_y2)
+        self.assertEqual(line.xa, expected_x1)
+        self.assertEqual(line.ya, expected_y1)
+        self.assertEqual(line.xb, expected_x2)
+        self.assertEqual(line.yb, expected_y2)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.y1 = value
+                line.ya = value
 
         line = Line(0, 0, 1, 0)
 
         with self.assertRaises(AttributeError):
-            del line.y1
+            del line.ya
 
     def test_attrib_x2(self):
-        """a full test for the y1 attribute"""
+        """a full test for the ya attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         line = Line(expected_x1, expected_y1, 1, expected_y2)
 
-        line.x2 = expected_x2
+        line.xb = expected_x2
 
-        self.assertEqual(line.x1, expected_x1)
-        self.assertEqual(line.y1, expected_y1)
-        self.assertEqual(line.x2, expected_x2)
-        self.assertEqual(line.y2, expected_y2)
+        self.assertEqual(line.xa, expected_x1)
+        self.assertEqual(line.ya, expected_y1)
+        self.assertEqual(line.xb, expected_x2)
+        self.assertEqual(line.yb, expected_y2)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.x2 = value
+                line.xb = value
 
         line = Line(0, 0, 1, 0)
 
         with self.assertRaises(AttributeError):
-            del line.x2
+            del line.xb
 
     def test_attrib_y2(self):
-        """a full test for the y1 attribute"""
+        """a full test for the ya attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
         expected_y2 = 6.0
         line = Line(expected_x1, expected_y1, expected_x2, 1)
 
-        line.y2 = expected_y2
+        line.yb = expected_y2
 
-        self.assertEqual(line.x1, expected_x1)
-        self.assertEqual(line.y1, expected_y1)
-        self.assertEqual(line.x2, expected_x2)
-        self.assertEqual(line.y2, expected_y2)
+        self.assertEqual(line.xa, expected_x1)
+        self.assertEqual(line.ya, expected_y1)
+        self.assertEqual(line.xb, expected_x2)
+        self.assertEqual(line.yb, expected_y2)
 
         line = Line(0, 0, 1, 0)
 
         for value in (None, [], "1", (1,), [1, 2, 3]):
             with self.assertRaises(TypeError):
-                line.y2 = value
+                line.yb = value
 
         line = Line(0, 0, 1, 0)
 
         with self.assertRaises(AttributeError):
-            del line.y2
+            del line.yb
 
     def test_attrib_a(self):
-        """a full test for the y1 attribute"""
+        """a full test for the ya attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
@@ -326,7 +326,7 @@ class LineTypeTest(unittest.TestCase):
             del line.a
 
     def test_attrib_b(self):
-        """a full test for the y1 attribute"""
+        """a full test for the ya attribute"""
         expected_x1 = 10.0
         expected_y1 = 2.0
         expected_x2 = 5.0
@@ -375,35 +375,35 @@ class LineTypeTest(unittest.TestCase):
         line = Line(1, 4, 4, 4)
         self.assertEqual(line.length, expected_length)
 
-        line.x1 = 2
+        line.xa = 2
         expected_length = 2.0
         self.assertEqual(line.length, expected_length)
 
-        line.x1 = 2.7
+        line.xa = 2.7
         expected_length = 1.2999999999999998
         self.assertEqual(line.length, expected_length)
 
-        line.y1 = 2
+        line.ya = 2
         expected_length = 2.3853720883753127
         self.assertEqual(line.length, expected_length)
 
-        line.y1 = 2.7
+        line.ya = 2.7
         expected_length = 1.8384776310850233
         self.assertEqual(line.length, expected_length)
 
-        line.x2 = 2
+        line.xb = 2
         expected_length = 1.4764823060233399
         self.assertEqual(line.length, expected_length)
 
-        line.x2 = 2.7
+        line.xb = 2.7
         expected_length = 1.2999999999999998
         self.assertEqual(line.length, expected_length)
 
-        line.y2 = 2
+        line.yb = 2
         expected_length = 0.7000000000000002
         self.assertEqual(line.length, expected_length)
 
-        line.y2 = 2.7
+        line.yb = 2.7
         expected_length = 0.0
         self.assertEqual(line.length, expected_length)
 
@@ -578,10 +578,10 @@ class LineTypeTest(unittest.TestCase):
             line.copy(10)
 
         line_2 = line.copy()
-        self.assertEqual(line.x1, line_2.x1)
-        self.assertEqual(line.y2, line_2.y2)
-        self.assertEqual(line.x2, line_2.x2)
-        self.assertEqual(line.y2, line_2.y2)
+        self.assertEqual(line.xa, line_2.xa)
+        self.assertEqual(line.yb, line_2.yb)
+        self.assertEqual(line.xb, line_2.xb)
+        self.assertEqual(line.yb, line_2.yb)
 
         self.assertIsNot(line, line_2)
 
@@ -628,10 +628,10 @@ class LineTypeTest(unittest.TestCase):
 
         ret = line.move(1, 2)
 
-        self.assertEqual(ret.x1, 2.1)
-        self.assertEqual(ret.y1, 4.2)
-        self.assertEqual(ret.x2, 4.3)
-        self.assertEqual(ret.y2, 6.4)
+        self.assertEqual(ret.xa, 2.1)
+        self.assertEqual(ret.ya, 4.2)
+        self.assertEqual(ret.xb, 4.3)
+        self.assertEqual(ret.yb, 6.4)
 
         with self.assertRaises(TypeError):
             line.move()
@@ -650,10 +650,10 @@ class LineTypeTest(unittest.TestCase):
 
         line.move_ip(1, 2)
 
-        self.assertEqual(line.x1, 2.1)
-        self.assertEqual(line.y1, 4.2)
-        self.assertEqual(line.x2, 4.3)
-        self.assertEqual(line.y2, 6.4)
+        self.assertEqual(line.xa, 2.1)
+        self.assertEqual(line.ya, 4.2)
+        self.assertEqual(line.xb, 4.3)
+        self.assertEqual(line.yb, 6.4)
 
         with self.assertRaises(TypeError):
             line.move_ip()
@@ -742,10 +742,10 @@ class LineTypeTest(unittest.TestCase):
         ret = line.flip_ab()
 
         self.assertIsInstance(ret, Line)
-        self.assertEqual(ret.x1, 3.3)
-        self.assertEqual(ret.y1, 4.4)
-        self.assertEqual(ret.x2, 1.1)
-        self.assertEqual(ret.y2, 2.2)
+        self.assertEqual(ret.xa, 3.3)
+        self.assertEqual(ret.ya, 4.4)
+        self.assertEqual(ret.xb, 1.1)
+        self.assertEqual(ret.yb, 2.2)
 
         with self.assertRaises(TypeError):
             line.flip_ab(1)
@@ -755,10 +755,10 @@ class LineTypeTest(unittest.TestCase):
 
         line.flip_ab_ip()
 
-        self.assertEqual(line.x1, 3.3)
-        self.assertEqual(line.y1, 4.4)
-        self.assertEqual(line.x2, 1.1)
-        self.assertEqual(line.y2, 2.2)
+        self.assertEqual(line.xa, 3.3)
+        self.assertEqual(line.ya, 4.4)
+        self.assertEqual(line.xb, 1.1)
+        self.assertEqual(line.yb, 2.2)
 
         with self.assertRaises(TypeError):
             line.flip_ab_ip(1)
@@ -809,22 +809,22 @@ class LineTypeTest(unittest.TestCase):
         line = Line(0, 0, 1, 1)
 
         line.update(1, 2, 3, 4)
-        self.assertEqual(line.x1, 1)
-        self.assertEqual(line.y1, 2)
-        self.assertEqual(line.x2, 3)
-        self.assertEqual(line.y2, 4)
+        self.assertEqual(line.xa, 1)
+        self.assertEqual(line.ya, 2)
+        self.assertEqual(line.xb, 3)
+        self.assertEqual(line.yb, 4)
 
         line.update((5, 6), (7, 8))
-        self.assertEqual(line.x1, 5)
-        self.assertEqual(line.y1, 6)
-        self.assertEqual(line.x2, 7)
-        self.assertEqual(line.y2, 8)
+        self.assertEqual(line.xa, 5)
+        self.assertEqual(line.ya, 6)
+        self.assertEqual(line.xb, 7)
+        self.assertEqual(line.yb, 8)
 
         line.update((9, 10, 11, 12))
-        self.assertEqual(line.x1, 9)
-        self.assertEqual(line.y1, 10)
-        self.assertEqual(line.x2, 11)
-        self.assertEqual(line.y2, 12)
+        self.assertEqual(line.xa, 9)
+        self.assertEqual(line.ya, 10)
+        self.assertEqual(line.xb, 11)
+        self.assertEqual(line.yb, 12)
 
         with self.assertRaises(TypeError):
             line.update()
@@ -914,20 +914,20 @@ class LineTypeTest(unittest.TestCase):
         line[2] = 7.7
         line[3] = 8.8
 
-        self.assertEqual(line.x1, 5.5)
-        self.assertEqual(line.y1, 6.6)
-        self.assertEqual(line.x2, 7.7)
-        self.assertEqual(line.y2, 8.8)
+        self.assertEqual(line.xa, 5.5)
+        self.assertEqual(line.ya, 6.6)
+        self.assertEqual(line.xb, 7.7)
+        self.assertEqual(line.yb, 8.8)
 
         line[-4] = 15.5
         line[-3] = 16.6
         line[-2] = 17.7
         line[-1] = 18.8
 
-        self.assertEqual(line.x1, 15.5)
-        self.assertEqual(line.y1, 16.6)
-        self.assertEqual(line.x2, 17.7)
-        self.assertEqual(line.y2, 18.8)
+        self.assertEqual(line.xa, 15.5)
+        self.assertEqual(line.ya, 16.6)
+        self.assertEqual(line.xb, 17.7)
+        self.assertEqual(line.yb, 18.8)
 
         with self.assertRaises(IndexError):
             line[4] = 1
@@ -944,28 +944,28 @@ class LineTypeTest(unittest.TestCase):
             line[0] = object()
 
         line[:] = 10.1
-        self.assertEqual(line.x1, 10.1)
-        self.assertEqual(line.y1, 10.1)
-        self.assertEqual(line.x2, 10.1)
-        self.assertEqual(line.y2, 10.1)
+        self.assertEqual(line.xa, 10.1)
+        self.assertEqual(line.ya, 10.1)
+        self.assertEqual(line.xb, 10.1)
+        self.assertEqual(line.yb, 10.1)
 
         line[0:2] = 5.59
-        self.assertEqual(line.x1, 5.59)
-        self.assertEqual(line.y1, 5.59)
-        self.assertEqual(line.x2, 10.1)
-        self.assertEqual(line.y2, 10.1)
+        self.assertEqual(line.xa, 5.59)
+        self.assertEqual(line.ya, 5.59)
+        self.assertEqual(line.xb, 10.1)
+        self.assertEqual(line.yb, 10.1)
 
         line[0:4] = 5.595
-        self.assertEqual(line.x1, 5.595)
-        self.assertEqual(line.y1, 5.595)
-        self.assertEqual(line.x2, 5.595)
-        self.assertEqual(line.y2, 5.595)
+        self.assertEqual(line.xa, 5.595)
+        self.assertEqual(line.ya, 5.595)
+        self.assertEqual(line.xb, 5.595)
+        self.assertEqual(line.yb, 5.595)
 
         line[0:4] = Line(1.1, 2.2, 3.3, 4.4)
-        self.assertEqual(line.x1, 1.1)
-        self.assertEqual(line.y1, 2.2)
-        self.assertEqual(line.x2, 3.3)
-        self.assertEqual(line.y2, 4.4)
+        self.assertEqual(line.xa, 1.1)
+        self.assertEqual(line.ya, 2.2)
+        self.assertEqual(line.xb, 3.3)
+        self.assertEqual(line.yb, 4.4)
 
         with self.assertRaises(TypeError):
             line[0:4] = [1, 2, 3, 4, 5]
@@ -1041,7 +1041,7 @@ class LineTypeTest(unittest.TestCase):
 
         line = Line(0, 0, 1, 1)
 
-        # Test x1
+        # Test xa
         for value in invalid_types:
             with self.assertRaises(TypeError):
                 line.at(value)

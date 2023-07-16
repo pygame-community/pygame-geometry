@@ -7,7 +7,7 @@
 .. class:: Line
 
     | :sl:`pygame object for representing a Line`
-    | :sg:`Line(x1, y1, x2, y2) -> Line`
+    | :sg:`Line(xa, ya, xb, yb) -> Line`
     | :sg:`Line(first, second) -> Line`
     | :sg:`Line(line) -> Line`
 
@@ -17,13 +17,13 @@
     point of the `Line`. Lines can also be created from python objects that are already a
     `Line` or have an attribute named "line".
 
-    Specifically, to construct a `Line` you can pass the x1, y1, x2, y2 values as
+    Specifically, to construct a `Line` you can pass the xa, ya, xb, yb values as
     separate arguments or inside a sequence(list or tuple).
 
     Functions that require a `Line` argument may also accept these values as Lines:
     ::
-        ((x1, y1), (x2, y2))
-        (x1, y1, x2, y2)
+        ((xa, ya), (xb, yb))
+        (xa, ya, xb, yb)
 
     **You cannot create degenerate Lines(lines with the same start and end point). If you
     try, the `Line` will not be created and an error will be raised.**
@@ -36,61 +36,61 @@ Line Attributes
 
     Here is the list of all the attributes of the `Line` class:
 
-    .. attribute:: x1
+    .. attribute:: xa
         | :sl:`x coordinate of the first point of the line`
-        | :sg:`x1 -> float`
+        | :sg:`xa -> float`
 
         The `x` coordinate of the first point of the `Line`. It can be reassigned to
-        move the `Line`. Reassigning the `x1` attribute will move x position of the first
-        point to the new `x` coordinate. The `y1`, `x2`, `y2` attributes will not be affected.
+        move the `Line`. Reassigning the `xa` attribute will move x position of the first
+        point to the new `x` coordinate. The `ya`, `xb`, `yb` attributes will not be affected.
 
-    .. attribute:: y1
+    .. attribute:: ya
         | :sl:`y coordinate of the first point of the line`
-        | :sg:`y1 -> float`
+        | :sg:`ya -> float`
 
         The `y` coordinate of the first point of the `Line`. It can be reassigned to
-        move the `Line`. Reassigning the `y1` attribute will move x position of the first
-        point to the new `y` coordinate. The `x1`, `x2`, `y2` attributes will not be affected.
+        move the `Line`. Reassigning the `ya` attribute will move x position of the first
+        point to the new `y` coordinate. The `xa`, `xb`, `yb` attributes will not be affected.
 
-    .. attribute:: x2
+    .. attribute:: xb
         | :sl:`x coordinate of the second point of the line`
-        | :sg:`x2 -> float`
+        | :sg:`xb -> float`
 
         The `x` coordinate of the second point of the `Line`. It can be reassigned to
-        move the `Line`. Reassigning the `x2` attribute will move x position of the first
-        point to the new `x` coordinate. The `x1`, `y1`, `y2` attributes will not be affected.
+        move the `Line`. Reassigning the `xb` attribute will move x position of the first
+        point to the new `x` coordinate. The `xa`, `ya`, `yb` attributes will not be affected.
 
-    .. attribute:: y2
+    .. attribute:: yb
         | :sl:`y coordinate of the second point of the line`
-        | :sg:`y2 -> float`
+        | :sg:`yb -> float`
 
         The `y` coordinate of the second point of the `Line`. It can be reassigned to
-        move the `Line`. Reassigning the `y2` attribute will move x position of the first
-        point to the new y` coordinate. The `x1`, `y1`, `x2` attributes will not be affected.
+        move the `Line`. Reassigning the `yb` attribute will move x position of the first
+        point to the new y` coordinate. The `xa`, `ya`, `xb` attributes will not be affected.
 
     .. attribute:: a
         | :sl:`the first point of the line`
         | :sg:`a -> (float, float)`
 
-        It's a tuple containing the `x1` and `y1` attributes representing the line's first point.
-        It can be reassigned to move the `Line`. If reassigned the `x1` and `y1` attributes
+        It's a tuple containing the `xa` and `ya` attributes representing the line's first point.
+        It can be reassigned to move the `Line`. If reassigned the `xa` and `ya` attributes
         will be changed to produce a `Line` with matching first point position.
-        The `x2` and `y2` attributes will not be affected.
+        The `xb` and `yb` attributes will not be affected.
 
     .. attribute:: b
         | :sl:`the second point of the line`
         | :sg:`b -> (float, float)`
 
-        It's a tuple containing `x2` and `y2` attributes representing the line's second point.
-        It can be reassigned to move the `Line`. If reassigned the `x2` and `y2` attributes
+        It's a tuple containing `xb` and `yb` attributes representing the line's second point.
+        It can be reassigned to move the `Line`. If reassigned the `xb` and `yb` attributes
         will be changed to produce a `Line` with matching second point position.
-        The `x1` and `y1` attributes will not be affected.
+        The `xa` and `ya` attributes will not be affected.
 
     .. attribute:: length
         | :sl:`the length of the line`
         | :sg:`length -> float`
 
-        The length of the line. Calculated using the `sqrt((x2-x1)**2 + (y2-y1)**2)` formula.
+        The length of the line. Calculated using the `sqrt((xb-xa)**2 + (yb-ya)**2)` formula.
         This attribute is read-only, it cannot be reassigned. To change the line's length
         use the `scale` method or change its `a` or `b` attributes.
 
@@ -99,7 +99,7 @@ Line Attributes
         | :sg:`angle -> float`
 
         The angle of the line representing its orientation. Calculated using
-        the `atan2(y2 - y1, x2 - x1)` formula. This attribute is read-only, it cannot
+        the `atan2(yb - ya, xb - xa)` formula. This attribute is read-only, it cannot
         be reassigned. To change the line's angle use the `rotate` method or change
         its `a` or `b` attributes.
 
@@ -107,7 +107,7 @@ Line Attributes
         | :sl:`the slope of the line`
         | :sg:`slope -> float`
 
-        The slope of the line. Calculated using the `(y2 - y1) / (x2 - x1)` formula.
+        The slope of the line. Calculated using the `(yb - ya) / (xb - xa)` formula.
         This attribute is read-only, it cannot be reassigned. To change the line's slope
         use the `rotate` method or change its `a` or `b` attributes.
 
@@ -115,8 +115,8 @@ Line Attributes
         | :sl:`the coordinate of the middle point of the line`
         | :sg:`center -> (float, float)`
 
-        The center of the line. Calculated using the `((x1 + x2) / 2, (y1 + y2) / 2)` formula.
-        It can be reassigned to move the `Line`. If reassigned the `x1`, `y1`, `x2`, `y2`
+        The center of the line. Calculated using the `((xa + xb) / 2, (ya + yb) / 2)` formula.
+        It can be reassigned to move the `Line`. If reassigned the `xa`, `ya`, `xb`, `yb`
         attributes will be changed in order to produce a `Line` with matching center.
 
     .. attribute:: centerx
@@ -124,9 +124,9 @@ Line Attributes
         | :sg:`centerx -> float`
 
         The `x` coordinate of the center of the line, it's calculated using
-        the `((x1 + x2) / 2)` formula. It can be reassigned to move the `Line`.
-        If reassigned the `x1` and `x2` attributes will be changed in order to
-        produce a `Line` with matching center. The `y1` and `y2` attributes will not
+        the `((xa + xb) / 2)` formula. It can be reassigned to move the `Line`.
+        If reassigned the `xa` and `xb` attributes will be changed in order to
+        produce a `Line` with matching center. The `ya` and `yb` attributes will not
         be affected.
 
     .. attribute:: centery
@@ -134,9 +134,9 @@ Line Attributes
         | :sg:`centery -> float`
 
         The `y` coordinate of the center of the `Line`, it's calculated using
-        the `((y1 + y2) / 2)` formula. It can be reassigned to move the `Line`.
-        If reassigned the `y1` and `y2` attributes will be changed in order to
-        produce a `Line` with matching center. The `x1` and `x2` attributes will not
+        the `((ya + yb) / 2)` formula. It can be reassigned to move the `Line`.
+        If reassigned the `ya` and `yb` attributes will be changed in order to
+        produce a `Line` with matching center. The `xa` and `xb` attributes will not
         be affected.
 
 Line Methods
@@ -160,7 +160,7 @@ Line Methods
         .. note::
             This method is equivalent(behaviour wise) to the following code:
             ::
-                Line(line.x1 + x, line.y1 + y, line.x2 + x, line.y2 + y)
+                Line(line.xa + x, line.ya + y, line.xb + x, line.yb + y)
 
       .. ## Line.move ##
 
@@ -176,10 +176,10 @@ Line Methods
         .. note::
             This method is equivalent(behaviour wise) to the following code:
             ::
-                line.x1 += x
-                line.y1 += y
-                line.x2 += x
-                line.y2 += y
+                line.xa += x
+                line.ya += y
+                line.xb += x
+                line.yb += y
 
       .. ## Line.move_ip ##
 
@@ -187,8 +187,8 @@ Line Methods
     .. method:: update
 
         | :sl:`updates the line's attributes`
-        | :sg:`update((x1, y1), (x2, y2)) -> None`
-        | :sg:`update(x1, y1, x2, y2) -> None`
+        | :sg:`update((xa, ya), (xb, yb)) -> None`
+        | :sg:`update(xa, ya, xb, yb) -> None`
         | :sg:`update(Line) -> None`
 
         Updates the `Line`'s attributes. The original Line is modified. Always returns None.
@@ -196,10 +196,10 @@ Line Methods
         .. note::
             This method is equivalent(behaviour wise) to the following code:
             ::
-                line.x1 = x1
-                line.y1 = y1
-                line.x2 = x2
-                line.y2 = y2
+                line.xa = xa
+                line.ya = ya
+                line.xb = xb
+                line.yb = yb
 
       .. ## Line.update ##
 
@@ -291,8 +291,8 @@ Line Methods
 
         | :sl:`test if a line intersects with another line`
         | :sg:`collideline(Line) -> bool`
-        | :sg:`collideline((x1, y1), (x2, y2)) -> bool`
-        | :sg:`collideline(x1, y1, x2, y2) -> bool`
+        | :sg:`collideline((xa, ya), (xb, yb)) -> bool`
+        | :sg:`collideline(xa, ya, xb, yb) -> bool`
 
         Returns True if the `Line` intersects with the given `Line`, False otherwise.
 
@@ -324,8 +324,8 @@ Line Methods
 
         | :sl:`test if a line intersects with a polygon`
         | :sg:`collidepolygon(Polygon, only_edges=False) -> bool`
-        | :sg:`collidepolygon((x1, y1), (x2, y2), ..., only_edges=False) -> bool`
-        | :sg:`collidepolygon(x1, y1, x2, y2, ..., only_edges=False) -> bool`
+        | :sg:`collidepolygon((xa, ya), (xb, yb), ..., only_edges=False) -> bool`
+        | :sg:`collidepolygon(xa, ya, xb, yb, ..., only_edges=False) -> bool`
 
         Tests whether a given `Polygon` collides with the `Line`.
         It takes either a `Polygon` or Polygon-like object as an argument and it returns

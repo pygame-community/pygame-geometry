@@ -1313,8 +1313,7 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"collideline", (PyCFunction)pg_polygon_collideline, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_polygon_collidecircle, METH_FASTCALL,
      NULL},
-    {"as_rect", (PyCFunction)pg_polygon_as_rect, METH_NOARGS,
-     NULL},
+    {"as_rect", (PyCFunction)pg_polygon_as_rect, METH_NOARGS, NULL},
     {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
     {"__copy__", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_polygon_copy, METH_NOARGS, NULL},
@@ -1560,10 +1559,10 @@ pg_polygon_get_center(pgPolygonObject *self, void *closure)
 }
 
 static PG_FORCEINLINE double
-_pg_distance(double x1, double y1, double x2, double y2)
+_pg_distance(double xa, double ya, double xb, double yb)
 {
-    double dx = x2 - x1;
-    double dy = y2 - y1;
+    double dx = xb - xa;
+    double dy = yb - ya;
     return sqrt(dx * dx + dy * dy);
 }
 
