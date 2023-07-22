@@ -144,6 +144,10 @@ other objects.
 
     as_points: returns the line as a list of points.
 
+    flip: Flips the line along the given axes.
+
+    flip_ip: Flips the line along the given axes in place.
+
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Polygon

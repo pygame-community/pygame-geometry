@@ -41,6 +41,17 @@ _pg_line_subtype_new4(PyTypeObject *type, double xa, double ya, double xb,
     return (PyObject *)line;
 }
 
+static pgLineObject *
+_pg_line_subtype_new(PyTypeObject *type, pgLineBase *line)
+{
+    pgLineObject *lineobj =
+        (pgLineObject *)pgLine_Type.tp_new(type, NULL, NULL);
+    if (lineobj) {
+        lineobj->line = *line;
+    }
+    return lineobj;
+}
+
 static PyObject *
 pg_line_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -476,7 +487,7 @@ pg_line_at(pgLineObject *self, PyObject *obj)
 }
 
 static PyObject *
-pg_line_flip(pgLineObject *self, PyObject *_null)
+pg_line_flip_ab(pgLineObject *self, PyObject *_null)
 {
     return _pg_line_subtype_new4(Py_TYPE(self), self->line.xb, self->line.yb,
                                  self->line.xa, self->line.ya);
@@ -745,6 +756,76 @@ pg_line_as_circle(pgLineObject *self, PyObject *_null)
     return (PyObject *)circle_obj;
 }
 
+static void
+pg_line_flip_helper(pgLineBase *line, int dirx, int diry, double c_x,
+                    double c_y)
+{
+    double xa = line->xa;
+    double ya = line->ya;
+    double xb = line->xb;
+    double yb = line->yb;
+
+    if (dirx) {
+        line->xa = c_x - (xa - c_x);
+        line->xb = c_x - (xb - c_x);
+    }
+
+    if (diry) {
+        line->ya = c_y - (ya - c_y);
+        line->yb = c_y - (yb - c_y);
+    }
+}
+
+#define FLIP_PREP                                                           \
+    pgLineBase *line = &self->line;                                         \
+    int dirx, diry = 0;                                                     \
+    double c_x, c_y;                                                        \
+    if (!nargs || nargs > 3) {                                              \
+        return RAISE(                                                       \
+            PyExc_TypeError,                                                \
+            "Invalid number of arguments, expected 1, 2  or 3 arguments");  \
+    }                                                                       \
+    dirx = PyObject_IsTrue(args[0]);                                        \
+    if (nargs > 1) {                                                        \
+        diry = PyObject_IsTrue(args[1]);                                    \
+    }                                                                       \
+    if (nargs == 3) {                                                       \
+        if (!pg_TwoDoublesFromObj(args[2], &c_x, &c_y)) {                   \
+            return RAISE(PyExc_TypeError,                                   \
+                         "Invalid flip point argument, must be a sequence " \
+                         "of 2 numbers");                                   \
+        }                                                                   \
+    }                                                                       \
+    else {                                                                  \
+        c_x = (self->line.xa + self->line.xb) / 2;                          \
+        c_y = (self->line.ya + self->line.yb) / 2;                          \
+    }
+
+static PyObject *
+pg_line_flip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    FLIP_PREP
+
+    pgLineObject *line_obj = _pg_line_subtype_new(Py_TYPE(self), line);
+    if (!line_obj) {
+        return NULL;
+    }
+
+    pg_line_flip_helper(&line_obj->line, dirx, diry, c_x, c_y);
+
+    return (PyObject *)line_obj;
+}
+
+static PyObject *
+pg_line_flip_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    FLIP_PREP
+
+    pg_line_flip_helper(&self->line, dirx, diry, c_x, c_y);
+
+    Py_RETURN_NONE;
+}
+
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
@@ -763,13 +844,15 @@ static struct PyMethodDef pg_line_methods[] = {
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
     {"move_ip", (PyCFunction)pg_line_move_ip, METH_FASTCALL, NULL},
     {"at", (PyCFunction)pg_line_at, METH_O, NULL},
-    {"flip_ab", (PyCFunction)pg_line_flip, METH_NOARGS, NULL},
+    {"flip_ab", (PyCFunction)pg_line_flip_ab, METH_NOARGS, NULL},
     {"flip_ab_ip", (PyCFunction)pg_line_flip_ab_ip, METH_NOARGS, NULL},
     {"as_points", (PyCFunction)pg_line_as_points, METH_O, NULL},
     {"as_segments", (PyCFunction)pg_line_as_segments, METH_O, NULL},
     {"scale", (PyCFunction)pg_line_scale, METH_FASTCALL, NULL},
     {"scale_ip", (PyCFunction)pg_line_scale_ip, METH_FASTCALL, NULL},
     {"as_circle", (PyCFunction)pg_line_as_circle, METH_NOARGS, NULL},
+    {"flip", (PyCFunction)pg_line_flip, METH_FASTCALL, NULL},
+    {"flip_ip", (PyCFunction)pg_line_flip_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* sequence functions */
