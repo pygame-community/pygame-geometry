@@ -825,6 +825,7 @@ pg_line_flip_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
 
     Py_RETURN_NONE;
 }
+#undef FLIP_PREP
 
 static struct PyMethodDef pg_line_methods[] = {
     {"__copy__", (PyCFunction)pg_line_copy, METH_NOARGS, NULL},
