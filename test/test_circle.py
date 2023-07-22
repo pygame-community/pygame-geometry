@@ -1374,6 +1374,116 @@ class CircleTypeTest(unittest.TestCase):
                 c.rotate_ip(angle, center)
                 assert_approx_equal(c, rotate_circle(c, angle, center))
 
+    def test_collidelist_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (None, "1", (1,), 1, (1, 2, 3), True, False)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collidelist(value)
+
+    def test_collidelist_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        circles = [(Circle(10, 10, 4), Circle(10, 10, 4))]
+
+        with self.assertRaises(TypeError):
+            c.collidelist()
+
+        with self.assertRaises(TypeError):
+            c.collidelist(circles, 1)
+
+    def test_collidelist_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        objects = [
+            Circle(10, 10, 4),
+            Rect(10, 10, 4, 4),
+            Line(10, 10, 4, 4),
+            Polygon([(10, 10), (34, 10), (4, 43)]),
+        ]
+
+        for object in objects:
+            self.assertIsInstance(c.collidelist([object]), int)
+
+    def test_collidelist(self):
+        """Ensures that the collidelist method correctly determines if a circle is
+        contained within the circle"""
+        c = Circle(10, 10, 4)
+
+        circles = [Circle(1000, 1000, 2), Circle(5, 10, 5), Circle(16, 10, 7)]
+        rects = [Rect(1000, 1000, 4, 4), Rect(1000, 200, 5, 5), Rect(5, 10, 7, 3)]
+        lines = [Line(10, 10, 4, 4), Line(100, 100, 553, 553), Line(136, 110, 324, 337)]
+        polygons = [
+            Polygon([(100, 100), (34, 10), (4, 43)]),
+            Polygon([(20, 10), (34, 10), (4, 43)]),
+            Polygon([(10, 10), (34, 10), (4, 43)]),
+        ]
+        expected = [1, 2, 0, 2]
+
+        for objects, expected in zip([circles, rects, lines, polygons], expected):
+            self.assertEqual(c.collidelist(objects), expected)
+
+    def test_collidelistall_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (None, "1", (1,), 1, (1, 2, 3), True, False)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.collidelistall(value)
+
+    def test_collidelistall_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        circles = [(Circle(10, 10, 4), Circle(10, 10, 4))]
+
+        with self.assertRaises(TypeError):
+            c.collidelistall()
+
+        with self.assertRaises(TypeError):
+            c.collidelistall(circles, 1)
+
+    def test_collidelistall_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        objects = [
+            Circle(10, 10, 4),
+            Rect(10, 10, 4, 4),
+            Line(10, 10, 4, 4),
+            Polygon([(10, 10), (34, 10), (4, 43)]),
+        ]
+
+        for object in objects:
+            self.assertIsInstance(c.collidelistall([object]), list)
+
+    def test_collidelistall(self):
+        """Ensures that the collidelistall method correctly determines if a circle is
+        contained within the circle"""
+        c = Circle(10, 10, 4)
+
+        circles = [Circle(1000, 1000, 2), Circle(5, 10, 5), Circle(16, 10, 7)]
+        rects = [Rect(1000, 1000, 4, 4), Rect(1000, 200, 5, 5), Rect(5, 10, 7, 3)]
+        lines = [Line(10, 10, 4, 4), Line(0, 0, 553, 553), Line(5, 5, 10, 11)]
+        polygons = [
+            Polygon([(100, 100), (34, 10), (4, 43)]),
+            Polygon([(20, 10), (34, 10), (4, 43)]),
+            Polygon([(10, 10), (34, 10), (4, 43)]),
+        ]
+        expected = [[1, 2], [2], [0, 1, 2], [2]]
+
+        for objects, expected in zip([circles, rects, lines, polygons], expected):
+            self.assertEqual(c.collidelistall(objects), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
