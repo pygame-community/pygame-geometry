@@ -393,39 +393,180 @@ pg_line_is_perpendicular(pgLineObject *self, PyObject *const *args,
     return PyBool_FromLong(dot == 0);
 }
 
-static PyObject *
-pg_line_collideswith(pgLineObject *self, PyObject *arg)
+static int
+_pg_line_collideswith(pgLineBase *sline, PyObject *arg)
 {
-    int result = 0;
     if (pgLine_Check(arg)) {
-        result = pgCollision_LineLine(&self->line, &pgLine_AsLine(arg));
+        return pgCollision_LineLine(sline, &pgLine_AsLine(arg));
     }
     else if (pgRect_Check(arg)) {
-        result = pgCollision_RectLine(&pgRect_AsRect(arg), &self->line);
+        return pgCollision_RectLine(&pgRect_AsRect(arg), sline);
     }
     else if (pgCircle_Check(arg)) {
-        result = pgCollision_LineCircle(&self->line, &pgCircle_AsCircle(arg));
+        return pgCollision_LineCircle(sline, &pgCircle_AsCircle(arg));
     }
     else if (pgPolygon_Check(arg)) {
-        result =
-            pgCollision_PolygonLine(&pgPolygon_AsPolygon(arg), &self->line, 0);
+        return pgCollision_PolygonLine(&pgPolygon_AsPolygon(arg), sline, 0);
     }
     else if (PySequence_Check(arg)) {
         double x, y;
         if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
-            return RAISE(
+            PyErr_SetString(
                 PyExc_TypeError,
                 "Invalid point argument, must be a sequence of 2 numbers");
+            return -1;
         }
-        result = pgCollision_LinePoint(&self->line, x, y);
-    }
-    else {
-        return RAISE(PyExc_TypeError,
-                     "Invalid shape argument, must be a CircleType, RectType, "
-                     "LineType, PolygonType or a sequence of 2 numbers");
+        return pgCollision_LinePoint(sline, x, y);
     }
 
+    PyErr_SetString(PyExc_TypeError,
+                    "Invalid shape argument, must be a CircleType, RectType, "
+                    "LineType, PolygonType or a sequence of 2 numbers");
+    return -1;
+}
+
+static PyObject *
+pg_line_collideswith(pgLineObject *self, PyObject *arg)
+{
+    int result = _pg_line_collideswith(&self->line, arg);
+    if (result == -1) {
+        return NULL;
+    }
     return PyBool_FromLong(result);
+}
+
+static PyObject *
+pg_line_collidelist(pgLineObject *self, PyObject *arg)
+{
+    Py_ssize_t i;
+    pgLineBase *sline = &self->line;
+    int colliding;
+
+    if (!PySequence_Check(arg)) {
+        return RAISE(PyExc_TypeError, "Argument must be a sequence");
+    }
+
+    /* fast path */
+    if (PySequence_FAST_CHECK(arg)) {
+        PyObject **items = PySequence_Fast_ITEMS(arg);
+        for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
+            if ((colliding = _pg_line_collideswith(sline, items[i])) == -1) {
+                /*invalid shape*/
+                return NULL;
+            }
+
+            if (colliding) {
+                return PyLong_FromSsize_t(i);
+            }
+        }
+        return PyLong_FromLong(-1);
+    }
+
+    /* general sequence path */
+    for (i = 0; i < PySequence_Length(arg); i++) {
+        PyObject *obj = PySequence_GetItem(arg, i);
+        if (!obj) {
+            return NULL;
+        }
+
+        colliding = _pg_line_collideswith(sline, obj);
+        Py_DECREF(obj);
+
+        if (colliding == 1) {
+            return PyLong_FromSsize_t(i);
+        }
+        else if (colliding == -1) {
+            return NULL;
+        }
+    }
+
+    return PyLong_FromLong(-1);
+}
+
+static PyObject *
+pg_line_collidelistall(pgLineObject *self, PyObject *arg)
+{
+    PyObject *ret, **items;
+    Py_ssize_t i;
+    pgLineBase *sline = &self->line;
+    int colliding;
+
+    if (!PySequence_Check(arg)) {
+        return RAISE(PyExc_TypeError, "Argument must be a sequence");
+    }
+
+    ret = PyList_New(0);
+    if (!ret) {
+        return NULL;
+    }
+
+    /* fast path */
+    if (PySequence_FAST_CHECK(arg)) {
+        PyObject **items = PySequence_Fast_ITEMS(arg);
+
+        for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
+            if ((colliding = _pg_line_collideswith(sline, items[i])) == -1) {
+                /*invalid shape*/
+                Py_DECREF(ret);
+                return NULL;
+            }
+
+            if (!colliding) {
+                continue;
+            }
+
+            PyObject *num = PyLong_FromSsize_t(i);
+            if (!num) {
+                Py_DECREF(ret);
+                return NULL;
+            }
+
+            if (PyList_Append(ret, num)) {
+                Py_DECREF(num);
+                Py_DECREF(ret);
+                return NULL;
+            }
+            Py_DECREF(num);
+        }
+
+        return ret;
+    }
+
+    /* general sequence path */
+    for (i = 0; i < PySequence_Length(arg); i++) {
+        PyObject *obj = PySequence_GetItem(arg, i);
+        if (!obj) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+
+        if ((colliding = _pg_line_collideswith(sline, obj)) == -1) {
+            /*invalid shape*/
+            Py_DECREF(obj);
+            Py_DECREF(ret);
+            return NULL;
+        }
+        Py_DECREF(obj);
+
+        if (!colliding) {
+            continue;
+        }
+
+        PyObject *num = PyLong_FromSsize_t(i);
+        if (!num) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+
+        if (PyList_Append(ret, num)) {
+            Py_DECREF(num);
+            Py_DECREF(ret);
+            return NULL;
+        }
+        Py_DECREF(num);
+    }
+
+    return ret;
 }
 
 static PyObject *
@@ -758,6 +899,8 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
     {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL,
      NULL},
+    {"collidelist", (PyCFunction)pg_line_collidelist, METH_O, NULL},
+    {"collidelistall", (PyCFunction)pg_line_collidelistall, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_line_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_line_move, METH_FASTCALL, NULL},
