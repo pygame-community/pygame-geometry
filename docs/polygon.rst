@@ -412,3 +412,37 @@ Polygon Methods
             take to scale it.
 
       .. ## Polygon.scale_ip ##
+
+    .. method:: flip
+
+        | :sl:`flips the polygon`
+        | :sg:`flip(x, y, flip_around) -> Polygon`
+
+        Returns a new Polygon that is flipped horizontally and/or vertically. The original
+        Polygon is not modified. The flipping is done relative to the given point.
+        By default, the flipping is done relative to the center of the `Polygon`.
+
+        .. note::
+            If `x` is True, the Polygon will be flipped horizontally.
+            If `y` is True, the Polygon will be flipped vertically.
+            If `x` and `y` are both True, the Polygon will be flipped
+            horizontally and vertically.
+
+      .. ## Polygon.flip ##
+
+    .. method:: flip_ip
+
+        | :sl:`flips the polygon`
+        | :sg:`flip_ip(x, y, flip_around) -> None`
+
+        Flips the Polygon horizontally and/or vertically. The original Polygon is modified.
+        The flipping is done relative to the given point. By default, the flipping is done
+        relative to the center of the `Polygon`. Always returns None.
+
+        .. note::
+            If `x` is True, the Polygon will be flipped horizontally.
+            If `y` is True, the Polygon will be flipped vertically.
+            If `x` and `y` are both True, the Polygon will be flipped
+            horizontally and vertically.
+
+       .. ## Polygon.flip_ip ##

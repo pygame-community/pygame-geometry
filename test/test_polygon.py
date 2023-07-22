@@ -78,6 +78,20 @@ def _scale_polygon(vertices, num_verts, cx, cy, fac):
     return new_vertices
 
 
+def _flip_polygon(polygon, flip_x, flip_y=False, flip_center=None):
+    flipped_vertices = []
+
+    f_x, f_y = flip_center if flip_center is not None else polygon.center
+
+    for vertex in polygon.vertices:
+        new_x = vertex[0] if not flip_x else f_x - (vertex[0] - f_x)
+        new_y = vertex[1] if not flip_y else f_y - (vertex[1] - f_y)
+
+        flipped_vertices.append((new_x, new_y))
+
+    return flipped_vertices
+
+
 class PolygonTypeTest(unittest.TestCase):
     def test_Construction_invalid_type(self):
         """Checks whether passing wrong types to the constructor
@@ -2177,6 +2191,134 @@ class PolygonTypeTest(unittest.TestCase):
 
         # line touches polygon vertex
         self.assertTrue(l.collidepolygon(p5, True))
+
+    def test_flip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 0, 1, 0), (1, 0, 1, 0, 1), (1, 0, 1, 0, 1, 1)]
+
+        with self.assertRaises(TypeError):
+            poly.flip()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.flip(*arg)
+
+    def test_flip_return_type(self):
+        """Tests whether the flip method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertIsInstance(poly.flip(True), Polygon)
+        self.assertIsInstance(poly.flip(True, False), Polygon)
+        self.assertIsInstance(poly.flip(True, False, (10, 233)), Polygon)
+        self.assertIsInstance(poly.flip(True, False, (-10, -233)), Polygon)
+
+    def test_flip_ip_return_type(self):
+        """Tests whether the flip_ip method returns the correct type."""
+        poly = Polygon(_some_vertices.copy())
+
+        self.assertIsInstance(poly.flip_ip(True), type(None))
+        self.assertIsInstance(poly.flip_ip(True, False), type(None))
+        self.assertIsInstance(poly.flip_ip(True, False, (10, 233)), type(None))
+        self.assertIsInstance(poly.flip_ip(True, False, (-10, -233)), type(None))
+
+    def test_flip_ip_argnum(self):
+        """Tests whether the function can handle invalid parameter number correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        invalid_args = [(1, 0, 1, 0), (1, 0, 1, 0, 1), (1, 0, 1, 0, 1, 1)]
+
+        with self.assertRaises(TypeError):
+            poly.flip_ip()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                poly.flip_ip(*arg)
+
+    def assert_vertices_equal(self, vertices1, vertices2, eps=1e-12):
+        self.assertEqual(len(vertices1), len(vertices2))
+
+        for v1, v2 in zip(vertices1, vertices2):
+            self.assertAlmostEqual(v1[0], v2[0], delta=eps)
+            self.assertAlmostEqual(v1[1], v2[1], delta=eps)
+
+    def test_flip(self):
+        """Tests whether the flip method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        # x-axis
+        flipped_vertices = _flip_polygon(poly, True, False)
+        self.assert_vertices_equal(poly.flip(True).vertices, flipped_vertices)
+        self.assert_vertices_equal(poly.flip(True, False).vertices, flipped_vertices)
+
+        flipped_vertices = _flip_polygon(poly, True, False, (10, 233))
+        self.assert_vertices_equal(
+            poly.flip(True, False, (10, 233)).vertices, flipped_vertices
+        )
+
+        # y-axis
+        flipped_vertices = _flip_polygon(poly, False, True)
+        self.assert_vertices_equal(poly.flip(False, True).vertices, flipped_vertices)
+
+        flipped_vertices = _flip_polygon(poly, False, True, (10, 233))
+        self.assert_vertices_equal(
+            poly.flip(False, True, (10, 233)).vertices, flipped_vertices
+        )
+
+        # both axes
+        flipped_vertices = _flip_polygon(poly, True, True)
+        self.assert_vertices_equal(poly.flip(True, True).vertices, flipped_vertices)
+
+        flipped_vertices = _flip_polygon(poly, True, True, (10, 233))
+        self.assert_vertices_equal(
+            poly.flip(True, True, (10, 233)).vertices, flipped_vertices
+        )
+        flipped_vertices = _flip_polygon(poly, True, True, (-10, -233))
+        self.assert_vertices_equal(
+            poly.flip(True, True, (-10, -233)).vertices, flipped_vertices
+        )
+
+    def test_flip_ip(self):
+        """Tests whether the flip_ip method works correctly."""
+        poly = Polygon(_some_vertices.copy())
+
+        # x-axis
+        flipped_vertices = _flip_polygon(poly, True, False)
+        poly.flip_ip(True)
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, True, False, (10, 233))
+        poly.flip_ip(True, False, (10, 233))
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        # y-axis
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, False, True)
+        poly.flip_ip(False, True)
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, False, True, (10, 233))
+        poly.flip_ip(False, True, (10, 233))
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        # both axes
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, True, True)
+        poly.flip_ip(True, True)
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, True, True, (10, 233))
+        poly.flip_ip(True, True, (10, 233))
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
+
+        poly = Polygon(_some_vertices.copy())
+        flipped_vertices = _flip_polygon(poly, True, True, (-10, -233))
+        poly.flip_ip(True, True, (-10, -233))
+        self.assert_vertices_equal(poly.vertices, flipped_vertices)
 
 
 if __name__ == "__main__":
