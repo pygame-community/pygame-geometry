@@ -613,12 +613,12 @@ pg_circle_collidelist(pgCircleObject *self, PyObject *arg)
     if (PySequence_FAST_CHECK(arg)) {
         PyObject **items = PySequence_Fast_ITEMS(arg);
         for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
-            colliding = _pg_circle_collideswith(scirc, items[i]);
-            if (colliding == 1) {
-                return PyLong_FromSsize_t(i);
-            }
-            else if (colliding == -1) {
+            if ((colliding = _pg_circle_collideswith(scirc, items[i])) == -1) {
+                /*invalid shape*/
                 return NULL;
+            }
+            if (colliding) {
+                return PyLong_FromSsize_t(i);
             }
         }
         return PyLong_FromLong(-1);
@@ -631,14 +631,15 @@ pg_circle_collidelist(pgCircleObject *self, PyObject *arg)
             return NULL;
         }
 
-        colliding = _pg_circle_collideswith(scirc, obj);
+        if ((colliding = _pg_circle_collideswith(scirc, obj)) == -1) {
+            /*invalid shape*/
+            Py_DECREF(obj);
+            return NULL;
+        }
         Py_DECREF(obj);
 
-        if (colliding == 1) {
+        if (colliding) {
             return PyLong_FromSsize_t(i);
-        }
-        else if (colliding == -1) {
-            return NULL;
         }
     }
 
@@ -667,44 +668,16 @@ pg_circle_collidelistall(pgCircleObject *self, PyObject *arg)
         PyObject **items = PySequence_Fast_ITEMS(arg);
 
         for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
-            colliding = _pg_circle_collideswith(scirc, items[i]);
-
-            if (colliding == 1) {
-                PyObject *num = PyLong_FromSsize_t(i);
-                if (!num) {
-                    Py_DECREF(ret);
-                    return NULL;
-                }
-
-                if (PyList_Append(ret, num)) {
-                    Py_DECREF(num);
-                    Py_DECREF(ret);
-                    return NULL;
-                }
-                Py_DECREF(num);
-            }
-            /*invalid shape*/
-            else if (colliding == -1) {
+            if ((colliding = _pg_circle_collideswith(scirc, items[i])) == -1) {
+                /*invalid shape*/
                 Py_DECREF(ret);
                 return NULL;
             }
-        }
 
-        return ret;
-    }
+            if (!colliding) {
+                continue;
+            }
 
-    /* general sequence path */
-    for (i = 0; i < PySequence_Length(arg); i++) {
-        PyObject *obj = PySequence_GetItem(arg, i);
-        if (!obj) {
-            Py_DECREF(ret);
-            return NULL;
-        }
-
-        colliding = _pg_circle_collideswith(scirc, obj);
-        Py_DECREF(obj);
-
-        if (colliding == 1) {
             PyObject *num = PyLong_FromSsize_t(i);
             if (!num) {
                 Py_DECREF(ret);
@@ -718,11 +691,42 @@ pg_circle_collidelistall(pgCircleObject *self, PyObject *arg)
             }
             Py_DECREF(num);
         }
-        /*invalid shape*/
-        else if (colliding == -1) {
+
+        return ret;
+    }
+
+    /* general sequence path */
+    for (i = 0; i < PySequence_Length(arg); i++) {
+        PyObject *obj = PySequence_GetItem(arg, i);
+        if (!obj) {
             Py_DECREF(ret);
             return NULL;
         }
+
+        if ((colliding = _pg_circle_collideswith(scirc, obj)) == -1) {
+            /*invalid shape*/
+            Py_DECREF(ret);
+            Py_DECREF(obj);
+            return NULL;
+        }
+        Py_DECREF(obj);
+
+        if (!colliding) {
+            continue;
+        }
+
+        PyObject *num = PyLong_FromSsize_t(i);
+        if (!num) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+
+        if (PyList_Append(ret, num)) {
+            Py_DECREF(num);
+            Py_DECREF(ret);
+            return NULL;
+        }
+        Py_DECREF(num);
     }
 
     return ret;

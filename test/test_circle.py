@@ -1412,8 +1412,7 @@ class CircleTypeTest(unittest.TestCase):
             self.assertIsInstance(c.collidelist([object]), int)
 
     def test_collidelist(self):
-        """Ensures that the collidelist method correctly determines if a circle is
-        contained within the circle"""
+        """Ensures that the collidelist method works correctly"""
         c = Circle(10, 10, 4)
 
         circles = [Circle(1000, 1000, 2), Circle(5, 10, 5), Circle(16, 10, 7)]
@@ -1467,8 +1466,7 @@ class CircleTypeTest(unittest.TestCase):
             self.assertIsInstance(c.collidelistall([object]), list)
 
     def test_collidelistall(self):
-        """Ensures that the collidelistall method correctly determines if a circle is
-        contained within the circle"""
+        """Ensures that the collidelistall method works correctly"""
         c = Circle(10, 10, 4)
 
         circles = [Circle(1000, 1000, 2), Circle(5, 10, 5), Circle(16, 10, 7)]
