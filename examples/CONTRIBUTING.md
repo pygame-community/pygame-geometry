@@ -1,6 +1,6 @@
 ## Contributing Guidelines
 
-1. See [Contributing Guidelines](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md) for general contributing guidelines.
+1. See [Contributing Guidelines](https://github.com/pygame-community/pygame_geometry/blob/main/CONTRIBUTING.md) for general contributing guidelines.
 2. Use this boilerplate to get started
 
 ```python
