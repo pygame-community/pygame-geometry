@@ -344,14 +344,14 @@ Line Methods
       .. ## Line.collidepolygon ##
 
 
-    .. method:: collideswith
+    .. method:: collide
 
         | :sl:`test if a shape or point and the line collide`
-        | :sg:`collideswith(Line) -> bool`
-        | :sg:`collideswith(Circle) -> bool`
-        | :sg:`collideswith(Rect) -> bool`
-        | :sg:`collideswith(Polygon) -> bool`
-        | :sg:`collideswith((x, y)) -> bool`
+        | :sg:`collide(Line) -> bool`
+        | :sg:`collide(Circle) -> bool`
+        | :sg:`collide(Rect) -> bool`
+        | :sg:`collide(Polygon) -> bool`
+        | :sg:`collide((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
         Returns `True` if any portion of the shape or point overlaps with the Line,
@@ -369,7 +369,7 @@ Line Methods
             Collisions with a `Polygon` object are evaluated the same way the :meth:`collidepolygon`
             method does by default, meaning with only_edges set to `False`.
 
-      .. ## Line.collideswith ##
+      .. ## Line.collide ##
 
 
     .. method:: as_circle

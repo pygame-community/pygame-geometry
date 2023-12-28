@@ -56,7 +56,7 @@ performing transformations and checking for collisions with other objects.
 
     collidepolygon: Checks if the circle collides with the given polygon.
 
-    collideswith: Checks if the circle collides with the given object.
+    collide: Checks if the circle collides with the given object.
 
     contains: Checks if the circle fully contains the given object.
 
@@ -128,7 +128,7 @@ other objects.
 
     collidepolygon: Checks if the line collides with the given polygon.
 
-    collideswith: Checks if the line collides with the given object.
+    collide: Checks if the line collides with the given object.
 
     as_circle: Returns a circle which fully encloses the line.
 
