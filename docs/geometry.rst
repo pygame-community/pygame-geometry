@@ -60,6 +60,10 @@ performing transformations and checking for collisions with other objects.
 
     contains: Checks if the circle fully contains the given object.
 
+    rotate: Rotates the circle by the given amount.
+
+    rotate_ip: Rotates the circle by the given amount in place.
+
     as_rect: Returns the smallest rectangle that contains the circle.
 
 Additionally to these, the circle shape can also be used as a collider for the ``geometry.raycast`` function.
