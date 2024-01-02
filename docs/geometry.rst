@@ -144,6 +144,10 @@ other objects.
 
     as_points: returns the line as a list of points.
 
+    rotate: Rotates the line by the given amount.
+
+    rotate_ip: Rotates the line by the given amount in place.
+
 Additionally to these, the line shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Polygon
