@@ -180,6 +180,8 @@ other objects.
 
     collidecircle: Checks if the polygon collides with the given circle.
 
+    collideswith: Checks if the polygon collides with the given object.
+
     insert_vertex: Adds a vertex to the polygon.
 
     remove_vertex: Removes a vertex from the polygon.
