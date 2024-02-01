@@ -263,16 +263,16 @@ collideline_tests = [
 ]
 
 collideswith_tests = [
-    ("C rect", "c1.collideswith(r1)"),
-    ("NC rect", "c1.collideswith(r2)"),
-    ("C circle", "c1.collideswith(c2)"),
-    ("NC circle", "c1.collideswith(c2)"),
-    ("C point int", "c1.collideswith(p1)"),
-    ("NC point int", "c1.collideswith(p2)"),
-    ("C point float", "c1.collideswith(p3)"),
-    ("NC point float", "c1.collideswith(p4)"),
-    ("C line", "c1.collideswith(l1)"),
-    ("NC line", "c1.collideswith(l2)"),
+    ("C rect", "c1.collide(r1)"),
+    ("NC rect", "c1.collide(r2)"),
+    ("C circle", "c1.collide(c2)"),
+    ("NC circle", "c1.collide(c2)"),
+    ("C point int", "c1.collide(p1)"),
+    ("NC point int", "c1.collide(p2)"),
+    ("C point float", "c1.collide(p3)"),
+    ("NC point float", "c1.collide(p4)"),
+    ("C line", "c1.collide(l1)"),
+    ("NC line", "c1.collide(l2)"),
 ]
 
 contains_tests = [
