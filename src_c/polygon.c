@@ -1302,6 +1302,79 @@ pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
         pgCollision_CirclePolygon(&circle, &self->polygon, only_edges));
 }
 
+static void
+pg_polygon_flip_helper(pgPolygonBase *poly, int dirx, int diry, double c_x,
+                       double c_y)
+{
+    Py_ssize_t i2, verts_num = poly->verts_num;
+    double *vertices = poly->vertices;
+
+    if (dirx && diry) {
+        for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+            vertices[i2] = c_x - (vertices[i2] - c_x);
+            vertices[i2 + 1] = c_y - (vertices[i2 + 1] - c_y);
+        }
+        return;
+    }
+
+    if (dirx) {
+        for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+            vertices[i2] = c_x - (vertices[i2] - c_x);
+        }
+        return;
+    }
+
+    for (i2 = 0; i2 < verts_num * 2; i2 += 2) {
+        vertices[i2 + 1] = c_y - (vertices[i2 + 1] - c_y);
+    }
+}
+
+#define FLIP_PREP                                                         \
+    pgPolygonBase *poly = &self->polygon;                                 \
+    int dirx, diry = 0;                                                   \
+    double c_x = poly->centerx, c_y = poly->centery;                      \
+    if (!nargs || nargs > 3) {                                            \
+        return RAISE(                                                     \
+            PyExc_TypeError,                                              \
+            "Invalid number of arguments, expected 1, 2 or 3 arguments"); \
+    }                                                                     \
+    dirx = PyObject_IsTrue(args[0]);                                      \
+    if (nargs >= 2) {                                                     \
+        diry = PyObject_IsTrue(args[1]);                                  \
+    }                                                                     \
+    if (nargs == 3 && !pg_TwoDoublesFromObj(args[2], &c_x, &c_y)) {       \
+        return RAISE(PyExc_TypeError,                                     \
+                     "Invalid flip point argument, must be a sequence "   \
+                     "of two numbers");                                   \
+    }
+
+static PyObject *
+pg_polygon_flip(pgPolygonObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    FLIP_PREP
+
+    pgPolygonObject *ret = _pg_polygon_subtype_new2_copy(Py_TYPE(self), poly);
+    if (!ret) {
+        return NULL;
+    }
+
+    pg_polygon_flip_helper(&ret->polygon, dirx, diry, c_x, c_y);
+
+    return (PyObject *)ret;
+}
+
+static PyObject *
+pg_polygon_flip_ip(pgPolygonObject *self, PyObject *const *args,
+                   Py_ssize_t nargs)
+{
+    FLIP_PREP
+
+    pg_polygon_flip_helper(poly, dirx, diry, c_x, c_y);
+
+    Py_RETURN_NONE;
+}
+#undef FLIP_PREP
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
@@ -1323,6 +1396,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
     {"pop_vertex", (PyCFunction)pg_polygon_pop_vertex, METH_O, NULL},
     {"scale", (PyCFunction)pg_polygon_scale, METH_O, NULL},
     {"scale_ip", (PyCFunction)pg_polygon_scale_ip, METH_O, NULL},
+    {"flip", (PyCFunction)pg_polygon_flip, METH_FASTCALL, NULL},
+    {"flip_ip", (PyCFunction)pg_polygon_flip_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 static PyObject *
