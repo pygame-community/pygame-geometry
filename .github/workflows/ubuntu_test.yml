@@ -21,9 +21,11 @@ jobs:
           # Add the deadsnakes PPA to install python
           sudo add-apt-repository ppa:deadsnakes/ppa -y
           sudo apt-get update
-          sudo apt-get install python${{ matrix.python-version }}-dev
-          sudo apt-get install python${{ matrix.python-version }}-distutils
-          python${{ matrix.python-version }} -m pip install setuptools
+          sudo apt-get install python${{ matrix.python-version }}-dev -y
+          sudo apt-get install python${{ matrix.python-version }}-distutils -y
+          sudo apt-get install python${{ matrix.python-version }}-pip -y
+          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install --upgrade setuptools
           python${{ matrix.python-version }} -m pip install wheel
           python${{ matrix.python-version }} -m pip install pygame-ce
           python${{ matrix.python-version }} -m pip install .
