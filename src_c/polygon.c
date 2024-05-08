@@ -1583,6 +1583,23 @@ pg_polygon_get_perimeter(pgPolygonObject *self, void *closure)
     return PyFloat_FromDouble(perimeter);
 }
 
+static PyObject *
+pg_polygon_get_area(pgPolygonObject *self, void *closure)
+{
+    double area = 0;
+    double *vertices = self->polygon.vertices;
+    int vert_num = self->polygon.verts_num;
+    Py_ssize_t i;
+    for (i = 0; i < vert_num; i++) {
+        area +=
+            vertices[(i * 2)] * vertices[(((i + 1) * 2) + 1) % (vert_num * 2)];
+        area -=
+            vertices[((i + 1) * 2) % (vert_num * 2)] * vertices[(i * 2) + 1];
+    }
+
+    return PyFloat_FromDouble(ABS(area / 2));
+}
+
 static int
 pg_polygon_set_center(pgPolygonObject *self, PyObject *value, void *closure)
 {
@@ -1611,6 +1628,7 @@ static PyGetSetDef pg_polygon_getsets[] = {
      (setter)pg_polygon_set_vertices, "Vertices of the polygon", NULL},
     {"perimeter", (getter)pg_polygon_get_perimeter, NULL,
      "Perimeter of the polygon", NULL},
+    {"area", (getter)pg_polygon_get_area, NULL, "area of the polygon", NULL},
     {"__safe_for_unpickling__", (getter)pg_polygon_getsafepickle, NULL, NULL,
      NULL},
     {NULL, 0, NULL, NULL, NULL} /* Sentinel */

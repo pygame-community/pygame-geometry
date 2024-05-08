@@ -170,6 +170,8 @@ other objects.
 
     perimeter: The perimeter of the polygon.
 
+    area: The area of the polygon.
+
 **Here is the full list of methods:**
 ::
     move: Moves the polygon by the given amount.
