@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Python
         run: |
+          # Add the deadsnakes PPA to install python
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
           sudo apt-get update
           sudo apt-get install python${{ matrix.python-version }}-dev
           sudo apt-get install python${{ matrix.python-version }}-distutils
