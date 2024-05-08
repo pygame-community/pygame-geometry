@@ -21,7 +21,7 @@ jobs:
           # Add the deadsnakes PPA to install python
           sudo add-apt-repository ppa:deadsnakes/ppa
           sudo apt-get update
-          sudo apt-get install python${{ matrix.python-version }}-dev
+          sudo apt-get install python${{ matrix.python-version }} -y
       - name: Install dependencies
         run: |
           sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
