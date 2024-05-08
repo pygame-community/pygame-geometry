@@ -23,12 +23,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install python${{ matrix.python-version }}-dev -y
           sudo apt-get install python${{ matrix.python-version }}-distutils -y
-      - name: Install dependencies
-        run: |
-          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
           python${{ matrix.python-version }} -m pip install --upgrade pip
           python${{ matrix.python-version }} -m pip install setuptools
           python${{ matrix.python-version }} -m pip install wheel
+      - name: Install dependencies
+        run: |
+          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
           python${{ matrix.python-version }} -m pip install pygame-ce
           python${{ matrix.python-version }} -m pip install .
       - name: Run Tests
