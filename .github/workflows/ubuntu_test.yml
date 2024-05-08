@@ -23,6 +23,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install python${{ matrix.python-version }}-dev -y
           python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install distutils
           python${{ matrix.python-version }} -m pip install setuptools
           python${{ matrix.python-version }} -m pip install wheel
       - name: Install dependencies
