@@ -23,7 +23,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install python${{ matrix.python-version }}-dev
           sudo apt-get install python${{ matrix.python-version }}-distutils
-          python${{ matrix.python-version }} -m pip install --upgrade pip
+          python${{ matrix.python-version }} -m pip install setuptools
           python${{ matrix.python-version }} -m pip install wheel
           python${{ matrix.python-version }} -m pip install pygame-ce
           python${{ matrix.python-version }} -m pip install .
