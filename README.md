@@ -17,7 +17,7 @@ special colliders easier for their video game.
 this project is heavily in development.** The project is set to be migrated to the
 [official pygame-ce repository](https://github.com/pygame-community/pygame-ce).
 
-## Installation (Python 3.7+)
+## Installation (Python 3.8+)
 Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md)
 to install pygame_geometry.
 
