@@ -22,7 +22,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
+          sudo apt-get update
+            sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config
           python -m pip install --upgrade pip
           python -m pip install wheel
           python -m pip install pygame-ce
