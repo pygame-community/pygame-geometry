@@ -17,17 +17,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
         run: |
-          # Add the deadsnakes PPA to install python
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt-get update
-          sudo apt-get install python3-setuptools
-          sudo apt-get install python${{ matrix.python-version }}-dev
-          
-          python${{ matrix.python-version }} -m pip install --upgrade pip
-          python${{ matrix.python-version }} -m pip install wheel
-          python${{ matrix.python-version }} -m pip install pygame-ce
-          python${{ matrix.python-version }} -m pip install .
-
+          brew install sdl2 sdl2_image sdl2_mixer sdl2_ttf pkg-config
+          python -m pip install --upgrade pip
+          python -m pip install wheel
+          python -m pip install pygame-ce
+          python -m pip install .
       - name: Run Tests
-        run: python${{ matrix.python-version }} -m unittest
+        run: |
+          python -m unittest
