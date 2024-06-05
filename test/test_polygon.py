@@ -2135,9 +2135,8 @@ class PolygonTypeTest(unittest.TestCase):
             with self.assertRaises(TypeError):
                 poly.collideline(l, value)
 
-    def test_collidepolygon(self):
-        """Ensures that the collidepolygon method correctly determines if a Polygon
-        is colliding with the Line"""
+    def test_collideline(self):
+        """Ensures that the collideline method works correctly"""
 
         l = Line(0, 0, 10, 10)
         p1 = regular_polygon(4, l.center, 100)
@@ -2147,36 +2146,208 @@ class PolygonTypeTest(unittest.TestCase):
         p5 = Polygon((0, 0), (0, 10), (-5, 10), (-5, 0))
 
         # line inside polygon
-        self.assertTrue(l.collidepolygon(p1))
+        self.assertTrue(p1.collideline(l))
 
         # line outside polygon
-        self.assertFalse(l.collidepolygon(p2))
+        self.assertFalse(p2.collideline(l))
 
         # line intersects polygon edge
-        self.assertTrue(l.collidepolygon(p3))
+        self.assertTrue(p3.collideline(l))
 
         # line intersects polygon vertex
-        self.assertTrue(l.collidepolygon(p4))
+        self.assertTrue(p4.collideline(l))
 
         # line touches polygon vertex
-        self.assertTrue(l.collidepolygon(p5))
+        self.assertTrue(p5.collideline(l))
 
         # --- Edge only ---
 
         # line inside polygon
-        self.assertFalse(l.collidepolygon(p1, True))
+        self.assertFalse(p1.collideline(l, True))
 
         # line outside polygon
-        self.assertFalse(l.collidepolygon(p2, True))
+        self.assertFalse(p2.collideline(l, True))
 
         # line intersects polygon edge
-        self.assertTrue(l.collidepolygon(p3, True))
+        self.assertTrue(p3.collideline(l, True))
 
         # line intersects polygon vertex
-        self.assertTrue(l.collidepolygon(p4, True))
+        self.assertTrue(p4.collideline(l, True))
 
         # line touches polygon vertex
-        self.assertTrue(l.collidepolygon(p5, True))
+        self.assertTrue(p5.collideline(l, True))
+
+    def test_collideswith_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Vector3(10, 10, 4),
+        )
+
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                p.collideswith(value)
+            with self.assertRaises(TypeError):
+                p.collideswith(value, True)
+            with self.assertRaises(TypeError):
+                p.collideswith(value, False)
+
+    def test_collideswith_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+        invalid_args = [
+            (p, p),
+            (p, p, p),
+            (p, p, p, p),
+        ]
+
+        with self.assertRaises(TypeError):
+            p.collideswith()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                p.collideswith(*arg)
+            with self.assertRaises(TypeError):
+                p.collideswith(*arg, True)
+            with self.assertRaises(TypeError):
+                p.collideswith(*arg, False)
+
+    def test_collideswith_return_type(self):
+        """Tests if the function returns the correct type"""
+        p = Polygon((-5, 0), (5, 0), (0, 5))
+
+        objects = [
+            Line(0, 0, 1, 1),
+            Circle(10, 10, 4),
+            Vector2(10, 10),
+            (10, 10),
+            [10, 10],
+        ]
+
+        for obj in objects:
+            self.assertIsInstance(p.collideswith(obj), bool)
+            self.assertIsInstance(p.collideswith(obj, True), bool)
+            self.assertIsInstance(p.collideswith(obj, False), bool)
+
+    def assert_PolygonEquals(self, expected: Polygon, actual: Polygon) -> None:
+        self.assertEqual(expected.vertices, actual.vertices)
+        self.assertEqual(expected.verts_num, actual.verts_num)
+        self.assertEqual(expected.centerx, actual.centerx)
+        self.assertEqual(expected.centery, actual.centery)
+
+    def test_collideswith(self):
+        """Ensures that the collidepolygon method correctly determines if a Polygon
+        is colliding with the given object"""
+        epsilon = 1e-14
+        p = Polygon((0, 0), (0, 1), (1, 1), (1, 0))
+
+        # --- Circle ---
+        circles = [
+            (Circle(0.5, 0.5, 0.3), True),  # inside
+            (Circle(0.5, 0.5, 0.5), True),  # outside
+            (Circle(100, 100, 10), False),  # not colliding far away
+            (Circle(1.5, 0.5, 0.5), True),  # perfectly touching
+            (
+                Circle(1.5, 0.5, 0.49999999999999 - epsilon),
+                False,
+            ),  # barely not touching
+            (Circle(1.5, 0.5, 0.49999999999999 + epsilon), True),  # barely touching
+        ]
+
+        for circle, expected in circles:
+            # check for no invalidation
+            p_copy = p.copy()
+            circle_copy = circle.copy()
+            p.collideswith(circle)
+            self.assert_PolygonEquals(p_copy, p)
+
+            self.assertEqual(circle.x, circle_copy.x)
+            self.assertEqual(circle.y, circle_copy.y)
+            self.assertEqual(circle.r, circle_copy.r)
+
+            # check collision works as expected
+            self.assertEqual(expected, p.collideswith(circle))
+
+        self.assertFalse(p.collideswith(circles[0][0], True))
+        self.assertFalse(p.collideswith(Circle(50, 50, 150), True))
+
+        # --- Line ---
+
+        lines = [
+            (Line(0.1, 0.1, 0.9, 0.9), True),  # inside
+            (Line(-1, -1, 2, 2), True),  # outside intersecting
+            (Line(0, 0, 1, 0), True),  # parallel touching
+            (Line(100, 100, 500, 100), False),  # not colliding
+            (Line(2, 0.5, 1, 0.5), True),  # perfectly touching
+            (Line(2, 0.5, 1.0 + epsilon, 0.5), False),  # barely not touching
+            (Line(1.0 - epsilon, 0.5, 2, 0.5), True),  # barely touching
+        ]
+
+        for line, expected in lines:
+            # check for no invalidation
+            p_copy = p.copy()
+            line_copy = line.copy()
+            p.collideswith(line)
+            self.assert_PolygonEquals(p_copy, p)
+
+            self.assertEqual(line.a, line_copy.a)
+            self.assertEqual(line.b, line_copy.b)
+
+            # check collision works as expected
+            self.assertEqual(expected, p.collideswith(line))
+
+        self.assertFalse(p.collideswith(lines[0][0], True))
+
+        # --- Vector2, tuple and list ---
+
+        vectors = [
+            (Vector2(0.5, 0.5), True),  # inside
+            (Vector2(100, 100), False),  # outside
+            (Vector2(1 + epsilon, 0.5), False),  # barely not touching
+            (Vector2(1 - epsilon, 0.5), True),  # barely touching
+        ]
+
+        points = [(tuple(v), expected) for v, expected in vectors]
+        points.extend((list(v), expected) for v, expected in vectors)
+
+        for vec, expected in vectors:
+            # check for no invalidation
+            p_copy = p.copy()
+            v_copy = vec.copy()
+            p.collideswith(vec)
+
+            self.assert_PolygonEquals(p_copy, p)
+
+            self.assertEqual(vec.x, v_copy.x)
+            self.assertEqual(vec.y, v_copy.y)
+
+            # check collision works as expected
+            self.assertEqual(expected, p.collideswith(vec))
+
+        for point, expected in points:
+            # check for no invalidation
+            p_copy = p.copy()
+            p.collideswith(point)
+
+            self.assert_PolygonEquals(p_copy, p)
+
+            # check collision works as expected
+            self.assertEqual(expected, p.collideswith(point))
+
+        # to be expanded with more objects when implemented
 
 
 if __name__ == "__main__":
