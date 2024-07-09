@@ -1381,6 +1381,172 @@ class LineTypeTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 l.as_segments(value)
 
+    def test_meth_collidelist_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [
+                1,
+            ],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        l = Line(0, 0, 1, 1)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collidelist(value)
+
+    def test_meth_collidelist_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            (l, l),
+            (l, l, l),
+            (l, l, l, l),
+        ]
+
+        with self.assertRaises(TypeError):
+            l.collidelist()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                l.collidelist(*arg)
+
+    def test_meth_collidelist_return_type(self):
+        """Tests if the function returns the correct type"""
+        l = Line(0, 0, 1, 1)
+
+        items = [
+            l,
+            Line(10, 10, 1, 1),
+            Rect(0, 0, 1, 1),
+            Circle(0, 0, 1),
+            Polygon((-5, 0), (5, 0), (0, 5)),
+            (5, 5),
+            [5, 5],
+            Vector2(5, 5),
+        ]
+
+        for item in items:
+            self.assertIsInstance(l.collidelist([item]), int)
+
+    def test_meth_collidelist(self):
+        """Ensures that the collidelist method works correctly"""
+        l = Line(0, 0, 10, 10)
+
+        circles = [Circle(0, 0, 1), Circle(10, 10, 1), Circle(5, 5, 1)]
+        rects = [Rect(100, 100, 1, 1), Rect(1345, 213, 1, 1), Rect(5, 5, 1, 1)]
+        lines = [Line(240, 570, 1245, 1313), Line(0, 0, 17, 43), Line(5, 5, 1, 1)]
+        polygons = [
+            Polygon((-50, 0), (-25, 0), (-34, -33)),
+            Polygon((5, 5), (15, 5), (10, 10)),
+            Polygon((2.5, 2.5), (7.5, 2.5), (5, 5)),
+        ]
+
+        expected = [0, 2, 1, 1]
+
+        for objects, expected in zip([circles, rects, lines, polygons], expected):
+            self.assertEqual(l.collidelist(objects), expected)
+
+    def test_meth_collidelistall_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (
+            True,
+            False,
+            None,
+            [
+                1,
+            ],
+            "1",
+            (1,),
+            1,
+            0,
+            -1,
+            1.23,
+            (1, 2, 3),
+            Circle(10, 10, 4),
+            Line(10, 10, 4, 4),
+            Rect(10, 10, 4, 4),
+            Vector3(10, 10, 4),
+            Vector2(10, 10),
+        )
+
+        l = Line(0, 0, 1, 1)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                l.collidelistall(value)
+
+    def test_meth_collidelistall_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            (l, l),
+            (l, l, l),
+            (l, l, l, l),
+        ]
+
+        with self.assertRaises(TypeError):
+            l.collidelistall()
+
+        for arg in invalid_args:
+            with self.assertRaises(TypeError):
+                l.collidelistall(*arg)
+
+    def test_meth_collidelistall_return_type(self):
+        """Tests if the function returns the correct type"""
+        l = Line(0, 0, 1, 1)
+
+        items = [
+            l,
+            Line(10, 10, 1, 1),
+            Rect(0, 0, 1, 1),
+            Circle(0, 0, 1),
+            Polygon((-5, 0), (5, 0), (0, 5)),
+            (5, 5),
+            [5, 5],
+            Vector2(5, 5),
+        ]
+
+        for item in items:
+            self.assertIsInstance(l.collidelistall([item]), list)
+
+    def test_meth_collidelistall(self):
+        """Ensures that the collidelistall method works correctly"""
+        l = Line(0, 0, 10, 10)
+
+        circles = [Circle(0, 0, 1), Circle(10, 10, 1), Circle(5, 5, 1)]
+        rects = [Rect(100, 100, 1, 1), Rect(1345, 213, 1, 1), Rect(5, 5, 1, 1)]
+        lines = [Line(240, 570, 1245, 1313), Line(0, 0, 17, 43), Line(5, 5, 1, 1)]
+        polygons = [
+            Polygon((-50, 0), (-25, 0), (-34, -33)),
+            Polygon((5, 5), (15, 5), (10, 10)),
+            Polygon((2.5, 2.5), (7.5, 2.5), (5, 5)),
+        ]
+
+        expected = [[0, 1, 2], [2], [1], [1, 2]]
+
+        for objects, expected in zip([circles, rects, lines, polygons], expected):
+            self.assertEqual(l.collidelistall(objects), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
