@@ -732,6 +732,27 @@ pg_circle_collidelistall(pgCircleObject *self, PyObject *arg)
     return ret;
 }
 
+static PyObject *
+pg_circle_intersect(pgCircleObject *self, PyObject *arg)
+{
+    pgCircleBase *scirc = &self->circle;
+
+    double intersections[4];
+    int num = 0;
+
+    if (pgCircle_Check(arg)) {
+        pgCircleBase *other = &pgCircle_AsCircle(arg);
+        num = pgIntersection_CircleCircle(scirc, other, intersections);
+    }
+    else {
+        PyErr_Format(PyExc_TypeError, "Argument must be a CircleType, got %s",
+                     Py_TYPE(arg)->tp_name);
+        return NULL;
+    }
+
+    return pg_PointList_FromArrayDouble(intersections, num * 2);
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -752,6 +773,7 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"rotate", (PyCFunction)pg_circle_rotate, METH_FASTCALL, NULL},
     {"rotate_ip", (PyCFunction)pg_circle_rotate_ip, METH_FASTCALL, NULL},
+    {"intersect", (PyCFunction)pg_circle_intersect, METH_O, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* numeric functions */

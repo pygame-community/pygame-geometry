@@ -405,3 +405,19 @@ Circle Methods
         new `Circle` object.
 
       .. ## Circle.copy ##
+
+    .. method:: intersect
+
+        | :sl:`returns the intersection points of the circle with another shape`
+        | :sg:`intersect(Circle) -> intersection_points`
+
+        Calculates and returns a list of intersection points between the circle and another shape.
+        The other shape can either be a `Circle` object.
+        If the two objects do not intersect, an empty list is returned.
+
+        .. note::
+            The shape argument must be an actual shape object (Circle).
+            You can't pass a tuple or list of coordinates representing the shape,
+            because the shape type can't be determined from the coordinates alone.
+
+      .. ## Circle.intersect ##

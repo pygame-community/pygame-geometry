@@ -1,12 +1,10 @@
-import unittest
-
 import math
+import unittest
 from math import sqrt
 
-from pygame import Vector2, Vector3
-from pygame import Rect
-
 from geometry import Circle, Line, Polygon, regular_polygon
+from pygame import Rect
+from pygame import Vector2, Vector3
 
 E_T = "Expected True, "
 E_F = "Expected False, "
@@ -1481,6 +1479,56 @@ class CircleTypeTest(unittest.TestCase):
 
         for objects, expected in zip([circles, rects, lines, polygons], expected):
             self.assertEqual(c.collidelistall(objects), expected)
+
+    def test_intersect_argtype(self):
+        """Tests if the function correctly handles incorrect types as parameters"""
+
+        invalid_types = (None, "1", (1,), 1, (1, 2, 3), True, False)
+
+        c = Circle(10, 10, 4)
+
+        for value in invalid_types:
+            with self.assertRaises(TypeError):
+                c.intersect(value)
+
+    def test_intersect_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        c = Circle(10, 10, 4)
+
+        circles = [(Circle(10, 10, 4) for _ in range(100))]
+        for size in range(len(circles)):
+            with self.assertRaises(TypeError):
+                c.intersect(*circles[:size])
+
+    def test_intersect_return_type(self):
+        """Tests if the function returns the correct type"""
+        c = Circle(10, 10, 4)
+
+        objects = [
+            Circle(10, 10, 4),
+            Rect(10, 10, 4, 4),
+        ]
+
+        for object in objects:
+            self.assertIsInstance(c.intersect(object), list)
+
+    def test_intersect(self):
+
+        # Circle
+        c = Circle(10, 10, 4)
+        c2 = Circle(10, 10, 2)
+        c3 = Circle(100, 100, 1)
+        c4 = Circle(16, 10, 7)
+        c5 = Circle(18, 10, 4)
+
+        for circle in [c, c2, c3]:
+            self.assertEqual(c.intersect(circle), [])
+
+        # intersecting circle
+        self.assertEqual([(10.25, 6.007820144332172), (10.25, 13.992179855667828)], c.intersect(c4))
+
+        # touching
+        self.assertEqual([(14.0, 10.0)], c.intersect(c5))
 
 
 if __name__ == "__main__":
