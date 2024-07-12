@@ -593,36 +593,35 @@ static int
 pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B,
                             double *intersections)
 {
-    double x1 = A->x;
-    double y1 = A->y;
-    double r1 = A->r;
-    double x2 = B->x;
-    double y2 = B->y;
-    double r2 = B->r;
+    double dx = B->x - A->x;
+    double dy = B->y - A->y;
+    double d2 = dx * dx + dy * dy;
+    double r_sum = A->r + B->r;
+    double r_diff = A->r - B->r;
+    double r_sum2 = r_sum * r_sum;
+    double r_diff2 = r_diff * r_diff;
 
-    if (x1 == x2 && y1 == y2 && r1 == r2)
-        return 0;
-
-    double dx = x2 - x1;
-    double dy = y2 - y1;
-    double d = sqrt(dx * dx + dy * dy);
-
-    if (d > r1 + r2 || d < fabs(r1 - r2)) {
+    if (d2 > r_sum2 || d2 < r_diff2) {
         return 0;
     }
 
-    double a = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
-    double h = sqrt(r1 * r1 - a * a);
+    if (d2 == 0 && A->r == B->r) {
+        return 0;
+    }
 
-    double xm = x1 + a * (x2 - x1) / d;
-    double ym = y1 + a * (y2 - y1) / d;
+    double d = sqrt(d2);
+    double a = (d2 + A->r * A->r - B->r * B->r) / (2 * d);
+    double h = sqrt(A->r * A->r - a * a);
 
-    double xs1 = xm + h * (y2 - y1) / d;
-    double ys1 = ym - h * (x2 - x1) / d;
-    double xs2 = xm - h * (y2 - y1) / d;
-    double ys2 = ym + h * (x2 - x1) / d;
+    double xm = A->x + a * (dx / d);
+    double ym = A->y + a * (dy / d);
 
-    if (d == r1 + r2 || d == fabs(r1 - r2)) {
+    double xs1 = xm + h * (dy / d);
+    double ys1 = ym - h * (dx / d);
+    double xs2 = xm - h * (dy / d);
+    double ys2 = ym + h * (dx / d);
+
+    if (d2 == r_sum2 || d2 == r_diff2) {
         intersections[0] = xs1;
         intersections[1] = ys1;
         return 1;
