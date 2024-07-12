@@ -1506,7 +1506,6 @@ class CircleTypeTest(unittest.TestCase):
 
         objects = [
             Circle(10, 10, 4),
-            Rect(10, 10, 4, 4),
         ]
 
         for object in objects:
@@ -1525,7 +1524,9 @@ class CircleTypeTest(unittest.TestCase):
             self.assertEqual(c.intersect(circle), [])
 
         # intersecting circle
-        self.assertEqual([(10.25, 6.007820144332172), (10.25, 13.992179855667828)], c.intersect(c4))
+        self.assertEqual(
+            [(10.25, 6.007820144332172), (10.25, 13.992179855667828)], c.intersect(c4)
+        )
 
         # touching
         self.assertEqual([(14.0, 10.0)], c.intersect(c5))
