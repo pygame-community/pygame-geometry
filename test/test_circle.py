@@ -1506,6 +1506,9 @@ class CircleTypeTest(unittest.TestCase):
 
         objects = [
             Circle(10, 10, 4),
+            Circle(10, 10, 400),
+            Circle(10, 10, 1),
+            Circle(15, 10, 10),
         ]
 
         for object in objects:
@@ -1517,10 +1520,11 @@ class CircleTypeTest(unittest.TestCase):
         c = Circle(10, 10, 4)
         c2 = Circle(10, 10, 2)
         c3 = Circle(100, 100, 1)
+        c3_1 = Circle(10, 10, 400)
         c4 = Circle(16, 10, 7)
         c5 = Circle(18, 10, 4)
 
-        for circle in [c, c2, c3]:
+        for circle in [c, c2, c3, c3_1]:
             self.assertEqual(c.intersect(circle), [])
 
         # intersecting circle
