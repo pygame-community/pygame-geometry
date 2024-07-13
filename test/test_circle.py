@@ -294,7 +294,16 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures changing the top attribute moves the circle and does not change the circle's radius."""
         expected_radius = 5.0
 
-        for pos in [(1, 0), (0, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]:
+        for pos in [
+            (1, 0),
+            (0, 0),
+            (-1, 0),
+            (0, -1),
+            (1, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+        ]:
             c = Circle((0, 0), expected_radius)
 
             c.top = pos
@@ -336,7 +345,16 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures changing the left attribute moves the circle and does not change the circle's radius."""
         expected_radius = 5.0
 
-        for pos in [(1, 0), (0, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]:
+        for pos in [
+            (1, 0),
+            (0, 0),
+            (-1, 0),
+            (0, -1),
+            (1, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+        ]:
             c = Circle((0, 0), expected_radius)
 
             c.left = pos
@@ -378,7 +396,16 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures changing the right attribute moves the circle and does not change the circle's radius."""
         expected_radius = 5.0
 
-        for pos in [(1, 0), (0, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]:
+        for pos in [
+            (1, 0),
+            (0, 0),
+            (-1, 0),
+            (0, -1),
+            (1, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+        ]:
             c = Circle((0, 0), expected_radius)
 
             c.right = pos
@@ -420,7 +447,16 @@ class CircleTypeTest(unittest.TestCase):
         """Ensures changing the bottom attribute moves the circle and does not change the circle's radius."""
         expected_radius = 5.0
 
-        for pos in [(1, 0), (0, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (-1, 1), (1, -1)]:
+        for pos in [
+            (1, 0),
+            (0, 0),
+            (-1, 0),
+            (0, -1),
+            (1, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+        ]:
             c = Circle((0, 0), expected_radius)
 
             c.bottom = pos
@@ -457,7 +493,6 @@ class CircleTypeTest(unittest.TestCase):
 
         with self.assertRaises(AttributeError):
             del c.bottom
-
 
     def test_area(self):
         """Ensures the area is calculated correctly."""
