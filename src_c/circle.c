@@ -737,6 +737,7 @@ pg_circle_intersect(pgCircleObject *self, PyObject *arg)
 {
     pgCircleBase *scirc = &self->circle;
 
+    /* max number of intersections when supporting: Circle (2), */
     double intersections[4];
     int num = 0;
 
