@@ -320,37 +320,44 @@ pg_circle_colliderect(pgCircleObject *self, PyObject *const *args,
     return PyBool_FromLong(pgCollision_RectCircle(&temp, &self->circle));
 }
 
-static PyObject *
-pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
+static PG_FORCEINLINE int
+_pg_circle_collideswith(pgCircleBase *scirc, PyObject *arg)
 {
-    int result = 0;
-    pgCircleBase *scirc = &self->circle;
     if (pgCircle_Check(arg)) {
-        result = pgCollision_CircleCircle(&pgCircle_AsCircle(arg), scirc);
+        return pgCollision_CircleCircle(&pgCircle_AsCircle(arg), scirc);
     }
     else if (pgRect_Check(arg)) {
-        result = pgCollision_RectCircle(&pgRect_AsRect(arg), scirc);
+        return pgCollision_RectCircle(&pgRect_AsRect(arg), scirc);
     }
     else if (pgLine_Check(arg)) {
-        result = pgCollision_LineCircle(&pgLine_AsLine(arg), scirc);
+        return pgCollision_LineCircle(&pgLine_AsLine(arg), scirc);
     }
     else if (pgPolygon_Check(arg)) {
-        result =
-            pgCollision_CirclePolygon(scirc, &pgPolygon_AsPolygon(arg), 0);
+        return pgCollision_CirclePolygon(scirc, &pgPolygon_AsPolygon(arg), 0);
     }
     else if (PySequence_Check(arg)) {
         double x, y;
         if (!pg_TwoDoublesFromObj(arg, &x, &y)) {
-            return RAISE(
+            PyErr_SetString(
                 PyExc_TypeError,
                 "Invalid point argument, must be a sequence of 2 numbers");
+            return -1;
         }
-        result = pgCollision_CirclePoint(scirc, x, y);
+        return pgCollision_CirclePoint(scirc, x, y);
     }
-    else {
-        return RAISE(PyExc_TypeError,
-                     "Invalid shape argument, must be a CircleType, RectType, "
-                     "LineType, PolygonType or a sequence of 2 numbers");
+
+    PyErr_SetString(PyExc_TypeError,
+                    "Invalid shape argument, must be a CircleType, RectType, "
+                    "LineType, PolygonType or a sequence of 2 numbers");
+    return -1;
+}
+
+static PyObject *
+pg_circle_collideswith(pgCircleObject *self, PyObject *arg)
+{
+    int result = _pg_circle_collideswith(&self->circle, arg);
+    if (result == -1) {
+        return NULL;
     }
 
     return PyBool_FromLong(result);
@@ -498,6 +505,233 @@ pg_circle_collidepolygon(pgCircleObject *self, PyObject *const *args,
     return PyBool_FromLong(result);
 }
 
+static void
+_pg_rotate_circle_helper(pgCircleBase *circle, double angle, double rx,
+                         double ry)
+{
+    if (angle == 0.0 || fmod(angle, 360.0) == 0.0) {
+        return;
+    }
+
+    double x = circle->x - rx;
+    double y = circle->y - ry;
+
+    const double angle_rad = DEG_TO_RAD(angle);
+
+    double cos_theta = cos(angle_rad);
+    double sin_theta = sin(angle_rad);
+
+    circle->x = rx + x * cos_theta - y * sin_theta;
+    circle->y = ry + x * sin_theta + y * cos_theta;
+}
+
+static PyObject *
+pg_circle_rotate(pgCircleObject *self, PyObject *const *args, Py_ssize_t nargs)
+{
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate requires 1 or 2 arguments");
+    }
+
+    pgCircleBase *circle = &self->circle;
+    double angle, rx, ry;
+
+    rx = circle->x;
+    ry = circle->y;
+
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    if (nargs != 2) {
+        return _pg_circle_subtype_new(Py_TYPE(self), circle);
+    }
+
+    if (!pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation point argument, must be a sequence of "
+                     "2 numbers");
+    }
+
+    PyObject *circle_obj = _pg_circle_subtype_new(Py_TYPE(self), circle);
+    if (!circle_obj) {
+        return NULL;
+    }
+
+    _pg_rotate_circle_helper(&pgCircle_AsCircle(circle_obj), angle, rx, ry);
+
+    return circle_obj;
+}
+
+static PyObject *
+pg_circle_rotate_ip(pgCircleObject *self, PyObject *const *args,
+                    Py_ssize_t nargs)
+{
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError, "rotate requires 1 or 2 arguments");
+    }
+
+    pgCircleBase *circle = &self->circle;
+    double angle, rx, ry;
+
+    rx = circle->x;
+    ry = circle->y;
+
+    if (!pg_DoubleFromObj(args[0], &angle)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid angle argument, must be numeric");
+    }
+
+    if (nargs != 2) {
+        /* just return None */
+        Py_RETURN_NONE;
+    }
+
+    if (!pg_TwoDoublesFromObj(args[1], &rx, &ry)) {
+        return RAISE(PyExc_TypeError,
+                     "Invalid rotation point argument, must be a sequence "
+                     "of 2 numbers");
+    }
+
+    _pg_rotate_circle_helper(circle, angle, rx, ry);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+pg_circle_collidelist(pgCircleObject *self, PyObject *arg)
+{
+    Py_ssize_t i;
+    pgCircleBase *scirc = &self->circle;
+    int colliding;
+
+    if (!PySequence_Check(arg)) {
+        return RAISE(PyExc_TypeError, "Argument must be a sequence");
+    }
+
+    /* fast path */
+    if (PySequence_FAST_CHECK(arg)) {
+        PyObject **items = PySequence_Fast_ITEMS(arg);
+        for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
+            if ((colliding = _pg_circle_collideswith(scirc, items[i])) == -1) {
+                /*invalid shape*/
+                return NULL;
+            }
+            if (colliding) {
+                return PyLong_FromSsize_t(i);
+            }
+        }
+        return PyLong_FromLong(-1);
+    }
+
+    /* general sequence path */
+    for (i = 0; i < PySequence_Length(arg); i++) {
+        PyObject *obj = PySequence_GetItem(arg, i);
+        if (!obj) {
+            return NULL;
+        }
+
+        if ((colliding = _pg_circle_collideswith(scirc, obj)) == -1) {
+            /*invalid shape*/
+            Py_DECREF(obj);
+            return NULL;
+        }
+        Py_DECREF(obj);
+
+        if (colliding) {
+            return PyLong_FromSsize_t(i);
+        }
+    }
+
+    return PyLong_FromLong(-1);
+}
+
+static PyObject *
+pg_circle_collidelistall(pgCircleObject *self, PyObject *arg)
+{
+    PyObject *ret, **items;
+    Py_ssize_t i;
+    pgCircleBase *scirc = &self->circle;
+    int colliding;
+
+    if (!PySequence_Check(arg)) {
+        return RAISE(PyExc_TypeError, "Argument must be a sequence");
+    }
+
+    ret = PyList_New(0);
+    if (!ret) {
+        return NULL;
+    }
+
+    /* fast path */
+    if (PySequence_FAST_CHECK(arg)) {
+        PyObject **items = PySequence_Fast_ITEMS(arg);
+
+        for (i = 0; i < PySequence_Fast_GET_SIZE(arg); i++) {
+            if ((colliding = _pg_circle_collideswith(scirc, items[i])) == -1) {
+                /*invalid shape*/
+                Py_DECREF(ret);
+                return NULL;
+            }
+
+            if (!colliding) {
+                continue;
+            }
+
+            PyObject *num = PyLong_FromSsize_t(i);
+            if (!num) {
+                Py_DECREF(ret);
+                return NULL;
+            }
+
+            if (PyList_Append(ret, num)) {
+                Py_DECREF(num);
+                Py_DECREF(ret);
+                return NULL;
+            }
+            Py_DECREF(num);
+        }
+
+        return ret;
+    }
+
+    /* general sequence path */
+    for (i = 0; i < PySequence_Length(arg); i++) {
+        PyObject *obj = PySequence_GetItem(arg, i);
+        if (!obj) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+
+        if ((colliding = _pg_circle_collideswith(scirc, obj)) == -1) {
+            /*invalid shape*/
+            Py_DECREF(ret);
+            Py_DECREF(obj);
+            return NULL;
+        }
+        Py_DECREF(obj);
+
+        if (!colliding) {
+            continue;
+        }
+
+        PyObject *num = PyLong_FromSsize_t(i);
+        if (!num) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+
+        if (PyList_Append(ret, num)) {
+            Py_DECREF(num);
+            Py_DECREF(ret);
+            return NULL;
+        }
+        Py_DECREF(num);
+    }
+
+    return ret;
+}
+
 static struct PyMethodDef pg_circle_methods[] = {
     {"collidecircle", (PyCFunction)pg_circle_collidecircle, METH_FASTCALL,
      NULL},
@@ -507,6 +741,8 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"collide", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
     {"collidepolygon", (PyCFunction)pg_circle_collidepolygon, METH_FASTCALL,
      NULL},
+    {"collidelist", (PyCFunction)pg_circle_collidelist, METH_O, NULL},
+    {"collidelistall", (PyCFunction)pg_circle_collidelistall, METH_O, NULL},
     {"as_rect", (PyCFunction)pg_circle_as_rect, METH_NOARGS, NULL},
     {"update", (PyCFunction)pg_circle_update, METH_FASTCALL, NULL},
     {"move", (PyCFunction)pg_circle_move, METH_FASTCALL, NULL},
@@ -514,6 +750,8 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"contains", (PyCFunction)pg_circle_contains, METH_O, NULL},
     {"__copy__", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
     {"copy", (PyCFunction)pg_circle_copy, METH_NOARGS, NULL},
+    {"rotate", (PyCFunction)pg_circle_rotate, METH_FASTCALL, NULL},
+    {"rotate_ip", (PyCFunction)pg_circle_rotate_ip, METH_FASTCALL, NULL},
     {NULL, NULL, 0, NULL}};
 
 /* numeric functions */

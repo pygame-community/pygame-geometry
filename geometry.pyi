@@ -176,6 +176,8 @@ class Circle:
     @overload
     def colliderect(self, x: int, y: int, w: int, h: int) -> bool: ...
     def collide(self, other: _CanBeCollided) -> bool: ...
+    def collidelist(self, colliders: Sequence[_CanBeCollided]) -> int: ...
+    def collidelistall(self, colliders: Sequence[_CanBeCollided]) -> List[int]: ...
     def __copy__(self) -> Circle: ...
 
     copy = __copy__
@@ -200,6 +202,12 @@ class Circle:
     ) -> bool: ...
     @overload
     def collidepolygon(self, *coords, only_edges: bool = False) -> bool: ...
+    def rotate(
+        self, angle: float, rotation_point: Coordinate = Circle.center
+    ) -> Circle: ...
+    def rotate_ip(
+        self, angle: float, rotation_point: Coordinate = Circle.center
+    ) -> None: ...
 
 class Polygon:
     vertices: List[Coordinate]
@@ -208,6 +216,7 @@ class Polygon:
     centerx: float
     centery: float
     center: Tuple[float, float]
+    area: float
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 

@@ -153,6 +153,15 @@ class TestGeometry(unittest.TestCase):
         self.assertEqual(radius, c.r)
         # =================================================
 
+    def test_area(self):
+        poly = Polygon((-3, -2), (-1, 4), (6, 1), (3, 10), (-4, 9))
+
+        self.assertEqual(60, poly.area)
+
+        poly = Polygon((0, 0), (0, 4), (4, 4), (4, 0))
+
+        self.assertEqual(16, poly.area)
+
     def test_is_polygon(self):
         """Test is_polygon function"""
 

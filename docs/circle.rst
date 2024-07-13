@@ -298,6 +298,52 @@ Circle Methods
 
       .. ## Circle.collide ##
 
+    .. method:: collidelist
+
+            | :sl:`test if a list of objects collide with the circle`
+            | :sg:`collidelist(colliders) -> int`
+
+            The `collidelist` method tests whether a given list of shapes or points collides
+            (overlaps) with this `Circle` object. The function takes in a single argument, which
+            must be a list of `Line`, `Circle`, `Rect`, `Polygon`, tuple or list containing the
+            x and y coordinates of a point, or `Vector2` objects. The function returns the index
+            of the first shape or point in the list that collides with the `Circle` object, or
+            -1 if there is no collision.
+
+            .. note::
+                It is important to note that the shapes must be actual shape objects, such as
+                `Line`, `Circle`, `Polygon`, or `Rect` instances. It is not possible to pass a tuple
+                or list of coordinates representing the shape as an argument(except for a point),
+                because the type of shape represented by the coordinates cannot be determined.
+                For example, a tuple with the format (a, b, c, d) could represent either a `Line`
+                or a `Rect` object, and there is no way to determine which is which without
+                explicitly passing a `Line` or `Rect` object as an argument.
+
+        .. ## Circle.collidelist ##
+
+    .. method:: collidelistall
+
+            | :sl:`test if all objects in a list collide with the circle`
+            | :sg:`collidelistall(colliders) -> list`
+
+            The `collidelistall` method tests whether a given list of shapes or points collides
+            (overlaps) with this `Circle` object. The function takes in a single argument, which
+            must be a list of `Line`, `Circle`, `Rect`, `Polygon`, tuple or list containing the
+            x and y coordinates of a point, or `Vector2` objects. The function returns a list
+            containing the indices of all the shapes or points in the list that collide with
+            the `Circle` object, or an empty list if there is no collision.
+
+            .. note::
+                It is important to note that the shapes must be actual shape objects, such as
+                `Line`, `Circle`, `Polygon`, or `Rect` instances. It is not possible to pass a tuple
+                or list of coordinates representing the shape as an argument(except for a point),
+                because the type of shape represented by the coordinates cannot be determined.
+                For example, a tuple with the format (a, b, c, d) could represent either a `Line`
+                or a `Rect` object, and there is no way to determine which is which without
+                explicitly passing a `Line` or `Rect` object as an argument.
+
+        .. ## Circle.collidelistall ##
+
     .. method:: contains
 
         | :sl:`test if a shape or point is inside the circle`
@@ -325,6 +371,29 @@ Circle Methods
             explicitly passing a `Line` or `Rect` object as an argument.
 
       .. ## Circle.contains ##
+
+    .. method:: rotate
+        | :sl:`rotates the circle`
+        | :sg:`rotate(angle, rotation_point=Circle.center) -> None`
+
+        Returns a new `Circle` that is rotated by the specified angle around a point.
+        A positive angle rotates the circle clockwise, while a negative angle rotates it counter-clockwise.
+        The rotation point can be a `tuple`, `list`, or `Vector2`.
+        If no rotation point is given, the circle will be rotated around its center.
+
+      .. ## Circle.rotate ##
+
+    .. method:: rotate_ip
+        | :sl:`rotates the circle in place`
+        | :sg:`rotate_ip(angle, rotation_point=Circle.center) -> None`
+
+        This method rotates the circle by a specified angle around a point.
+        A positive angle rotates the circle clockwise, while a negative angle rotates it counter-clockwise.
+        The rotation point can be a `tuple`, `list`, or `Vector2`.
+
+        If no rotation point is given, the circle will be rotated around its center.
+
+      .. ## Circle.rotate_ip ##
 
     .. method:: copy
 

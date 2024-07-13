@@ -58,7 +58,15 @@ performing transformations and checking for collisions with other objects.
 
     collide: Checks if the circle collides with the given object.
 
+    collidelist: Checks if the circle collides with any of the given objects.
+
+    collidelistall: Checks if the circle collides with all of the given objects.
+
     contains: Checks if the circle fully contains the given object.
+
+    rotate: Rotates the circle by the given amount.
+
+    rotate_ip: Rotates the circle by the given amount in place.
 
     as_rect: Returns the smallest rectangle that contains the circle.
 
@@ -165,6 +173,8 @@ other objects.
     centery: The y coordinate of the center of the polygon.
 
     perimeter: The perimeter of the polygon.
+
+    area: The area of the polygon.
 
 **Here is the full list of methods:**
 ::

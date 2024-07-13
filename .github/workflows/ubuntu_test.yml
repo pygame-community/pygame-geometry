@@ -13,22 +13,21 @@ jobs:
     strategy:
       fail-fast: false  # if a particular matrix build fails, don't skip the rest
       matrix:
-        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
-        run: |
-          # Add the deadsnakes PPA to install python
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt-get update
-          sudo apt-get install python${{ matrix.python-version }}-dev
-          sudo apt-get install python${{ matrix.python-version }}-distutils
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config -y
-          python${{ matrix.python-version }} -m pip install --upgrade pip
-          python${{ matrix.python-version }} -m pip install wheel
-          python${{ matrix.python-version }} -m pip install pygame-ce
-          python${{ matrix.python-version }} -m pip install .
+          sudo apt-get update --fix-missing
+          sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev pkg-config
+          python -m pip install --upgrade pip
+          python -m pip install wheel
+          python -m pip install pygame-ce
+          python -m pip install .
       - name: Run Tests
-        run: python${{ matrix.python-version }} -m unittest
+        run: |
+          python -m unittest
