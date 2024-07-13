@@ -98,6 +98,39 @@ Circle Attributes
         It's calculated using the `circumference=2*pi*r` formula. It can be reassigned.
         If reassigned the circle radius will be changed to produce a circle with matching
         circumference. The circle will not be moved from its original position.
+
+    .. attribute:: top
+        | :sl:`top coordinate of the circle`
+        | :sg:`top -> (float, float)`
+
+        It's a tuple containing the `x` and `y` coordinates that represent the top
+        of the circle. It can be reassigned. If reassigned, the circle will be moved
+        to the new position. The radius will not be affected.
+
+    .. attribute:: bottom
+        | :sl:`bottom coordinate of the circle`
+        | :sg:`bottom -> (float, float)`
+
+        It's a tuple containing the `x` and `y` coordinates that represent the bottom
+        of the circle. It can be reassigned. If reassigned, the circle will be moved
+        to the new position. The radius will not be affected.
+
+    .. attribute:: left
+        | :sl:`left coordinate of the circle`
+        | :sg:`left -> (float, float)`
+
+        It's a tuple containing the `x` and `y` coordinates that represent the left
+        of the circle. It can be reassigned. If reassigned, the circle will be moved
+        to the new position. The radius will not be affected.
+
+    .. attribute:: right
+        | :sl:`right coordinate of the circle`
+        | :sg:`right -> (float, float)`
+
+        It's a tuple containing the `x` and `y` coordinates that represent the right
+        of the circle. It can be reassigned. If reassigned, the circle will be moved
+        to the new position. The radius will not be affected.
+
 Circle Methods
 ------
     The `Circle` functions which modify the position or size return a new copy of the
