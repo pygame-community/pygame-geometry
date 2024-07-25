@@ -148,6 +148,10 @@ class Circle:
     area: float
     circumference: float
     center: Tuple[float, float]
+    top: Tuple[float, float]
+    left: Tuple[float, float]
+    right: Tuple[float, float]
+    bottom: Tuple[float, float]
     __safe_for_unpickling__: Literal[True]
     __hash__: None  # type: ignore
 
