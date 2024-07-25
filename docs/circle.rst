@@ -409,9 +409,9 @@ Circle Methods
     .. method:: intersect
 
         | :sl:`finds intersections between the circle and another shape`
-        | :sg:`intersect(Circle) -> list[Point]`
+        | :sg:`intersect(Circle) -> list[Tuple[float, float]]`
 
-        Calculates and returns a list of intersection points between the circle and another shape.
+        Returns a list of intersection points between the circle and another shape.
         The other shape must be a `Circle` object.
         If the circle does not intersect or has infinite intersections, an empty list is returned.
 
