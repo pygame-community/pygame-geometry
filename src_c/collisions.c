@@ -605,7 +605,7 @@ pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B,
         return 0;
     }
 
-    if (d2 == 0 && A->r == B->r) {
+    if (double_compare(d2, 0) && double_compare(A->r, B->r)) {
         return 0;
     }
 
@@ -621,7 +621,7 @@ pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B,
     double xs2 = xm - h * (dy / d);
     double ys2 = ym + h * (dx / d);
 
-    if (d2 == r_sum2 || d2 == r_diff2) {
+    if (double_compare(d2, r_sum2) || double_compare(d2, r_diff2)) {
         intersections[0] = xs1;
         intersections[1] = ys1;
         return 1;
