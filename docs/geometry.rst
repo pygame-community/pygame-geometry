@@ -70,6 +70,8 @@ performing transformations and checking for collisions with other objects.
 
     as_rect: Returns the smallest rectangle that contains the circle.
 
+    intersect: Finds intersections between the circle and another shape.
+
 Additionally to these, the circle shape can also be used as a collider for the ``geometry.raycast`` function.
 
 Line

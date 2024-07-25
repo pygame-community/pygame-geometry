@@ -208,6 +208,7 @@ class Circle:
     def rotate_ip(
         self, angle: float, rotation_point: Coordinate = Circle.center
     ) -> None: ...
+    def intersect(self, other: Circle) -> List[Tuple[float, float]]: ...
 
 class Polygon:
     vertices: List[Coordinate]

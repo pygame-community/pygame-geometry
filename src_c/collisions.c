@@ -588,3 +588,48 @@ pgRaycast_LineCircle(pgLineBase *line, pgCircleBase *circle, double max_t,
 
     return 1;
 }
+
+static int
+pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B,
+                            double *intersections)
+{
+    double dx = B->x - A->x;
+    double dy = B->y - A->y;
+    double d2 = dx * dx + dy * dy;
+    double r_sum = A->r + B->r;
+    double r_diff = A->r - B->r;
+    double r_sum2 = r_sum * r_sum;
+    double r_diff2 = r_diff * r_diff;
+
+    if (d2 > r_sum2 || d2 < r_diff2) {
+        return 0;
+    }
+
+    if (double_compare(d2, 0) && double_compare(A->r, B->r)) {
+        return 0;
+    }
+
+    double d = sqrt(d2);
+    double a = (d2 + A->r * A->r - B->r * B->r) / (2 * d);
+    double h = sqrt(A->r * A->r - a * a);
+
+    double xm = A->x + a * (dx / d);
+    double ym = A->y + a * (dy / d);
+
+    double xs1 = xm + h * (dy / d);
+    double ys1 = ym - h * (dx / d);
+    double xs2 = xm - h * (dy / d);
+    double ys2 = ym + h * (dx / d);
+
+    if (double_compare(d2, r_sum2) || double_compare(d2, r_diff2)) {
+        intersections[0] = xs1;
+        intersections[1] = ys1;
+        return 1;
+    }
+
+    intersections[0] = xs1;
+    intersections[1] = ys1;
+    intersections[2] = xs2;
+    intersections[3] = ys2;
+    return 2;
+}

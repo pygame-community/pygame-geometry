@@ -48,5 +48,8 @@ pgCollision_PolygonLine(pgPolygonBase *, pgLineBase *, int);
 static int
 pgCollision_CirclePolygon(pgCircleBase *, pgPolygonBase *, int);
 
+static int
+pgIntersection_CircleCircle(pgCircleBase *A, pgCircleBase *B,
+                            double *intersections);
 
 #endif /* ~_PG_COLLISIONS_H */
