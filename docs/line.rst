@@ -437,3 +437,31 @@ Line Methods
 
 
       .. ## Line.as_points ##
+
+    .. method:: rotate
+
+        | :sl:`rotates the line around its center`
+        | :sg:`rotate(angle, rotation_point) -> None`
+
+        Returns a new `Line` that is rotated by the given angle around the given point.
+        The angle can be positive or negative. If the angle is positive the line will be
+        rotated clockwise and if it is negative the line will be rotated counter-clockwise.
+
+        The rotation point can be a tuple, list, or Vector2. If no rotation point is
+        specified the line will be rotated around its center point.
+
+      .. ## Line.rotate ##
+
+    .. method:: rotate_ip
+
+        | :sl:`rotates the line around its center`
+        | :sg:`rotate_ip(angle, rotation_point) -> None`
+
+        Rotates the line by the given angle around the given point.
+        The angle can be positive or negative. If the angle is positive the line will be
+        rotated clockwise and if it is negative the line will be rotated counter-clockwise.
+
+        The rotation point can be a tuple, list, or Vector2. If no rotation point is
+        specified the line will be rotated around its center point.
+
+      .. ## Line.rotate_ip ##
