@@ -15,6 +15,7 @@ pg_IntFromObj(PyObject *obj, int *val)
         *val = (int)PyFloat_AS_DOUBLE(obj);
         return 1;
     }
+    
 
     *val = PyLong_AsLong(obj);
     if (PyErr_Occurred()) {
