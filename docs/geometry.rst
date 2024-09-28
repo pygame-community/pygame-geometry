@@ -148,6 +148,10 @@ other objects.
 
     collideswith: Checks if the line collides with the given object.
 
+    collidelist: Checks if the line collides with any of the given objects.
+
+    collidelistall: Checks if the line collides with all of the given objects.
+
     as_circle: Returns a circle which fully encloses the line.
 
     as_rect: Returns the smallest rectangle that contains the line.
