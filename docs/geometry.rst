@@ -36,6 +36,14 @@ performing transformations and checking for collisions with other objects.
 
     circumference: The circumference of the circle.
 
+    top: The top point of the circle.
+
+    bottom: The bottom point of the circle.
+
+    left: The left point of the circle.
+
+    right: The right point of the circle.
+
 **Here is the full list of methods:**
 ::
     move: Moves the circle by the given amount.
