@@ -437,3 +437,37 @@ Line Methods
 
 
       .. ## Line.as_points ##
+
+    .. method:: flip
+
+        | :sl:`flips the line`
+        | :sg:`flip(x, y, flip_around) -> Line`
+
+        Returns a new Line that is flipped horizontally and/or vertically. The original
+        Line is not modified. The flipping is done relative to the given point.
+        By default, the flipping is done relative to the center of the `Line`.
+
+        .. note::
+            If `x` is True, the Line will be flipped horizontally.
+            If `y` is True, the Line will be flipped vertically.
+            If `x` and `y` are both True, the Line will be flipped
+            horizontally and vertically.
+
+      .. ## Line.flip ##
+
+    .. method:: flip_ip
+
+        | :sl:`flips the line, in place`
+        | :sg:`flip_ip(x, y, flip_around) -> None`
+
+        Flips the Line horizontally and/or vertically. The original Line is modified.
+        The flipping is done relative to the given point. By default, the flipping is done
+        relative to the center of the `Line`. Always returns None.
+
+        .. note::
+            If `x` is True, the Line will be flipped horizontally.
+            If `y` is True, the Line will be flipped vertically.
+            If `x` and `y` are both True, the Line will be flipped
+            horizontally and vertically.
+
+       .. ## Line.flip_ip ##

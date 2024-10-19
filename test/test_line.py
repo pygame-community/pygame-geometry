@@ -20,6 +20,20 @@ def get_points_between(line, n_pts):
     return [(line.xa + i * dx, line.ya + i * dy) for i in range(n_pts + 2)]
 
 
+def _flip_line(line, flip_x, flip_y=False, flip_center=None):
+    points = [*line.a, *line.b]
+    f_x, f_y = flip_center if flip_center is not None else line.center
+
+    if flip_x:
+        points[0] = f_x - (points[0] - f_x)
+        points[2] = f_x - (points[2] - f_x)
+    if flip_y:
+        points[1] = f_y - (points[1] - f_y)
+        points[3] = f_y - (points[3] - f_y)
+
+    return Line(*points)
+
+
 class LineTypeTest(unittest.TestCase):
     class ClassWithLineAttrib:
         def __init__(self, line):
@@ -736,7 +750,7 @@ class LineTypeTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             line.scale_ip(17, 10.0)
 
-    def test_meth_flip(self):
+    def test_meth_flip_ab(self):
         line = Line(1.1, 2.2, 3.3, 4.4)
 
         ret = line.flip_ab()
@@ -1380,6 +1394,113 @@ class LineTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(ValueError):
                 l.as_segments(value)
+
+    def test_meth_flip_flipip_argnum(self):
+        """Tests if the function correctly handles incorrect number of parameters"""
+        l = Line(0, 0, 1, 1)
+
+        args = [
+            (),
+            (1, 2, 3, 4),
+            (1, 2, 3, 4, 5),
+            (1, 2, 3, 4, 5, 6),
+        ]
+
+        for value in args:
+            with self.assertRaises(TypeError):
+                l.flip(*value)
+            with self.assertRaises(TypeError):
+                l.flip_ip(*value)
+
+    def assert_lines_equal(self, line1, line2, eps=1e-12):
+        self.assertAlmostEqual(line1.xa, line2.xa, delta=eps)
+        self.assertAlmostEqual(line1.ya, line2.ya, delta=eps)
+        self.assertAlmostEqual(line1.xb, line2.xb, delta=eps)
+        self.assertAlmostEqual(line1.yb, line2.yb, delta=eps)
+
+    def test_meth_flip(self):
+        """Tests if the function correctly flips the line"""
+        l = Line(0, 0, 10, 10)
+
+        flip_points = [
+            (10, 234),
+            (-10, 234),
+            (10, -234),
+            (-10, -234),
+        ]
+
+        # x axis
+        self.assert_lines_equal(l.flip(True), _flip_line(l, True))
+        self.assert_lines_equal(l.flip(True, False), _flip_line(l, True, False))
+        for point in flip_points:
+            self.assert_lines_equal(
+                l.flip(True, False, point), _flip_line(l, True, False, point)
+            )
+
+        # y axis
+        self.assert_lines_equal(l.flip(False, True), _flip_line(l, False, True))
+        for point in flip_points:
+            self.assert_lines_equal(
+                l.flip(False, True, point), _flip_line(l, False, True, point)
+            )
+
+        # both axes
+        self.assert_lines_equal(l.flip(True, True), _flip_line(l, True, True))
+        for point in flip_points:
+            self.assert_lines_equal(
+                l.flip(True, True, point), _flip_line(l, True, True, point)
+            )
+
+    def test_meth_flip_ip(self):
+        """Tests if the function correctly flips the line"""
+        line = Line(0, 0, 10, 10)
+
+        flip_points = [
+            (10, 234),
+            (-10, 234),
+            (10, -234),
+            (-10, -234),
+        ]
+
+        # x axis
+        l = line.copy()
+        flipped = _flip_line(l, True)
+        l.flip_ip(True)
+        self.assert_lines_equal(l, flipped)
+        l = line.copy()
+        flipped = _flip_line(l, True, False)
+        l.flip_ip(True, False)
+        self.assert_lines_equal(l, flipped)
+
+        for point in flip_points:
+            l = line.copy()
+            flipped = _flip_line(l, True, False, point)
+            l.flip_ip(True, False, point)
+            self.assert_lines_equal(l, flipped)
+
+        # y axis
+        l = line.copy()
+        flipped = _flip_line(l, False, True)
+        l.flip_ip(False, True)
+        self.assert_lines_equal(l, flipped)
+
+        for point in flip_points:
+            l = line.copy()
+            flipped = _flip_line(l, False, True, point)
+            l.flip_ip(False, True, point)
+            self.assert_lines_equal(l, flipped)
+
+        # both axes
+        l = line.copy()
+        flipped = _flip_line(l, True, True)
+        l.flip_ip(True, True)
+        self.assert_lines_equal(l, flipped)
+
+        for point in flip_points:
+            l = line.copy()
+            flipped = _flip_line(l, True, True, point)
+            l.flip_ip(True, True, point)
+            self.assert_lines_equal(l, flipped)
 
 
 if __name__ == "__main__":
