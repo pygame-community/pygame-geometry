@@ -1,3 +1,4 @@
+import math
 import unittest
 from math import sqrt
 
@@ -18,6 +19,15 @@ def get_points_between(line, n_pts):
     dy = (line.yb - line.ya) / (n_pts + 1)
 
     return [(line.xa + i * dx, line.ya + i * dy) for i in range(n_pts + 2)]
+
+
+def float_range(a, b, step):
+    result = []
+    current_value = a
+    while current_value < b:
+        result.append(current_value)
+        current_value += step
+    return result
 
 
 class LineTypeTest(unittest.TestCase):
@@ -1380,6 +1390,187 @@ class LineTypeTest(unittest.TestCase):
         for value in args:
             with self.assertRaises(ValueError):
                 l.as_segments(value)
+
+    def test_meth_rotate_ip_invalid_argnum(self):
+        """Ensures that the rotate_ip method correctly deals with invalid numbers of arguments."""
+        l = Line(0, 0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            l.rotate_ip()
+
+        invalid_args = [
+            (1, (2, 2), 2),
+            (1, (2, 2), 2, 2),
+            (1, (2, 2), 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2, 2),
+        ]
+
+        for args in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate_ip(*args)
+
+    def test_meth_rotate_ip_invalid_argtype(self):
+        """Ensures that the rotate_ip method correctly deals with invalid argument types."""
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            ("a",),  # angle str
+            (None,),  # angle str
+            ((1, 2)),  # angle tuple
+            ([1, 2]),  # angle list
+            (1, "a"),  # origin str
+            (1, None),  # origin None
+            (1, True),  # origin True
+            (1, False),  # origin False
+            (1, (1, 2, 3)),  # origin tuple
+            (1, [1, 2, 3]),  # origin list
+            (1, (1, "a")),  # origin str
+            (1, ("a", 1)),  # origin str
+            (1, (1, None)),  # origin None
+            (1, (None, 1)),  # origin None
+            (1, (1, (1, 2))),  # origin tuple
+            (1, (1, [1, 2])),  # origin list
+        ]
+
+        for value in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate_ip(*value)
+
+    def test_meth_rotate_ip_return(self):
+        """Ensures that the rotate_ip method always returns None."""
+        l = Line(0, 0, 1, 1)
+
+        for angle in float_range(-360, 360, 1):
+            self.assertIsNone(l.rotate_ip(angle))
+            self.assertIsInstance(l.rotate_ip(angle), type(None))
+
+    def test_meth_rotate_invalid_argnum(self):
+        """Ensures that the rotate method correctly deals with invalid numbers of arguments."""
+        l = Line(0, 0, 1, 1)
+
+        with self.assertRaises(TypeError):
+            l.rotate()
+
+        invalid_args = [
+            (1, (2, 2), 2),
+            (1, (2, 2), 2, 2),
+            (1, (2, 2), 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2),
+            (1, (2, 2), 2, 2, 2, 2, 2, 2),
+        ]
+
+        for args in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate(*args)
+
+    def test_meth_rotate_invalid_argtype(self):
+        """Ensures that the rotate method correctly deals with invalid argument types."""
+        l = Line(0, 0, 1, 1)
+
+        invalid_args = [
+            ("a",),  # angle str
+            (None,),  # angle str
+            ((1, 2)),  # angle tuple
+            ([1, 2]),  # angle list
+            (1, "a"),  # origin str
+            (1, None),  # origin None
+            (1, True),  # origin True
+            (1, False),  # origin False
+            (1, (1, 2, 3)),  # origin tuple
+            (1, [1, 2, 3]),  # origin list
+            (1, (1, "a")),  # origin str
+            (1, ("a", 1)),  # origin str
+            (1, (1, None)),  # origin None
+            (1, (None, 1)),  # origin None
+            (1, (1, (1, 2))),  # origin tuple
+            (1, (1, [1, 2])),  # origin list
+        ]
+
+        for value in invalid_args:
+            with self.assertRaises(TypeError):
+                l.rotate(*value)
+
+    def test_meth_rotate_return(self):
+        """Ensures that the rotate method always returns a Line."""
+        l = Line(0, 0, 1, 1)
+
+        for angle in float_range(-360, 360, 1):
+            self.assertIsInstance(l.rotate(angle), Line)
+
+    def test_meth_rotate(self):
+        """Ensures the Line.rotate() method rotates the line correctly."""
+
+        def rotate_line(line: Line, angle, center):
+            def rotate_point(x, y, rang, cx, cy):
+                x -= cx
+                y -= cy
+                x_new = x * math.cos(rang) - y * math.sin(rang)
+                y_new = x * math.sin(rang) + y * math.cos(rang)
+                return x_new + cx, y_new + cy
+
+            angle = math.radians(angle)
+            x1, y1 = line.a
+            x2, y2 = line.b
+            cx, cy = center if center is not None else line.center
+            x1, y1 = rotate_point(x1, y1, angle, cx, cy)
+            x2, y2 = rotate_point(x2, y2, angle, cx, cy)
+            return Line(x1, y1, x2, y2)
+
+        def assert_approx_equal(line1, line2, eps=1e-12):
+            self.assertAlmostEqual(line1.x1, line2.x1, delta=eps)
+            self.assertAlmostEqual(line1.y1, line2.y1, delta=eps)
+            self.assertAlmostEqual(line1.x2, line2.x2, delta=eps)
+            self.assertAlmostEqual(line1.y2, line2.y2, delta=eps)
+
+        l = Line(0, 0, 1, 1)
+        angles = float_range(-360, 360, 0.5)
+        centers = [(a, b) for a in range(-10, 10) for b in range(-10, 10)]
+        for angle in angles:
+            assert_approx_equal(l.rotate(angle), rotate_line(l, angle, None))
+            for center in centers:
+                assert_approx_equal(
+                    l.rotate(angle, center), rotate_line(l, angle, center)
+                )
+
+    def test_meth_rotate_ip(self):
+        """Ensures the Line.rotate_ip() method rotates the line correctly."""
+
+        def rotate_line(line: Line, angle, center):
+            def rotate_point(x, y, rang, cx, cy):
+                x -= cx
+                y -= cy
+                x_new = x * math.cos(rang) - y * math.sin(rang)
+                y_new = x * math.sin(rang) + y * math.cos(rang)
+                return x_new + cx, y_new + cy
+
+            angle = math.radians(angle)
+            x1, y1 = line.a
+            x2, y2 = line.b
+            cx, cy = center if center is not None else line.center
+            x1, y1 = rotate_point(x1, y1, angle, cx, cy)
+            x2, y2 = rotate_point(x2, y2, angle, cx, cy)
+            return Line(x1, y1, x2, y2)
+
+        def assert_approx_equal(line1, line2, eps=1e-12):
+            self.assertAlmostEqual(line1.x1, line2.x1, delta=eps)
+            self.assertAlmostEqual(line1.y1, line2.y1, delta=eps)
+            self.assertAlmostEqual(line1.x2, line2.x2, delta=eps)
+            self.assertAlmostEqual(line1.y2, line2.y2, delta=eps)
+
+        l = Line(0, 0, 1, 1)
+        angles = float_range(-360, 360, 0.5)
+        centers = [(a, b) for a in range(-10, 10) for b in range(-10, 10)]
+        for angle in angles:
+            new_l = l.copy()
+            new_l.rotate_ip(angle)
+            assert_approx_equal(new_l, rotate_line(l, angle, None))
+            for center in centers:
+                new_l = l.copy()
+                new_l.rotate_ip(angle, center)
+                assert_approx_equal(new_l, rotate_line(l, angle, center))
 
 
 if __name__ == "__main__":
