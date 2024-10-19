@@ -1520,10 +1520,10 @@ class LineTypeTest(unittest.TestCase):
             return Line(x1, y1, x2, y2)
 
         def assert_approx_equal(line1, line2, eps=1e-12):
-            self.assertAlmostEqual(line1.x1, line2.x1, delta=eps)
-            self.assertAlmostEqual(line1.y1, line2.y1, delta=eps)
-            self.assertAlmostEqual(line1.x2, line2.x2, delta=eps)
-            self.assertAlmostEqual(line1.y2, line2.y2, delta=eps)
+            self.assertAlmostEqual(line1.xa, line2.xa, delta=eps)
+            self.assertAlmostEqual(line1.ya, line2.ya, delta=eps)
+            self.assertAlmostEqual(line1.xb, line2.xb, delta=eps)
+            self.assertAlmostEqual(line1.yb, line2.yb, delta=eps)
 
         l = Line(0, 0, 1, 1)
         angles = float_range(-360, 360, 0.5)
@@ -1555,10 +1555,10 @@ class LineTypeTest(unittest.TestCase):
             return Line(x1, y1, x2, y2)
 
         def assert_approx_equal(line1, line2, eps=1e-12):
-            self.assertAlmostEqual(line1.x1, line2.x1, delta=eps)
-            self.assertAlmostEqual(line1.y1, line2.y1, delta=eps)
-            self.assertAlmostEqual(line1.x2, line2.x2, delta=eps)
-            self.assertAlmostEqual(line1.y2, line2.y2, delta=eps)
+            self.assertAlmostEqual(line1.xa, line2.xa, delta=eps)
+            self.assertAlmostEqual(line1.ya, line2.ya, delta=eps)
+            self.assertAlmostEqual(line1.xb, line2.xb, delta=eps)
+            self.assertAlmostEqual(line1.yb, line2.yb, delta=eps)
 
         l = Line(0, 0, 1, 1)
         angles = float_range(-360, 360, 0.5)

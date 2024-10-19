@@ -754,8 +754,8 @@ _pg_rotate_line_helper(pgLineBase *line, double angle, double rx, double ry)
 
     double angle_rad = DEG_TO_RAD(angle);
 
-    double x1 = line->x1, y1 = line->y1;
-    double x2 = line->x2, y2 = line->y2;
+    double x1 = line->xa, y1 = line->ya;
+    double x2 = line->xb, y2 = line->yb;
 
     double cos_a = cos(angle_rad);
     double sin_a = sin(angle_rad);
@@ -770,11 +770,11 @@ _pg_rotate_line_helper(pgLineBase *line, double angle, double rx, double ry)
     double x2_new = x2 * cos_a - y2 * sin_a;
     double y2_new = x2 * sin_a + y2 * cos_a;
 
-    line->x1 = x1_new + rx;
-    line->y1 = y1_new + ry;
+    line->xa = x1_new + rx;
+    line->ya = y1_new + ry;
 
-    line->x2 = x2_new + rx;
-    line->y2 = y2_new + ry;
+    line->xb = x2_new + rx;
+    line->yb = y2_new + ry;
 }
 
 static PyObject *
@@ -787,8 +787,8 @@ pg_line_rotate(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     pgLineBase *line = &self->line;
     double angle, rx, ry;
 
-    rx = (line->x1 + line->x2) / 2;
-    ry = (line->y1 + line->y2) / 2;
+    rx = (line->xa + line->xb) / 2;
+    ry = (line->ya + line->yb) / 2;
 
     if (!pg_DoubleFromObj(args[0], &angle)) {
         return RAISE(PyExc_TypeError,
@@ -821,8 +821,8 @@ pg_line_rotate_ip(pgLineObject *self, PyObject *const *args, Py_ssize_t nargs)
     pgLineBase *line = &self->line;
     double angle, rx, ry;
 
-    rx = (line->x1 + line->x2) / 2;
-    ry = (line->y1 + line->y2) / 2;
+    rx = (line->xa + line->xb) / 2;
+    ry = (line->ya + line->yb) / 2;
 
     if (!pg_DoubleFromObj(args[0], &angle)) {
         return RAISE(PyExc_TypeError,
