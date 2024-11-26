@@ -198,6 +198,32 @@ Polygon Methods
 
       .. ## Polygon.collidecircle ##
 
+    .. method:: collideswith
+
+        | :sl:`test if a shape or point and the polygon collide`
+        | :sg:`collideswith(Line, only_edges=False) -> bool`
+        | :sg:`collideswith(Circle, only_edges=False) -> bool`
+        | :sg:`collideswith((x, y), only_edges=False) -> bool`
+        | :sg:`contains(Vector2, only_edges=False) -> bool`
+
+        The `collideswith` method tests whether a given shape or point collides (overlaps)
+        with this `Polygon` object. The function takes in a single argument, which can be a
+        `Line`, `Circle`, tuple or list containing the x and y coordinates of a point,
+        or a `Vector2` object. The function returns a boolean value of `True`
+        if there is any overlap between the shape or point and the `Circle` object, or
+        `False` if there is no overlap.
+
+        .. note::
+            It is important to note that the shape must be an actual shape object, such as
+            a `Line`, or `Circle` instance. It is not possible to pass a tuple
+            or list of coordinates representing the shape as an argument(except for a point),
+            because the type of shape represented by the coordinates cannot be determined.
+            For example, a tuple with the format (a, b, c, d) could represent either a `Line`
+            or a Rect object, and there is no way to determine which is which without explicitly
+            passing a `Line` or `Rect` object as an argument.
+
+      .. ## Polygon.collideswith ##
+
     .. method:: as_segments
 
         | :sl:`returns the line segments of the polygon`

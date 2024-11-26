@@ -1302,6 +1302,56 @@ pg_polygon_collidecircle(pgPolygonObject *self, PyObject *const *args,
         pgCollision_CirclePolygon(&circle, &self->polygon, only_edges));
 }
 
+static int
+_pg_polygon_collideswith(pgPolygonBase *poly, PyObject *other, int only_edges)
+{
+    if (pgLine_Check(other)) {
+        return pgCollision_PolygonLine(poly, &pgLine_AsLine(other),
+                                       only_edges);
+    }
+    else if (pgCircle_Check(other)) {
+        return pgCollision_CirclePolygon(&pgCircle_AsCircle(other), poly,
+                                         only_edges);
+    }
+    else if (PySequence_Check(other)) {
+        double x, y;
+        if (!pg_TwoDoublesFromObj(other, &x, &y)) {
+            PyErr_SetString(
+                PyExc_TypeError,
+                "Invalid point argument, must be a sequence of 2 numbers");
+            return -1;
+        }
+        return pgCollision_PolygonPoint(poly, x, y);
+    }
+
+    PyErr_SetString(
+        PyExc_TypeError,
+        "Invalid shape argument, must be a CircleType, LineType, or a "
+        "sequence of 2 numbers");
+
+    return -1;
+}
+
+static PyObject *
+pg_polygon_collideswith(pgPolygonObject *self, PyObject *const *args,
+                        Py_ssize_t nargs)
+{
+    if (!nargs || nargs > 2) {
+        return RAISE(PyExc_TypeError,
+                     "collideswith requires 1 or 2 arguments");
+    }
+    int only_edges = 0;
+    if (nargs == 2) {
+        only_edges = PyObject_IsTrue(args[1]);
+    }
+
+    int result = _pg_polygon_collideswith(&self->polygon, args[0], only_edges);
+    if (result == -1) {
+        return NULL;
+    }
+    return PyBool_FromLong(result);
+}
+
 static struct PyMethodDef pg_polygon_methods[] = {
     {"as_segments", (PyCFunction)pg_polygon_as_segments, METH_NOARGS, NULL},
     {"move", (PyCFunction)pg_polygon_move, METH_FASTCALL, NULL},
@@ -1312,6 +1362,8 @@ static struct PyMethodDef pg_polygon_methods[] = {
      NULL},
     {"collideline", (PyCFunction)pg_polygon_collideline, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_polygon_collidecircle, METH_FASTCALL,
+     NULL},
+    {"collideswith", (PyCFunction)pg_polygon_collideswith, METH_FASTCALL,
      NULL},
     {"as_rect", (PyCFunction)pg_polygon_as_rect, METH_NOARGS, NULL},
     {"is_convex", (PyCFunction)pg_polygon_is_convex, METH_NOARGS, NULL},
