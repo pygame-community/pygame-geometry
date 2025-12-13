@@ -1,11 +1,11 @@
 # pygame_geometry
-[![PRS Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/novialriptide/pygame_geometry/issues)
-[![Python Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/black.yml)
-[![C++ Code Quality](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/cppcheck.yml)
-[![Ubuntu latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/ubuntu_test.yml)
-[![Windows latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/windows_test.yml)
-[![MacOS latest](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml/badge.svg)](https://github.com/novialriptide/pygame_geometry/actions/workflows/macos_test.yml)
-![Commits per week](https://img.shields.io/github/commit-activity/w/novialriptide/pygame_geometry/main)
+[![PRS Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/andrewhong04/pygame_geometry/issues)
+[![Python Code Quality](https://github.com/andrewhong04/pygame_geometry/actions/workflows/black.yml/badge.svg)](https://github.com/andrewhong04/pygame_geometry/actions/workflows/black.yml)
+[![C++ Code Quality](https://github.com/andrewhong04/pygame_geometry/actions/workflows/cppcheck.yml/badge.svg)](https://github.com/andrewhong04/pygame_geometry/actions/workflows/cppcheck.yml)
+[![Ubuntu latest](https://github.com/andrewhong04/pygame_geometry/actions/workflows/ubuntu_test.yml/badge.svg)](https://github.com/andrewhong04/pygame_geometry/actions/workflows/ubuntu_test.yml)
+[![Windows latest](https://github.com/andrewhong04/pygame_geometry/actions/workflows/windows_test.yml/badge.svg)](https://github.com/andrewhong04/pygame_geometry/actions/workflows/windows_test.yml)
+[![MacOS latest](https://github.com/andrewhong04/pygame_geometry/actions/workflows/macos_test.yml/badge.svg)](https://github.com/andrewhong04/pygame_geometry/actions/workflows/macos_test.yml)
+![Commits per week](https://img.shields.io/github/commit-activity/w/andrewhong04/pygame_geometry/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 pygame_geometry is a free Python implementation of
@@ -18,7 +18,7 @@ this project is heavily in development.** The project is set to be migrated to t
 [official pygame-ce repository](https://github.com/pygame-community/pygame-ce).
 
 ## Installation (Python 3.8+)
-Please follow [this guide](https://github.com/novialriptide/pygame_geometry/blob/main/CONTRIBUTING.md)
+Please follow [this guide](https://github.com/pygame-community/pygame_geometry/blob/main/CONTRIBUTING.md)
 to install pygame_geometry.
 
 ## Help
@@ -32,4 +32,4 @@ majority of the `pygame.geometry` work.
 
 This project is under the supervision of
 [Starbuck5](https://github.com/Starbuck5)
-& [novialriptide](https://github.com/novialriptide).
+& [novial](https://github.com/andrewhong04).
