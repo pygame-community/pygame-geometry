@@ -760,7 +760,7 @@ static struct PyMethodDef pg_circle_methods[] = {
     {"collideline", (PyCFunction)pg_circle_collideline, METH_FASTCALL, NULL},
     {"collidepoint", (PyCFunction)pg_circle_collidepoint, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_circle_colliderect, METH_FASTCALL, NULL},
-    {"collideswith", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
+    {"collide", (PyCFunction)pg_circle_collideswith, METH_O, NULL},
     {"collidepolygon", (PyCFunction)pg_circle_collidepolygon, METH_FASTCALL,
      NULL},
     {"collidelist", (PyCFunction)pg_circle_collidelist, METH_O, NULL},

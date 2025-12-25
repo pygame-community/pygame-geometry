@@ -850,7 +850,7 @@ static struct PyMethodDef pg_line_methods[] = {
     {"collidepoint", (PyCFunction)pg_line_collidepoint, METH_FASTCALL, NULL},
     {"collidecircle", (PyCFunction)pg_line_collidecircle, METH_FASTCALL, NULL},
     {"colliderect", (PyCFunction)pg_line_colliderect, METH_FASTCALL, NULL},
-    {"collideswith", (PyCFunction)pg_line_collideswith, METH_O, NULL},
+    {"collide", (PyCFunction)pg_line_collideswith, METH_O, NULL},
     {"collidepolygon", (PyCFunction)pg_line_collidepolygon, METH_FASTCALL,
      NULL},
     {"as_rect", (PyCFunction)pg_line_as_rect, METH_NOARGS, NULL},

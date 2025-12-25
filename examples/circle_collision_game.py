@@ -104,7 +104,7 @@ while keep:
         is_circle = isinstance(shape, Circle)
         is_rect = isinstance(shape, pygame.Rect)
 
-        if feed_active and mouse_circle.collideswith(shape):
+        if feed_active and mouse_circle.collide(shape):
             if is_circle:
                 shape.r += 0.2
                 draw_circle(screen, coll_color, shape.center, shape.r, 3)

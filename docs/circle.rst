@@ -299,17 +299,17 @@ Circle Methods
 
       .. ## Circle.collidepolygon ##
 
-    .. method:: collideswith
+    .. method:: collide
 
         | :sl:`test if a shape or point and the circle collide`
-        | :sg:`collideswith(Line) -> bool`
-        | :sg:`collideswith(Circle) -> bool`
-        | :sg:`collideswith(Rect) -> bool`
-        | :sg:`collideswith(Polygon) -> bool`
-        | :sg:`collideswith((x, y)) -> bool`
+        | :sg:`collide(Line) -> bool`
+        | :sg:`collide(Circle) -> bool`
+        | :sg:`collide(Rect) -> bool`
+        | :sg:`collide(Polygon) -> bool`
+        | :sg:`collide((x, y)) -> bool`
         | :sg:`contains(Vector2) -> bool`
 
-        The `collideswith` method tests whether a given shape or point collides (overlaps)
+        The `collide` method tests whether a given shape or point collides (overlaps)
         with a `Circle` object. The function takes in a single argument, which can be a
         `Line`, `Circle`, `Rect`, `Polygon`, tuple or list containing the x and y coordinates
         of a point, or a `Vector2` object. The function returns a boolean value of `True`
@@ -329,7 +329,7 @@ Circle Methods
             Collisions with a `Polygon` object are evaluated the same way the :meth:`collidepolygon`
             method does by default, meaning with only_edges set to `False`.
 
-      .. ## Circle.collideswith ##
+      .. ## Circle.collide ##
 
     .. method:: collidelist
 
