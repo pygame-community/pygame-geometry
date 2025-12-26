@@ -224,6 +224,10 @@ other objects.
 
     rotate_ip: Rotates the polygon by the given amount in place.
 
+    flip: Flips the polygon along the given axes.
+
+    flip_ip: Flips the polygon along the given axes in place.
+
 Functions
 =========
 The geometry module also contains a number of standalone functions for performing operations
